@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum OrganizationRole {
+  ADMIN
+  DOCTOR
+  PATIENT
+  NURSE
+}
+
+enum OrganizationType {
+  CLINICAL_TRIAL
+  CLINIC
+  DOCTOR_OFFICE
+}
+
+model PatientProfile {
+  id          String    @id @default(uuid())
+  userId      String
+  name        String
+  imageUrl    String    @db.Text
+  email       String
+  gender      Gender?
+  dateOfBirth DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member Member[]
+}
+
+model DoctorProfile {
+  id            String         @id @default(uuid())
+  userId        String
+  name          String
+  imageUrl      String         @db.Text
+  email         String
+  organizations Organization[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  member    Member[]
+}
+
+model Organization {
+  id               String           @id @default(uuid())
+  name             String
+  imageUrl         String           @db.Text
+  inviteCode       String           @unique
+  organizationType OrganizationType
+
+  doctorProfileId String
+  doctorProfile   DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+
+  members Member[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorProfileId])
+}
+
+model Member {
+  id   String           @id @default(uuid())
+  role OrganizationRole
+
+  doctorProfileId  String?
+  doctorProfile    DoctorProfile?  @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  patientProfileId String?
+  patientProfile   PatientProfile? @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  organizationId   String
+  Organization     Organization    @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorProfileId])
+  @@index([patientProfileId])
+  @@index([organizationId])
+}

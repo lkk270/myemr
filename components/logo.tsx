@@ -17,7 +17,7 @@ export const Logo = () => {
 		<Link href="/">
 			<div className="flex items-center gap-x-2">
 				<Image src="/logo.svg" height="40" width="40" alt="Logo" draggable={false} />
-				<p className={cn("font-semibold", font.className)}>Emridoc</p>
+				<p className={cn("font-semibold text-sm sm:flex sm:text-lg", font.className)}>Emridoc</p>
 			</div>
 		</Link>
 	);

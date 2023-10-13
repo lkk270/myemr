@@ -19,34 +19,39 @@ export const Navbar = () => {
 	return (
 		<div
 			className={cn(
-				"z-50 bg-background dark:bg-[#1F1F1F] fixed top-0 flex items-center w-full p-6",
+				"z-100 bg-[#f5f5f4] dark:bg-[#1F1F1F] fixed top-0 flex items-center w-full p-2 sm:p-6",
 				scrolled && "border-b shadow-sm",
 			)}
 		>
 			<Logo />
-			<div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
+			<div className="ml-auto justify-end w-full flex items-center gap-x-2">
 				{!isLoaded && <Spinner />}
 				{!isSignedIn && isLoaded && (
 					<>
 						<SignInButton mode="modal">
-							<Button variant="ghost" size="sm">
-								Log in
+							<Button variant="ghost" size="sm" className="font-semibold border">
+								Patient
 							</Button>
 						</SignInButton>
 						<SignInButton mode="modal">
-							<Button size="sm">Get Jotion free</Button>
+							<Button variant="ghost" size="sm" className="font-semibold border">
+								Provider
+							</Button>
 						</SignInButton>
 					</>
 				)}
 				{isSignedIn && isLoaded && (
 					<>
 						<Button variant="ghost" size="sm" asChild>
-							<Link href="/documents">Enter Jotion</Link>
+							<Link href="/home">Enter Emridoc</Link>
 						</Button>
+						{(window.location.href = "/home")}
 						<UserButton afterSignOutUrl="/" />
 					</>
 				)}
-				<ModeToggle />
+				<div className="hidden sm:flex">
+					<ModeToggle />
+				</div>
 			</div>
 		</div>
 	);

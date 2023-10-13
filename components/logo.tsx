@@ -12,12 +12,18 @@ const font = Poppins({
 	weight: ["400", "600"],
 });
 
-export const Logo = () => {
+interface LogoProps {
+	textColor?: string;
+}
+
+export const Logo = ({ textColor }: LogoProps) => {
 	return (
 		<Link href="/">
 			<div className="flex items-center gap-x-2">
 				<Image src="/logo.svg" height="40" width="40" alt="Logo" draggable={false} />
-				<p className={cn("font-semibold text-sm sm:flex sm:text-lg", font.className)}>Emridoc</p>
+				<p className={cn("font-semibold text-sm sm:flex sm:text-lg", font.className, textColor && `text-primary/70`)}>
+					Emridoc
+				</p>
 			</div>
 		</Link>
 	);

@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { dark } from "@clerk/themes";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { cn } from "@/lib/utils";
@@ -15,7 +16,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<ClerkProvider>
+		<ClerkProvider
+			appearance={{
+				baseTheme: dark,
+				layout: {
+					termsPageUrl: "https://clerk.com/terms",
+				},
+			}}
+		>
 			<html lang="en" suppressHydrationWarning>
 				<body className={cn("bg-secondary", font.className)}>
 					<ThemeProvider

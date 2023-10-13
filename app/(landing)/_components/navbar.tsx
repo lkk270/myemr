@@ -28,12 +28,12 @@ export const Navbar = () => {
 				{!isLoaded && <Spinner />}
 				{!isSignedIn && isLoaded && (
 					<>
-						<SignInButton mode="modal">
+						<SignInButton mode="modal" redirectUrl="/patient-home">
 							<Button variant="ghost" size="sm" className="font-semibold border">
 								Patient
 							</Button>
 						</SignInButton>
-						<SignInButton mode="modal">
+						<SignInButton mode="modal" redirectUrl="/provider-home">
 							<Button variant="ghost" size="sm" className="font-semibold border">
 								Provider
 							</Button>

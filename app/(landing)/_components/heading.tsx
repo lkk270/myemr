@@ -2,9 +2,14 @@
 
 import { useUser } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
-import { SignInButton } from "@clerk/clerk-react";
+import { SignUpButton } from "@clerk/clerk-react";
 import Link from "next/link";
-
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 
@@ -28,19 +33,31 @@ export const Heading = () => {
 			)}
 			{isSignedIn && user && isLoaded && (
 				<Button asChild>
-					<Link href="/documents">
+					<Link href="/home">
 						Enter Emridoc
 						<ArrowRight className="h-4 w-4 ml-2" />
 					</Link>
 				</Button>
 			)}
 			{!isSignedIn && isLoaded && (
-				<SignInButton mode="modal">
-					<Button>
-						Join Emridoc
-						<ArrowRight className="h-4 w-4 ml-2" />
-					</Button>
-				</SignInButton>
+				<div>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="default">
+								Join Emridoc
+								<ArrowRight className="h-4 w-4 ml-2" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="center">
+							<SignUpButton mode="modal">
+								<DropdownMenuItem>Patient</DropdownMenuItem>
+							</SignUpButton>
+							<SignUpButton mode="modal">
+								<DropdownMenuItem>Provider</DropdownMenuItem>
+							</SignUpButton>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			)}
 		</div>
 	);

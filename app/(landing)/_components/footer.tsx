@@ -4,14 +4,14 @@ import { Logo } from "@/components/logo";
 
 export const Footer = () => {
 	return (
-		<div className="flex items-center w-full p-6 bg-background z-50 dark:bg-[#1F1F1F]">
+		<div className="flex items-center w-full p-2 sm:p-6 z-50">
 			<Logo />
-			<div className="md:ml-auto w-full justify-between md:justify-end flex items-center gap-x-2 text-muted-foreground">
+			<div className="ml-auto w-full justify-end flex items-center gap-x-1 text-muted-foreground">
 				<Button variant="ghost" size="sm">
-					Privacy Policy
+					Privacy
 				</Button>
 				<Button variant="ghost" size="sm">
-					Terms & Conditions
+					Terms
 				</Button>
 			</div>
 		</div>

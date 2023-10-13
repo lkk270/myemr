@@ -1,0 +1,9 @@
+{
+  "tabWidth": 2,
+  "useTabs": true,
+  "endOfLine": "lf",
+  "semi": true,
+  "bracketSameLine": false,
+  "trailingComma": "all",
+  "printWidth": 120
+}

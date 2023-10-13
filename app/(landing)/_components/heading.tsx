@@ -49,10 +49,10 @@ export const Heading = () => {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="center">
-							<SignUpButton mode="modal">
+							<SignUpButton mode="modal" redirectUrl="/patient-home" unsafeMetadata={{ userType: "patient" }}>
 								<DropdownMenuItem>Patient</DropdownMenuItem>
 							</SignUpButton>
-							<SignUpButton mode="modal">
+							<SignUpButton mode="modal" redirectUrl="/provider-home" unsafeMetadata={{ userType: "provider" }}>
 								<DropdownMenuItem>Provider</DropdownMenuItem>
 							</SignUpButton>
 						</DropdownMenuContent>

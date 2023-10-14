@@ -33,7 +33,7 @@ export const Heading = () => {
 			)}
 			{isSignedIn && user && isLoaded && (
 				<Button asChild>
-					<Link href="/home">
+					<Link href={`/${user.unsafeMetadata.userType}-home`}>
 						Enter Emridoc
 						<ArrowRight className="h-4 w-4 ml-2" />
 					</Link>

@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { SignUpButton, UserButton } from "@clerk/clerk-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -13,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 
 export const Navbar = () => {
-	const { isSignedIn, isLoaded } = useUser();
+	const { user, isSignedIn, isLoaded } = useUser();
 	const scrolled = useScrollTop();
 
 	return (
@@ -43,9 +44,9 @@ export const Navbar = () => {
 				{isSignedIn && isLoaded && (
 					<>
 						<Button variant="ghost" size="sm" asChild>
-							<Link href="/home">Enter Emridoc</Link>
+							<Link href={`/${user.unsafeMetadata.userType}-home`}>Enter Emridoc</Link>
 						</Button>
-						{(window.location.href = "/home")}
+						{redirect(`/${user.unsafeMetadata.userType}-home`)}
 						<UserButton afterSignOutUrl="/" />
 					</>
 				)}

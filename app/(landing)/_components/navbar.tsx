@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { SignInButton, UserButton } from "@clerk/clerk-react";
+import { SignUpButton, UserButton } from "@clerk/clerk-react";
 import Link from "next/link";
 
 import { useScrollTop } from "@/hooks/use-scroll-top";
@@ -28,16 +28,16 @@ export const Navbar = () => {
 				{!isLoaded && <Spinner />}
 				{!isSignedIn && isLoaded && (
 					<>
-						<SignInButton mode="modal" redirectUrl="/patient-home">
+						<SignUpButton mode="modal" redirectUrl="/patient-home" unsafeMetadata={{ userType: "patient" }}>
 							<Button variant="ghost" size="sm" className="font-semibold border">
 								Patient
 							</Button>
-						</SignInButton>
-						<SignInButton mode="modal" redirectUrl="/provider-home">
+						</SignUpButton>
+						<SignUpButton mode="modal" redirectUrl="/provider-home" unsafeMetadata={{ userType: "provider" }}>
 							<Button variant="ghost" size="sm" className="font-semibold border">
 								Provider
 							</Button>
-						</SignInButton>
+						</SignUpButton>
 					</>
 				)}
 				{isSignedIn && isLoaded && (

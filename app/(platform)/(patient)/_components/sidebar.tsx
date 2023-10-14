@@ -46,7 +46,7 @@ export const Sidebar = () => {
 		},
 		{
 			icon: Settings,
-			href: "/patient-settings",
+			href: "/settings",
 			label: "Settings",
 		},
 	];

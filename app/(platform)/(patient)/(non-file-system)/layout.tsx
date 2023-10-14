@@ -12,7 +12,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
 	}
 
 	return (
-		<div className="h-full flex dark:bg-[#1F1F1F]">
+		<div className="h-full flex ">
 			<Navbar />
 			{/* <div className="fixed inset-y-0 flex-col hidden w-20 mt-16 sm:flex">
 				<Sidebar />

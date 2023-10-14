@@ -65,13 +65,13 @@ export const Navbar = ({}: NavbarProps) => {
 		},
 		{
 			icon: Settings,
-			href: "/patient-settings",
+			href: "/settings",
 			label: "Settings",
 		},
 	];
 
 	return (
-		<div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
+		<div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
 			<div className="flex items-center">
 				<MobileSidebar />
 				<Logo />
@@ -83,7 +83,7 @@ export const Navbar = ({}: NavbarProps) => {
 							<div
 								onClick={() => onNavigate(route.href)}
 								className={cn(
-									"text-muted-foreground text-xs group flex p-2 lg:p-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
+									"text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
 									pathname === route.href && "bg-primary/10 text-primary",
 								)}
 							>

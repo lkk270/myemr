@@ -18,7 +18,12 @@ export const Navbar = () => {
 	const scrolled = useScrollTop();
 
 	return (
-		<div className={cn("z-100 fixed top-0 flex items-center w-full p-2 sm:p-6", scrolled && "border-b shadow-sm")}>
+		<div
+			className={cn(
+				"dark:bg-[#161515] bg-[#fdfdfc] z-100 fixed top-0 flex items-center w-full p-2 sm:p-6",
+				scrolled && "border-b shadow-sm",
+			)}
+		>
 			<Logo />
 			<div className="ml-auto justify-end w-full flex items-center gap-x-2">
 				{!isLoaded && <Spinner />}

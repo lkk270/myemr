@@ -94,15 +94,18 @@ export const Demographics = () => {
 
 	return (
 		<div className="flex w-full">
-			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 w-full">
+			<div className="grid grid-cols-1 w-full">
 				{/* Personal Information Card */}
-				<Card className="w-full shadow-md text-primary/80 transition border-0 bg-primary/10 rounded-xl">
-					<CardHeader>
-						<CardTitle>Personal Information</CardTitle>
+				<Card className="w-full shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
+					<CardHeader className="flex flex-row justify-between items-center bg-secondary text-primary/70 rounded-t-xl">
+						<CardTitle className="text-md sm:text-xl">Demographics</CardTitle>
+						<Button>Edit</Button>
 					</CardHeader>
+
 					<CardContent>
-						<div className="grid w-full items-center gap-4">
-							<div className="flex flex-col space-y-1.5">
+						<CardTitle className="my-4 text-md sm:text-lg text-primary/50">Personal Information</CardTitle>
+						<div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 ml-4">
+							<div>
 								<Label htmlFor="firstName">Race</Label>
 								<Input
 									className="bg-transparent border-secondary"
@@ -113,7 +116,7 @@ export const Demographics = () => {
 									placeholder="First Name"
 								/>
 							</div>
-							<div className="flex flex-col space-y-1.5">
+							<div>
 								<Label htmlFor="lastName">ethnicity</Label>
 								<Input
 									id="lastName"
@@ -123,44 +126,10 @@ export const Demographics = () => {
 									placeholder="Last Name"
 								/>
 							</div>
+
 							{/* ... Include other fields like Middle Name, Gender, etc. ... */}
 						</div>
 					</CardContent>
-				</Card>
-
-				{/* Contact Information Card */}
-				<Card className="w-full">
-					<CardHeader>
-						<CardTitle>Contact Information</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="grid w-full items-center gap-4">
-							<div className="flex flex-col space-y-1.5">
-								<Label htmlFor="homeAddress">Home Address</Label>
-								<Input
-									id="homeAddress"
-									name="homeAddress"
-									value={user.homeAddress}
-									onChange={handleInputChange}
-									placeholder="Home Address"
-								/>
-							</div>
-							<div className="flex flex-col space-y-1.5">
-								<Label htmlFor="homePhone">Home Phone</Label>
-								<Input
-									id="homePhone"
-									name="homePhone"
-									value={user.homePhone}
-									onChange={handleInputChange}
-									placeholder="Home Phone"
-								/>
-							</div>
-							{/* ... Include other fields like Mobile Phone, Work Phone, etc. ... */}
-						</div>
-					</CardContent>
-					{/* <CardFooter className="flex justify-end">
-						<Button>Update</Button>
-					</CardFooter> */}
 				</Card>
 			</div>
 			{/* ... Continue with other cards ... */}

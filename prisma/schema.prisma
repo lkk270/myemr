@@ -28,7 +28,7 @@ enum OrganizationType {
 
 model PatientProfile {
   id          String    @id @default(uuid())
-  userId      String
+  userId      String    @unique
   name        String
   imageUrl    String    @db.Text
   email       String
@@ -41,9 +41,9 @@ model PatientProfile {
   member Member[]
 }
 
-model DoctorProfile {
+model ProviderProfile {
   id            String         @id @default(uuid())
-  userId        String
+  userId        String         @unique
   name          String
   imageUrl      String         @db.Text
   email         String
@@ -61,32 +61,32 @@ model Organization {
   inviteCode       String           @unique
   organizationType OrganizationType
 
-  doctorProfileId String
-  doctorProfile   DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  providerProfileId String
+  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
 
   members Member[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([doctorProfileId])
+  @@index([providerProfileId])
 }
 
 model Member {
   id   String           @id @default(uuid())
   role OrganizationRole
 
-  doctorProfileId  String?
-  doctorProfile    DoctorProfile?  @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
-  patientProfileId String?
-  patientProfile   PatientProfile? @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
-  organizationId   String
-  Organization     Organization    @relation(fields: [organizationId], references: [id])
+  providerProfileId String?
+  providerProfile   ProviderProfile? @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  patientProfileId  String?
+  patientProfile    PatientProfile?  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  organizationId    String
+  Organization      Organization     @relation(fields: [organizationId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([doctorProfileId])
+  @@index([providerProfileId])
   @@index([patientProfileId])
   @@index([organizationId])
 }

@@ -96,8 +96,8 @@ export const Navbar = ({}: NavbarProps) => {
 					))}
 				</div>
 			</div>
-			<div className="flex items-center w-32">
-				<div className="flex items-center sm:flex gap-x-4">
+			<div className="flex items-center">
+				<div className="flex items-center sm:flex gap-x-4 justify-center">
 					{/* {typeof userValues.numOfUnreadNotifications === "number" && (
 						<Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
 					)} */}

@@ -1,9 +1,11 @@
 {
   "tabWidth": 2,
-  "useTabs": true,
-  "endOfLine": "lf",
+  "useTabs": false,
   "semi": true,
   "bracketSameLine": false,
   "trailingComma": "all",
-  "printWidth": 120
+  "printWidth": 120,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
 }

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
+import { getDateWithGivenYear } from "@/lib/utils";
 interface ComboboxItem {
   value: string;
   label: string;
@@ -20,6 +20,7 @@ interface GenericComboboxProps {
   placeholder?: string;
   searchPlaceholder?: string;
   noItemsMessage?: string;
+  handleChange?: (date: Date) => void;
 }
 
 export function GenericCombobox({
@@ -28,7 +29,8 @@ export function GenericCombobox({
   searchPlaceholder = "Search item...",
   noItemsMessage = "No item found.",
   width = "w-[240px]",
-  valueParam
+  valueParam,
+  handleChange,
 }: GenericComboboxProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(valueParam);
@@ -53,6 +55,10 @@ export function GenericCombobox({
                   key={item.value}
                   onSelect={() => {
                     setValue((prevValue) => (prevValue === item.value ? "" : item.value));
+                    if (handleChange) {
+                      console.log("INN");
+                      handleChange(getDateWithGivenYear(parseInt(item.value)));
+                    }
                     setOpen(false);
                   }}
                 >

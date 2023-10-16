@@ -24,8 +24,7 @@ for (let year = endYear; year >= startYear; year--) {
   years.push({ value: year.toString(), label: year.toString() });
 }
 export const GenericCalendar = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  console.log(date?.getFullYear());
+  const [date, setDate] = useState<Date | undefined>(new Date("2022-01-01"));
   return (
     <div>
       <Popover>
@@ -41,6 +40,7 @@ export const GenericCalendar = () => {
         <PopoverContent className="w-auto p-0" align="start">
           <div>
             <GenericCombobox
+              handleChange={setDate}
               width="w-[100px]"
               placeholder="Select"
               valueParam={date?.getFullYear().toString()}
@@ -49,6 +49,7 @@ export const GenericCalendar = () => {
               items={years}
             />
             <Calendar
+              defaultMonth={new Date(date?.getFullYear() || 2023, date?.getMonth() || new Date().getMonth())}
               mode="single"
               selected={date}
               onSelect={setDate}

@@ -26,19 +26,44 @@ enum OrganizationType {
   DOCTOR_OFFICE
 }
 
-model PatientProfile {
-  id          String    @id @default(uuid())
-  userId      String    @unique
-  name        String
-  imageUrl    String    @db.Text
-  email       String
-  gender      Gender?
-  dateOfBirth DateTime?
+model Address {
+  id               String         @id @default(uuid())
+  userId           String
+  address          String
+  address2         String?
+  state            String
+  zipcode          String
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  member Member[]
+  @@index([patientProfileId])
+}
+
+model PatientProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  firstName         String
+  lastName          String
+  gender            Gender?
+  dateOfBirth       DateTime?
+  maritalStatus     String?
+  race              String?
+  mobilePhone       String?
+  homePhone         String?
+  insuranceProvider String?
+  policyNumber      String?
+  groupNumber       String?
+  imageUrl          String    @db.Text
+  email             String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member    Member[]
+  addresses Address[]
 }
 
 model ProviderProfile {

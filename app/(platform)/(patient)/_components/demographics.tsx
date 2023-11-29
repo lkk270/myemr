@@ -43,7 +43,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
-                    className="bg-transparent border-secondary"
+                    className="bg-transparent border-secondary dark:bg-slate-800"
                     id="firstName"
                     name="firstName"
                     value={user.race || "N/A"}
@@ -56,6 +56,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <Input
                     id="lastName"
                     name="lastName"
+                    className="dark:bg-slate-800"
                     value={user.lastName}
                     onChange={handleInputChange}
                     placeholder="Last Name"
@@ -70,6 +71,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="gender">Gender</Label>
                   <GenericCombobox
+                    className="dark:bg-slate-800"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No gender found."
@@ -83,6 +85,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="race">Race</Label>
                   <GenericCombobox
+                    className="dark:bg-slate-800"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."
@@ -96,6 +99,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="maritalStatus">Marital Status</Label>
                   <GenericCombobox
+                    className="dark:bg-slate-800"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."

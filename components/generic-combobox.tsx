@@ -21,6 +21,7 @@ interface GenericComboboxProps {
   searchPlaceholder?: string;
   noItemsMessage?: string;
   handleChange?: (date: Date) => void;
+  className?: string;
 }
 
 export function GenericCombobox({
@@ -31,6 +32,7 @@ export function GenericCombobox({
   width = "w-[240px]",
   valueParam,
   handleChange,
+  className = "dark:bg-slate-800",
 }: GenericComboboxProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(valueParam);
@@ -39,19 +41,24 @@ export function GenericCombobox({
     <div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" role="combobox" aria-expanded={open} className={cn(width, "justify-between")}>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(width, "justify-between", className)}
+          >
             {value ? items.find((item) => item.value === value)?.label : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[150px]")}>
+        <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[150px]", className)}>
           <Command>
             <CommandInput placeholder={searchPlaceholder} />
             <CommandEmpty>{noItemsMessage}</CommandEmpty>
             <CommandGroup>
               {items.map((item) => (
                 <CommandItem
-                  className="cursor-pointer"
+                  className={"cursor-pointer"}
                   key={item.value}
                   onSelect={() => {
                     setValue((prevValue) => (prevValue === item.value ? "" : item.value));

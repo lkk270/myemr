@@ -63,7 +63,3 @@ body,
     @apply bg-background text-foreground;
   }
 }
-
-#dob {
-  cursor: pointer !important;
-}

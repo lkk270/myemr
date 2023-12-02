@@ -22,9 +22,10 @@ interface GenericComboboxProps {
   noItemsMessage?: string;
   handleChange?: (date: Date) => void;
   className?: string;
+  disabled?: boolean;
 }
 
-export function GenericCombobox({
+export const GenericCombobox = ({
   items = [],
   placeholder = "Select item...",
   searchPlaceholder = "Search item...",
@@ -33,15 +34,17 @@ export function GenericCombobox({
   valueParam,
   handleChange,
   className = "dark:bg-slate-800",
-}: GenericComboboxProps) {
+  disabled = false,
+}: GenericComboboxProps) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(valueParam);
 
   return (
-    <div>
+    <div className={disabled ? "cursor-not-allowed" : "cursor-default"}>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+        <PopoverTrigger asChild disabled={disabled}>
           <Button
+            disabled={disabled}
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -79,4 +82,4 @@ export function GenericCombobox({
       </Popover>
     </div>
   );
-}
+};

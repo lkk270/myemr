@@ -33,7 +33,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         <Card className="w-full shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
           <CardHeader className="flex flex-row justify-between items-center bg-secondary text-primary/70 rounded-t-xl">
             <CardTitle className="text-md sm:text-xl">Demographics</CardTitle>
-            <Button>Edit</Button>
+            <Button onClick={handleEditToggle}>{isEditing ? "Save" : "Edit"}</Button>
           </CardHeader>
 
           <CardContent>
@@ -46,9 +46,10 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     className="bg-transparent border-secondary dark:bg-slate-800"
                     id="firstName"
                     name="firstName"
-                    value={user.race || "N/A"}
+                    value={user.firstName}
                     onChange={handleInputChange}
                     placeholder="First Name"
+                    disabled={!isEditing}
                   />
                 </div>
                 <div>
@@ -60,17 +61,19 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     value={user.lastName}
                     onChange={handleInputChange}
                     placeholder="Last Name"
+                    disabled={!isEditing}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
                 <div className="w-[240px]">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <GenericCalendar />
+                  <GenericCalendar disabled={!isEditing} />
                 </div>
                 <div>
                   <Label htmlFor="gender">Gender</Label>
                   <GenericCombobox
+                    disabled={!isEditing}
                     className="dark:bg-slate-800"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
@@ -85,13 +88,17 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="race">Race</Label>
                   <GenericCombobox
+                    disabled={!isEditing}
                     className="dark:bg-slate-800"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."
                     items={[
-                      { value: "MALE", label: "Male" },
-                      { value: "FEMALE", label: "Female" },
+                      { value: "ASIAN", label: "Asian" },
+                      { value: "BLACK", label: "Black or African American" },
+                      { value: "NATIVE", label: "Native American" },
+                      { value: "ISLANDER", label: "Pacific Islander" },
+                      { value: "WHITE", label: "White" },
                     ]}
                   />
                 </div>
@@ -99,13 +106,17 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="maritalStatus">Marital Status</Label>
                   <GenericCombobox
+                    disabled={!isEditing}
                     className="dark:bg-slate-800"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."
                     items={[
-                      { value: "MALE", label: "Male" },
-                      { value: "FEMALE", label: "Female" },
+                      { value: "SINGLE", label: "Single" },
+                      { value: "MARRIED", label: "Married" },
+                      { value: "DIVORCED", label: "Divorced" },
+                      { value: "WIDOWED", label: "Widowed" },
+                      { value: "SEPARATED", label: "Separated" },
                     ]}
                   />
                 </div>

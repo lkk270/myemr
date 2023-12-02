@@ -1,7 +1,12 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 
-export const GenericCalendar: React.FC = () => {
+interface GenericCalendarProps {
+  disabled: boolean;
+  className?: string;
+}
+
+export const GenericCalendar = ({ disabled, className }: GenericCalendarProps) => {
   const [value, setValue] = useState({
     startDate: null,
     endDate: null,
@@ -13,16 +18,15 @@ export const GenericCalendar: React.FC = () => {
   };
 
   return (
-    <div id="dob">
-      <Datepicker
-        minDate={new Date("1900-01-01")}
-        maxDate={new Date()}
-        useRange={false}
-        asSingle={true}
-        value={value}
-        onChange={handleValueChange}
-        readOnly={true}
-      />
-    </div>
+    <Datepicker
+      minDate={new Date("1900-01-01")}
+      maxDate={new Date()}
+      useRange={false}
+      asSingle={true}
+      value={value}
+      onChange={handleValueChange}
+      readOnly={true}
+      disabled={disabled}
+    />
   );
 };

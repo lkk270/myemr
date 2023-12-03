@@ -2,6 +2,8 @@ import { currentUser, redirectToSignIn } from "@clerk/nextjs";
 
 import prismadb from "@/lib/prismadb";
 
+import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecords } from "./encryption";
+
 export const initialPatientProfile = async () => {
   const user = await currentUser();
 
@@ -23,13 +25,19 @@ export const initialPatientProfile = async () => {
     return;
   }
 
+  const { publicKey, privateKey } = generateAsymmetricKeyPairs();
+  const symmetricKey = generateSymmetricKey();
+
   await prismadb.patientProfile.create({
     data: {
       userId: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      imageUrl: user.imageUrl,
-      email: user.emailAddresses[0].emailAddress,
+      firstName: encryptPatientRecords(user.firstName, symmetricKey),
+      lastName: encryptPatientRecords(user.lastName, symmetricKey),
+      imageUrl: encryptPatientRecords(user.imageUrl, symmetricKey),
+      email: encryptPatientRecords(user.emailAddresses[0].emailAddress, symmetricKey),
+      publicKey: encryptKey(publicKey, "patientPublicKey"),
+      privateKey: encryptKey(privateKey, "patientPrivateKey"),
+      symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
     },
   });
 
@@ -53,12 +61,16 @@ export const initialProviderProfile = async () => {
     return;
   }
 
+  const { publicKey, privateKey } = generateAsymmetricKeyPairs();
+
   await prismadb.providerProfile.create({
     data: {
       userId: user.id,
       name: `${user.firstName} ${user.lastName}`,
       imageUrl: user.imageUrl,
       email: user.emailAddresses[0].emailAddress,
+      publicKey: encryptKey(publicKey, "providerPublicKey"),
+      privateKey: encryptKey(privateKey, "providerPrivateKey"),
     },
   });
   return;

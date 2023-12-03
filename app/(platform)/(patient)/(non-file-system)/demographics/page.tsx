@@ -3,6 +3,8 @@ import { auth, redirectToSignIn } from "@clerk/nextjs";
 import prismadb from "@/lib/prismadb";
 import { Demographics } from "../../_components/demographics";
 
+import { decryptKey, decryptMultiplePatientFields, decryptOnePatientField } from "@/lib/encryption";
+
 const PatientDemographics = async () => {
   const { userId } = auth();
 
@@ -27,6 +29,7 @@ const PatientDemographics = async () => {
       policyNumber: true,
       groupNumber: true,
       addresses: true,
+      symmetricKey: true,
     },
   });
 
@@ -34,9 +37,11 @@ const PatientDemographics = async () => {
     return <div>something went wrong</div>;
   }
 
+  const decryptedSymmetricKey = decryptKey(patientDemographics.symmetricKey, "patientSymmetricKey");
+  const decryptedPatientDemographics = decryptMultiplePatientFields(patientDemographics, decryptedSymmetricKey);
   return (
     <div className="flex pt-10 px-10 h-full justify-center">
-      <Demographics patientDemographics={patientDemographics} />
+      <Demographics patientDemographics={decryptedPatientDemographics} />
     </div>
   );
 };

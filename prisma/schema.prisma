@@ -58,6 +58,9 @@ model PatientProfile {
   groupNumber       String?
   imageUrl          String    @db.Text
   email             String
+  publicKey         String    @db.Text
+  privateKey        String    @db.Text
+  symmetricKey      String    @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -72,6 +75,8 @@ model ProviderProfile {
   name          String
   imageUrl      String         @db.Text
   email         String
+  publicKey     String         @db.Text
+  privateKey    String         @db.Text
   organizations Organization[]
 
   createdAt DateTime @default(now())

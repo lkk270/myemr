@@ -1,11 +1,11 @@
-import { Gender, Address } from "@prisma/client";
+import { Address } from "@prisma/client";
 
 export type PatientDemographicsType = {
   imageUrl: string;
   firstName: string;
   lastName: string;
-  gender?: Gender | null;
-  dateOfBirth?: Date | null;
+  gender?: string | null;
+  dateOfBirth?: string | null;
   maritalStatus?: string | null;
   race?: string | null;
   mobilePhone?: string | null;

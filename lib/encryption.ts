@@ -8,7 +8,7 @@ import {
   KeyObject,
   Decipher,
 } from "crypto";
-
+import { isNum } from "./utils";
 import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
 
 // Symmetric encryption configuration
@@ -49,19 +49,20 @@ function convertValueToString(value: any) {
   if (typeof value === "number") {
     // Convert number to string
     valueToEncrypt = value.toString();
-  } else if (value instanceof Date) {
-    // Convert Date to ISO string format
-    valueToEncrypt = value.toISOString();
-  } else if (Array.isArray(value)) {
-    // Handle array of objects
-    valueToEncrypt = JSON.stringify(value.map((obj) => JSON.stringify(obj)));
-  } else if (typeof value === "object") {
-    // Handle single object
-    valueToEncrypt = JSON.stringify(value);
-  } else {
-    // Handle other types (including string)
-    valueToEncrypt = value;
   }
+  // } else if (value instanceof Date) {
+  //   // Convert Date to ISO string format
+  //   valueToEncrypt = value.toISOString();
+  // } else if (Array.isArray(value)) {
+  //   // Handle array of objects
+  //   valueToEncrypt = JSON.stringify(value.map((obj) => JSON.stringify(obj)));
+  // } else if (typeof value === "object") {
+  //   // Handle single object
+  //   valueToEncrypt = JSON.stringify(value);
+  // } else {
+  // Handle other types (including string)
+  valueToEncrypt = value;
+  // }
   return valueToEncrypt;
 }
 // Encrypt patient records with the symmetric key
@@ -120,18 +121,17 @@ function convertDecryptedStringToType(decryptedValue: any) {
   try {
     ret = JSON.parse(decryptedValue);
     // Additional check for date
-    if (typeof ret === "string") {
-      const date = new Date(ret);
-      if (!isNaN(date.getTime())) {
-        ret = date;
-      }
-    }
+    // if (typeof ret === "string") {
+    //   const date = new Date(ret);
+    //   if (!isNaN(date.getTime())) {
+    //     ret = date;
+    //   }
+    // }
   } catch (e) {
     // If JSON.parse throws an error, assume the value is a plain string
     // If it's numeric, convert to a number
-    const number = parseFloat(ret);
-    if (!isNaN(number)) {
-      ret = number;
+    if (isNum(ret)) {
+      ret = parseFloat(ret);
     }
   }
   return ret;

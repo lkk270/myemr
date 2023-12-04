@@ -1,20 +1,36 @@
 import React, { useState } from "react";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker, { DateValueType, DateType } from "react-tailwindcss-datepicker";
 
 interface GenericCalendarProps {
   disabled: boolean;
   className?: string;
+  fieldName: string;
+  valueParam?: string | null;
+  handleChange: (value: any) => void;
 }
 
-export const GenericCalendar = ({ disabled, className }: GenericCalendarProps) => {
-  const [value, setValue] = useState({
-    startDate: null,
-    endDate: null,
-  });
+function createDateValueType(dateString: string | null | undefined): DateValueType {
+  if (!dateString) {
+    return null;
+  }
+  return {
+    startDate: dateString,
+    endDate: dateString,
+  };
+}
+
+export const GenericCalendar = ({ disabled, className, fieldName, valueParam, handleChange }: GenericCalendarProps) => {
+  const [value, setValue] = useState(createDateValueType(valueParam));
 
   const handleValueChange = (newValue: any) => {
     console.log("newValue:", newValue);
+    console.log(newValue);
+    console.log(typeof newValue);
     setValue(newValue);
+    handleChange((prev: any) => ({
+      ...prev,
+      [fieldName]: newValue.startDate,
+    }));
   };
 
   return (

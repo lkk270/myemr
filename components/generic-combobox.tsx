@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getDateWithGivenYear } from "@/lib/utils";
 interface ComboboxItem {
   value: string;
   label: string;
@@ -16,11 +15,12 @@ interface ComboboxItem {
 interface GenericComboboxProps {
   items: ComboboxItem[];
   width?: string;
-  valueParam?: string;
+  fieldName: string;
+  valueParam?: string | null;
   placeholder?: string;
   searchPlaceholder?: string;
   noItemsMessage?: string;
-  handleChange?: (date: Date) => void;
+  handleChange?: (value: any) => void;
   className?: string;
   disabled?: boolean;
 }
@@ -32,6 +32,7 @@ export const GenericCombobox = ({
   noItemsMessage = "No item found.",
   width = "w-[240px]",
   valueParam,
+  fieldName = "",
   handleChange,
   className = "dark:bg-slate-800",
   disabled = false,
@@ -67,9 +68,15 @@ export const GenericCombobox = ({
                     setValue((prevValue) => (prevValue === item.value ? "" : item.value));
                     if (handleChange) {
                       console.log("INN");
-                      handleChange(getDateWithGivenYear(parseInt(item.value)));
+                      console.log(fieldName);
+                      console.log(item.value);
+                      handleChange((prev: any) => ({
+                        ...prev,
+                        [fieldName]: item.value,
+                      }));
+
+                      setOpen(false);
                     }
-                    setOpen(false);
                   }}
                 >
                   <Check className={cn("mr-2 h-4 w-4", value === item.value ? "opacity-100" : "opacity-0")} />

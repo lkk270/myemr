@@ -11,3 +11,7 @@ export function getDateWithGivenYear(year: number) {
   const day = today.getDate();
   return new Date(year, month, day);
 }
+
+export function isNum(str: string): boolean {
+  return /^\d*\.?\d+$/.test(str);
+}

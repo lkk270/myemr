@@ -54,11 +54,15 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         })
 
         .catch((error) => {
-          console.error(error);
-          console.log(user.race);
-          console.log(initialUser.race);
-          setUser((prevUser) => ({ ...prevUser, ...initialUser }));
-          console.log(user.race);
+          // console.error(error);
+          // console.log(user.race);
+          // console.log(initialUser.firstName);
+          // console.log(initialUser.race);
+          // setUser((prevUser) => ({ ...prevUser, ...initialUser }));
+          // console.log(user.race);
+          // console.log(user.firstName);
+          // setUser(initialUser);
+
           throw error;
         })
         .finally(() => {

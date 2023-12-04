@@ -26,12 +26,10 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   const [isLoading, setIsLoading] = useState(false);
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
-  console.log("================================================================");
-  console.log(user);
 
   const handleSave = () => {
     setIsLoading(true);
-    console.log(user);
+    console.log(user.race);
 
     const changes: Partial<PatientDemographicsType> = {};
 
@@ -56,11 +54,12 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         })
 
         .catch((error) => {
-          if (axios.isAxiosError(error)) {
-            console.error("Failed to update:", error.response?.data);
-          } else {
-            console.error("An unexpected error occurred:", error);
-          }
+          console.error(error);
+          console.log(user.race);
+          console.log(initialUser.race);
+          setUser((prevUser) => ({ ...prevUser, ...initialUser }));
+          console.log(user.race);
+          throw error;
         })
         .finally(() => {
           setIsLoading(false);
@@ -95,7 +94,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
             <CardTitle className="text-md sm:text-xl">Demographics</CardTitle>
             <Button disabled={isLoading} onClick={isEditing ? handleSave : handleEditToggle}>
               {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
-            </Button>{" "}
+            </Button>
           </CardHeader>
 
           <CardContent>
@@ -130,11 +129,19 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
                 <div className="w-[240px]">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <GenericCalendar disabled={!isEditing} />
+                  <GenericCalendar
+                    disabled={!isEditing}
+                    handleChange={setUser}
+                    valueParam={user.dateOfBirth}
+                    fieldName="dateOfBirth"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="gender">Gender</Label>
                   <GenericCombobox
+                    handleChange={setUser}
+                    valueParam={user.gender}
+                    fieldName="gender"
                     disabled={!isEditing}
                     className="dark:bg-slate-800"
                     placeholder="Select..."
@@ -150,6 +157,9 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="race">Race</Label>
                   <GenericCombobox
+                    handleChange={setUser}
+                    valueParam={user.race}
+                    fieldName="race"
                     disabled={!isEditing}
                     className="dark:bg-slate-800"
                     placeholder="Select..."
@@ -168,6 +178,9 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="maritalStatus">Marital Status</Label>
                   <GenericCombobox
+                    valueParam={user.maritalStatus}
+                    handleChange={setUser}
+                    fieldName="maritalStatus"
                     disabled={!isEditing}
                     className="dark:bg-slate-800"
                     placeholder="Select..."

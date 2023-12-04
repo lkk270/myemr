@@ -3,7 +3,7 @@ import { auth, redirectToSignIn } from "@clerk/nextjs";
 import prismadb from "@/lib/prismadb";
 import { Demographics } from "../../_components/demographics";
 
-import { decryptKey, decryptMultiplePatientFields, decryptOnePatientField } from "@/lib/encryption";
+import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 
 const PatientDemographics = async () => {
   const { userId } = auth();

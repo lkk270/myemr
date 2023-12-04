@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 
+import axios from "axios";
+
 import { PatientDemographicsType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,15 +11,73 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { GenericCalendar } from "@/components/generic-calendar";
+import { toast } from "sonner";
+
+import _ from "lodash";
 
 interface PatientDemographicsProps {
   patientDemographics: PatientDemographicsType;
 }
 
 export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
+  const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
-
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
+  console.log("================================================================");
+  console.log(user);
+
+  const handleSave = () => {
+    setIsLoading(true);
+    console.log(user);
+
+    const changes: Partial<PatientDemographicsType> = {};
+
+    for (const key in initialUser) {
+      if (initialUser.hasOwnProperty(key)) {
+        const typedKey = key as keyof PatientDemographicsType;
+        if (!_.isEqual(user[typedKey], initialUser[typedKey])) {
+          changes[typedKey] = user[typedKey];
+        }
+      }
+    }
+
+    if (Object.keys(changes).length > 0) {
+      const promise = axios
+        .post("/api/patient-update", { fieldsObj: changes })
+        .then((response) => {
+          console.log("Update successful", response.data);
+
+          // Update the user state with the latest changes
+          setInitialUser((prevUser) => ({ ...prevUser, ...changes }));
+          console.log(user);
+        })
+
+        .catch((error) => {
+          if (axios.isAxiosError(error)) {
+            console.error("Failed to update:", error.response?.data);
+          } else {
+            console.error("An unexpected error occurred:", error);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+          setIsEditing(false); // Toggle edit mode off after operation
+        });
+      toast.promise(promise, {
+        loading: "Saving changes",
+        success: "Changes saved successfully",
+        error: "Something went wrong",
+        duration: 1250,
+      });
+    } else {
+      toast("No changes were made");
+      setIsLoading(false);
+      setIsEditing(false); // Toggle edit mode off if no changes
+    }
+  };
 
   const handleEditToggle = () => setIsEditing(!isEditing);
 
@@ -33,7 +93,9 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         <Card className="w-full shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
           <CardHeader className="flex flex-row justify-between items-center bg-secondary text-primary/70 rounded-t-xl">
             <CardTitle className="text-md sm:text-xl">Demographics</CardTitle>
-            <Button onClick={handleEditToggle}>{isEditing ? "Save" : "Edit"}</Button>
+            <Button disabled={isLoading} onClick={isEditing ? handleSave : handleEditToggle}>
+              {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
+            </Button>{" "}
           </CardHeader>
 
           <CardContent>

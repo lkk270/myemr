@@ -23,7 +23,7 @@ export const Heading = () => {
         <span className="bg-gradient-to-r from-violet-400 to-[#4f5eff] bg-clip-text text-transparent">Emridoc</span>
       </h1>
       <h3 className="text-base sm:text-md md:text-xl font-medium">
-        We makes it easy to collect, store, and access your records, while also being able to share them with care
+        We makes it easy to securely store and access your records, while also being able to share them with care
         providers and clinical trials of your choosing.
       </h3>
       {!isLoaded && (

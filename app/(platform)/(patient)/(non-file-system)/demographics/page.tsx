@@ -39,6 +39,7 @@ const PatientDemographics = async () => {
 
   const decryptedSymmetricKey = decryptKey(patientDemographics.symmetricKey, "patientSymmetricKey");
   const decryptedPatientDemographics = decryptMultiplePatientFields(patientDemographics, decryptedSymmetricKey);
+  console.log(decryptedPatientDemographics);
   return (
     <div className="flex pt-10 px-10 h-full justify-center">
       <Demographics patientDemographics={decryptedPatientDemographics} />

@@ -13,5 +13,5 @@ export type PatientDemographicsType = {
   insuranceProvider?: string | null;
   policyNumber?: string | null;
   groupNumber?: string | null;
-  addresses: Address[];
+  addresses: Address[] | any;
 };

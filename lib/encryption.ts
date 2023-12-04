@@ -54,7 +54,7 @@ function convertValueToString(value: any) {
     valueToEncrypt = value.toISOString();
   } else if (Array.isArray(value)) {
     // Handle array of objects
-    valueToEncrypt = value.map((obj) => JSON.stringify(obj));
+    valueToEncrypt = JSON.stringify(value.map((obj) => JSON.stringify(obj)));
   } else if (typeof value === "object") {
     // Handle single object
     valueToEncrypt = JSON.stringify(value);
@@ -67,6 +67,7 @@ function convertValueToString(value: any) {
 // Encrypt patient records with the symmetric key
 export function encryptPatientRecord(record: string, symmetricKeyString: string) {
   const valueToEncrypt = convertValueToString(record);
+  console.log(valueToEncrypt);
   const symmetricKey = Buffer.from(symmetricKeyString, "hex");
   const iv = randomBytes(16); // Generate a new IV for each encryption
   const cipher = createCipheriv(algorithm, symmetricKey, iv);

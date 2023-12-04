@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { GenericCalendar } from "@/components/generic-calendar";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import _ from "lodash";
 
@@ -114,7 +115,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     value={user.firstName}
                     onChange={handleInputChange}
                     placeholder="First Name"
-                    disabled={!isEditing}
+                    disabled={!isEditing || isLoading}
                   />
                 </div>
                 <div>
@@ -126,19 +127,30 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     value={user.lastName}
                     onChange={handleInputChange}
                     placeholder="Last Name"
-                    disabled={!isEditing}
+                    disabled={!isEditing || isLoading}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
-                <div className="w-[240px]">
+                <div className="w-[240px] ">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <GenericCalendar
-                    disabled={!isEditing}
-                    handleChange={setUser}
-                    valueParam={user.dateOfBirth}
-                    fieldName="dateOfBirth"
-                  />
+
+                  <div
+                    className={cn(
+                      "border-[1px] font-bold dark:border-none border-[#f0f4f7] rounded-md",
+                      isEditing && "",
+                    )}
+                  >
+                    {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
+                    {/*                       isEditing && "dark:text-[#d8dce1] text-[#0a101e]",
+                     */}
+                    <GenericCalendar
+                      disabled={!isEditing || isLoading}
+                      handleChange={setUser}
+                      valueParam={user.dateOfBirth}
+                      fieldName="dateOfBirth"
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="gender">Gender</Label>
@@ -146,8 +158,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     handleChange={setUser}
                     valueParam={user.gender}
                     fieldName="gender"
-                    disabled={!isEditing}
-                    className="dark:bg-slate-800"
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No gender found."
@@ -164,8 +176,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     handleChange={setUser}
                     valueParam={user.race}
                     fieldName="race"
-                    disabled={!isEditing}
-                    className="dark:bg-slate-800"
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."
@@ -185,8 +197,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     valueParam={user.maritalStatus}
                     handleChange={setUser}
                     fieldName="maritalStatus"
-                    disabled={!isEditing}
-                    className="dark:bg-slate-800"
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."

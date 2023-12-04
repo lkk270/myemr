@@ -13,7 +13,6 @@ import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
 
 // Symmetric encryption configuration
 const algorithm = "aes-256-cbc";
-const iv = randomBytes(16); // Initialization vector for AES
 
 // Function to convert key objects to PEM formatted strings
 function convertKeyToString(key: KeyObject) {
@@ -45,19 +44,40 @@ export function generateSymmetricKey() {
   return randomBytes(32).toString("hex"); // Generates a 256-bit key and converts it to a hex string
 }
 
+function convertValueToString(value: any) {
+  let valueToEncrypt;
+  if (typeof value === "number") {
+    // Convert number to string
+    valueToEncrypt = value.toString();
+  } else if (value instanceof Date) {
+    // Convert Date to ISO string format
+    valueToEncrypt = value.toISOString();
+  } else if (Array.isArray(value)) {
+    // Handle array of objects
+    valueToEncrypt = value.map((obj) => JSON.stringify(obj));
+  } else if (typeof value === "object") {
+    // Handle single object
+    valueToEncrypt = JSON.stringify(value);
+  } else {
+    // Handle other types (including string)
+    valueToEncrypt = value;
+  }
+  return valueToEncrypt;
+}
 // Encrypt patient records with the symmetric key
-export function encryptPatientRecords(records: string, symmetricKeyString: string) {
+export function encryptPatientRecord(record: string, symmetricKeyString: string) {
+  const valueToEncrypt = convertValueToString(record);
   const symmetricKey = Buffer.from(symmetricKeyString, "hex");
   const iv = randomBytes(16); // Generate a new IV for each encryption
   const cipher = createCipheriv(algorithm, symmetricKey, iv);
-  let encrypted = cipher.update(records, "utf8", "hex");
+  let encrypted = cipher.update(valueToEncrypt, "utf8", "hex");
   encrypted += cipher.final("hex");
   return iv.toString("hex") + ":" + encrypted; // Prepend IV to the encrypted data
 }
+
 // Decrypt patient records with the symmetric key
 export function decryptOnePatientField(encryptedRecord: string, symmetricKeyString: string) {
   const parts = encryptedRecord.split(":");
-  console.log(parts);
   if (parts.length !== 2) {
     throw new Error("Invalid encrypted record format");
   }
@@ -70,7 +90,7 @@ export function decryptOnePatientField(encryptedRecord: string, symmetricKeyStri
 
   let decrypted = decipher.update(encryptedText, "hex", "utf8");
   decrypted += decipher.final("utf8");
-  return decrypted;
+  return convertDecryptedStringToType(decrypted);
 }
 
 export function decryptMultiplePatientFields(
@@ -81,27 +101,39 @@ export function decryptMultiplePatientFields(
 
   Object.entries(encryptedRecords).forEach(([key, encryptedValue]) => {
     let decrypted = null;
-    if (
-      encryptedValue !== null &&
-      encryptedValue !== undefined &&
-      typeof encryptedValue === "string" &&
-      !key.includes("Key")
-    ) {
-      const parts = encryptedValue.split(":");
-      const iv = Buffer.from(parts[0], "hex"); // Extract the IV
-      const encryptedText = parts[1];
 
-      const symmetricKey = Buffer.from(symmetricKeyString, "hex");
-      const decipher = createDecipheriv(algorithm, symmetricKey, iv);
-      let decrypted = decipher.update(encryptedText, "hex", "utf8");
-      decrypted += decipher.final("utf8");
+    if (typeof encryptedValue === "string" && !key.includes("Key")) {
+      decrypted = decryptOnePatientField(encryptedValue, symmetricKeyString);
+
       patientObj[key] = decrypted;
-    } else {
-      patientObj[key] = decrypted;
+    } else if (!key.includes("Key")) {
+      patientObj[key] = encryptedValue; //means it was never encrypted it is an empty value ([]. {}, null, undefined)
     }
   });
 
   return patientObj;
+}
+
+function convertDecryptedStringToType(decryptedValue: any) {
+  let ret = decryptedValue;
+  try {
+    ret = JSON.parse(decryptedValue);
+    // Additional check for date
+    if (typeof ret === "string") {
+      const date = new Date(ret);
+      if (!isNaN(date.getTime())) {
+        ret = date;
+      }
+    }
+  } catch (e) {
+    // If JSON.parse throws an error, assume the value is a plain string
+    // If it's numeric, convert to a number
+    const number = parseFloat(ret);
+    if (!isNaN(number)) {
+      ret = number;
+    }
+  }
+  return ret;
 }
 
 function getKeySecret(keyType: EncryptionKeyType): string {

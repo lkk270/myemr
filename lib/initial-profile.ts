@@ -2,7 +2,7 @@ import { currentUser, redirectToSignIn } from "@clerk/nextjs";
 
 import prismadb from "@/lib/prismadb";
 
-import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecords } from "./encryption";
+import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "./encryption";
 
 export const initialPatientProfile = async () => {
   const user = await currentUser();
@@ -31,10 +31,10 @@ export const initialPatientProfile = async () => {
   await prismadb.patientProfile.create({
     data: {
       userId: user.id,
-      firstName: encryptPatientRecords(user.firstName, symmetricKey),
-      lastName: encryptPatientRecords(user.lastName, symmetricKey),
-      imageUrl: encryptPatientRecords(user.imageUrl, symmetricKey),
-      email: encryptPatientRecords(user.emailAddresses[0].emailAddress, symmetricKey),
+      firstName: encryptPatientRecord(user.firstName, symmetricKey),
+      lastName: encryptPatientRecord(user.lastName, symmetricKey),
+      imageUrl: encryptPatientRecord(user.imageUrl, symmetricKey),
+      email: encryptPatientRecord(user.emailAddresses[0].emailAddress, symmetricKey),
       publicKey: encryptKey(publicKey, "patientPublicKey"),
       privateKey: encryptKey(privateKey, "patientPrivateKey"),
       symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),

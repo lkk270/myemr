@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
 
-import { decryptKey, encryptPatientRecord } from "@/lib/encryption";
+import { decryptKey, encryptPatientRecord, checkForInvalidData } from "@/lib/utils";
 
 const discreteTables = ["address", "member"];
 function buildUpdatePayload(data: any, symmetricKey: string) {
@@ -14,13 +14,6 @@ function buildUpdatePayload(data: any, symmetricKey: string) {
     }
   }
   return payload;
-}
-
-function isValidData(data: any) {
-  if (data.gender !== undefined && data.gender !== "MALE" && data.gender !== "FEMALE") {
-    return false;
-  }
-  return true;
 }
 
 export async function POST(req: Request) {
@@ -35,7 +28,7 @@ export async function POST(req: Request) {
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (bodyLength === 0 || !data || !isValidData(data)) {
+    if (bodyLength === 0 || !data || checkForInvalidData(data) !== "") {
       return new NextResponse("Invalid body", { status: 400 });
     }
 

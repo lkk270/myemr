@@ -13,6 +13,21 @@ enum Gender {
   FEMALE
 }
 
+enum HeightUnits {
+  FT
+  CM
+}
+
+enum WeightUnits {
+  LBS
+  KG
+}
+
+enum Unit {
+  METRIC
+  IMPERIAL
+}
+
 enum OrganizationRole {
   ADMIN
   DOCTOR
@@ -51,6 +66,9 @@ model PatientProfile {
   dateOfBirth       String?
   maritalStatus     String?
   race              String?
+  height            String?
+  weight            String?
+  unit              Unit    @default(IMPERIAL)
   mobilePhone       String?
   homePhone         String?
   insuranceProvider String?

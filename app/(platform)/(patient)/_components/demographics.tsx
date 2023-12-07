@@ -4,15 +4,18 @@ import React, { useState } from "react";
 
 import axios from "axios";
 
+import { Unit } from "@prisma/client";
 import { PatientDemographicsType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneNumber } from "@/components/phone-number";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { GenericCalendar } from "@/components/generic-calendar";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, checkForInvalidData, calculateBMI } from "@/lib/utils";
+import { heightsImperial, heightsMetric } from "@/lib/constants";
 
 import _ from "lodash";
 
@@ -38,11 +41,17 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       if (initialUser.hasOwnProperty(key)) {
         const typedKey = key as keyof PatientDemographicsType;
         if (!_.isEqual(user[typedKey], initialUser[typedKey])) {
-          changes[typedKey] = user[typedKey];
+          changes[typedKey] = user[typedKey].trim();
         }
       }
     }
 
+    const dataCheck = checkForInvalidData(changes);
+    if (dataCheck !== "") {
+      toast.error(dataCheck);
+      setIsLoading(false);
+      return;
+    }
     if (Object.keys(changes).length > 0) {
       const promise = axios
         .post("/api/patient-update", { fieldsObj: changes })
@@ -211,7 +220,78 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     ]}
                   />
                 </div>
-                {/* ... Include other fields like Middle Name, Gender, etc. ... */}
+              </div>
+              <div className="grid grid-cols-3 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="height">Height</Label>
+                  <GenericCombobox
+                    valueParam={user.height}
+                    handleChange={setUser}
+                    fieldName="height"
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal max-w-[100px]"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No results"
+                    items={user.unit === Unit.IMPERIAL ? heightsImperial : heightsMetric}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="weight">Weight</Label>
+                  <div className="relative flex items-center">
+                    <Input
+                      type="number"
+                      id="weight"
+                      name="weight"
+                      min={2}
+                      max={1500}
+                      className="dark:bg-slate-800 max-w-[80px]"
+                      value={user.weight || ""}
+                      onChange={handleInputChange}
+                      placeholder="Weight"
+                      disabled={!isEditing || isLoading}
+                    />
+                    <span className="pl-1"> {user.unit === Unit.IMPERIAL ? "lbs" : "Kg"}</span>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="weight">BMI</Label>
+                  <Input
+                    type="number"
+                    id="bmi"
+                    name="bmi"
+                    className="dark:bg-slate-800 max-w-[100px]"
+                    value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+            <CardTitle className="my-4 text-md sm:text-lg text-primary/50">Contact</CardTitle>
+            <div className="grid gap-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="mobilePhone">Mobile phone</Label>
+                  <PhoneNumber
+                    fieldName="mobilePhone"
+                    handleChange={setUser}
+                    disabled={!isEditing || isLoading}
+                    number={user.mobilePhone}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="homePhone">Home phone</Label>
+                  <PhoneNumber
+                    fieldName="homePhone"
+                    handleChange={setUser}
+                    disabled={!isEditing || isLoading}
+                    number={user.homePhone}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" className="dark:bg-slate-800" value={user.email} disabled={true} />
+                </div>
               </div>
             </div>
           </CardContent>

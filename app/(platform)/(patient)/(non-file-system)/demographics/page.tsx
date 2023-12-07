@@ -17,6 +17,7 @@ const PatientDemographics = async () => {
     },
     select: {
       imageUrl: true,
+      email: true,
       firstName: true,
       lastName: true,
       gender: true,
@@ -25,6 +26,9 @@ const PatientDemographics = async () => {
       race: true,
       mobilePhone: true,
       homePhone: true,
+      height: true,
+      weight: true,
+      unit: true,
       insuranceProvider: true,
       policyNumber: true,
       groupNumber: true,

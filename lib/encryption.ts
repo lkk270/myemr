@@ -13,7 +13,7 @@ import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
 
 // Symmetric encryption configuration
 const algorithm = "aes-256-cbc";
-
+const exemptFields = ["unit"];
 // Function to convert key objects to PEM formatted strings
 function convertKeyToString(key: KeyObject) {
   return key.export({ type: "pkcs1", format: "pem" }).toString();
@@ -78,7 +78,7 @@ export function encryptPatientRecord(record: string, symmetricKeyString: string)
 }
 
 // Decrypt patient records with the symmetric key
-export function decryptOnePatientField(encryptedRecord: string, symmetricKeyString: string) {
+export function decryptOnePatientField(encryptedRecord: string, symmetricKeyString: string, key: string) {
   const parts = encryptedRecord.split(":");
   if (parts.length !== 2) {
     throw new Error("Invalid encrypted record format");
@@ -92,7 +92,7 @@ export function decryptOnePatientField(encryptedRecord: string, symmetricKeyStri
 
   let decrypted = decipher.update(encryptedText, "hex", "utf8");
   decrypted += decipher.final("utf8");
-  return convertDecryptedStringToType(decrypted);
+  return convertDecryptedStringToType(decrypted, key);
 }
 
 export function decryptMultiplePatientFields(
@@ -104,11 +104,11 @@ export function decryptMultiplePatientFields(
   Object.entries(encryptedRecords).forEach(([key, encryptedValue]) => {
     let decrypted = null;
 
-    if (typeof encryptedValue === "string" && !key.includes("Key")) {
-      decrypted = decryptOnePatientField(encryptedValue, symmetricKeyString);
+    if (typeof encryptedValue === "string" && !key.includes("Key") && !exemptFields.includes(key)) {
+      decrypted = decryptOnePatientField(encryptedValue, symmetricKeyString, key);
 
       patientObj[key] = decrypted;
-    } else if (!key.includes("Key")) {
+    } else if (!key.includes("Key") || exemptFields.includes(key)) {
       patientObj[key] = encryptedValue; //means it was never encrypted it is an empty value ([]. {}, null, undefined)
     }
   });
@@ -116,10 +116,12 @@ export function decryptMultiplePatientFields(
   return patientObj;
 }
 
-function convertDecryptedStringToType(decryptedValue: any) {
+function convertDecryptedStringToType(decryptedValue: any, key: string) {
   let ret = decryptedValue;
   try {
-    ret = JSON.parse(decryptedValue);
+    if (!key.includes("Phone")) {
+      ret = JSON.parse(decryptedValue);
+    }
     // Additional check for date
     // if (typeof ret === "string") {
     //   const date = new Date(ret);
@@ -130,7 +132,8 @@ function convertDecryptedStringToType(decryptedValue: any) {
   } catch (e) {
     // If JSON.parse throws an error, assume the value is a plain string
     // If it's numeric, convert to a number
-    if (isNum(ret)) {
+    if (isNum(ret) && !key.includes("Phone")) {
+      console.log(key);
       ret = parseFloat(ret);
     }
   }

@@ -55,7 +55,7 @@ export const GenericCombobox = ({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[150px]", className)}>
+        <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[250px]", className)}>
           <Command>
             <CommandInput placeholder={searchPlaceholder} />
             <CommandEmpty>{noItemsMessage}</CommandEmpty>
@@ -67,9 +67,6 @@ export const GenericCombobox = ({
                   onSelect={() => {
                     setValue((prevValue) => (prevValue === item.value ? "" : item.value));
                     if (handleChange) {
-                      console.log("INN");
-                      console.log(fieldName);
-                      console.log(item.value);
                       handleChange((prev: any) => ({
                         ...prev,
                         [fieldName]: item.value,

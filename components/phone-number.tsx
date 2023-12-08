@@ -24,13 +24,12 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
 
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   };
-
-  const [value, setValue] = useState(formatPhoneNumber(number || ""));
+  let value = formatPhoneNumber(number || "");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e.target.value);
     const formattedNumber = formatPhoneNumber(e.target.value);
-    setValue(formattedNumber);
+    value = formattedNumber;
     handleChange(fieldName, formattedNumber.replace(/\D/g, "")); // Pass the selected value directly
   };
 
@@ -43,7 +42,7 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
         className="dark:bg-slate-800"
         value={value}
         onChange={onChange}
-        placeholder="(123) 456-7890"
+        placeholder="(000) 000-0000"
         disabled={disabled}
       />
     </div>

@@ -38,8 +38,14 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 
-  const getChangedFields = (newObj: any, originalObj: any): any => {
+  const getChangedFields = (newObj: any, originalObj: any, typedKey?: string): any => {
+    console.log(typedKey || "NONE typedKey");
+    console.log(newObj);
+    console.log(originalObj);
+    console.log(typeof newObj);
+    console.log(typeof originalObj);
     if (Array.isArray(newObj) && Array.isArray(originalObj)) {
+      console.log(typedKey, "IN 48");
       return newObj
         .map((item, index) => getChangedFields(item, originalObj[index] || {}))
         .filter((item) => item !== undefined && Object.keys(item).length > 0);
@@ -49,6 +55,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       typeof originalObj === "object" &&
       originalObj !== null
     ) {
+      console.log(typedKey, "IN 58");
+
       return Object.keys(newObj).reduce<StringIndexedObject>((acc, key) => {
         if (!_.isEqual(newObj[key], originalObj[key])) {
           acc[key] = newObj[key];
@@ -56,6 +64,10 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         return acc;
       }, {});
     } else {
+      console.log(typedKey, "IN ELSE");
+      console.log(typedKey || "NONE typedKey");
+      console.log(_.isEqual(newObj, originalObj) ? undefined : newObj);
+      console.log(newObj);
       // Directly compare non-object and non-array values
       return _.isEqual(newObj, originalObj) ? undefined : newObj;
     }
@@ -83,27 +95,36 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       return obj;
     }
   };
+
+  const handleCancel = () => {
+    setUser(initialUser);
+    setIsEditing(false);
+  };
   const handleSave = () => {
     setIsLoading(true);
-    console.log(user.race);
-
     const changes: Partial<PatientDemographicsType> = {};
 
     for (const key in initialUser) {
       if (initialUser.hasOwnProperty(key)) {
         const typedKey = key as keyof PatientDemographicsType;
-        const changedFields = getChangedFields(user[typedKey], initialUser[typedKey]);
-        if (changedFields && Object.keys(changedFields).length > 0) {
+        const changedFields = getChangedFields(user[typedKey], initialUser[typedKey], typedKey);
+        console.log(typedKey, changedFields);
+        console.log(typeof changedFields);
+        if ((changedFields && Object.keys(changedFields).length > 0) || changedFields === "") {
+          console.log(typedKey, changedFields);
+
           changes[typedKey] = trimStringsInObject(changedFields);
         }
       }
     }
-    console.log(user.addresses);
-    console.log(changes.addresses);
+    console.log(user);
+    console.log(initialUser);
+
     const dataCheck = checkForInvalidData(changes, initialUser);
     if (dataCheck !== "") {
       toast.error(dataCheck);
       setIsLoading(false);
+      setUser(initialUser);
       return;
     }
     if (Object.keys(changes).length > 0) {
@@ -171,9 +192,16 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         <Card className="w-full shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
           <CardHeader className="flex flex-row justify-between items-center bg-secondary text-primary/70 rounded-t-xl">
             <CardTitle className="text-md sm:text-xl">Demographics</CardTitle>
-            <Button disabled={isLoading} onClick={isEditing ? handleSave : handleEditToggle}>
-              {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
-            </Button>
+            <div className="flex gap-x-4">
+              <Button disabled={isLoading} onClick={isEditing ? handleSave : handleEditToggle}>
+                {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
+              </Button>
+              {isEditing && !isLoading && (
+                <Button variant={"destructive"} disabled={isLoading} onClick={handleCancel}>
+                  Cancel
+                </Button>
+              )}
+            </div>
           </CardHeader>
 
           <CardContent>

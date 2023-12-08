@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum HeightUnits {
+  FT
+  CM
+}
+
+enum WeightUnits {
+  LBS
+  KG
+}
+
+enum Unit {
+  METRIC
+  IMPERIAL
+}
+
+enum OrganizationRole {
+  ADMIN
+  DOCTOR
+  PATIENT
+  NURSE
+}
+
+enum OrganizationType {
+  CLINICAL_TRIAL
+  CLINIC
+  DOCTOR_OFFICE
+}
+
+model Address {
+  id               String         @id @default(uuid())
+  userId           String
+  address          String
+  address2         String?
+  city             String
+  state            String
+  zipcode          String
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientProfileId])
+}
+
+model PatientProfile {
+  id                String  @id @default(uuid())
+  userId            String  @unique
+  firstName         String
+  lastName          String
+  gender            String?
+  dateOfBirth       String?
+  maritalStatus     String?
+  race              String?
+  height            String?
+  weight            String?
+  unit              Unit    @default(IMPERIAL)
+  mobilePhone       String?
+  homePhone         String?
+  insuranceProvider String?
+  policyNumber      String?
+  groupNumber       String?
+  imageUrl          String  @db.Text
+  email             String
+  publicKey         String  @db.Text
+  privateKey        String  @db.Text
+  symmetricKey      String  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member    Member[]
+  addresses Address[]
+}
+
+model ProviderProfile {
+  id            String         @id @default(uuid())
+  userId        String         @unique
+  name          String
+  imageUrl      String         @db.Text
+  email         String
+  publicKey     String         @db.Text
+  privateKey    String         @db.Text
+  organizations Organization[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  member    Member[]
+}
+
+model Organization {
+  id               String           @id @default(uuid())
+  name             String
+  imageUrl         String           @db.Text
+  inviteCode       String           @unique
+  organizationType OrganizationType
+
+  providerProfileId String
+  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+
+  members Member[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([providerProfileId])
+}
+
+model Member {
+  id   String           @id @default(uuid())
+  role OrganizationRole
+
+  providerProfileId String?
+  providerProfile   ProviderProfile? @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  patientProfileId  String?
+  patientProfile    PatientProfile?  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  organizationId    String
+  Organization      Organization     @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([providerProfileId])
+  @@index([patientProfileId])
+  @@index([organizationId])
+}

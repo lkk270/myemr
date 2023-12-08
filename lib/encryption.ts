@@ -68,7 +68,6 @@ function convertValueToString(value: any) {
 // Encrypt patient records with the symmetric key
 export function encryptPatientRecord(record: string, symmetricKeyString: string) {
   const valueToEncrypt = convertValueToString(record);
-  console.log(valueToEncrypt);
   const symmetricKey = Buffer.from(symmetricKeyString, "hex");
   const iv = randomBytes(16); // Generate a new IV for each encryption
   const cipher = createCipheriv(algorithm, symmetricKey, iv);
@@ -86,10 +85,7 @@ export function decryptOnePatientField(encryptedRecord: string, symmetricKeyStri
 
   const iv = Buffer.from(parts[0], "hex"); // Extract the IV from the encrypted data
   const encryptedText = parts[1];
-  console.log(symmetricKeyString);
   const symmetricKey = Buffer.from(symmetricKeyString, "hex"); // Convert the key from hex to a Buffer
-  console.log("9111");
-  console.log(symmetricKey);
   const decipher = createDecipheriv(algorithm, symmetricKey, iv);
 
   let decrypted = decipher.update(encryptedText, "hex", "utf8");
@@ -102,7 +98,6 @@ export function decryptMultiplePatientFields(
   symmetricKeyString: string,
 ) {
   let patientObj: any = {};
-  console.log(symmetricKeyString);
   Object.entries(encryptedRecords).forEach(([key, encryptedValue]) => {
     let decrypted = null;
 

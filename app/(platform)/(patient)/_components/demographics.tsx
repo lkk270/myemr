@@ -283,14 +283,14 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:max-w-[50%] items-center gap-4 px-4">
                 <div>
                   <Label htmlFor="height">Height</Label>
                   <GenericCombobox
                     valueParam={user.height}
                     handleChange={(value) => handleChange("height", value)}
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal sm:max-w-[100px]"
+                    className="dark:bg-slate-800 font-normal sm:max-w-[120px]"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No results"
@@ -306,7 +306,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       name="weight"
                       min={2}
                       max={1500}
-                      className="dark:bg-slate-800 sm:max-w-[80px]"
+                      className="dark:bg-slate-800 max-w-[240px] sm:max-w-[120px]"
                       value={user.weight || ""}
                       onChange={handleInputChange}
                       placeholder="Weight"
@@ -321,7 +321,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     type="number"
                     id="bmi"
                     name="bmi"
-                    className="dark:bg-slate-800 sm:max-w-[100px]"
+                    placeholder="N/A"
+                    className="dark:bg-slate-800 max-w-[240px] sm:max-w-[120px]"
                     value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
                     disabled={true}
                   />

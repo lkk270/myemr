@@ -40,10 +40,16 @@ const PatientDemographics = async () => {
   if (!patientDemographics) {
     return <div>something went wrong</div>;
   }
-
-  const decryptedSymmetricKey = decryptKey(patientDemographics.symmetricKey, "patientSymmetricKey");
-  const decryptedPatientDemographics = decryptMultiplePatientFields(patientDemographics, decryptedSymmetricKey);
-  console.log(decryptedPatientDemographics);
+  console.log(patientDemographics);
+  let decryptedPatientDemographics;
+  try {
+    const decryptedSymmetricKey = decryptKey(patientDemographics.symmetricKey, "patientSymmetricKey");
+    console.log(decryptedSymmetricKey);
+    decryptedPatientDemographics = decryptMultiplePatientFields(patientDemographics, decryptedSymmetricKey);
+    console.log(decryptedPatientDemographics);
+  } catch (e) {
+    return <div>something went wrong</div>;
+  }
   return (
     <div className="flex pt-10 px-10 h-full justify-center">
       <Demographics patientDemographics={decryptedPatientDemographics} />

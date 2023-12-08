@@ -5,11 +5,18 @@ import prismadb from "@/lib/prismadb";
 
 import { decryptKey, encryptPatientRecord, checkForInvalidData } from "@/lib/utils";
 
-const discreteTables = ["address", "member"];
+const discreteTables = ["addresses", "member"];
+const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
 function buildUpdatePayload(data: any, symmetricKey: string) {
   const payload: any = {};
   for (const key in data) {
-    if (data[key] !== undefined && data[key] !== null && !discreteTables.includes(key)) {
+    if (
+      data[key] !== undefined &&
+      data[key] !== null &&
+      !discreteTables.includes(key) &&
+      !exemptFields.includes(key) &&
+      !key.includes("Key")
+    ) {
       payload[key] = encryptPatientRecord(data[key], symmetricKey);
     }
   }
@@ -28,7 +35,7 @@ export async function POST(req: Request) {
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (bodyLength === 0 || !data || checkForInvalidData(data) !== "") {
+    if (bodyLength === 0 || !data) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 
@@ -37,21 +44,44 @@ export async function POST(req: Request) {
         userId: userId,
       },
       select: {
+        id: true,
         symmetricKey: true,
+        addresses: true,
       },
     });
     if (!patient || !patient.symmetricKey) {
       return new NextResponse("Decryption key not found", { status: 401 });
     }
-    console.log(data);
+
+    if (checkForInvalidData(data, { addresses: patient?.addresses }) !== "") {
+      return new NextResponse("Invalid body", { status: 400 });
+    }
+
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
     const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
+    if (Object.keys(updatePayload).length > 0) {
+      await prismadb.patientProfile.update({
+        where: { userId },
+        data: updatePayload,
+      });
+    }
 
-    console.log(updatePayload);
-    await prismadb.patientProfile.update({
-      where: { userId },
-      data: updatePayload,
-    });
+    if (patient.addresses.length === 0 && data.addresses) {
+      const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
+      await prismadb.address.create({
+        data: { ...encryptedAddress, patientProfileId: patient.id, userId },
+      });
+    } else if (patient.addresses.length === 1 && data.addresses) {
+      const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
+      await prismadb.address.update({
+        where: {
+          userId: userId,
+          patientProfileId: patient.id,
+          id: patient.addresses[0].id,
+        },
+        data: { ...encryptedAddress },
+      });
+    }
 
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {

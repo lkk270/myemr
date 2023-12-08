@@ -15,7 +15,6 @@ interface ComboboxItem {
 interface GenericComboboxProps {
   items: ComboboxItem[];
   width?: string;
-  fieldName: string;
   valueParam?: string | null;
   placeholder?: string;
   searchPlaceholder?: string;
@@ -32,7 +31,6 @@ export const GenericCombobox = ({
   noItemsMessage = "No item found.",
   width = "w-[240px]",
   valueParam,
-  fieldName = "",
   handleChange,
   className = "dark:bg-slate-800",
   disabled = false,
@@ -65,15 +63,13 @@ export const GenericCombobox = ({
                   className={"cursor-pointer"}
                   key={item.value}
                   onSelect={() => {
-                    setValue((prevValue) => (prevValue === item.value ? "" : item.value));
+                    const newValue = item.value;
+                    setValue(newValue);
                     if (handleChange) {
-                      handleChange((prev: any) => ({
-                        ...prev,
-                        [fieldName]: item.value,
-                      }));
-
-                      setOpen(false);
+                      console.log(newValue);
+                      handleChange(newValue); // Pass the selected value directly
                     }
+                    setOpen(false);
                   }}
                 >
                   <Check className={cn("mr-2 h-4 w-4", value === item.value ? "opacity-100" : "opacity-0")} />

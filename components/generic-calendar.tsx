@@ -4,7 +4,6 @@ import Datepicker, { DateValueType, DateType } from "react-tailwindcss-datepicke
 interface GenericCalendarProps {
   disabled: boolean;
   className?: string;
-  fieldName: string;
   valueParam?: string | null;
   handleChange: (value: any) => void;
 }
@@ -19,7 +18,7 @@ function createDateValueType(dateString: string | null | undefined): DateValueTy
   };
 }
 
-export const GenericCalendar = ({ disabled, className, fieldName, valueParam, handleChange }: GenericCalendarProps) => {
+export const GenericCalendar = ({ disabled, className, valueParam, handleChange }: GenericCalendarProps) => {
   const [value, setValue] = useState(createDateValueType(valueParam));
 
   const handleValueChange = (newValue: any) => {
@@ -27,10 +26,7 @@ export const GenericCalendar = ({ disabled, className, fieldName, valueParam, ha
     console.log(newValue);
     console.log(typeof newValue);
     setValue(newValue);
-    handleChange((prev: any) => ({
-      ...prev,
-      [fieldName]: newValue.startDate,
-    }));
+    handleChange(newValue.startDate);
   };
 
   return (

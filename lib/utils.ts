@@ -19,11 +19,16 @@ export function isNum(str: string): boolean {
   return /^\d*\.?\d+$/.test(str);
 }
 
-export function checkForInvalidData(data: any) {
+export function checkForInvalidData(data: any, initialUser: any) {
+  console.log(data.addresses);
   // Return true if the string is undefined (skipping validation), otherwise check if it's a valid non-empty string
   const isStringValid = (str: string | undefined) => str === undefined || (str !== null && str.length > 0);
   const isNameValid = (str: string | undefined) => {
     return str === undefined || /^[A-Za-z]+(-[A-Za-z]+)*$/.test(str);
+  };
+  const isValidZipCode = (zip: string) => {
+    const regex = /^(\d{5})(-\d{4})?$/;
+    return regex.test(zip);
   };
 
   // Return true if the phone number is undefined (skipping validation), otherwise check if it's a valid 10-digit number
@@ -62,6 +67,27 @@ export function checkForInvalidData(data: any) {
     (data.weight && (data.weight.length > 8 || data.weight.includes("-") || parseFloat(data.weight) < 2))
   ) {
     return "Weight is invalid";
+  }
+  if (!initialUser.addresses || (initialUser.addresses.length === 0 && data.addresses)) {
+    const newAddresses = data.addresses[0];
+    if (!newAddresses.address || !newAddresses.city || !newAddresses.state || !newAddresses.zipcode) {
+      return "Address is missing required fields";
+    }
+  }
+  if (data.addresses && data.addresses.length !== 0) {
+    const address = data.addresses[0];
+    if (typeof address.address === "string" && address.address.length === 0) {
+      return "Invalid address";
+    }
+    if (typeof address.city === "string" && address.city.length === 0) {
+      return "Invalid city";
+    }
+    if (typeof address.state === "string" && address.state.length !== 2) {
+      return "Invalid state";
+    }
+    if (typeof address.zipcode === "string" && !isValidZipCode(address.zipcode)) {
+      return "Invalid zip code";
+    }
   }
   return "";
 }

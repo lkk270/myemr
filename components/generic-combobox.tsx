@@ -35,8 +35,9 @@ export const GenericCombobox = ({
   className = "dark:bg-slate-800",
   disabled = false,
 }: GenericComboboxProps) => {
+  const value = valueParam;
+
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(valueParam);
 
   return (
     <div className={disabled ? "cursor-not-allowed" : "cursor-default"}>
@@ -64,7 +65,6 @@ export const GenericCombobox = ({
                   key={item.value}
                   onSelect={() => {
                     const newValue = item.value;
-                    setValue(newValue);
                     if (handleChange) {
                       console.log(newValue);
                       handleChange(newValue); // Pass the selected value directly

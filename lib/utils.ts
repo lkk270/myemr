@@ -32,8 +32,7 @@ export function checkForInvalidData(data: any, initialUser: any) {
   };
 
   // Return true if the phone number is undefined (skipping validation), otherwise check if it's a valid 10-digit number
-  const isPhoneNumberValid = (phone: string | undefined) =>
-    phone === undefined || (phone.length === 10 && isNum(phone));
+  const isPhoneNumberValid = (phone: string | undefined) => !phone || (phone.length === 10 && isNum(phone));
 
   // Validate gender, considering undefined as valid (skipping validation)
   if (data.gender !== undefined && data.gender !== "MALE" && data.gender !== "FEMALE") {

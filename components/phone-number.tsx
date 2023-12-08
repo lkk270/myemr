@@ -7,7 +7,7 @@ interface PhoneNumberProps {
   number?: string | null;
   disabled?: boolean;
   fieldName: string;
-  handleChange: (value: any) => void;
+  handleChange: (name: string, value: any) => void;
 }
 
 export const PhoneNumber = ({ number = "", disabled = false, handleChange, fieldName }: PhoneNumberProps) => {
@@ -31,15 +31,12 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
     console.log(e.target.value);
     const formattedNumber = formatPhoneNumber(e.target.value);
     setValue(formattedNumber);
-    handleChange((prev: any) => ({
-      ...prev,
-      [fieldName]: formattedNumber.replace(/\D/g, ""),
-    }));
+    handleChange(fieldName, formattedNumber.replace(/\D/g, "")); // Pass the selected value directly
   };
 
   return (
     <div className="relative flex items-center">
-      <span className="py-2 px-3 text-2xl">🇺🇸</span>
+      <span className="px-3 text-2xl">🇺🇸</span>
       <Input
         type="tel"
         autoComplete="tel"

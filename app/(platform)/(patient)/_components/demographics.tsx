@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 import axios from "axios";
 
-import { Unit } from "@prisma/client";
+import { Address, Unit } from "@prisma/client";
 import { PatientDemographicsType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { PhoneNumber } from "@/components/phone-number";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { GenericCalendar } from "@/components/generic-calendar";
+import { GenericAddress } from "@/components/generic-address";
 import { toast } from "sonner";
 import { cn, checkForInvalidData, calculateBMI } from "@/lib/utils";
 import { heightsImperial, heightsMetric } from "@/lib/constants";
@@ -23,6 +24,12 @@ interface PatientDemographicsProps {
   patientDemographics: PatientDemographicsType;
 }
 
+type TrimmableObject = { [key: string]: Trimmable };
+type TrimmableArray = Array<string | TrimmableObject>;
+type Trimmable = string | TrimmableArray | TrimmableObject | null | undefined;
+interface StringIndexedObject {
+  [key: string]: any;
+}
 export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
@@ -31,6 +38,51 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 
+  const getChangedFields = (newObj: any, originalObj: any): any => {
+    if (Array.isArray(newObj) && Array.isArray(originalObj)) {
+      return newObj
+        .map((item, index) => getChangedFields(item, originalObj[index] || {}))
+        .filter((item) => item !== undefined && Object.keys(item).length > 0);
+    } else if (
+      typeof newObj === "object" &&
+      newObj !== null &&
+      typeof originalObj === "object" &&
+      originalObj !== null
+    ) {
+      return Object.keys(newObj).reduce<StringIndexedObject>((acc, key) => {
+        if (!_.isEqual(newObj[key], originalObj[key])) {
+          acc[key] = newObj[key];
+        }
+        return acc;
+      }, {});
+    } else {
+      // Directly compare non-object and non-array values
+      return _.isEqual(newObj, originalObj) ? undefined : newObj;
+    }
+  };
+  const trimStringsInObject = (obj: Trimmable): Trimmable => {
+    if (typeof obj === "string") {
+      return obj.trim();
+    } else if (Array.isArray(obj)) {
+      return obj.map((element) => {
+        if (typeof element === "string") {
+          return element.trim();
+        } else if (typeof element === "object" && element !== null) {
+          return trimStringsInObject(element) as TrimmableObject;
+        } else {
+          return element;
+        }
+      }) as TrimmableArray;
+    } else if (obj && typeof obj === "object") {
+      const reducedObject = Object.keys(obj).reduce<TrimmableObject>((acc, key) => {
+        acc[key] = trimStringsInObject(obj[key]);
+        return acc;
+      }, {});
+      return reducedObject as TrimmableObject;
+    } else {
+      return obj;
+    }
+  };
   const handleSave = () => {
     setIsLoading(true);
     console.log(user.race);
@@ -40,13 +92,15 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     for (const key in initialUser) {
       if (initialUser.hasOwnProperty(key)) {
         const typedKey = key as keyof PatientDemographicsType;
-        if (!_.isEqual(user[typedKey], initialUser[typedKey])) {
-          changes[typedKey] = user[typedKey].trim();
+        const changedFields = getChangedFields(user[typedKey], initialUser[typedKey]);
+        if (changedFields && Object.keys(changedFields).length > 0) {
+          changes[typedKey] = trimStringsInObject(changedFields);
         }
       }
     }
-
-    const dataCheck = checkForInvalidData(changes);
+    console.log(user.addresses);
+    console.log(changes.addresses);
+    const dataCheck = checkForInvalidData(changes, initialUser);
     if (dataCheck !== "") {
       toast.error(dataCheck);
       setIsLoading(false);
@@ -99,6 +153,17 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleAddressChange = (newAddress: Address) => {
+    setUser((prev) => ({
+      ...prev,
+      addresses: [newAddress], // Update the first address or add new
+    }));
+  };
+
+  const handleChange = (name: string, value: string) => {
+    setUser((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className="flex justify-center w-full max-w-[1500px]">
       <div className="grid grid-cols-1 w-full">
@@ -121,6 +186,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     className="bg-transparent border-secondary dark:bg-slate-800"
                     id="firstName"
                     name="firstName"
+                    autoComplete="off"
                     value={user.firstName}
                     onChange={handleInputChange}
                     placeholder="First Name"
@@ -155,18 +221,16 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                      */}
                     <GenericCalendar
                       disabled={!isEditing || isLoading}
-                      handleChange={setUser}
+                      handleChange={(value) => handleChange("dateOfBirth", value)}
                       valueParam={user.dateOfBirth}
-                      fieldName="dateOfBirth"
                     />
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="gender">Gender</Label>
                   <GenericCombobox
-                    handleChange={setUser}
+                    handleChange={(value) => handleChange("gender", value)}
                     valueParam={user.gender}
-                    fieldName="gender"
                     disabled={!isEditing || isLoading}
                     className="dark:bg-slate-800 font-normal"
                     placeholder="Select..."
@@ -182,9 +246,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 <div>
                   <Label htmlFor="race">Race</Label>
                   <GenericCombobox
-                    handleChange={setUser}
+                    handleChange={(value) => handleChange("race", value)}
                     valueParam={user.race}
-                    fieldName="race"
                     disabled={!isEditing || isLoading}
                     className="dark:bg-slate-800 font-normal"
                     placeholder="Select..."
@@ -204,8 +267,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <Label htmlFor="maritalStatus">Marital Status</Label>
                   <GenericCombobox
                     valueParam={user.maritalStatus}
-                    handleChange={setUser}
-                    fieldName="maritalStatus"
+                    handleChange={(value) => handleChange("maritalStatus", value)}
                     disabled={!isEditing || isLoading}
                     className="dark:bg-slate-800 font-normal"
                     placeholder="Select..."
@@ -221,15 +283,14 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 w-full items-center gap-4 px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
                 <div>
                   <Label htmlFor="height">Height</Label>
                   <GenericCombobox
                     valueParam={user.height}
-                    handleChange={setUser}
-                    fieldName="height"
+                    handleChange={(value) => handleChange("height", value)}
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal max-w-[100px]"
+                    className="dark:bg-slate-800 font-normal sm:max-w-[100px]"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No results"
@@ -245,7 +306,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       name="weight"
                       min={2}
                       max={1500}
-                      className="dark:bg-slate-800 max-w-[80px]"
+                      className="dark:bg-slate-800 sm:max-w-[80px]"
                       value={user.weight || ""}
                       onChange={handleInputChange}
                       placeholder="Weight"
@@ -260,7 +321,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     type="number"
                     id="bmi"
                     name="bmi"
-                    className="dark:bg-slate-800 max-w-[100px]"
+                    className="dark:bg-slate-800 sm:max-w-[100px]"
                     value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
                     disabled={true}
                   />
@@ -269,12 +330,12 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
             </div>
             <CardTitle className="my-4 text-md sm:text-lg text-primary/50">Contact</CardTitle>
             <div className="grid gap-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center gap-4 px-4">
                 <div>
                   <Label htmlFor="mobilePhone">Mobile phone</Label>
                   <PhoneNumber
                     fieldName="mobilePhone"
-                    handleChange={setUser}
+                    handleChange={handleChange}
                     disabled={!isEditing || isLoading}
                     number={user.mobilePhone}
                   />
@@ -283,7 +344,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <Label htmlFor="homePhone">Home phone</Label>
                   <PhoneNumber
                     fieldName="homePhone"
-                    handleChange={setUser}
+                    handleChange={handleChange}
                     disabled={!isEditing || isLoading}
                     number={user.homePhone}
                   />
@@ -293,6 +354,11 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <Input id="email" name="email" className="dark:bg-slate-800" value={user.email} disabled={true} />
                 </div>
               </div>
+              <GenericAddress
+                handleChange={handleAddressChange}
+                address={user.addresses.length > 0 ? user.addresses[0] : null}
+                disabled={!isEditing || isLoading}
+              />
             </div>
           </CardContent>
         </Card>

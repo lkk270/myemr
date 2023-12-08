@@ -13,7 +13,7 @@ import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
 
 // Symmetric encryption configuration
 const algorithm = "aes-256-cbc";
-const exemptFields = ["unit"];
+const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
 // Function to convert key objects to PEM formatted strings
 function convertKeyToString(key: KeyObject) {
   return key.export({ type: "pkcs1", format: "pem" }).toString();
@@ -86,8 +86,10 @@ export function decryptOnePatientField(encryptedRecord: string, symmetricKeyStri
 
   const iv = Buffer.from(parts[0], "hex"); // Extract the IV from the encrypted data
   const encryptedText = parts[1];
-
+  console.log(symmetricKeyString);
   const symmetricKey = Buffer.from(symmetricKeyString, "hex"); // Convert the key from hex to a Buffer
+  console.log("9111");
+  console.log(symmetricKey);
   const decipher = createDecipheriv(algorithm, symmetricKey, iv);
 
   let decrypted = decipher.update(encryptedText, "hex", "utf8");
@@ -100,43 +102,69 @@ export function decryptMultiplePatientFields(
   symmetricKeyString: string,
 ) {
   let patientObj: any = {};
-
+  console.log(symmetricKeyString);
   Object.entries(encryptedRecords).forEach(([key, encryptedValue]) => {
     let decrypted = null;
 
+    // Check if the value is a string and not a key or exempt field
     if (typeof encryptedValue === "string" && !key.includes("Key") && !exemptFields.includes(key)) {
       decrypted = decryptOnePatientField(encryptedValue, symmetricKeyString, key);
-
       patientObj[key] = decrypted;
-    } else if (!key.includes("Key") || exemptFields.includes(key)) {
-      patientObj[key] = encryptedValue; //means it was never encrypted it is an empty value ([]. {}, null, undefined)
+    }
+    // Check if the value is an array
+    else if (Array.isArray(encryptedValue) && !key.includes("Key")) {
+      patientObj[key] = encryptedValue.map((item) => {
+        if (typeof item === "object" && item !== null) {
+          return decryptObjectFields(item, symmetricKeyString);
+        }
+        return item; // return as is if it's not an object
+      });
+    }
+    // Check if the value is an object
+    else if (typeof encryptedValue === "object" && encryptedValue !== null && !key.includes("Key")) {
+      patientObj[key] = decryptObjectFields(encryptedValue, symmetricKeyString);
+    } else {
+      patientObj[key] = encryptedValue; // unencrypted values or exempt fields
     }
   });
 
   return patientObj;
 }
 
+// Helper function to decrypt fields of an object
+function decryptObjectFields(obj: any, symmetricKeyString: string) {
+  const decryptedObj: any = {};
+  Object.entries(obj).forEach(([key, value]) => {
+    if (typeof value === "string" && !key.includes("Key") && !exemptFields.includes(key)) {
+      decryptedObj[key] = decryptOnePatientField(value, symmetricKeyString, key);
+    } else {
+      decryptedObj[key] = value; // return as is if it's not a string
+    }
+  });
+  return decryptedObj;
+}
+
 function convertDecryptedStringToType(decryptedValue: any, key: string) {
   let ret = decryptedValue;
-  try {
-    if (!key.includes("Phone")) {
-      ret = JSON.parse(decryptedValue);
-    }
-    // Additional check for date
-    // if (typeof ret === "string") {
-    //   const date = new Date(ret);
-    //   if (!isNaN(date.getTime())) {
-    //     ret = date;
-    //   }
-    // }
-  } catch (e) {
-    // If JSON.parse throws an error, assume the value is a plain string
-    // If it's numeric, convert to a number
-    if (isNum(ret) && !key.includes("Phone")) {
-      console.log(key);
-      ret = parseFloat(ret);
-    }
-  }
+  // try {
+  //   if (!key.includes("Phone")) {
+  //     ret = JSON.parse(decryptedValue);
+  //   }
+  //   // Additional check for date
+  //   // if (typeof ret === "string") {
+  //   //   const date = new Date(ret);
+  //   //   if (!isNaN(date.getTime())) {
+  //   //     ret = date;
+  //   //   }
+  //   // }
+  // } catch (e) {
+  //   // If JSON.parse throws an error, assume the value is a plain string
+  //   // If it's numeric, convert to a number
+  //   if (isNum(ret) && !key.includes("Phone")) {
+  //     console.log(key);
+  //     ret = parseFloat(ret);
+  //   }
+  // }
   return ret;
 }
 
@@ -177,7 +205,6 @@ export function decryptKey(dataToDecrypt: string, keyType: EncryptionKeyType): s
   try {
     const secret = getKeySecret(keyType);
     const textParts = dataToDecrypt.split(":");
-
     // Check if IV is present
     const ivString = textParts.shift();
     if (!ivString) {
@@ -186,12 +213,11 @@ export function decryptKey(dataToDecrypt: string, keyType: EncryptionKeyType): s
 
     const iv = Buffer.from(ivString, "hex");
     const encryptedText = Buffer.from(textParts.join(":"), "hex");
-    const decipher = createDecipheriv("aes-256-cbc", Buffer.from(secret, "hex"), iv);
+    const decipher = createDecipheriv(algorithm, Buffer.from(secret, "hex"), iv);
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   } catch (error) {
-    console.error(error);
     return "Decryption failed";
   }
 }

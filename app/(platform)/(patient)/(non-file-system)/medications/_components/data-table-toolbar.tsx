@@ -59,7 +59,12 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className="flex gap-x-2">
+        <Button variant="outline" size="sm" className="ml-auto h-8">
+          New
+        </Button>
+        <DataTableViewOptions table={table} />
+      </div>
     </div>
   );
 }

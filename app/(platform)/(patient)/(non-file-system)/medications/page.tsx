@@ -37,7 +37,14 @@ const PatientMedications = async () => {
   }
   console.log(decryptedPatientMedications);
   const temp = [
-    { name: "Ibuprofen", physician: "Jeff Bander", category: "Cardiology", dosage: "1/3 mg, bod", status: "active" },
+    {
+      id: "testicles",
+      name: "Ibuprofen",
+      physician: "Jeff Bander",
+      category: "Cardiology",
+      dosage: "1/3 mg, bod",
+      status: "active",
+    },
   ];
   return (
     <div className="flex pt-10 sm:px-10 h-full justify-center">

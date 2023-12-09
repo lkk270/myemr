@@ -8,6 +8,9 @@ import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
+import { NewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
+import { ViewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
+
 const font = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -34,6 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             disableTransitionOnChange
             storageKey="emridoc-theme"
           >
+            <NewMedicationModal />
+            <ViewMedicationModal />
             <Toaster closeButton position="bottom-right" richColors theme="system" />
 
             {children}

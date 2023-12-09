@@ -21,6 +21,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
+import { useViewMedicationModal } from "./hooks/use-view-medication-modal";
+import { Medication } from "@prisma/client";
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -31,6 +34,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const viewMedicationModal = useViewMedicationModal();
 
   const table = useReactTable({
     data,
@@ -78,8 +82,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 <TableRow
                   className="hover:cursor-pointer"
                   onClick={() => {
-                    console.log(row);
-                    console.log("CLICK");
+                    viewMedicationModal.onOpen(row.original as Medication);
                   }}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
@@ -99,7 +102,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <div className="pb-10">
+        <DataTablePagination table={table} />
+      </div>
     </div>
   );
 }

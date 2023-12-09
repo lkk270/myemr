@@ -20,6 +20,8 @@ import {
 
 // import { labels } from "../_data/data";
 // import { taskSchema } from "../data/schema";
+import { useViewMedicationModal } from "./hooks/use-view-medication-modal";
+import { Medication } from "@prisma/client";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -27,6 +29,7 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   // const task = taskSchema.parse(row.original);
+  const viewMedicationModal = useViewMedicationModal();
 
   return (
     <DropdownMenu>
@@ -37,7 +40,17 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            viewMedicationModal.onOpen(row.original as Medication);
+
+            console.log("IN");
+          }}
+        >
+          Edit
+        </DropdownMenuItem>
         {/* <DropdownMenuItem>Make a copy</DropdownMenuItem>
         <DropdownMenuItem>Favorite</DropdownMenuItem> */}
         {/* <DropdownMenuSeparator />
@@ -54,9 +67,15 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           </DropdownMenuSubContent>
         </DropdownMenuSub> */}
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("IN");
+          }}
+        >
           Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+          {/* <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

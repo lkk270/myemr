@@ -11,12 +11,14 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { medicationCategories } from "@/lib/constants";
 import { statuses } from "../_data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { useNewMedicationModal } from "./hooks/use-new-medication-modal";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
 }
 
 export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
+  const newMedicationModal = useNewMedicationModal();
   const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
         )}
       </div>
       <div className="flex gap-x-2">
-        <Button variant="outline" size="sm" className="ml-auto h-8">
+        <Button variant="outline" size="sm" className="ml-auto h-8" onClick={newMedicationModal.onOpen}>
           New
         </Button>
         <DataTableViewOptions table={table} />

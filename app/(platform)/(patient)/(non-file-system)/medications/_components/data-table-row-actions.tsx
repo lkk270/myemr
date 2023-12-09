@@ -44,7 +44,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            viewMedicationModal.onOpen(row.original as Medication);
+            viewMedicationModal.onOpen(row.original as Medication, true);
 
             console.log("IN");
           }}

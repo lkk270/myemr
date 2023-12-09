@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 <TableRow
                   className="hover:cursor-pointer"
                   onClick={() => {
-                    viewMedicationModal.onOpen(row.original as Medication);
+                    viewMedicationModal.onOpen(row.original as Medication, false);
                   }}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}

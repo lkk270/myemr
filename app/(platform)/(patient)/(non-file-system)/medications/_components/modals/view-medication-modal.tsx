@@ -25,6 +25,7 @@ export const ViewMedicationModal = () => {
           <div className="justify-center mt-6">
             <p>Hello VIEW MEDICATION</p>
             <p>{viewMedicationModal.medication?.name}</p>
+            <p>EDIT: {viewMedicationModal.isEdit.toString()}</p>
           </div>
         </div>
       </DialogContent>

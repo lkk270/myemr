@@ -1,13 +1,15 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
+
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
-
-import { priorities, statuses } from "../_data/data";
+import { medicationCategories } from "@/lib/constants";
+import { statuses } from "../_data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 
 interface DataTableToolbarProps<TData> {
@@ -15,25 +17,43 @@ interface DataTableToolbarProps<TData> {
 }
 
 export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const [filterText, setFilterText] = useState("");
 
+  useEffect(() => {
+    // Set up a global filter
+    table.setGlobalFilter(filterText);
+  }, [filterText, table]);
+
+  const isFiltered = table.getState().globalFilter;
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter medications..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("title")?.setFilterValue(event.target.value)}
+          value={filterText}
+          onChange={(event) => setFilterText(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
         {table.getColumn("status") && (
           <DataTableFacetedFilter column={table.getColumn("status")} title="Status" options={statuses} />
         )}
-        {table.getColumn("priority") && (
-          <DataTableFacetedFilter column={table.getColumn("priority")} title="Priority" options={priorities} />
+        {table.getColumn("category") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("category")}
+            title="Category"
+            options={medicationCategories}
+          />
         )}
         {isFiltered && (
-          <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              table.resetColumnFilters();
+              setFilterText(""); // Reset the filter text state
+              table.setGlobalFilter(""); // Reset the global filter
+            }}
+            className="h-8 px-2 lg:px-3"
+          >
             Reset
             <Cross2Icon className="ml-2 h-4 w-4" />
           </Button>

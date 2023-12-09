@@ -477,3 +477,10 @@ export const states = [
   { value: "WI", label: "WI" },
   { value: "WY", label: "WY" },
 ];
+
+export const medicationCategories = [
+  { value: "Cardiology", label: "Cardiology" },
+  { value: "Neurology", label: "Neurology" },
+  { value: "Dementia", label: "Dementia" },
+  { value: "General", label: "General" },
+];

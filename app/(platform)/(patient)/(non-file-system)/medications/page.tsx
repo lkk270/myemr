@@ -36,6 +36,9 @@ const PatientMedications = async () => {
     return <div>something went wrong</div>;
   }
   console.log(decryptedPatientMedications);
+  const temp = [
+    { name: "Ibuprofen", physician: "Jeff Bander", category: "Cardiology", dosage: "1/3 mg, bod", status: "active" },
+  ];
   return (
     <div className="flex pt-10 sm:px-10 h-full justify-center">
       <div className="h-full flex-1 flex-col space-y-8 p-2 sm:p-8 flex">
@@ -44,7 +47,7 @@ const PatientMedications = async () => {
             <h2 className="text-2xl font-bold tracking-tight">Medications</h2>
           </div>
         </div>
-        <DataTable data={decryptedPatientMedications} columns={columns} />
+        <DataTable data={temp} columns={columns} />
       </div>
     </div>
   );

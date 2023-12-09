@@ -39,11 +39,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 
   const getChangedFields = (newObj: any, originalObj: any, typedKey?: string): any => {
-    console.log(typedKey || "NONE typedKey");
-    console.log(newObj);
-    console.log(originalObj);
-    console.log(typeof newObj);
-    console.log(typeof originalObj);
     if (Array.isArray(newObj) && Array.isArray(originalObj)) {
       console.log(typedKey, "IN 48");
       return newObj
@@ -55,8 +50,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       typeof originalObj === "object" &&
       originalObj !== null
     ) {
-      console.log(typedKey, "IN 58");
-
       return Object.keys(newObj).reduce<StringIndexedObject>((acc, key) => {
         if (!_.isEqual(newObj[key], originalObj[key])) {
           acc[key] = newObj[key];
@@ -64,10 +57,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         return acc;
       }, {});
     } else {
-      console.log(typedKey, "IN ELSE");
-      console.log(typedKey || "NONE typedKey");
-      console.log(_.isEqual(newObj, originalObj) ? undefined : newObj);
-      console.log(newObj);
       // Directly compare non-object and non-array values
       return _.isEqual(newObj, originalObj) ? undefined : newObj;
     }
@@ -108,8 +97,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       if (initialUser.hasOwnProperty(key)) {
         const typedKey = key as keyof PatientDemographicsType;
         const changedFields = getChangedFields(user[typedKey], initialUser[typedKey], typedKey);
-        console.log(typedKey, changedFields);
-        console.log(typeof changedFields);
         if ((changedFields && Object.keys(changedFields).length > 0) || changedFields === "") {
           console.log(typedKey, changedFields);
 
@@ -117,8 +104,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         }
       }
     }
-    console.log(user);
-    console.log(initialUser);
 
     const dataCheck = checkForInvalidData(changes, initialUser);
     if (dataCheck !== "") {
@@ -151,6 +136,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           throw error;
         })
         .finally(() => {
+          setInitialUser(user);
           setIsLoading(false);
           setIsEditing(false); // Toggle edit mode off after operation
         });

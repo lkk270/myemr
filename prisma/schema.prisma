@@ -64,12 +64,13 @@ model Medication {
   patientProfileId String
   name             String
   prescribedById   String?
-  presibedByName   String
+  prescribedByName String
+  category         String
   dosage           String
   dosageUnits      String
   frequency        String
   description      String?
-  active           Boolean
+  status           String
   PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())

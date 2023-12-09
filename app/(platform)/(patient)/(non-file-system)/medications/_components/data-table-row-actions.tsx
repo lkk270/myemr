@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { labels } from "../_data/data";
+// import { labels } from "../_data/data";
 // import { taskSchema } from "../data/schema";
 
 interface DataTableRowActionsProps<TData> {
@@ -38,9 +38,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuItem>Make a copy</DropdownMenuItem>
+        <DropdownMenuItem>Favorite</DropdownMenuItem> */}
+        {/* <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
@@ -52,7 +52,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
               ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
-        </DropdownMenuSub>
+        </DropdownMenuSub> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Delete

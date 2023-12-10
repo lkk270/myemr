@@ -47,9 +47,9 @@ const PatientMedications = async () => {
     },
     {
       id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
+      name: "Plavix",
+      physician: "Janice Korff",
+      category: "Neurology",
       dosage: "1/3 mg, bod",
       status: "active",
     },

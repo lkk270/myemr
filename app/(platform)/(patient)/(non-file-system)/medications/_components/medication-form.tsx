@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { checkForInvalidData } from "@/lib/utils";
 
 import _ from "lodash";
+import { medicationCategories } from "@/lib/constants";
 
 interface MedicationProps {
   medicationParam: Medication | null;
@@ -120,32 +121,34 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
         </div>
         {/* Personal Information Card */}
         <Card className="w-full ">
-          <CardContent>
+          <CardContent className="pt-2">
             <div className="grid gap-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
                 <div>
                   <Label htmlFor="medicationName">Name</Label>
-                  <Input
-                    className="bg-transparent border-secondary dark:bg-slate-800"
-                    id="medicationName"
-                    name="medicationName"
-                    autoComplete="off"
-                    value={medication?.name}
-                    onChange={handleInputChange}
-                    placeholder="Name"
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("category", value)}
+                    valueParam={medication?.category}
                     disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationCategories}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="dosage">Dosage</Label>
-                  <Input
-                    id="dosage"
-                    name="dosage"
-                    className="dark:bg-slate-800"
-                    value={medication?.dosage}
-                    onChange={handleInputChange}
-                    placeholder="Dosage"
+                  <Label htmlFor="category">Category</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("category", value)}
+                    valueParam={medication?.category}
                     disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No category found."
+                    items={medicationCategories}
+                    allowOther={true}
                   />
                 </div>
               </div>

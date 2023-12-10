@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
 
-import { statuses } from "../_data/data";
+import { statuses } from "./_data/data";
 import { medicationCategories } from "@/lib/constants";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";

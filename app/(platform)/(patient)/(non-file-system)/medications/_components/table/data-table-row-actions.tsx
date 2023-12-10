@@ -20,7 +20,7 @@ import {
 
 // import { labels } from "../_data/data";
 // import { taskSchema } from "../data/schema";
-import { useViewMedicationModal } from "./hooks/use-view-medication-modal";
+import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
 import { Medication } from "@prisma/client";
 
 interface DataTableRowActionsProps<TData> {

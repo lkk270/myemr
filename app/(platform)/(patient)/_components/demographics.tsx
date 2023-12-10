@@ -119,8 +119,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           console.log("Update successful", response.data);
 
           // Update the user state with the latest changes
-          setInitialUser((prevUser) => ({ ...prevUser, ...changes }));
-          console.log(user);
+          // setInitialUser((prevUser) => ({ ...prevUser, ...changes }));
+          setInitialUser(user);
         })
 
         .catch((error) => {

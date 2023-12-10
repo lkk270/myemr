@@ -10,11 +10,10 @@ import { Address } from "@prisma/client";
 interface AddressProps {
   address?: Address | null;
   disabled?: boolean;
-  fieldName?: string;
   handleChange: (value: any) => void;
 }
 
-export const GenericAddress = ({ address, disabled = false, handleChange, fieldName = "address" }: AddressProps) => {
+export const GenericAddress = ({ address, disabled = false, handleChange}: AddressProps) => {
   let localAddress: any = address || {};
   const handleLocalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

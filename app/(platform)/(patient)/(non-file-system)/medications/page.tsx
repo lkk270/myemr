@@ -6,8 +6,8 @@ import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 
 import Image from "next/image";
 
-import { columns } from "./_components/columns";
-import { DataTable } from "./_components/data-table";
+import { columns } from "./_components/table/columns";
+import { DataTable } from "./_components/table/data-table";
 
 const PatientMedications = async () => {
   const { userId } = auth();

@@ -21,7 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
-import { useViewMedicationModal } from "./hooks/use-view-medication-modal";
+import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
 import { Medication } from "@prisma/client";
 
 interface DataTableProps<TData, TValue> {

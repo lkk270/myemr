@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
+import { MedicationForm } from "../medication-form";
 
 export const ViewMedicationModal = () => {
   const viewMedicationModal = useViewMedicationModal();
@@ -19,15 +20,9 @@ export const ViewMedicationModal = () => {
   }
   return (
     <Dialog open={viewMedicationModal.isOpen} onOpenChange={viewMedicationModal.onClose}>
-      <DialogContent className="overflow-y-scroll h-4/7">
-        <div className="text-left text-md text-primary/50 gap-y-3">
-          <DialogTitle className="text-center text-sky-500">Some News</DialogTitle>
-          <div className="justify-center mt-6">
-            <p>Hello VIEW MEDICATION</p>
-            <p>{viewMedicationModal.medication?.name}</p>
-            <p>EDIT: {viewMedicationModal.isEdit.toString()}</p>
-          </div>
-        </div>
+      <DialogContent className="overflow-y-scroll h-4/7 max-w-[720px] w-full">
+        {/* <DialogTitle className="text-center text-sky-500">Some News</DialogTitle> */}
+        <MedicationForm medicationParam={viewMedicationModal.medication} />
       </DialogContent>
     </Dialog>
   );

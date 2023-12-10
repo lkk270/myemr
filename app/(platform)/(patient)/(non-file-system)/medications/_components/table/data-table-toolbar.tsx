@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { medicationCategories } from "@/lib/constants";
-import { statuses } from "../_data/data";
+import { statuses } from "./_data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { useNewMedicationModal } from "./hooks/use-new-medication-modal";
+import { useNewMedicationModal } from "../hooks/use-new-medication-modal";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -31,7 +31,7 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
-          placeholder="Filter medications..."
+          placeholder="Filter..."
           value={filterText}
           onChange={(event) => setFilterText(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"

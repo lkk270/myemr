@@ -20,14 +20,6 @@ export type PatientDemographicsType = {
   addresses: Address[] | any;
 };
 
-export type DosageHistoryType = {
-  id: string;
-  medicationId: string;
-  dosage: string;
-  dosageUnits: string;
-  frequency: string;
-  createdAt: Date;
-};
 
 export type MedicationType = {
   id: string;
@@ -44,5 +36,5 @@ export type MedicationType = {
   status: string;
   createdAt: Date;
   updatedAt: Date;
-  dosageHistory: DosageHistoryType[];
+  dosageHistory: DosageHistory[];
 };

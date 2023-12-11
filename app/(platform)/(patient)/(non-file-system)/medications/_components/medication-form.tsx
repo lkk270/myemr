@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 import { Medication } from "@prisma/client";
+import { MedicationType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,18 +13,21 @@ import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
 import { checkForInvalidData } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DosageHistoryPopover } from "./dosage-history-popover";
 
 interface MedicationProps {
-  medicationParam: Medication | null;
+  medicationParam: MedicationType | null;
 }
 
 export const MedicationForm = ({ medicationParam }: MedicationProps) => {
-  const [initialMedication, setInitialMedication] = useState<Medication | null>(medicationParam);
-  const [medication, setMedication] = useState<Medication | null>(medicationParam);
+  console.log(medicationParam);
+  const [initialMedication, setInitialMedication] = useState<MedicationType | null>(medicationParam);
+  const [medication, setMedication] = useState<MedicationType | null>(medicationParam);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,6 +37,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   };
 
   const handleCancel = () => {
+    console.log(medication);
     setMedication(initialMedication);
     setIsEditing(false);
   };
@@ -103,8 +108,13 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
     setMedication((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
+  const handleStatusChange = (checked: boolean) => {
+    const newStatus = checked ? "active" : "inactive";
+    setMedication((prev) => (prev ? { ...prev, status: newStatus } : null));
+  };
+
   return (
-    <div className="flex justify-center w-full max-w-[1500px]">
+    <div className="flex justify-center w-full max-w-[850px]">
       <div className="grid grid-cols-1 w-full">
         <div className="flex gap-x-4 justify-start pb-3">
           <Button
@@ -201,111 +211,49 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
                 <div>
-                  <Label htmlFor="medicationName">Name</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("name", value)}
-                    valueParam={medication?.name}
+                  <Label htmlFor="prescribedByName">Prescriber</Label>
+                  <Input
+                    className="bg-transparent border-secondary dark:bg-slate-800"
+                    id="prescribedByName"
+                    name="prescribedByName"
+                    autoComplete="off"
+                    value={medication?.prescribedByName}
+                    onChange={handleInputChange}
+                    placeholder="Prescriber"
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
-                    items={medicationsList}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("category", value)}
-                    valueParam={medication?.category}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No category found."
-                    items={medicationCategories}
-                    allowOther={true}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
                 <div>
-                  <Label htmlFor="medicationName">Name</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("name", value)}
-                    valueParam={medication?.name}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
-                    items={medicationsList}
-                  />
+                  <Label htmlFor="status">Status</Label>
+                  <div className="flex items-center">
+                    <Switch
+                      checked={medication?.status.toLowerCase() === "active"}
+                      disabled={!isEditing || isLoading}
+                      name="status"
+                      onCheckedChange={(checked) => handleStatusChange(checked)}
+                    />
+                    <span className="inline ml-2">{medication?.status.toUpperCase()}</span>
+                  </div>
                 </div>
                 <div>
-                  <Label htmlFor="category">Category</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("category", value)}
-                    valueParam={medication?.category}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No category found."
-                    items={medicationCategories}
-                    allowOther={true}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
-                <div>
-                  <Label htmlFor="medicationName">Name</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("name", value)}
-                    valueParam={medication?.name}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
-                    items={medicationsList}
-                  />
+                  <Label>Last updated</Label>
+                  <div className="flex items-center">
+                    <span className="inline ml-2">{medication?.updatedAt?.toString() || "-"}</span>
+                  </div>
                 </div>
                 <div>
-                  <Label htmlFor="category">Category</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("category", value)}
-                    valueParam={medication?.category}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No category found."
-                    items={medicationCategories}
-                    allowOther={true}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
-                <div>
-                  <Label htmlFor="medicationName">Name</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("name", value)}
-                    valueParam={medication?.name}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
-                    items={medicationsList}
-                  />
+                  <Label>Dosage history</Label>
+                  <div>
+                    <DosageHistoryPopover dosageHistory={medication?.dosageHistory || []} />
+                  </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-      {/* ... Continue with other cards ... */}
     </div>
   );
 };

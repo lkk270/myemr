@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import { Medication } from "@prisma/client";
+import { MedicationType } from "@/app/types";
 
 interface useViewMedicationStore {
   isOpen: boolean;
   isEdit: boolean;
-  medication: Medication | null;
-  onOpen: (medication: Medication, isEdit: boolean) => void;
+  medication: MedicationType | null;
+  onOpen: (medication: MedicationType, isEdit: boolean) => void;
   onClose: () => void;
 }
 

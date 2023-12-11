@@ -58,8 +58,21 @@ model Address {
   @@index([patientProfileId])
 }
 
+model DosageHistory {
+  id           String     @id @default(uuid())
+  medicationId String
+  dosage       String
+  dosageUnits  String
+  frequency    String
+  Medication   Medication @relation(fields: [medicationId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([medicationId])
+}
+
 model Medication {
-  id               String         @id @default(uuid())
+  id               String          @id @default(uuid())
   userId           String
   patientProfileId String
   name             String
@@ -71,7 +84,9 @@ model Medication {
   frequency        String
   description      String?
   status           String
-  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  dosageHistory    DosageHistory[]
+
+  PatientProfile PatientProfile @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

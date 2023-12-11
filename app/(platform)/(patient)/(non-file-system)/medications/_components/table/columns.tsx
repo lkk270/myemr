@@ -63,12 +63,12 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
-    accessorKey: "physician",
+    accessorKey: "prescribedByName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Prescribing Physician" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
-          <span>{row.getValue("physician")}</span>
+          <span>{row.getValue("prescribedByName")}</span>
         </div>
       );
     },
@@ -109,14 +109,12 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "dosage",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Dosage" />,
     cell: ({ row }) => {
+      const value = `${row.getValue("dosage") as string} ${row.getValue("dosageUnits") as string}/${
+        row.getValue("frequency") as string
+      } `;
       return (
         <div className="flex items-center">
-          <span>
-            {
-              ((((row.getValue("dosage") as string) + row.getValue("dosageUnits")) as string) +
-                row.getValue("frequency")) as string
-            }
-          </span>
+          <span>{value}</span>
         </div>
       );
     },

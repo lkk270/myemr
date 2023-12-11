@@ -31,7 +31,6 @@ const PatientMedications = async () => {
   if (!patientMedications) {
     return <div>something went wrong</div>;
   }
-  console.log(patientMedications.medications[0].dosageHistory);
   let decryptedPatientMedications;
 
   try {

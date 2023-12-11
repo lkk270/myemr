@@ -25,7 +25,6 @@ interface GenericComboboxProps {
   className?: string;
   disabled?: boolean;
   allowOther?: boolean;
-  inModal?: boolean;
 }
 
 export const GenericCombobox = ({
@@ -39,7 +38,6 @@ export const GenericCombobox = ({
   className = "dark:bg-slate-800",
   disabled = false,
   allowOther = false,
-  inModal = false,
 }: GenericComboboxProps) => {
   const [newItems, setNewItems] = useState(items);
   const [open, setOpen] = useState(false);

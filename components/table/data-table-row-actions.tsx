@@ -8,11 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>;
-  onOpen?: (data: any, isEdit: boolean) => void;
-}
+import { DataTableRowActionsProps } from "@/app/types";
 
 export function DataTableRowActions<TData>({ row, onOpen }: DataTableRowActionsProps<TData>) {
   return (

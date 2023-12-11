@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { checkForInvalidData } from "@/lib/utils";
 
 import _ from "lodash";
-import { medicationsList, medicationCategories } from "@/lib/constants";
+import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MedicationProps {
@@ -138,6 +138,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     searchPlaceholder="Search..."
                     noItemsMessage="No medication found."
                     items={medicationsList}
+                    allowOther={true}
                   />
                 </div>
                 <div>
@@ -155,32 +156,46 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
                 <div>
-                  <Label htmlFor="medicationName">Name</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("name", value)}
-                    valueParam={medication?.name}
+                  <Label htmlFor="dosage">Dosage</Label>
+                  <Input
+                    className="bg-transparent border-secondary dark:bg-slate-800"
+                    id="dosage"
+                    name="dosage"
+                    autoComplete="off"
+                    type="number"
+                    value={medication?.dosage}
+                    onChange={handleInputChange}
+                    placeholder="Dosage"
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
-                    items={medicationsList}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="dosageUnits">Units</Label>
                   <GenericCombobox
-                    handleChange={(value) => handleChange("category", value)}
-                    valueParam={medication?.category}
+                    handleChange={(value) => handleChange("dosageUnits", value)}
+                    valueParam={medication?.dosageUnits}
                     disabled={!isEditing || isLoading}
                     className="dark:bg-slate-800 font-normal w-full"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
-                    noItemsMessage="No category found."
-                    items={medicationCategories}
+                    noItemsMessage="No units found."
+                    items={dosageUnits}
                     allowOther={true}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="frequency">Frequency</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("frequency", value)}
+                    valueParam={medication?.frequency}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No dosage frequency found."
+                    items={dosageFrequency}
                   />
                 </div>
               </div>

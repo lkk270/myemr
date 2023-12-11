@@ -21,29 +21,35 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
-import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
-import { Medication } from "@prisma/client";
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  newOnOpen?: () => void;
+  onOpen?: (data: any, isEdit: boolean) => void;
+  hiddenColumns?: Record<string, boolean>;
+  filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  newOnOpen,
+  onOpen,
+  hiddenColumns = {},
+  filters,
+}: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(hiddenColumns);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const viewMedicationModal = useViewMedicationModal();
-
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
-      columnVisibility,
       rowSelection,
       columnFilters,
+      columnVisibility,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -60,7 +66,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -82,7 +88,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 <TableRow
                   className="hover:cursor-pointer"
                   onClick={() => {
-                    viewMedicationModal.onOpen(row.original as Medication, false);
+                    if (onOpen) {
+                      onOpen(row.original, true);
+                    }
                   }}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}

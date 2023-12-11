@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
 import { MedicationForm } from "../medication-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { truncateSync } from "fs";
 // import { DialogOverlay } from "@radix-ui/react-dialog";
 
 export const ViewMedicationModal = () => {
@@ -22,9 +23,8 @@ export const ViewMedicationModal = () => {
   }
   return (
     <Dialog open={viewMedicationModal.isOpen} onOpenChange={viewMedicationModal.onClose}>
-      <DialogContent className="h-4/7 max-w-[720px] w-full">
-        {/* <DialogTitle className="text-center text-sky-500">Some News</DialogTitle> */}
-          <MedicationForm medicationParam={viewMedicationModal.medication} />
+      <DialogContent className="overflow-y-scroll h-3/4 max-w-[720px] w-full">
+        <MedicationForm medicationParam={viewMedicationModal.medication} />
       </DialogContent>
     </Dialog>
   );

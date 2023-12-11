@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ScrollArea } from "./ui/scroll-area";
 
 interface ComboboxItem {
   value: string;
@@ -69,7 +68,7 @@ export const GenericCombobox = ({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className={cn(width, "p-0 max-h-[258px]", className)}>
+        <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[250px]", className)}>
           <Command>
             <CommandInput placeholder={searchPlaceholder} onValueChange={(value) => setSearchInput(value)} />
             <CommandEmpty>
@@ -93,43 +92,22 @@ export const GenericCombobox = ({
                 </div>
               )}
             </CommandEmpty>
-            {/* {!inModal ? ( */}
-            <ScrollArea className="h-[258px] pb-2">
-              <CommandGroup>
-                {newItems.map((item) => (
-                  <CommandItem
-                    className="cursor-pointer"
-                    key={item.value}
-                    value={item.value}
-                    onSelect={() => {
-                      handleChange && handleChange(item.value);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check className={cn("mr-2 h-4 w-4", valueParam === item.value ? "opacity-100" : "opacity-0")} />
-                    {item.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </ScrollArea>
-            {/* ) : (
-              <CommandGroup>
-                {newItems.map((item) => (
-                  <CommandItem
-                    className="cursor-pointer"
-                    key={item.value}
-                    value={item.value}
-                    onSelect={() => {
-                      handleChange && handleChange(item.value);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check className={cn("mr-2 h-4 w-4", valueParam === item.value ? "opacity-100" : "opacity-0")} />
-                    {item.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )} */}
+            <CommandGroup>
+              {newItems.map((item) => (
+                <CommandItem
+                  className="cursor-pointer"
+                  key={item.value}
+                  value={item.value}
+                  onSelect={() => {
+                    handleChange && handleChange(item.value);
+                    setOpen(false);
+                  }}
+                >
+                  <Check className={cn("mr-2 h-4 w-4", valueParam === item.value ? "opacity-100" : "opacity-0")} />
+                  {item.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
           </Command>
         </PopoverContent>
       </Popover>

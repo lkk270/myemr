@@ -4,6 +4,9 @@ import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { CustomDataTable } from "./_components/table/custom-data-table";
+import { Medication } from "@prisma/client";
+
+import { MedicationType } from "@/app/types";
 
 const PatientMedications = async () => {
   const { userId } = auth();
@@ -16,7 +19,11 @@ const PatientMedications = async () => {
       userId: userId,
     },
     select: {
-      medications: true,
+      medications: {
+        include: {
+          dosageHistory: true,
+        },
+      },
       symmetricKey: true,
     },
   });
@@ -24,216 +31,40 @@ const PatientMedications = async () => {
   if (!patientMedications) {
     return <div>something went wrong</div>;
   }
+  console.log(patientMedications.medications[0].dosageHistory);
   let decryptedPatientMedications;
+
   try {
     const decryptedSymmetricKey = decryptKey(patientMedications.symmetricKey, "patientSymmetricKey");
-    decryptedPatientMedications = decryptMultiplePatientFields(patientMedications, decryptedSymmetricKey);
+    decryptedPatientMedications = decryptMultiplePatientFields(patientMedications.medications, decryptedSymmetricKey);
   } catch (e) {
     return <div>something went wrong</div>;
   }
   console.log(decryptedPatientMedications);
-  const temp = [
+  const temp: MedicationType[] = [
     {
+      userId: "user13",
+      patientProfileId: "user13",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       id: "testicles",
       name: "Ibuprofen",
-      physician: "Jeff Bander",
+      prescribedByName: "Jeff Bander",
       category: "Cardiology",
       dosage: "5",
       dosageUnits: "mg",
       frequency: "bid",
       status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Plavix",
-      physician: "Janice Korff",
-      category: "Neurology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
-    },
-    {
-      id: "testicles",
-      name: "Ibuprofen",
-      physician: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "1/3 mg, bod",
-      status: "active",
+      dosageHistory: [
+        {
+          id: "eeadsfsdf",
+          medicationId: "testicles",
+          dosage: "10",
+          dosageUnits: "mg",
+          frequency: "bid",
+          createdAt: new Date(),
+        },
+      ],
     },
   ];
   return (

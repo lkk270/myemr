@@ -63,3 +63,11 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+.custom-popover-content {
+  /* Adjust these values based on your specific layout and design */
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}

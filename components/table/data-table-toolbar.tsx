@@ -8,17 +8,16 @@ import { Table } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
-import { medicationCategories } from "@/lib/constants";
-import { statuses } from "./_data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { useNewMedicationModal } from "../hooks/use-new-medication-modal";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  newOnOpen?: () => void;
+  filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
 }
 
-export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
-  const newMedicationModal = useNewMedicationModal();
+export function DataTableToolbar<TData>({ table, newOnOpen, filters = [] }: DataTableToolbarProps<TData>) {
+  // const newMedicationModal = useNewMedicationModal();
   const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
@@ -36,16 +35,16 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
           onChange={(event) => setFilterText(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn("status") && (
-          <DataTableFacetedFilter column={table.getColumn("status")} title="Status" options={statuses} />
-        )}
-        {table.getColumn("category") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("category")}
-            title="Category"
-            options={medicationCategories}
-          />
-        )}
+        {filters.map((filter) => {
+          return (
+            <DataTableFacetedFilter
+              key={filter.accessorKey}
+              column={table.getColumn(filter.accessorKey)}
+              title={filter.title}
+              options={filter.options}
+            />
+          );
+        })}
         {isFiltered && (
           <Button
             variant="ghost"
@@ -61,12 +60,14 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
           </Button>
         )}
       </div>
-      <div className="flex gap-x-2">
-        <Button variant="outline" size="sm" className="ml-auto h-8" onClick={newMedicationModal.onOpen}>
-          New
-        </Button>
-        <DataTableViewOptions table={table} />
-      </div>
+      {newOnOpen && (
+        <div className="flex gap-x-2">
+          <Button variant="outline" size="sm" className="ml-auto h-8" onClick={newOnOpen}>
+            New
+          </Button>
+          <DataTableViewOptions table={table} />
+        </div>
+      )}
     </div>
   );
 }

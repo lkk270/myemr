@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 
 import { statuses } from "./_data/data";
 import { medicationCategories } from "@/lib/constants";
-import { DataTableColumnHeader } from "./data-table-column-header";
-import { DataTableRowActions } from "./data-table-row-actions";
+import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
+import { DataTableRowActions } from "@/components/table/data-table-row-actions";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -76,6 +76,34 @@ export const columns: ColumnDef<any>[] = [
       return value.includes(row.getValue(id));
     },
   },
+  {
+    accessorKey: "dosageUnits",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="dosageUnits" />,
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">
+          <span>{row.getValue("dosageUnits")}</span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: "frequency",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="frequency" />,
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">
+          <span>{row.getValue("frequency")}</span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
 
   {
     accessorKey: "dosage",
@@ -83,10 +111,16 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
-          <span>{row.getValue("dosage")}</span>
+          <span>
+            {
+              ((((row.getValue("dosage") as string) + row.getValue("dosageUnits")) as string) +
+                row.getValue("frequency")) as string
+            }
+          </span>
         </div>
       );
     },
+
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },

@@ -1,29 +1,5 @@
-import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
-  CheckCircledIcon,
-  CircleIcon,
-  CrossCircledIcon,
-  QuestionMarkCircledIcon,
-  StopwatchIcon,
-  UpdateIcon,
-} from "@radix-ui/react-icons";
-
-export const labels = [
-  {
-    value: "bug",
-    label: "Bug",
-  },
-  {
-    value: "feature",
-    label: "Feature",
-  },
-  {
-    value: "documentation",
-    label: "Documentation",
-  },
-];
+import { CrossCircledIcon, UpdateIcon } from "@radix-ui/react-icons";
+import { medicationCategories } from "@/lib/constants";
 
 export const statuses = [
   {
@@ -37,4 +13,11 @@ export const statuses = [
     label: "Inactive",
     icon: CrossCircledIcon,
   },
+];
+
+export const hiddenColumns = { dosageUnits: false, frequency: false };
+
+export const filters = [
+  { accessorKey: "status", title: "Status", options: statuses },
+  { accessorKey: "category", title: "Category", options: medicationCategories },
 ];

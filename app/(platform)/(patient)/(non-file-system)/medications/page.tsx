@@ -3,11 +3,7 @@ import { auth, redirectToSignIn } from "@clerk/nextjs";
 import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
-
-import Image from "next/image";
-
-import { columns } from "./_components/table/columns";
-import { DataTable } from "./_components/table/data-table";
+import { CustomDataTable } from "./_components/table/custom-data-table";
 
 const PatientMedications = async () => {
   const { userId } = auth();
@@ -42,7 +38,9 @@ const PatientMedications = async () => {
       name: "Ibuprofen",
       physician: "Jeff Bander",
       category: "Cardiology",
-      dosage: "1/3 mg, bod",
+      dosage: "5",
+      dosageUnits: "mg",
+      frequency: "bid",
       status: "active",
     },
     {
@@ -246,7 +244,7 @@ const PatientMedications = async () => {
             <h2 className="text-2xl font-bold tracking-tight">Medications</h2>
           </div>
         </div>
-        <DataTable data={temp} columns={columns} />
+        <CustomDataTable data={temp} />
       </div>
     </div>
   );

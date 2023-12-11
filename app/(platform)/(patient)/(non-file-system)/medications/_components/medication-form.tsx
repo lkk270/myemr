@@ -25,7 +25,6 @@ interface MedicationProps {
 }
 
 export const MedicationForm = ({ medicationParam }: MedicationProps) => {
-  console.log(medicationParam);
   const [initialMedication, setInitialMedication] = useState<MedicationType | null>(medicationParam);
   const [medication, setMedication] = useState<MedicationType | null>(medicationParam);
   const [isEditing, setIsEditing] = useState(false);
@@ -240,12 +239,12 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                 <div>
                   <Label>Last updated</Label>
                   <div className="flex items-center">
-                    <span className="inline ml-2">{medication?.updatedAt?.toString() || "-"}</span>
+                    <span className="inline text-sm">{medication?.updatedAt?.toISOString().split("T")[0] || "-"}</span>
                   </div>
                 </div>
                 <div>
-                  <Label>Dosage history</Label>
-                  <div>
+                  <Label>Dosage History</Label>
+                  <div className="flex items-center">
                     <DosageHistoryPopover dosageHistory={medication?.dosageHistory || []} />
                   </div>
                 </div>

@@ -29,6 +29,7 @@ export function DataTableRowActions<TData>({ row, onOpen }: DataTableRowActionsP
             e.preventDefault();
             e.stopPropagation();
             if (onOpen) {
+              console.log("CLICKED");
               onOpen(row.original, true);
             }
           }}

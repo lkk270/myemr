@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { statuses } from "./_data/data";
 import { medicationCategories } from "@/lib/constants";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
-import { DataTableRowActions } from "@/components/table/data-table-row-actions";
+import { CustomDataTableRowActions } from "./custom-data-table-row-actions";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -127,6 +127,6 @@ export const columns: ColumnDef<any>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    cell: ({ row }) => <CustomDataTableRowActions row={row} />,
   },
 ];

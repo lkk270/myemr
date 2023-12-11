@@ -66,6 +66,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
           // Update the medication state with the latest changes
           //   setInitialMedication((prevMedication) => ({ ...prevMedication, ...changes }));
           setInitialMedication(medication);
+          setIsEditing(false);
         })
 
         .catch((error) => {
@@ -75,7 +76,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
         })
         .finally(() => {
           setIsLoading(false);
-          setIsEditing(false); // Toggle edit mode off after operation
+          // Toggle edit mode off after operation
         });
       toast.promise(promise, {
         loading: "Saving changes",
@@ -136,7 +137,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     searchPlaceholder="Search..."
                     noItemsMessage="No medication found."
                     items={medicationsList}
-                    inModal={true}
                   />
                 </div>
                 <div>

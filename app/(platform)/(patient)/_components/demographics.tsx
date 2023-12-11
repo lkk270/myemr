@@ -121,6 +121,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           // Update the user state with the latest changes
           // setInitialUser((prevUser) => ({ ...prevUser, ...changes }));
           setInitialUser(user);
+          setIsEditing(false);
         })
 
         .catch((error) => {
@@ -131,13 +132,13 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           // setUser((prevUser) => ({ ...prevUser, ...initialUser }));
           // console.log(user.race);
           // console.log(user.firstName);
-          setUser(initialUser);
+          // setUser(initialUser);
+          // Toggle edit mode off after operation
 
           throw error;
         })
         .finally(() => {
           setIsLoading(false);
-          setIsEditing(false); // Toggle edit mode off after operation
         });
       toast.promise(promise, {
         loading: "Saving changes",

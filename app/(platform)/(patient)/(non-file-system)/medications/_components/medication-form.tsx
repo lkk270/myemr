@@ -15,6 +15,7 @@ import { checkForInvalidData } from "@/lib/utils";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories } from "@/lib/constants";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MedicationProps {
   medicationParam: Medication | null;
@@ -282,20 +283,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     searchPlaceholder="Search..."
                     noItemsMessage="No medication found."
                     items={medicationsList}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("category", value)}
-                    valueParam={medication?.category}
-                    disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No category found."
-                    items={medicationCategories}
-                    allowOther={true}
                   />
                 </div>
               </div>

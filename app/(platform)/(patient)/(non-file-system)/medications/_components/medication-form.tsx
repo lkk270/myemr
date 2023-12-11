@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { checkForInvalidData } from "@/lib/utils";
 
 import _ from "lodash";
-import { medicationCategories } from "@/lib/constants";
+import { medicationsList, medicationCategories } from "@/lib/constants";
 
 interface MedicationProps {
   medicationParam: Medication | null;
@@ -69,10 +69,11 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
         })
 
         .catch((error) => {
+          // setMedication(initialMedication);
+
           throw error;
         })
         .finally(() => {
-          setInitialMedication(medication);
           setIsLoading(false);
           setIsEditing(false); // Toggle edit mode off after operation
         });
@@ -127,14 +128,160 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                 <div>
                   <Label htmlFor="medicationName">Name</Label>
                   <GenericCombobox
+                    handleChange={(value) => handleChange("name", value)}
+                    valueParam={medication?.name}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationsList}
+                    inModal={true}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <GenericCombobox
                     handleChange={(value) => handleChange("category", value)}
                     valueParam={medication?.category}
                     disabled={!isEditing || isLoading}
                     className="dark:bg-slate-800 font-normal w-full"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
+                    noItemsMessage="No category found."
                     items={medicationCategories}
+                    allowOther={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="medicationName">Name</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("name", value)}
+                    valueParam={medication?.name}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationsList}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("category", value)}
+                    valueParam={medication?.category}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No category found."
+                    items={medicationCategories}
+                    allowOther={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="medicationName">Name</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("name", value)}
+                    valueParam={medication?.name}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationsList}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("category", value)}
+                    valueParam={medication?.category}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No category found."
+                    items={medicationCategories}
+                    allowOther={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="medicationName">Name</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("name", value)}
+                    valueParam={medication?.name}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationsList}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("category", value)}
+                    valueParam={medication?.category}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No category found."
+                    items={medicationCategories}
+                    allowOther={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="medicationName">Name</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("name", value)}
+                    valueParam={medication?.name}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationsList}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("category", value)}
+                    valueParam={medication?.category}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No category found."
+                    items={medicationCategories}
+                    allowOther={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                <div>
+                  <Label htmlFor="medicationName">Name</Label>
+                  <GenericCombobox
+                    handleChange={(value) => handleChange("name", value)}
+                    valueParam={medication?.name}
+                    disabled={!isEditing || isLoading}
+                    className="dark:bg-slate-800 font-normal w-full"
+                    placeholder="Select..."
+                    searchPlaceholder="Search..."
+                    noItemsMessage="No medication found."
+                    items={medicationsList}
                   />
                 </div>
                 <div>

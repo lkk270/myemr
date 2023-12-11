@@ -16,7 +16,7 @@ import { GenericCalendar } from "@/components/generic-calendar";
 import { GenericAddress } from "@/components/generic-address";
 import { toast } from "sonner";
 import { cn, checkForInvalidData, calculateBMI } from "@/lib/utils";
-import { heightsImperial, heightsMetric } from "@/lib/constants";
+import { heightsImperial, heightsMetric, medicationsList } from "@/lib/constants";
 
 import _ from "lodash";
 
@@ -131,12 +131,11 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           // setUser((prevUser) => ({ ...prevUser, ...initialUser }));
           // console.log(user.race);
           // console.log(user.firstName);
-          // setUser(initialUser);
+          setUser(initialUser);
 
           throw error;
         })
         .finally(() => {
-          setInitialUser(user);
           setIsLoading(false);
           setIsEditing(false); // Toggle edit mode off after operation
         });

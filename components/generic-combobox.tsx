@@ -95,7 +95,8 @@ export const GenericCombobox = ({
                 </div>
               )}
             </CommandEmpty>
-            <ScrollArea className={cn(inModal ? "h-[258px]" : "max-h-[258px]", "pb-2")}>
+            {/* {!inModal ? ( */}
+            <ScrollArea className="h-[258px] pb-2">
               <CommandGroup>
                 {newItems.map((item) => (
                   <CommandItem
@@ -113,6 +114,24 @@ export const GenericCombobox = ({
                 ))}
               </CommandGroup>
             </ScrollArea>
+            {/* ) : (
+              <CommandGroup>
+                {newItems.map((item) => (
+                  <CommandItem
+                    className="cursor-pointer"
+                    key={item.value}
+                    value={item.value}
+                    onSelect={() => {
+                      handleChange && handleChange(item.value);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check className={cn("mr-2 h-4 w-4", valueParam === item.value ? "opacity-100" : "opacity-0")} />
+                    {item.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )} */}
           </Command>
         </PopoverContent>
       </Popover>

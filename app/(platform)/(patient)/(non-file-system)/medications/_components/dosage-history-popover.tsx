@@ -31,6 +31,7 @@ export const DosageHistoryPopover = ({ dosageHistory }: DosageHistoryPopoverProp
                 </div>
               );
             })}
+            {dosageHistory.length === 0 && <div className="grid items-center gap-4 text-sm">No dosage history.</div>}
           </div>
         </div>
       </PopoverContent>

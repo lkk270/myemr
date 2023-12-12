@@ -15,7 +15,7 @@ import { GenericCombobox } from "@/components/generic-combobox";
 import { GenericCalendar } from "@/components/generic-calendar";
 import { GenericAddress } from "@/components/generic-address";
 import { toast } from "sonner";
-import { cn, checkForInvalidData, calculateBMI } from "@/lib/utils";
+import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
 import { heightsImperial, heightsMetric, medicationsList } from "@/lib/constants";
 
 import _ from "lodash";
@@ -105,7 +105,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       }
     }
 
-    const dataCheck = checkForInvalidData(changes, initialUser);
+    const dataCheck = checkForInvalidDemographicsData(changes, initialUser);
     if (dataCheck !== "") {
       toast.error(dataCheck);
       setIsLoading(false);
@@ -114,7 +114,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     }
     if (Object.keys(changes).length > 0) {
       const promise = axios
-        .post("/api/patient-update", { fieldsObj: changes })
+        .post("/api/patient-update", { fieldsObj: changes, updateType: "demographics" })
         .then((response) => {
           console.log("Update successful", response.data);
 

@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Unit } from "@prisma/client";
+import { NewMedicationType } from "@/app/types";
 export * from "./encryption";
 export * from "./initial-profile";
 
@@ -19,7 +20,7 @@ export function isNum(str: string): boolean {
   return /^\d*\.?\d+$/.test(str);
 }
 
-export function checkForInvalidData(data: any, initialUser: any) {
+export function checkForInvalidDemographicsData(data: any, initialUser: any) {
   console.log(data.addresses);
   // Return true if the string is undefined (skipping validation), otherwise check if it's a valid non-empty string
   const isStringValid = (str: string | undefined) => str === undefined || (str !== null && str.length > 0);
@@ -116,4 +117,24 @@ export function calculateBMI(unit: Unit, height: string, weight: string): string
   // console.log(roundedVal);
   // console.log(roundedVal.toString());
   return (newWeight / newHeight).toFixed(2);
+}
+
+export function checkForInvalidMedication(data: NewMedicationType | null) {
+  const requiredFields = {
+    name: "Name is required",
+    category: "Category is required",
+    dosage: "Dosage is required",
+    dosageUnits: "Dosage units are required",
+    frequency: "Dosage frequency is required",
+    prescribedByName: "Prescriber is required",
+    status: "Status is required",
+  };
+  if (!data) return "Data is invalid";
+  for (const [key, value] of Object.entries(requiredFields)) {
+    if (!data[key as keyof NewMedicationType]) {
+      return value;
+    }
+  }
+
+  return "";
 }

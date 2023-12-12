@@ -94,40 +94,48 @@ export function decryptOnePatientField(encryptedRecord: string, symmetricKeyStri
 }
 
 export function decryptMultiplePatientFields(
-  encryptedRecords: PatientDemographicsType | any,
+  encryptedRecords: any, // Can be an object or an array of objects
   symmetricKeyString: string,
 ) {
-  let patientObj: any = {};
-  Object.entries(encryptedRecords).forEach(([key, encryptedValue]) => {
-    let decrypted = null;
+  console.log(encryptedRecords);
+  // Function to decrypt fields of an object
+  function decryptObjectFields(obj: any, keyString: string) {
+    let decryptedObj: any = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (typeof value === "string" && !key.includes("Key") && !exemptFields.includes(key)) {
+        decryptedObj[key] = decryptOnePatientField(value, keyString, key);
+      } else if (Array.isArray(value) && !key.includes("Key") && !exemptFields.includes(key)) {
+        decryptedObj[key] = decryptArray(value, keyString);
+      } else if (typeof value === "object" && value !== null && !key.includes("Key") && !exemptFields.includes(key)) {
+        decryptedObj[key] = decryptObjectFields(value, keyString);
+      } else {
+        console.log(key, value);
+        decryptedObj[key] = value; // unencrypted values or exempt fields
+      }
+    });
+    return decryptedObj;
+  }
 
-    // Check if the value is a string and not a key or exempt field
-    if (typeof encryptedValue === "string" && !key.includes("Key") && !exemptFields.includes(key)) {
-      decrypted = decryptOnePatientField(encryptedValue, symmetricKeyString, key);
-      patientObj[key] = decrypted;
-    }
-    // Check if the value is an array
-    else if (Array.isArray(encryptedValue) && !key.includes("Key")) {
-      patientObj[key] = encryptedValue.map((item) => {
-        if (typeof item === "object" && item !== null) {
-          return decryptObjectFields(item, symmetricKeyString);
-        }
-        return item; // return as is if it's not an object
-      });
-    }
-    // Check if the value is an object
-    else if (typeof encryptedValue === "object" && encryptedValue !== null && !key.includes("Key")) {
-      patientObj[key] = decryptObjectFields(encryptedValue, symmetricKeyString);
-    } else {
-      patientObj[key] = encryptedValue; // unencrypted values or exempt fields
-    }
-  });
+  // Function to decrypt arrays
+  function decryptArray(arr: any[], keyString: string) {
+    return arr.map((item) => {
+      if (typeof item === "object" && item !== null) {
+        return decryptObjectFields(item, keyString);
+      }
+      return item; // return as is if it's not an object
+    });
+  }
 
-  return patientObj;
+  // Check if the input is an array or a single object
+  if (Array.isArray(encryptedRecords)) {
+    return encryptedRecords.map((record) => decryptObjectFields(record, symmetricKeyString));
+  } else {
+    return decryptObjectFields(encryptedRecords, symmetricKeyString);
+  }
 }
 
 // Helper function to decrypt fields of an object
-function decryptObjectFields(obj: any, symmetricKeyString: string) {
+export function decryptObjectFields(obj: any, symmetricKeyString: string) {
   const decryptedObj: any = {};
   Object.entries(obj).forEach(([key, value]) => {
     if (typeof value === "string" && !key.includes("Key") && !exemptFields.includes(key)) {

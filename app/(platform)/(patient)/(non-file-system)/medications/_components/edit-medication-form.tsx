@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
-import { checkForInvalidDemographicsData } from "@/lib/utils";
+import { checkForInvalidEditedMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 
 import _ from "lodash";
@@ -55,13 +55,14 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
       }
     }
 
-    // const dataCheck = checkForInvalidDemographicsData(changes, initialMedication);
-    // if (dataCheck !== "") {
-    //   toast.error(dataCheck);
-    //   setIsLoading(false);
-    //   setMedication(initialMedication);
-    //   return;
-    // }
+    const dataCheck = checkForInvalidEditedMedication(changes);
+    if (dataCheck !== "") {
+      toast.error(dataCheck);
+      setIsLoading(false);
+      setMedication(initialMedication);
+      return;
+    }
+    console.log(changes);
     if (Object.keys(changes).length > 0) {
       const promise = axios
         .post("/api/patient-update", { fieldsObj: changes })

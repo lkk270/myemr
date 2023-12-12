@@ -19,13 +19,12 @@ function createDateValueType(dateString: string | null | undefined): DateValueTy
 }
 
 export const GenericCalendar = ({ disabled, className, valueParam, handleChange }: GenericCalendarProps) => {
-  const [value, setValue] = useState(createDateValueType(valueParam));
-
+  const value = createDateValueType(valueParam);
   const handleValueChange = (newValue: any) => {
-    console.log("newValue:", newValue);
-    console.log(newValue);
-    console.log(typeof newValue);
-    setValue(newValue);
+    // console.log("newValue:", newValue);
+    // console.log(newValue);
+    // console.log(typeof newValue);
+    // setValue(newValue);
     handleChange(newValue.startDate);
   };
 

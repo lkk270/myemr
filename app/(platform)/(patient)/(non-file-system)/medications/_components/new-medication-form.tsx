@@ -15,12 +15,14 @@ import { toast } from "sonner";
 import { checkForInvalidMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useMedicationStore } from "../_components/hooks/use-medications";
+import { useNewMedicationModal } from "../_components/hooks/use-new-medication-modal";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 
 export const NewMedicationForm = () => {
   const medicationStore = useMedicationStore();
+  const newMedicationModal = useNewMedicationModal();
   const [medication, setMedication] = useState<NewMedicationType | null>({
     name: "",
     prescribedById: "",
@@ -43,6 +45,7 @@ export const NewMedicationForm = () => {
       setIsLoading(false);
       return;
     }
+    const date = new Date();
     const promise = axios
       .post("/api/patient-update", { fieldsObj: medication, updateType: "newMedication" })
       .then(({ data }) => {
@@ -50,15 +53,18 @@ export const NewMedicationForm = () => {
         const updatedMedication = {
           ...(medication as MedicationType),
           id: data.newMedicationId,
+          createdAt: date,
+          updatedAt: date,
         };
         medicationStore.addMedication(updatedMedication);
+        newMedicationModal.onClose();
       })
-
       .catch((error) => {
+        setIsLoading(false);
         throw error;
       })
       .finally(() => {
-        setIsLoading(false);
+        //no need for set loading to false
         // Toggle edit mode off after operation
       });
     toast.promise(promise, {

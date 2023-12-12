@@ -141,7 +141,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                   <GenericCombobox
                     handleChange={(value) => handleChange("name", value)}
                     valueParam={medication?.name}
-                    disabled={!isEditing || isLoading}
+                    disabled={true}
                     className="dark:bg-slate-800 font-normal w-full"
                     placeholder="Select..."
                     searchPlaceholder="Search..."

@@ -16,7 +16,7 @@ import { GenericCalendar } from "@/components/generic-calendar";
 import { GenericAddress } from "@/components/generic-address";
 import { toast } from "sonner";
 import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
-import { heightsImperial, heightsMetric, medicationsList } from "@/lib/constants";
+import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 
 import _ from "lodash";
 
@@ -250,10 +250,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No gender found."
-                    items={[
-                      { value: "MALE", label: "Male" },
-                      { value: "FEMALE", label: "Female" },
-                    ]}
+                    items={genders}
                   />
                 </div>
 
@@ -267,13 +264,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."
-                    items={[
-                      { value: "ASIAN", label: "Asian" },
-                      { value: "BLACK", label: "Black or African American" },
-                      { value: "NATIVE", label: "Native American" },
-                      { value: "ISLANDER", label: "Pacific Islander" },
-                      { value: "WHITE", label: "White" },
-                    ]}
+                    items={races}
                   />
                 </div>
 
@@ -287,13 +278,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No race found."
-                    items={[
-                      { value: "SINGLE", label: "Single" },
-                      { value: "MARRIED", label: "Married" },
-                      { value: "DIVORCED", label: "Divorced" },
-                      { value: "WIDOWED", label: "Widowed" },
-                      { value: "SEPARATED", label: "Separated" },
-                    ]}
+                    items={martialStatuses}
                   />
                 </div>
               </div>

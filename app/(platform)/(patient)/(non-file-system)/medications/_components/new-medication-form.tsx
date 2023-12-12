@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
-import { checkForInvalidMedication } from "@/lib/utils";
+import { checkForInvalidNewMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useNewMedicationModal } from "../_components/hooks/use-new-medication-modal";
@@ -36,12 +36,28 @@ export const NewMedicationForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  const validateMedication = () => {
+    if (!medication) {
+      return "No medication";
+    }
+
+    const dataCheck = checkForInvalidNewMedication(medication);
+    if (dataCheck !== "") {
+      return dataCheck;
+    }
+
+    const doesMedicationExist = medicationStore.isMedicationNameExist(medication.name);
+    if (doesMedicationExist) {
+      return "This medication exists already, edit or delete it.";
+    }
+
+    return null; // All checks passed
+  };
   const handleSave = () => {
     setIsLoading(true);
-
-    const dataCheck = checkForInvalidMedication(medication);
-    if (dataCheck !== "") {
-      toast.error(dataCheck);
+    const errorMessage = validateMedication();
+    if (errorMessage) {
+      toast.error(errorMessage);
       setIsLoading(false);
       return;
     }

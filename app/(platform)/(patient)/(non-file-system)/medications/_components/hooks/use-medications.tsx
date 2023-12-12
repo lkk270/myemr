@@ -3,6 +3,7 @@ import { MedicationType } from "@/app/types";
 
 interface MedicationStore {
   medications: MedicationType[];
+  medicationsSet: boolean; // New field to track if medications have been set
   setMedications: (medications: MedicationType[]) => void;
   addMedication: (medication: MedicationType) => void;
   updateMedication: (updatedMedication: MedicationType) => void;
@@ -11,7 +12,8 @@ interface MedicationStore {
 
 export const useMedicationStore = create<MedicationStore>((set, get) => ({
   medications: [],
-  setMedications: (medications) => set({ medications }),
+  medicationsSet: false, // Initial value is false
+  setMedications: (medications) => set({ medications, medicationsSet: true }),
   addMedication: (medication) => set((state) => ({ medications: [...state.medications, medication] })),
   updateMedication: (updatedMedication) =>
     set((state) => ({
@@ -20,7 +22,7 @@ export const useMedicationStore = create<MedicationStore>((set, get) => ({
       ),
     })),
   isMedicationNameExist: (name) => {
-    const state = get();
+    const state = get(); // Correctly use 'get' to access the state
     return state.medications.some((medication) => medication.name === name);
   },
 }));

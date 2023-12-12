@@ -103,7 +103,6 @@ export async function POST(req: Request) {
       });
       return new NextResponse(JSON.stringify({ newMedicationId: newMedication.id }));
     } else if (updateType === "editMedication") {
-      console.log("IN 101");
       const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
       await prismadb.medication.update({
         where: { id: body.medicationId },

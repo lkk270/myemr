@@ -4,9 +4,6 @@ import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { CustomDataTable } from "./_components/table/custom-data-table";
-import { Medication } from "@prisma/client";
-
-import { MedicationType } from "@/app/types";
 
 const PatientMedications = async () => {
   const { userId } = auth();
@@ -39,7 +36,6 @@ const PatientMedications = async () => {
   } catch (e) {
     return <div>something went wrong</div>;
   }
-  console.log(decryptedPatientMedications);
 
   return (
     <div className="flex sm:px-10 h-full justify-center">

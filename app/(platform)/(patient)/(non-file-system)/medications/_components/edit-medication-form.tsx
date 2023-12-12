@@ -40,7 +40,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   };
 
   const handleCancel = () => {
-    console.log(medication);
     setMedication(initialMedication);
     setIsEditing(false);
   };
@@ -86,7 +85,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
           dosageHistoryInitialFields: dosageHistoryInitialFields,
         })
         .then((response) => {
-          console.log("Update successful", response.data);
           if (dosageHistoryInitialFields) {
             updatedDosageHistoryEntry = {
               id: "fake-id",

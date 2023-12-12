@@ -24,7 +24,6 @@ export const GenericAddress = ({ address, disabled = false, handleChange}: Addre
   };
 
   const handleLocalChangeForCombobox = (fieldName: string, value: string) => {
-    console.log(fieldName, value);
     const updatedAddress = { ...localAddress, [fieldName]: value };
     localAddress = updatedAddress;
     handleChange(updatedAddress); // Update the address in parent component

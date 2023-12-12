@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 interface ComboboxItem {
   value: string;
   label: string;
@@ -22,10 +23,11 @@ interface GenericComboboxProps {
   handleChange?: (value: any) => void;
   className?: string;
   disabled?: boolean;
+  allowOther?: boolean;
 }
 
 export const GenericCombobox = ({
-  items = [],
+  items,
   placeholder = "Select item...",
   searchPlaceholder = "Search item...",
   noItemsMessage = "No item found.",
@@ -34,9 +36,22 @@ export const GenericCombobox = ({
   handleChange,
   className = "dark:bg-slate-800",
   disabled = false,
+  allowOther = false,
 }: GenericComboboxProps) => {
+  const [newItems, setNewItems] = useState(items);
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(valueParam);
+  const [searchInput, setSearchInput] = useState("");
+  const initialLoadHandled = useRef(false);
+
+  useEffect(() => {
+    if (!initialLoadHandled.current && valueParam) {
+      const foundItem = newItems.find((item) => item.value === valueParam);
+      if (!foundItem) {
+        setNewItems((prevItems) => [...prevItems, { value: valueParam, label: valueParam }]);
+        initialLoadHandled.current = true;
+      }
+    }
+  }, [valueParam, newItems]);
 
   return (
     <div className={disabled ? "cursor-not-allowed" : "cursor-default"}>
@@ -49,30 +64,46 @@ export const GenericCombobox = ({
             aria-expanded={open}
             className={cn(width, "justify-between", className)}
           >
-            {value ? items.find((item) => item.value === value)?.label : placeholder}
+            {valueParam ? newItems.find((item) => item.value === valueParam)?.label || valueParam : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[250px]", className)}>
           <Command>
-            <CommandInput placeholder={searchPlaceholder} />
-            <CommandEmpty>{noItemsMessage}</CommandEmpty>
+            <CommandInput placeholder={searchPlaceholder} onValueChange={(value) => setSearchInput(value)} />
+            <CommandEmpty>
+              {!allowOther || (searchInput && searchInput.trim() === "") ? (
+                noItemsMessage
+              ) : (
+                <div className="pt-2">
+                  <Button
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => {
+                      if (valueParam) {
+                        setNewItems((prevItems) => [...prevItems, { value: searchInput, label: searchInput }]);
+                      }
+                      handleChange && handleChange(searchInput);
+                      setOpen(false);
+                    }}
+                  >
+                    Use: {searchInput}
+                  </Button>
+                </div>
+              )}
+            </CommandEmpty>
             <CommandGroup>
-              {items.map((item) => (
+              {newItems.map((item) => (
                 <CommandItem
-                  className={"cursor-pointer"}
+                  className="cursor-pointer"
                   key={item.value}
+                  value={item.value}
                   onSelect={() => {
-                    const newValue = item.value;
-                    setValue(newValue);
-                    if (handleChange) {
-                      console.log(newValue);
-                      handleChange(newValue); // Pass the selected value directly
-                    }
+                    handleChange && handleChange(item.value);
                     setOpen(false);
                   }}
                 >
-                  <Check className={cn("mr-2 h-4 w-4", value === item.value ? "opacity-100" : "opacity-0")} />
+                  <Check className={cn("mr-2 h-4 w-4", valueParam === item.value ? "opacity-100" : "opacity-0")} />
                   {item.label}
                 </CommandItem>
               ))}

@@ -1,5 +1,4 @@
-import { Address } from "@prisma/client";
-import { Unit } from "@prisma/client";
+import { Unit, Address, DosageHistory } from "@prisma/client";
 
 export type PatientDemographicsType = {
   imageUrl: string;
@@ -19,4 +18,40 @@ export type PatientDemographicsType = {
   policyNumber?: string | null;
   groupNumber?: string | null;
   addresses: Address[] | any;
+};
+
+export type MedicationType = {
+  id: string;
+  userId?: string;
+  patientProfileId?: string;
+  name: string;
+  prescribedById?: string | null;
+  prescribedByName: string;
+  category: string;
+  dosage: string;
+  dosageUnits: string;
+  frequency: string;
+  description?: string | null;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  dosageHistory: DosageHistory[];
+};
+
+export type NewMedicationType = {
+  name: string;
+  prescribedById?: string | null;
+  prescribedByName: string;
+  category: string;
+  dosage: string;
+  dosageUnits: string;
+  frequency: string;
+  description?: string | null;
+  status: string;
+};
+
+export type PartialDosageHistoryType = {
+  dosage: string;
+  dosageUnits: string;
+  frequency: string;
 };

@@ -58,6 +58,42 @@ model Address {
   @@index([patientProfileId])
 }
 
+model DosageHistory {
+  id           String     @id @default(uuid())
+  medicationId String
+  dosage       String
+  dosageUnits  String
+  frequency    String
+  Medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([medicationId])
+}
+
+model Medication {
+  id               String          @id @default(uuid())
+  userId           String
+  patientProfileId String
+  name             String
+  prescribedById   String?
+  prescribedByName String
+  category         String
+  dosage           String
+  dosageUnits      String
+  frequency        String
+  description      String?
+  status           String
+  dosageHistory    DosageHistory[]
+
+  PatientProfile PatientProfile @relation(fields: [patientProfileId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientProfileId])
+}
+
 model PatientProfile {
   id                String  @id @default(uuid())
   userId            String  @unique
@@ -69,6 +105,7 @@ model PatientProfile {
   race              String?
   height            String?
   weight            String?
+  allergies         String?
   unit              Unit    @default(IMPERIAL)
   mobilePhone       String?
   homePhone         String?
@@ -84,8 +121,9 @@ model PatientProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  member    Member[]
-  addresses Address[]
+  member      Member[]
+  addresses   Address[]
+  medications Medication[]
 }
 
 model ProviderProfile {

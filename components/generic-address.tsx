@@ -10,25 +10,22 @@ import { Address } from "@prisma/client";
 interface AddressProps {
   address?: Address | null;
   disabled?: boolean;
-  fieldName?: string;
   handleChange: (value: any) => void;
 }
 
-export const GenericAddress = ({ address, disabled = false, handleChange, fieldName = "address" }: AddressProps) => {
-  const [localAddress, setLocalAddress] = useState<any>(address || {});
-
+export const GenericAddress = ({ address, disabled = false, handleChange}: AddressProps) => {
+  let localAddress: any = address || {};
   const handleLocalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     const updatedAddress = { ...localAddress, [name]: value };
-    setLocalAddress(updatedAddress);
+    localAddress = updatedAddress;
     handleChange(updatedAddress); // Update the address in parent component
   };
 
   const handleLocalChangeForCombobox = (fieldName: string, value: string) => {
-    console.log(fieldName, value);
     const updatedAddress = { ...localAddress, [fieldName]: value };
-    setLocalAddress(updatedAddress);
+    localAddress = updatedAddress;
     handleChange(updatedAddress); // Update the address in parent component
   };
   return (

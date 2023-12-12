@@ -27,7 +27,6 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
   let value = formatPhoneNumber(number || "");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     const formattedNumber = formatPhoneNumber(e.target.value);
     value = formattedNumber;
     handleChange(fieldName, formattedNumber.replace(/\D/g, "")); // Pass the selected value directly

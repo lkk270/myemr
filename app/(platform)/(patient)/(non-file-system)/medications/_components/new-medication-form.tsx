@@ -65,7 +65,6 @@ export const NewMedicationForm = () => {
     const promise = axios
       .post("/api/patient-update", { fieldsObj: medication, updateType: "newMedication" })
       .then(({ data }) => {
-        console.log("Update successful", data);
         const updatedMedication = {
           ...(medication as MedicationType),
           id: data.newMedicationId,

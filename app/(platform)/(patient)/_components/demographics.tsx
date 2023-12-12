@@ -40,7 +40,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
   const getChangedFields = (newObj: any, originalObj: any, typedKey?: string): any => {
     if (Array.isArray(newObj) && Array.isArray(originalObj)) {
-      console.log(typedKey, "IN 48");
       return newObj
         .map((item, index) => getChangedFields(item, originalObj[index] || {}))
         .filter((item) => item !== undefined && Object.keys(item).length > 0);
@@ -98,8 +97,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         const typedKey = key as keyof PatientDemographicsType;
         const changedFields = getChangedFields(user[typedKey], initialUser[typedKey], typedKey);
         if ((changedFields && Object.keys(changedFields).length > 0) || changedFields === "") {
-          console.log(typedKey, changedFields);
-
           changes[typedKey] = trimStringsInObject(changedFields);
         }
       }
@@ -116,8 +113,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       const promise = axios
         .post("/api/patient-update", { fieldsObj: changes, updateType: "demographics" })
         .then((response) => {
-          console.log("Update successful", response.data);
-
           // Update the user state with the latest changes
           // setInitialUser((prevUser) => ({ ...prevUser, ...changes }));
           setInitialUser(user);

@@ -110,10 +110,9 @@ export async function POST(req: Request) {
       });
       if (body.dosageHistoryInitialFields) {
         //add dosageHistory
-        console.log(body.dosageHistoryInitialFields);
-        const dosageHistoryElement = buildUpdatePayload(body.dosageHistoryInitialFields, decryptedSymmetricKey);
+        const dosageHistoryEntry = buildUpdatePayload(body.dosageHistoryInitialFields, decryptedSymmetricKey);
         await prismadb.dosageHistory.create({
-          data: { ...dosageHistoryElement, ...{ medicationId: body.medicationId } },
+          data: { ...dosageHistoryEntry, ...{ medicationId: body.medicationId } },
         });
       }
     } else if (updateType === "deleteMedication") {

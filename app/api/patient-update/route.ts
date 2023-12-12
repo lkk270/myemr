@@ -3,7 +3,12 @@ import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
 
-import { decryptKey, encryptPatientRecord, checkForInvalidDemographicsData } from "@/lib/utils";
+import {
+  decryptKey,
+  encryptPatientRecord,
+  checkForInvalidDemographicsData,
+  decryptMultiplePatientFields,
+} from "@/lib/utils";
 
 const discreteTables = ["addresses", "member"];
 const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
@@ -88,10 +93,10 @@ export async function POST(req: Request) {
       console.log("IN 88");
       const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
       const encryptedMedication = buildUpdatePayload(data, decryptedSymmetricKey);
-      const med = await prismadb.medication.create({
+      const newMedication = await prismadb.medication.create({
         data: { ...encryptedMedication, ...{ userId: userId, patientProfileId: patient.id } },
       });
-      console.log(med);
+      return new NextResponse(JSON.stringify({ newMedicationId: newMedication.id }));
     }
 
     return new NextResponse("Success", { status: 200 });

@@ -22,8 +22,8 @@ export type PatientDemographicsType = {
 
 export type MedicationType = {
   id: string;
-  userId: string;
-  patientProfileId: string;
+  userId?: string;
+  patientProfileId?: string;
   name: string;
   prescribedById?: string | null;
   prescribedByName: string;

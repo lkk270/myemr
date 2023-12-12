@@ -7,7 +7,7 @@ import axios from "axios";
 import { Medication } from "@prisma/client";
 import { MedicationType } from "@/app/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
@@ -17,14 +17,18 @@ import { Switch } from "@/components/ui/switch";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { DosageHistoryPopover } from "./dosage-history-popover";
+import { useMedicationStore } from "../_components/hooks/use-medications";
+import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
 
 interface MedicationProps {
   medicationParam: MedicationType | null;
 }
 
 export const MedicationForm = ({ medicationParam }: MedicationProps) => {
+  const medicationStore = useMedicationStore();
+  const viewMedicationModal = useViewMedicationModal();
+
   const [initialMedication, setInitialMedication] = useState<MedicationType | null>(medicationParam);
   const [medication, setMedication] = useState<MedicationType | null>(medicationParam);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,23 +60,25 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
     }
 
     const dataCheck = checkForInvalidEditedMedication(changes);
-    if (dataCheck !== "") {
-      toast.error(dataCheck);
+    if (dataCheck !== "" || !medication) {
+      const toastMessage = dataCheck ? dataCheck : "Invalid medication";
+      toast.error(toastMessage);
       setIsLoading(false);
       setMedication(initialMedication);
       return;
     }
-    console.log(changes);
     if (Object.keys(changes).length > 0) {
       const promise = axios
-        .post("/api/patient-update", { fieldsObj: changes })
+        .post("/api/patient-update", { fieldsObj: changes, updateType: "editMedication", medicationId: medication?.id })
         .then((response) => {
           console.log("Update successful", response.data);
 
           // Update the medication state with the latest changes
           //   setInitialMedication((prevMedication) => ({ ...prevMedication, ...changes }));
           setInitialMedication(medication);
+          medicationStore.updateMedication(medication);
           setIsEditing(false);
+          viewMedicationModal.onClose();
         })
 
         .catch((error) => {

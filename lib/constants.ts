@@ -20,6 +20,27 @@ export const simpleSelectItems: SimpleSelectItemsType = {
   ],
 };
 
+export const genders = [
+  { value: "MALE", label: "Male" },
+  { value: "FEMALE", label: "Female" },
+];
+
+export const races = [
+  { value: "ASIAN", label: "Asian" },
+  { value: "BLACK", label: "Black or African American" },
+  { value: "NATIVE", label: "Native American" },
+  { value: "ISLANDER", label: "Pacific Islander" },
+  { value: "WHITE", label: "White" },
+];
+
+export const martialStatuses = [
+  { value: "SINGLE", label: "Single" },
+  { value: "MARRIED", label: "Married" },
+  { value: "DIVORCED", label: "Divorced" },
+  { value: "WIDOWED", label: "Widowed" },
+  { value: "SEPARATED", label: "Separated" },
+];
+
 export const heightsImperial = [
   { value: "1' 0\"", label: "1' 0\"" },
   { value: "1' 1\"", label: "1' 1\"" },

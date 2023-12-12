@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Unit } from "@prisma/client";
 import { NewMedicationType } from "@/app/types";
+import { genders, martialStatuses, races, heightsImperial, heightsMetric, states, dosageFrequency } from "./constants";
 export * from "./encryption";
 export * from "./initial-profile";
 
@@ -21,7 +22,6 @@ export function isNum(str: string): boolean {
 }
 
 export function checkForInvalidDemographicsData(data: any, initialUser: any) {
-  console.log(data.addresses);
   // Return true if the string is undefined (skipping validation), otherwise check if it's a valid non-empty string
   const isStringValid = (str: string | undefined) => str === undefined || (str !== null && str.length > 0);
   const isNameValid = (str: string | undefined) => {
@@ -36,7 +36,7 @@ export function checkForInvalidDemographicsData(data: any, initialUser: any) {
   const isPhoneNumberValid = (phone: string | undefined) => !phone || (phone.length === 10 && isNum(phone));
 
   // Validate gender, considering undefined as valid (skipping validation)
-  if (data.gender !== undefined && data.gender !== "MALE" && data.gender !== "FEMALE") {
+  if (data.gender !== undefined && !isValueInArrayOfConstObj(genders, data.gender)) {
     return "Gender is invalid";
   }
 
@@ -52,15 +52,25 @@ export function checkForInvalidDemographicsData(data: any, initialUser: any) {
 
   // Validate first name
   if (!isNameValid(data.firstName)) {
-    console.log(data.firstName);
-
     return "First name is invalid";
   }
 
   // Validate last name
   if (!isNameValid(data.lastName)) {
-    console.log(data.lastName);
     return "Last name is invalid";
+  }
+  if (
+    typeof data.height === "string" &&
+    !isValueInArrayOfConstObj(heightsImperial, data.height) &&
+    !isValueInArrayOfConstObj(heightsMetric, data.height)
+  ) {
+    return "Invalid height";
+  }
+  if (typeof data.race === "string" && !isValueInArrayOfConstObj(races, data.race)) {
+    return "Invalid race";
+  }
+  if (typeof data.maritalStatus === "string" && !isValueInArrayOfConstObj(martialStatuses, data.maritalStatus)) {
+    return "Invalid marital status";
   }
   if (
     !isStringValid(data.weight) ||
@@ -82,7 +92,7 @@ export function checkForInvalidDemographicsData(data: any, initialUser: any) {
     if (typeof address.city === "string" && address.city.length === 0) {
       return "Invalid city";
     }
-    if (typeof address.state === "string" && address.state.length !== 2) {
+    if (typeof address.state === "string" && !isValueInArrayOfConstObj(states, data.state)) {
       return "Invalid state";
     }
     if (typeof address.zipcode === "string" && !isValidZipCode(address.zipcode)) {
@@ -119,7 +129,11 @@ export function calculateBMI(unit: Unit, height: string, weight: string): string
   return (newWeight / newHeight).toFixed(2);
 }
 
-export function checkForInvalidMedication(data: NewMedicationType | null) {
+function isValueInArrayOfConstObj(array: any[], stringValue: string) {
+  return array.some((element) => element.value === stringValue);
+}
+
+export function checkForInvalidNewMedication(data: NewMedicationType | null) {
   const requiredFields = {
     name: "Name is required",
     category: "Category is required",
@@ -135,6 +149,14 @@ export function checkForInvalidMedication(data: NewMedicationType | null) {
       return value;
     }
   }
-
+  if (data.status !== "active" && data.status !== "inactive") {
+    return "Invalid status";
+  }
+  if (isNaN(parseFloat(data.dosage))) {
+    return "Invalid dosage";
+  }
+  if (!isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
+    return "Invalid dosage frequency";
+  }
   return "";
 }

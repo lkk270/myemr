@@ -1,14 +1,15 @@
 import { create } from "zustand";
-import { MedicationType, NewMedicationType } from "@/app/types";
+import { MedicationType } from "@/app/types";
 
 interface MedicationStore {
   medications: MedicationType[];
   setMedications: (medications: MedicationType[]) => void;
   addMedication: (medication: MedicationType) => void;
   updateMedication: (updatedMedication: MedicationType) => void;
+  isMedicationNameExist: (name: string) => boolean;
 }
 
-export const useMedicationStore = create<MedicationStore>((set) => ({
+export const useMedicationStore = create<MedicationStore>((set, get) => ({
   medications: [],
   setMedications: (medications) => set({ medications }),
   addMedication: (medication) => set((state) => ({ medications: [...state.medications, medication] })),
@@ -18,4 +19,8 @@ export const useMedicationStore = create<MedicationStore>((set) => ({
         medication.id === updatedMedication.id ? updatedMedication : medication,
       ),
     })),
+  isMedicationNameExist: (name) => {
+    const state = get();
+    return state.medications.some((medication) => medication.name === name);
+  },
 }));

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle } from 
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
-import { MedicationForm } from "../medication-form";
+import { MedicationForm } from "../edit-medication-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { truncateSync } from "fs";
 // import { DialogOverlay } from "@radix-ui/react-dialog";

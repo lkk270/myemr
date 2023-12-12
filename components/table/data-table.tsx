@@ -28,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   onOpen?: (data: any, isEdit: boolean) => void;
   hiddenColumns?: Record<string, boolean>;
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -37,6 +38,7 @@ export function DataTable<TData, TValue>({
   onOpen,
   hiddenColumns = {},
   filters,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(hiddenColumns);
@@ -83,7 +85,15 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            { isLoading ? (
+              // When rows are undefined, assume data is loading
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : data.length > 0 ? (
+              // When there are rows, render them
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   className="hover:cursor-pointer"
@@ -101,6 +111,7 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
+              // When rows are empty, display "No results."
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.

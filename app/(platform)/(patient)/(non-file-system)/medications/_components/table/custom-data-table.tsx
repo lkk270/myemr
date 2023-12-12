@@ -30,6 +30,7 @@ export function CustomDataTable<TData>({ data }: DataTableProps<TData>) {
       onOpen={onOpen}
       hiddenColumns={hiddenColumns}
       data={medicationStore.medications}
+      isLoading={!medicationStore.medicationsSet}
       columns={columns}
     />
   );

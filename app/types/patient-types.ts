@@ -20,7 +20,6 @@ export type PatientDemographicsType = {
   addresses: Address[] | any;
 };
 
-
 export type MedicationType = {
   id: string;
   userId: string;
@@ -37,4 +36,16 @@ export type MedicationType = {
   createdAt: Date;
   updatedAt: Date;
   dosageHistory: DosageHistory[];
+};
+
+export type NewMedicationType = {
+  name: string;
+  prescribedById?: string | null;
+  prescribedByName: string;
+  category: string;
+  dosage: string;
+  dosageUnits: string;
+  frequency: string;
+  description?: string | null;
+  status: string;
 };

@@ -74,7 +74,7 @@ const PatientMedications = async () => {
             <h2 className="text-2xl font-bold tracking-tight">Medications</h2>
           </div>
         </div>
-        <CustomDataTable data={temp} />
+        <CustomDataTable data={decryptedPatientMedications} />
       </div>
     </div>
   );

@@ -22,6 +22,23 @@ export function isNum(str: string): boolean {
 }
 
 export function checkForInvalidDemographicsData(data: any, initialUser: any) {
+  const allowedFields = [
+    "firstName",
+    "lastName",
+    "gender",
+    "dateOfBirth",
+    "maritalStatus",
+    "race",
+    "allergies",
+    "mobilePhone",
+    "homePhone",
+    "height",
+    "weight",
+    "insuranceProvider",
+    "policyNumber",
+    "groupNumber",
+    "addresses",
+  ];
   // Return true if the string is undefined (skipping validation), otherwise check if it's a valid non-empty string
   const isStringValid = (str: string | undefined) => str === undefined || (str !== null && str.length > 0);
   const isNameValid = (str: string | undefined) => {
@@ -92,24 +109,23 @@ export function checkForInvalidDemographicsData(data: any, initialUser: any) {
     if (typeof address.city === "string" && address.city.length === 0) {
       return "Invalid city";
     }
-    if (typeof address.state === "string" && !isValueInArrayOfConstObj(states, data.state)) {
+    if (typeof address.state === "string" && !isValueInArrayOfConstObj(states, address.state)) {
       return "Invalid state";
     }
     if (typeof address.zipcode === "string" && !isValidZipCode(address.zipcode)) {
       return "Invalid zip code";
     }
+    return checkForExtraneousFields(Object.keys(address), ["address", "address2", "city", "state", "zipcode"]);
   }
-  return "";
+  return checkForExtraneousFields(Object.keys(data), Object.keys(allowedFields));
 }
 
 function convertHeightToMeters(height: string): number {
   const feetInches = height.split("' ");
   const feet = parseInt(feetInches[0]);
   const inches = parseInt(feetInches[1].replace('"', ""));
-
   // Convert feet and inches to meters
   const meters = feet * 0.3048 + inches * 0.0254;
-
   return meters;
 }
 
@@ -133,6 +149,15 @@ function isValueInArrayOfConstObj(array: any[], stringValue: string) {
   return array.some((element) => element.value === stringValue);
 }
 
+function checkForExtraneousFields(dataKeys: string[], allowedFields: string[]) {
+  for (const key of dataKeys) {
+    if (!allowedFields.includes(key)) {
+      return `Invalid field: ${key}`;
+    }
+  }
+  return "";
+}
+
 export function checkForInvalidNewMedication(data: NewMedicationType | null) {
   const requiredFields = {
     name: "Name is required",
@@ -143,6 +168,7 @@ export function checkForInvalidNewMedication(data: NewMedicationType | null) {
     prescribedByName: "Prescriber is required",
     status: "Status is required",
   };
+
   if (!data) return "Data is invalid";
   for (const [key, value] of Object.entries(requiredFields)) {
     if (!data[key as keyof NewMedicationType]) {
@@ -152,11 +178,50 @@ export function checkForInvalidNewMedication(data: NewMedicationType | null) {
   if (data.status !== "active" && data.status !== "inactive") {
     return "Invalid status";
   }
+  if (typeof data.prescribedById === "string" && (!data.prescribedById || !data.prescribedByName)) {
+    return "Invalid prescriber";
+  }
   if (isNaN(parseFloat(data.dosage))) {
     return "Invalid dosage";
   }
   if (!isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
     return "Invalid dosage frequency";
   }
-  return "";
+  const allowedFields = [...Object.keys(requiredFields), "prescribedById", "description"];
+  return checkForExtraneousFields(Object.keys(data), allowedFields);
+}
+
+export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>) {
+  const allowedFields = {
+    category: "Category is required",
+    dosage: "Dosage is required",
+    dosageUnits: "Dosage units are required",
+    frequency: "Dosage frequency is required",
+    prescribedByName: "Prescriber is required",
+    prescribedById: "Prescriber Id is required",
+    description: "Description is cannot be an empty string",
+    status: "Status is required",
+  };
+  if (typeof data.name === "string") {
+    return "Cannot edit the name of a medication";
+  }
+  for (const [key, value] of Object.entries(allowedFields)) {
+    const fieldValue = data[key as keyof NewMedicationType];
+    if (typeof fieldValue === "string" && fieldValue.length === 0) {
+      return value;
+    }
+  }
+  if (data.status && data.status !== "active" && data.status !== "inactive") {
+    return "Invalid status";
+  }
+  if (data.dosage && isNaN(parseFloat(data.dosage))) {
+    return "Invalid dosage";
+  }
+  if (data.frequency && !isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
+    return "Invalid dosage frequency";
+  }
+  if (typeof data.prescribedById === "string" && (!data.prescribedById || !data.prescribedByName)) {
+    return "Invalid prescriber";
+  }
+  return checkForExtraneousFields(Object.keys(data), Object.keys(allowedFields));
 }

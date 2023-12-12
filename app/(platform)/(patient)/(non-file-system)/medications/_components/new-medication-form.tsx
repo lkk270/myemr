@@ -25,7 +25,7 @@ export const NewMedicationForm = () => {
   const newMedicationModal = useNewMedicationModal();
   const [medication, setMedication] = useState<NewMedicationType | null>({
     name: "",
-    prescribedById: "",
+    prescribedById: undefined,
     prescribedByName: "",
     category: "",
     dosage: "",

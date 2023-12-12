@@ -40,32 +40,7 @@ const PatientMedications = async () => {
     return <div>something went wrong</div>;
   }
   console.log(decryptedPatientMedications);
-  const temp: MedicationType[] = [
-    {
-      userId: "user13",
-      patientProfileId: "user13",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      id: "testicles",
-      name: "Ibuprofen",
-      prescribedByName: "Jeff Bander",
-      category: "Cardiology",
-      dosage: "5",
-      dosageUnits: "mg",
-      frequency: "bid",
-      status: "active",
-      dosageHistory: [
-        {
-          id: "eeadsfsdf",
-          medicationId: "testicles",
-          dosage: "10",
-          dosageUnits: "mg",
-          frequency: "bid",
-          createdAt: new Date(),
-        },
-      ],
-    },
-  ];
+
   return (
     <div className="flex sm:px-10 h-full justify-center">
       <div className="h-full flex-1 flex-col space-y-8 p-2 sm:p-8 flex">

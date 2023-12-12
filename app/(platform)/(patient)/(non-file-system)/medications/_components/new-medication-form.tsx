@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 import { Medication } from "@prisma/client";
-import { NewMedicationType } from "@/app/types";
+import { MedicationType, NewMedicationType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,11 +14,13 @@ import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
 import { checkForInvalidMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import { useMedicationStore } from "../_components/hooks/use-medications";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 
 export const NewMedicationForm = () => {
+  const medicationStore = useMedicationStore();
   const [medication, setMedication] = useState<NewMedicationType | null>({
     name: "",
     prescribedById: "",
@@ -43,8 +45,13 @@ export const NewMedicationForm = () => {
     }
     const promise = axios
       .post("/api/patient-update", { fieldsObj: medication, updateType: "newMedication" })
-      .then((response) => {
-        console.log("Update successful", response.data);
+      .then(({ data }) => {
+        console.log("Update successful", data);
+        const updatedMedication = {
+          ...(medication as MedicationType),
+          id: data.newMedicationId,
+        };
+        medicationStore.addMedication(updatedMedication);
       })
 
       .catch((error) => {

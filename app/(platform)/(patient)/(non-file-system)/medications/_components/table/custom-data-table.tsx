@@ -9,11 +9,11 @@ import { useMedicationStore } from "../hooks/use-medications";
 import { useEffect } from "react";
 import { MedicationType } from "@/app/types";
 
-interface DataTableProps<TData> {
+interface DataTableProps {
   data: MedicationType[];
 }
 
-export function CustomDataTable<TData>({ data }: DataTableProps<TData>) {
+export function CustomDataTable({ data }: DataTableProps) {
   const onOpen = useViewMedicationModal().onOpen;
   const newOnOpen = useNewMedicationModal().onOpen;
   const medicationStore = useMedicationStore();

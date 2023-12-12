@@ -12,7 +12,7 @@ import {
   decryptMultiplePatientFields,
 } from "@/lib/utils";
 
-const validUpdateTypes = ["demographics", "newMedication", "editMedication"];
+const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
 const discreteTables = ["addresses", "member"];
 const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
@@ -45,7 +45,12 @@ export async function POST(req: Request) {
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (bodyLength === 0 || !data || !validUpdateTypes.includes(updateType)) {
+    if (
+      bodyLength === 0 ||
+      (!data && !updateType.includes("delete")) ||
+      (data && updateType.includes("delete")) ||
+      !validUpdateTypes.includes(updateType)
+    ) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 
@@ -107,6 +112,10 @@ export async function POST(req: Request) {
       await prismadb.medication.update({
         where: { id: body.medicationId },
         data: updatePayload,
+      });
+    } else if (updateType === "deleteMedication") {
+      await prismadb.medication.delete({
+        where: { id: body.medicationId },
       });
     }
 

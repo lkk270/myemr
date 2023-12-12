@@ -10,6 +10,7 @@ import {
   checkForInvalidEditedMedication,
   checkForInvalidNewMedication,
   decryptMultiplePatientFields,
+  patientUpdateVerification,
 } from "@/lib/utils";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
@@ -37,7 +38,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const updateType = body.updateType;
     const data = body.fieldsObj;
-    const bodyLength = Object.keys(body).length;
 
     const { userId } = auth();
     const user = await currentUser();
@@ -45,12 +45,7 @@ export async function POST(req: Request) {
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (
-      bodyLength === 0 ||
-      (!data && !updateType.includes("delete")) ||
-      (data && updateType.includes("delete")) ||
-      !validUpdateTypes.includes(updateType)
-    ) {
+    if (!patientUpdateVerification(body)) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 
@@ -113,6 +108,14 @@ export async function POST(req: Request) {
         where: { id: body.medicationId },
         data: updatePayload,
       });
+      if (body.dosageHistoryInitialFields) {
+        //add dosageHistory
+        console.log(body.dosageHistoryInitialFields);
+        const dosageHistoryElement = buildUpdatePayload(body.dosageHistoryInitialFields, decryptedSymmetricKey);
+        await prismadb.dosageHistory.create({
+          data: { ...dosageHistoryElement, ...{ medicationId: body.medicationId } },
+        });
+      }
     } else if (updateType === "deleteMedication") {
       await prismadb.medication.delete({
         where: { id: body.medicationId },

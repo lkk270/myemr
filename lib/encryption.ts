@@ -13,7 +13,7 @@ import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
 
 // Symmetric encryption configuration
 const algorithm = "aes-256-cbc";
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
+const exemptFields = ["unit", "patientProfileId", "userId", "id", "medicationId", "createdAt", "updatedAt"];
 // Function to convert key objects to PEM formatted strings
 function convertKeyToString(key: KeyObject) {
   return key.export({ type: "pkcs1", format: "pem" }).toString();
@@ -97,7 +97,6 @@ export function decryptMultiplePatientFields(
   encryptedRecords: any, // Can be an object or an array of objects
   symmetricKeyString: string,
 ) {
-  console.log(encryptedRecords);
   // Function to decrypt fields of an object
   function decryptObjectFields(obj: any, keyString: string) {
     let decryptedObj: any = {};
@@ -109,7 +108,6 @@ export function decryptMultiplePatientFields(
       } else if (typeof value === "object" && value !== null && !key.includes("Key") && !exemptFields.includes(key)) {
         decryptedObj[key] = decryptObjectFields(value, keyString);
       } else {
-        console.log(key, value);
         decryptedObj[key] = value; // unencrypted values or exempt fields
       }
     });

@@ -34,6 +34,7 @@ const PatientMedications = async () => {
     const decryptedSymmetricKey = decryptKey(patientMedications.symmetricKey, "patientSymmetricKey");
     decryptedPatientMedications = decryptMultiplePatientFields(patientMedications.medications, decryptedSymmetricKey);
   } catch (e) {
+    console.log(e);
     return <div>something went wrong</div>;
   }
 

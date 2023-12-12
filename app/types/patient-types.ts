@@ -49,3 +49,9 @@ export type NewMedicationType = {
   description?: string | null;
   status: string;
 };
+
+export type PartialDosageHistoryType = {
+  dosage: string;
+  dosageUnits: string;
+  frequency: string;
+};

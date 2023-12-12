@@ -64,7 +64,7 @@ model DosageHistory {
   dosage       String
   dosageUnits  String
   frequency    String
-  Medication   Medication @relation(fields: [medicationId], references: [id])
+  Medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 

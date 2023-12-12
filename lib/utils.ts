@@ -5,6 +5,7 @@ import { NewMedicationType } from "@/app/types";
 import { genders, martialStatuses, races, heightsImperial, heightsMetric, states, dosageFrequency } from "./constants";
 export * from "./encryption";
 export * from "./initial-profile";
+export * from "./request-validation";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -117,7 +118,7 @@ export function checkForInvalidDemographicsData(data: any, initialUser: any) {
     }
     return checkForExtraneousFields(Object.keys(address), ["address", "address2", "city", "state", "zipcode"]);
   }
-  return checkForExtraneousFields(Object.keys(data), Object.keys(allowedFields));
+  return checkForExtraneousFields(Object.keys(data), allowedFields);
 }
 
 function convertHeightToMeters(height: string): number {

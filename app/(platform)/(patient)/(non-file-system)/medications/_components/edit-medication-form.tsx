@@ -4,8 +4,8 @@ import React, { useState } from "react";
 
 import axios from "axios";
 
-import { Medication } from "@prisma/client";
-import { MedicationType } from "@/app/types";
+import { Medication, DosageHistory } from "@prisma/client";
+import { MedicationType, PartialDosageHistoryType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -60,23 +60,46 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
     }
 
     const dataCheck = checkForInvalidEditedMedication(changes);
-    if (dataCheck !== "" || !medication) {
+    if (dataCheck !== "" || !medication || !initialMedication) {
       const toastMessage = dataCheck ? dataCheck : "Invalid medication";
       toast.error(toastMessage);
       setIsLoading(false);
       setMedication(initialMedication);
       return;
     }
+    let dosageHistoryInitialFields: PartialDosageHistoryType | undefined = undefined;
+    let updatedDosageHistoryEntry: DosageHistory | undefined = undefined;
+    if (changes.dosage || changes.dosageUnits || changes.frequency) {
+      // If so, set dosageHistoryInitialFields to the initial values
+      dosageHistoryInitialFields = {
+        dosage: initialMedication.dosage,
+        dosageUnits: initialMedication.dosageUnits,
+        frequency: initialMedication.frequency,
+      };
+    }
     if (Object.keys(changes).length > 0) {
       const promise = axios
-        .post("/api/patient-update", { fieldsObj: changes, updateType: "editMedication", medicationId: medication?.id })
+        .post("/api/patient-update", {
+          fieldsObj: changes,
+          updateType: "editMedication",
+          medicationId: medication.id,
+          dosageHistoryInitialFields: dosageHistoryInitialFields,
+        })
         .then((response) => {
           console.log("Update successful", response.data);
+          if (dosageHistoryInitialFields) {
+            updatedDosageHistoryEntry = {
+              id: "fake-id",
+              medicationId: medication.id,
+              dosage: dosageHistoryInitialFields.dosage,
+              dosageUnits: dosageHistoryInitialFields.dosageUnits,
+              frequency: dosageHistoryInitialFields.frequency,
+              createdAt: new Date(),
+            };
+          }
 
-          // Update the medication state with the latest changes
-          //   setInitialMedication((prevMedication) => ({ ...prevMedication, ...changes }));
           setInitialMedication(medication);
-          medicationStore.updateMedication(medication);
+          medicationStore.updateMedication(medication, updatedDosageHistoryEntry);
           setIsEditing(false);
           viewMedicationModal.onClose();
         })

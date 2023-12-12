@@ -7,6 +7,7 @@ interface MedicationStore {
   setMedications: (medications: MedicationType[]) => void;
   addMedication: (medication: MedicationType) => void;
   updateMedication: (updatedMedication: MedicationType) => void;
+  deleteMedication: (medicationId: string) => void;
   isMedicationNameExist: (name: string) => boolean;
 }
 
@@ -20,6 +21,10 @@ export const useMedicationStore = create<MedicationStore>((set, get) => ({
       medications: state.medications.map((medication) =>
         medication.id === updatedMedication.id ? updatedMedication : medication,
       ),
+    })),
+  deleteMedication: (medicationId) =>
+    set((state) => ({
+      medications: state.medications.filter((medication) => medication.id !== medicationId),
     })),
   isMedicationNameExist: (name) => {
     const state = get(); // Correctly use 'get' to access the state

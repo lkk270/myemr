@@ -9,8 +9,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTableRowActionsProps } from "@/app/types";
+import { DeletePopover } from "./delete-popover";
 
-export function DataTableRowActions<TData>({ row, onOpen }: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions<TData>({ row, onOpen, onConfirmFunc }: DataTableRowActionsProps<TData>) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -19,13 +20,12 @@ export function DataTableRowActions<TData>({ row, onOpen }: DataTableRowActionsP
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
+      <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px]">
         <DropdownMenuItem
           onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+            // e.preventDefault();
+            // e.stopPropagation();
             if (onOpen) {
-              console.log("CLICKED");
               onOpen(row.original, true);
             }
           }}
@@ -33,15 +33,7 @@ export function DataTableRowActions<TData>({ row, onOpen }: DataTableRowActionsP
           Edit
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Delete option clicked");
-          }}
-        >
-          Delete
-        </DropdownMenuItem>
+        {onConfirmFunc && <DeletePopover onConfirmFunc={onConfirmFunc} />}
       </DropdownMenuContent>
     </DropdownMenu>
   );

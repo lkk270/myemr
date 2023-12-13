@@ -1,15 +1,16 @@
-import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs";
-// import { MainNavbar } from "@/components/headers/main-navbar";
-import { Navbar } from "../_components/navbar";
+"use client";
+
 import { Sidebar } from "./_components/sidebar";
 import { SearchCommand } from "@/components/modals/search-command";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
-  const user = await currentUser();
+  const { isSignedIn, user } = useUser();
+  const router = useRouter();
 
-  if (!user || user.unsafeMetadata.userType !== "patient") {
-    return redirect("/");
+  if (!isSignedIn || user.unsafeMetadata.userType !== "patient") {
+    return router.push("/");
   }
 
   return (

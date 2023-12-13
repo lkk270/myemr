@@ -5,6 +5,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { toast } from "sonner";
+import { Logo } from "@/components/logo";
 
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -12,6 +13,8 @@ import { useSearch } from "@/hooks/use-search";
 
 import { Item } from "./item";
 import { DocumentList } from "./document-list";
+import { Navbar } from "./navbar";
+
 // import { TrashBox } from "./trash-box";
 
 export const Sidebar = () => {
@@ -114,38 +117,45 @@ export const Sidebar = () => {
           isMobile && "w-0",
         )}
       >
-        <div
-          onClick={collapse}
-          role="button"
-          className={cn(
-            "h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 absolute top-3 right-2 opacity-0 group-hover/sidebar:opacity-100 transition",
-            isMobile && "opacity-100",
-          )}
-        >
-          <ChevronsLeft className="h-6 w-6" />
+        <div className="pt-2 flex justify-between p-4">
+          <Logo showText={false} />
+
+          <div
+            onClick={collapse}
+            role="button"
+            className={cn(
+              "h-6 w-6 mt-3 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 relative opacity-0 group-hover/sidebar:opacity-100 transition",
+              isMobile && "opacity-100",
+            )}
+          >
+            <ChevronsLeft className="h-6 w-6" />
+          </div>
         </div>
-        <div>
-          <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-          <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
-        </div>
-        <div className="mt-4">
-          <DocumentList />
-          <Item onClick={handleCreate} icon={Plus} label="Add a page" />
-          <Popover>
-            <PopoverTrigger className="w-full mt-4">
-              <Item label="Trash" icon={Trash} />
-            </PopoverTrigger>
-            {/* <PopoverContent className="p-0 w-72" side={isMobile ? "bottom" : "right"}>
+        <div className="pt-4">
+          <div>
+            <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
+            <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
+          </div>
+          <div className="mt-4">
+            <DocumentList />
+            <Item onClick={handleCreate} icon={Plus} label="Add a page" />
+            <Popover>
+              <PopoverTrigger className="w-full mt-4">
+                <Item label="Trash" icon={Trash} />
+              </PopoverTrigger>
+              {/* <PopoverContent className="p-0 w-72" side={isMobile ? "bottom" : "right"}>
               <TrashBox />
             </PopoverContent> */}
-          </Popover>
+            </Popover>
+          </div>
+          <div
+            onMouseDown={handleMouseDown}
+            onClick={resetWidth}
+            className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
+          />
         </div>
-        <div
-          onMouseDown={handleMouseDown}
-          onClick={resetWidth}
-          className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
-        />
       </aside>
+
       <div
         ref={navbarRef}
         className={cn(
@@ -154,9 +164,7 @@ export const Sidebar = () => {
           isMobile && "left-0 w-full",
         )}
       >
-        <nav className="bg-transparent px-3 py-2 w-full">
-          {isCollapsed && <MenuIcon onClick={resetWidth} role="button" className="h-6 w-6 text-muted-foreground" />}
-        </nav>
+        <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
       </div>
     </>
   );

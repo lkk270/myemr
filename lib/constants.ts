@@ -1,3 +1,43 @@
+import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings } from "lucide-react";
+
+export const navRoutes = [
+  {
+    icon: Home,
+    href: "/patient-home",
+    label: "Home",
+  },
+  {
+    icon: FolderClosed,
+    href: "/files",
+    label: "Files",
+  },
+  {
+    icon: Pill,
+    href: "/medications",
+    label: "Meds",
+  },
+  {
+    icon: Contact,
+    href: "/demographics",
+    label: "About",
+  },
+  {
+    icon: ScrollText,
+    href: "/notes",
+    label: "Notes",
+  },
+  {
+    icon: Stethoscope,
+    href: "/providers",
+    label: "Providers",
+  },
+  {
+    icon: Settings,
+    href: "/settings",
+    label: "Settings",
+  },
+];
+
 export interface SelectItemType {
   value: string;
   value2?: string;

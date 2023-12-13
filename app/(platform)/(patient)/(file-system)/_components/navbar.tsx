@@ -21,27 +21,15 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
           <div className="flex items-center gap-x-2">
             <MenuIcon role="button" onClick={onResetWidth} />
             <Logo showText={false} />
-            <GenericNavigationMenu navRoutes={navRoutes} />
           </div>
         )}
-        {!isCollapsed ? (
-          <div className="flex items-center justify-between w-full">
-            <GenericNavigationMenu navRoutes={navRoutes} />
-            <div className="flex items-center gap-x-2">
-              <ModeToggle />
-              <UserButton afterSignOutUrl="/" />
-              {/* other things */}
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex-grow"></div>
-            <div className="flex items-center gap-x-2">
-              <ModeToggle />
-              <UserButton afterSignOutUrl="/" />
-            </div>
-          </>
-        )}
+
+        <div className="flex-grow"></div>
+        <div className="flex items-center gap-x-2">
+          <GenericNavigationMenu navRoutes={navRoutes} />
+          <ModeToggle />
+          <UserButton afterSignOutUrl="/" />
+        </div>
       </nav>
     </>
   );

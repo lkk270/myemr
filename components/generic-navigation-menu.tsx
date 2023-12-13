@@ -35,11 +35,11 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-transparent">
-            <LayoutGrid className="hover:opacity-50  transition-opacity duration-300 p-0" />
+          <NavigationMenuTrigger className="bg-transparent ml-[100px] px-0">
+            <LayoutGrid className="hover:opacity-50 transition-opacity duration-300 p-0" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[150px] gap-3 p-4 md:grid-cols-2 md:w-[250px] ">
+            <ul className="grid gap-3 p-4 grid-cols-2 w-[215px]">
               {navRoutes.map((route) => (
                 <div key={route.href}>
                   <div

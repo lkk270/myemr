@@ -1,24 +1,11 @@
 "use client";
-import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "./mobile-sidebar";
-import {
-  Pill,
-  Contact,
-  Stethoscope,
-  ScrollText,
-  FolderClosed,
-  Home,
-  Settings,
-  ChevronsLeft,
-  MenuIcon,
-  LayoutGrid,
-  Menu,
-} from "lucide-react";
+import { navRoutes } from "@/lib/constants";
+
 import { usePathname, useRouter } from "next/navigation";
 // import { Notifications } from "@/components/notifications";
 
@@ -32,44 +19,6 @@ export const Navbar = ({}: NavbarProps) => {
     return router.push(url);
   };
 
-  const routes = [
-    {
-      icon: Home,
-      href: "/patient-home",
-      label: "Home",
-    },
-    {
-      icon: FolderClosed,
-      href: "/files",
-      label: "Files",
-    },
-    {
-      icon: Pill,
-      href: "/medications",
-      label: "Meds",
-    },
-    {
-      icon: Contact,
-      href: "/demographics",
-      label: "About",
-    },
-    {
-      icon: ScrollText,
-      href: "/notes",
-      label: "Notes",
-    },
-    {
-      icon: Stethoscope,
-      href: "/providers",
-      label: "Providers",
-    },
-    {
-      icon: Settings,
-      href: "/settings",
-      label: "Settings",
-    },
-  ];
-
   return (
     <div className="dark:bg-[#14161a] bg-[#fcfdfd] fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
       <div className="flex items-center">
@@ -78,7 +27,7 @@ export const Navbar = ({}: NavbarProps) => {
       </div>
       <div className="items-center sm:flex hidden">
         <div className="flex items-center sm:flex gap-x-1 lg:gap-x-4">
-          {routes.map((route, index) => (
+          {navRoutes.map((route, index) => (
             <div key={route.href}>
               <div
                 onClick={() => onNavigate(route.href)}

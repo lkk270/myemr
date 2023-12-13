@@ -10,14 +10,16 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useSearch } from "@/hooks/use-search";
-
+import { FoldersTree } from "./folders-tree";
 import { Item } from "./item";
-import { DocumentList } from "./document-list";
 import { Navbar } from "./navbar";
-
 // import { TrashBox } from "./trash-box";
 
-export const Sidebar = () => {
+interface SidebarProps {
+  data: any[];
+}
+
+export const Sidebar = ({ data }: SidebarProps) => {
   const router = useRouter();
   const search = useSearch();
   const params = useParams();
@@ -137,16 +139,8 @@ export const Sidebar = () => {
             <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
           </div>
           <div className="mt-4">
-            <DocumentList />
-            <Item onClick={handleCreate} icon={Plus} label="Add a page" />
-            <Popover>
-              <PopoverTrigger className="w-full mt-4">
-                <Item label="Trash" icon={Trash} />
-              </PopoverTrigger>
-              {/* <PopoverContent className="p-0 w-72" side={isMobile ? "bottom" : "right"}>
-              <TrashBox />
-            </PopoverContent> */}
-            </Popover>
+            <FoldersTree folders={data} />
+            {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           </div>
           <div
             onMouseDown={handleMouseDown}

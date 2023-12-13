@@ -13,6 +13,8 @@ import { useSearch } from "@/hooks/use-search";
 import { FoldersTree } from "./folders-tree";
 import { Item } from "./item";
 import { Navbar } from "./navbar";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+
 // import { TrashBox } from "./trash-box";
 
 interface SidebarProps {
@@ -109,46 +111,53 @@ export const Sidebar = ({ data }: SidebarProps) => {
     // });
   };
 
+  const onDragEnd = (result: any) => {
+    // Logic to handle drag end event
+    // This is where you would reorder folders/files based on the drag result
+  };
   return (
     <>
-      <aside
-        ref={sidebarRef}
-        className={cn(
-          "group/sidebar h-full bg-secondary overflow-y-auto relative flex w-60 flex-col z-[99999]",
-          isResetting && "transition-all ease-in-out duration-300",
-          isMobile && "w-0",
-        )}
-      >
-        <div className="pt-2 flex justify-between p-4">
-          <Logo showText={false} />
+      <DragDropContext onDragEnd={onDragEnd}>
+        <aside
+          ref={sidebarRef}
+          className={cn(
+            "group/sidebar h-full bg-secondary overflow-y-auto relative flex w-60 flex-col z-[99999]",
+            isResetting && "transition-all ease-in-out duration-300",
+            isMobile && "w-0",
+          )}
+        >
+          <div className="pt-2 flex justify-between p-4">
+            <Logo showText={false} />
 
-          <div
-            onClick={collapse}
-            role="button"
-            className={cn(
-              "h-6 w-6 mt-3 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 relative opacity-0 group-hover/sidebar:opacity-100 transition",
-              isMobile && "opacity-100",
-            )}
-          >
-            <ChevronsLeft className="h-6 w-6" />
+            <div
+              onClick={collapse}
+              role="button"
+              className={cn(
+                "h-6 w-6 mt-3 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 relative opacity-0 group-hover/sidebar:opacity-100 transition",
+                isMobile && "opacity-100",
+              )}
+            >
+              <ChevronsLeft className="h-6 w-6" />
+            </div>
           </div>
-        </div>
-        <div className="pt-4">
-          <div>
-            <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-            <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
+          <div className="pt-4">
+            <div>
+              <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
+              <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
+            </div>
+            <div className="mt-4">
+              <FoldersTree folders={data} />
+
+              {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
+            </div>
+            <div
+              onMouseDown={handleMouseDown}
+              onClick={resetWidth}
+              className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
+            />
           </div>
-          <div className="mt-4">
-            <FoldersTree folders={data} />
-            {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
-          </div>
-          <div
-            onMouseDown={handleMouseDown}
-            onClick={resetWidth}
-            className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
-          />
-        </div>
-      </aside>
+        </aside>
+      </DragDropContext>
 
       <div
         ref={navbarRef}

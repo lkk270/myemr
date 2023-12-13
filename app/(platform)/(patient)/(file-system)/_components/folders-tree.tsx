@@ -3,6 +3,7 @@
 import React from "react";
 import { FolderTree } from "./folder-tree"; // Adjust the import path as needed
 import { Folder } from "@prisma/client"; // Or your custom interface
+import { DragDropContext } from "@hello-pangea/dnd";
 
 interface FoldersTreeProps {
   folders: any[]; // Assuming Folder includes 'children' and 'files'

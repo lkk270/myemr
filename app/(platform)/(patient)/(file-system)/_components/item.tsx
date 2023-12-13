@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface ItemProps {
+  isFile?: boolean;
   id?: string;
   documentIcon?: string;
   active?: boolean;
@@ -29,6 +30,7 @@ interface ItemProps {
 }
 
 export const Item = ({
+  isFile = false,
   id,
   label,
   onClick,
@@ -82,14 +84,14 @@ export const Item = ({
       onClick={onClick}
       role="button"
       style={{
-        paddingLeft: level ? (!id ? `${level * 12 + 12 + 4 + 16}px` : `${level * 12 + 12}px`) : "12px",
+        paddingLeft: level ? (isFile ? `${level * 12 + 12 + 4 + 16}px` : `${level * 12 + 12}px`) : "12px",
       }}
       className={cn(
-        "group min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium",
+        "group cursor-grab min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium",
         active && "bg-primary/5 text-primary",
       )}
     >
-      {!!id && (
+      {!!id && !isFile && (
         <div
           role="button"
           className="h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-1"
@@ -109,7 +111,7 @@ export const Item = ({
           <span className="text-xs">⌘</span>K
         </kbd>
       )}
-      {!!id && (
+      {!!id && !isFile && (
         <div className="ml-auto flex items-center gap-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} asChild>

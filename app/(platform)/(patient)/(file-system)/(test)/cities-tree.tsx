@@ -29,7 +29,6 @@ export const CitiesTree = ({ width = 300, height = 500 }) => {
     setCount(tree?.visibleNodes.length ?? 0);
   }, [tree, searchTerm]);
 
-  console.log(width);
   return (
     <div>
       <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} />

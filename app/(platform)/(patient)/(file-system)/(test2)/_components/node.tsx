@@ -25,12 +25,32 @@ type NodeProps = {
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const CustomIcon = node.data.icon;
   const iconColor = node.data.iconColor;
+  const [isDragOver, setIsDragOver] = React.useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necessary for onDrop to work
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    // Handle the drop logic here
+    setIsDragOver(false);
+  };
 
   return (
     <div
-      className={`flex items-center w-full h-full node-container ${node.state.isSelected ? "isSelected" : ""}`}
+      className={`flex items-center w-full h-full node-container ${node.state.isSelected ? "isSelected" : ""} ${
+        isDragOver ? "bg-blue-200" : ""
+      }`}
       style={style}
       ref={dragHandle}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       {/* Node Content */}
       <div

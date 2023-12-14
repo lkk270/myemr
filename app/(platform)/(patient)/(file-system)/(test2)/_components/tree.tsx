@@ -29,7 +29,7 @@ const Arborist: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col gap-4 overflow-x-auto min-h-full p-5">
+    <div className="max-w-[300px] flex flex-col gap-4 min-h-full p-5">
       <div className="flex justify-between items-center">
         {createFileFolder}
         <input
@@ -43,7 +43,7 @@ const Arborist: React.FC = () => {
       <Tree
         ref={treeRef}
         initialData={data}
-        width={500}
+        width={300}
         height={1000}
         indent={24}
         rowHeight={32}

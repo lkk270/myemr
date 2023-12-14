@@ -15,7 +15,7 @@ type Data = { id: string; name: string; children?: Data[] };
 const data = sortData(cities);
 const INDENT_STEP = 15;
 
-export const CitiesTree = ({ width = "", height = 500 }) => {
+export const CitiesTree = ({ width = 300, height = 500 }) => {
   const [tree, setTree] = useState<TreeApi<Data> | null | undefined>(null);
   const [active, setActive] = useState<Data | null>(null);
   const [focused, setFocused] = useState<Data | null>(null);
@@ -29,15 +29,13 @@ export const CitiesTree = ({ width = "", height = 500 }) => {
     setCount(tree?.visibleNodes.length ?? 0);
   }, [tree, searchTerm]);
 
-  const stringWidth = width;
-  const numericWidth = stringWidth ? parseInt(stringWidth, 10) : 300; // Default to 300 if width is not available
-  console.log(numericWidth);
+  console.log(width);
   return (
     <div>
       <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} />
 
       {/* Pass the width to FillFlexParent as realWidth */}
-      <FillFlexParent realWidth={numericWidth} height={height}>
+      <FillFlexParent realWidth={width} height={height}>
         {(dimens) => (
           <Tree
             {...dimens}

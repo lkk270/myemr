@@ -15,6 +15,7 @@ import { Item } from "./item";
 import { Navbar } from "./navbar";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { CitiesTree } from "../(test)/cities-tree";
+import Arborist from "../(test2)/_components/tree";
 // import { TrashBox } from "./trash-box";
 
 interface SidebarProps {
@@ -33,7 +34,7 @@ export const Sidebar = ({ data }: SidebarProps) => {
   const navbarRef = useRef<ElementRef<"div">>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
-  const [sidebarWidth, setSidebarWidth] = useState(300)
+  const [sidebarWidth, setSidebarWidth] = useState(300);
   useEffect(() => {
     if (isMobile) {
       collapse();
@@ -67,7 +68,7 @@ export const Sidebar = ({ data }: SidebarProps) => {
 
     if (sidebarRef.current && navbarRef.current) {
       sidebarRef.current.style.width = `${newWidth}px`;
-      setSidebarWidth(newWidth)
+      setSidebarWidth(newWidth);
       navbarRef.current.style.setProperty("left", `${newWidth}px`);
       navbarRef.current.style.setProperty("width", `calc(100% - ${newWidth}px)`);
     }
@@ -147,7 +148,8 @@ export const Sidebar = ({ data }: SidebarProps) => {
               <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
             </div>
             <div className="mt-4">
-              <CitiesTree width={sidebarWidth} />
+              {/* <CitiesTree width={sidebarWidth} /> */}
+              <Arborist />
               {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
             </div>
             <div

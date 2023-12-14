@@ -29,6 +29,21 @@ export const CitiesTree = ({ width = 300, height = 500 }) => {
     setCount(tree?.visibleNodes.length ?? 0);
   }, [tree, searchTerm]);
 
+  // Function to determine if drop is allowed
+  const disableDrop = ({ parentNode, dragNodes, index }: any) => {
+    // Check if any of the dragged nodes are files and if they are being dropped into a folder
+    const isDroppingFileIntoFolder = dragNodes.some(
+      (dragNode: any) => dragNode.data.isFile && (!parentNode || !parentNode.data.children),
+    );
+
+    // Check if any of the dragged nodes have the same parent as the target parentNode
+    // This will prevent reordering within the same folder but allow dropping into subfolders
+    const isReorderingInSameFolder = dragNodes.some((dragNode: any) => dragNode.parent.id === parentNode.id);
+
+    // Disable drop if either of the conditions are met
+    return isDroppingFileIntoFolder || isReorderingInSameFolder;
+  };
+
   return (
     <div>
       <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} />
@@ -53,6 +68,7 @@ export const CitiesTree = ({ width = 300, height = 500 }) => {
             onSelect={(selected) => setSelectedCount(selected.length)}
             onActivate={(node) => setActive(node.data)}
             onFocus={(node) => setFocused(node.data)}
+            disableDrop={disableDrop}
             onToggle={() => {
               setTimeout(() => {
                 setCount(tree?.visibleNodes.length ?? 0);

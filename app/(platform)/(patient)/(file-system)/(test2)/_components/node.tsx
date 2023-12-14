@@ -3,6 +3,7 @@ import { AiFillFolder, AiFillFile } from "react-icons/ai";
 import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { IconType } from "react-icons";
+import DragContext from "./drag-context";
 
 // Assuming a Node type is defined somewhere
 // If not, you'll need to define it accordingly
@@ -25,26 +26,45 @@ type NodeProps = {
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const CustomIcon = node.data.icon;
   const iconColor = node.data.iconColor;
-  const [isDragOver, setIsDragOver] = React.useState(false);
+  // const [isDragOver, setIsDragOver] = React.useState(false);
+  const { hoveredNodeId, setHoveredNodeId } = React.useContext(DragContext);
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Necessary for onDrop to work
-    setIsDragOver(true);
+    e.preventDefault();
+    // Set to the ID of the parent folder if it's a child node
+    const parentFolderId = node.isLeaf ? node.parent.id : node.id;
+    if (hoveredNodeId !== parentFolderId) {
+      setHoveredNodeId(parentFolderId);
+    }
   };
 
   const handleDragLeave = () => {
-    setIsDragOver(false);
+    if (hoveredNodeId === node.id) {
+      setHoveredNodeId(null);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
-    // Handle the drop logic here
-    setIsDragOver(false);
+    e.preventDefault();
+    // Logic to handle the drop action
+    // For example, moving the dragged item to the dropped-on folder
+
+    // After handling the drop, reset the hovered state
+    setHoveredNodeId(null);
+  };
+
+  const isNodeOrParentHovered = (node: any) => {
+    return hoveredNodeId === node.id || (node.parent && hoveredNodeId === node.parent.id);
+  };
+
+  const isNodeOrChildHovered = (node: any) => {
+    return hoveredNodeId === node.id || node.children?.some((child: any) => isNodeOrChildHovered(child));
   };
 
   return (
     <div
       className={`flex items-center w-full h-full node-container ${node.state.isSelected ? "isSelected" : ""} ${
-        isDragOver ? "bg-blue-200" : ""
+        isNodeOrParentHovered(node) ? "bg-blue-200" : ""
       }`}
       style={style}
       ref={dragHandle}

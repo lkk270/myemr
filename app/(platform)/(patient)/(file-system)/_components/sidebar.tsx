@@ -148,8 +148,8 @@ export const Sidebar = ({ data }: SidebarProps) => {
               <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
             </div>
             <div className="mt-4">
-              {/* <CitiesTree width={sidebarWidth} /> */}
-              <Arborist />
+              <CitiesTree width={sidebarWidth} />
+              {/* <Arborist /> */}
               {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
             </div>
             <div

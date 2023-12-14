@@ -1,6 +1,15 @@
 "use client";
 
-import { ChevronDown, ChevronRight, LucideIcon, MoreHorizontal, Plus, Trash } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  LucideIcon,
+  MoreHorizontal,
+  Plus,
+  Trash,
+  FolderClosed,
+  FolderOpen,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useUser } from "@clerk/clerk-react";
@@ -102,8 +111,12 @@ export const Item = ({
       )}
       {documentIcon ? (
         <div className="shrink-0 mr-2 text-[18px]">{documentIcon}</div>
-      ) : (
+      ) : isFile ? (
         <Icon className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
+      ) : expanded ? (
+        <FolderOpen className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
+      ) : (
+        <FolderClosed className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
       )}
       <span className="truncate">{label}</span>
       {isSearch && (

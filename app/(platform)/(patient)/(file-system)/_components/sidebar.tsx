@@ -14,7 +14,7 @@ import { FoldersTree } from "./folders-tree";
 import { Item } from "./item";
 import { Navbar } from "./navbar";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-
+import { CitiesTree } from "../(test)/cities-tree";
 // import { TrashBox } from "./trash-box";
 
 interface SidebarProps {
@@ -146,8 +146,7 @@ export const Sidebar = ({ data }: SidebarProps) => {
               <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
             </div>
             <div className="mt-4">
-              <FoldersTree folders={data} />
-
+              <CitiesTree width={navbarRef?.current?.style.getPropertyValue("width")} />
               {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
             </div>
             <div

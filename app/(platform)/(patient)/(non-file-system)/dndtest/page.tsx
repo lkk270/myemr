@@ -1,6 +1,6 @@
 import { auth, redirectToSignIn } from "@clerk/nextjs";
 
-import { CitiesComponent } from "../../(file-system)/(test)/cities";
+import { CitiesTree } from "../../(file-system)/(test)/cities-tree";
 const DndTest = async () => {
   const { userId } = auth();
 
@@ -10,7 +10,7 @@ const DndTest = async () => {
 
   return (
     <div className="flex sm:px-10 h-full justify-center">
-      <CitiesComponent />
+      <CitiesTree />
     </div>
   );
 };

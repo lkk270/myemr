@@ -31,7 +31,7 @@ export const cities = [
         id: "Alaska",
         name: "Alaska",
         children: [
-          { id: "44840014557.", name: "Anchorage" },
+          { userId: "user1", id: "44840014557.", name: "Anchorage" },
           { id: "4440014497.", name: "Fairbanks" },
           { id: "4440015324.", name: "Russia" },
           { id: "4440013364.", name: "Lost Land" },

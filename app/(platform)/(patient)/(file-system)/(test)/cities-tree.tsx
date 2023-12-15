@@ -45,7 +45,7 @@ export const CitiesTree = ({ width = 300, height = 500 }) => {
   };
 
   return (
-    <div>
+    <div id="tree-main">
       <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} />
 
       {/* Pass the width to FillFlexParent as realWidth */}

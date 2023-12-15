@@ -130,9 +130,9 @@
   border-radius: 8px;
 }
 
-/* .tree-main:hover.indentLines {
+.tree:hover .indentLines {
   display: flex;
-} */
+}
 
 .indentLines {
   --indent-size: 15px;
@@ -140,7 +140,7 @@
   top: 0;
   left: 0;
   z-index: -1;
-  display: flex; /* Change from 'none' to 'flex' */
+  display: none;
   align-items: flex-start;
   height: 100%;
 }
@@ -158,7 +158,6 @@
 
 .row:focus .node {
   background: #ddd;
-  position: relative;
 }
 
 .row:focus .node:global(.isSelected) {

@@ -7,8 +7,24 @@ import styles from "./cities.module.css";
 import { cities } from "./_data/cities";
 import { BsMapFill, BsMap, BsGeo, BsGeoFill } from "react-icons/bs";
 import { FillFlexParent } from "./fill-flex-parent";
-import { MdArrowDropDown, MdArrowRight } from "react-icons/md";
+import { MdArrowDropDown, MdArrowRight, MdEdit } from "react-icons/md";
 import Link from "next/link";
+import { RxCross2 } from "react-icons/rx";
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 type Data = { id: string; name: string; children?: Data[] };
 
@@ -83,26 +99,73 @@ export const CitiesTree = ({ width = 300, height = 500 }) => {
   );
 };
 
-function Node({ node, style, dragHandle }: NodeRendererProps<Data>) {
+function Node({ node, style, dragHandle, tree }: NodeRendererProps<Data>) {
   const Icon = node.isInternal ? BsMapFill : BsGeoFill;
   const indentSize = Number.parseFloat(`${style.paddingLeft || 0}`);
+  const [isEditing, setIsEditing] = useState(false); // Local state to manage editing
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleRename = (e: any) => {
+    e.stopPropagation();
+    setIsEditing(true); // Set local editing state
+  };
+
+  const endEditing = (newName: string | null) => {
+    setIsEditing(false);
+    if (newName) {
+      node.submit(newName); // Update the node with the new name
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
 
   return (
-    <div
-      ref={dragHandle}
-      style={style}
-      className={clsx(styles.node, node.state)}
-      onClick={() => node.isInternal && node.toggle()}
-    >
-      <div className={styles.indentLines}>
-        {new Array(indentSize / INDENT_STEP).fill(0).map((_, index) => {
-          return <div key={index}></div>;
-        })}
-      </div>
-      <FolderArrow node={node} />
-      <Icon className={styles.icon} />
-      <span className={styles.text}>{node.isEditing ? <Input node={node} /> : node.data.name}</span>
-    </div>
+    <ContextMenu>
+      <ContextMenuTrigger
+        ref={dragHandle}
+        style={style}
+        className={clsx(styles.node, node.state)}
+        onClick={() => node.isInternal && node.toggle()}
+      >
+        <div className={styles.indentLines}>
+          {new Array(indentSize / INDENT_STEP).fill(0).map((_, index) => {
+            return <div key={index}></div>;
+          })}
+        </div>
+        <FolderArrow node={node} />
+        <Icon className={styles.icon} />
+        <span className="cursor-grab">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              defaultValue={node.data.name}
+              onBlur={() => endEditing(null)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") endEditing(null);
+                if (e.key === "Enter") endEditing(e.currentTarget.value);
+              }}
+            />
+          ) : (
+            <span>{node.data.name}</span>
+          )}
+        </span>
+        <ContextMenuContent className="w-64 z-[999999]">
+          <ContextMenuItem inset onClick={handleRename}>
+            Rename
+            <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+          </ContextMenuItem>
+          <ContextMenuItem inset onClick={() => tree.delete(node.id)}>
+            Delete
+            <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuTrigger>
+    </ContextMenu>
   );
 }
 

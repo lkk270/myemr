@@ -4,7 +4,7 @@ import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
-
+import { cn } from "@/lib/utils";
 // Assuming a Node type is defined somewhere
 // If not, you'll need to define it accordingly
 
@@ -61,11 +61,16 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     return hoveredNodeId === node.id || node.children?.some((child: any) => isNodeOrChildHovered(child));
   };
 
+  // ${
+  //   isNodeOrParentHovered(node) ? "bg-blue-200" : ""
+  // }
   return (
     <div
-      className={`flex items-center w-full h-full node-container ${node.state.isSelected ? "isSelected" : ""} ${
-        isNodeOrParentHovered(node) ? "bg-blue-200" : ""
-      }`}
+      className={cn(
+        "flex items-center w-full h-full node-container",
+        node.state.isSelected && !node.state.isDragging && "bg-[#343434]",
+        node.state.willReceiveDrop && "bg-[#343434]",
+      )}
       style={style}
       ref={dragHandle}
       onDragOver={handleDragOver}

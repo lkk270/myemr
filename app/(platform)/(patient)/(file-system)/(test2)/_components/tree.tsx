@@ -74,7 +74,7 @@ const Arborist: React.FC = () => {
           />
         </div>
         <Tree
-          renderCursor={CustomCursor}
+          // renderCursor={CustomCursor}
           ref={treeRef}
           disableMultiSelection={false}
           initialData={data}

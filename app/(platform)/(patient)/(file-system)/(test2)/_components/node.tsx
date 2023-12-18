@@ -41,21 +41,24 @@ type NodeProps = {
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const CustomIcon = node.data.icon;
   const iconColor = node.data.iconColor;
+  const [contextEditClicked, setContextEditClicked] = React.useState(false);
+  const [contextEditClickedTime, setContextEditClickedTime] = React.useState(0);
+
   // const [isDragOver, setIsDragOver] = React.useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode } = React.useContext(DragContext);
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    const parentFolder = node.isLeaf ? node.parent : node;
-    if (hoveredNode.id && hoveredNode.id !== parentFolder.id && draggedNode.id !== parentFolder.id) {
-      setHoveredNode({ id: parentFolder.id, parentId: parentFolder.data.parentId });
-    }
-  };
+  // const handleDragOver = (e: React.DragEvent) => {
+  //   e.preventDefault();
+  //   const parentFolder = node.isLeaf ? node.parent : node;
+  //   if (hoveredNode.id && hoveredNode.id !== parentFolder.id && draggedNode.id !== parentFolder.id) {
+  //     setHoveredNode({ id: parentFolder.id, parentId: parentFolder.data.parentId });
+  //   }
+  // };
 
-  const handleDragLeave = () => {
-    if (hoveredNode.id === node.id) {
-      // setHoveredNodeId(null);
-    }
-  };
+  // const handleDragLeave = () => {
+  //   if (hoveredNode.id === node.id) {
+  //     // setHoveredNodeId(null);
+  //   }
+  // };
 
   const handleDragStart = () => {
     setDraggedNode({ id: node.id, parentId: node.data.parentId });
@@ -66,22 +69,22 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     setDraggedNode({ id: null, parentId: null });
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    // Logic to handle the drop action
-    // For example, moving the dragged item to the dropped-on folder
+  // const handleDrop = (e: React.DragEvent) => {
+  //   e.preventDefault();
+  //   // Logic to handle the drop action
+  //   // For example, moving the dragged item to the dropped-on folder
 
-    // After handling the drop, reset the hovered state
-    setHoveredNode({ id: null, parentId: null });
-  };
+  //   // After handling the drop, reset the hovered state
+  //   setHoveredNode({ id: null, parentId: null });
+  // };
 
-  const isNodeOrParentHovered = (node: any) => {
-    return hoveredNode.id === node.id || (node.parent && hoveredNode.id === node.parent.id);
-  };
+  // const isNodeOrParentHovered = (node: any) => {
+  //   return hoveredNode.id === node.id || (node.parent && hoveredNode.id === node.parent.id);
+  // };
 
-  const isNodeOrChildHovered = (node: any) => {
-    return hoveredNode.id === node.id || node.children?.some((child: any) => isNodeOrChildHovered(child));
-  };
+  // const isNodeOrChildHovered = (node: any) => {
+  //   return hoveredNode.id === node.id || node.children?.some((child: any) => isNodeOrChildHovered(child));
+  // };
 
   // ${
   //   isNodeOrParentHovered(node) ? "bg-blue-200" : ""
@@ -101,12 +104,16 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           "flex items-center w-full h-full node-container",
           node.state.isSelected && !node.state.isDragging && !node.isEditing && "bg-red-300",
           node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
+          // node.id.includes(draggedNode.parentId) &&
+          //   node.id !== draggedNode.id &&
+          //   node.id !== draggedNode.parentId &&
+          //   "bg-blue-300",
         )}
         style={style}
         ref={dragHandle}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        // onDragOver={handleDragOver}
+        // onDragLeave={handleDragLeave}
+        // onDrop={handleDrop}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
@@ -139,10 +146,24 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 type="text"
                 defaultValue={node.data.name}
                 onFocus={(e) => e.currentTarget.select()}
-                onBlur={() => node.reset()}
+                onBlur={(e) => {
+                  if (!contextEditClicked || Date.now() - contextEditClickedTime > 250) {
+                    e.currentTarget.blur();
+                    node.deselect();
+                    node.reset();
+                  } else {
+                    e.currentTarget.select();
+                  }
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") node.reset();
-                  if (e.key === "Enter") node.submit(e.currentTarget.value);
+                  if (e.key === "Escape") {
+                    setContextEditClicked(false);
+                    node.reset();
+                  }
+                  if (e.key === "Enter") {
+                    setContextEditClicked(false);
+                    node.submit(e.currentTarget.value);
+                  }
                 }}
                 autoFocus
               />
@@ -161,7 +182,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           </div>
         </div>
         <ContextMenuContent className="w-64 z-[999999]">
-          <ContextMenuItem inset onClick={() => node.edit()}>
+          <ContextMenuItem
+            inset
+            onClick={() => {
+              setContextEditClicked(true);
+              setContextEditClickedTime(Date.now());
+              node.edit();
+            }}
+          >
             Rename
             <ContextMenuShortcut>⌘[</ContextMenuShortcut>
           </ContextMenuItem>

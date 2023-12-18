@@ -6,10 +6,33 @@ import { TbFolderPlus } from "react-icons/tb";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
 
+const CustomCursor = () => null;
+
 const Arborist: React.FC = () => {
   const [term, setTerm] = useState<string>("");
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
-  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<{ id: string | null; parentId: string | null }>({
+    id: null,
+    parentId: null,
+  });
+  const [draggedNode, setDraggedNode] = useState<{ id: string | null; parentId: string | null }>({
+    id: null,
+    parentId: null,
+  });
+
+  const disableDrop = ({ parentNode, dragNodes, index }: any) => {
+    // Check if any of the dragged nodes are files and if they are being dropped into a folder
+    const isDroppingFileIntoFolder = dragNodes.some(
+      (dragNode: any) => dragNode.data.isFile && (!parentNode || !parentNode.data.children),
+    );
+
+    // Check if any of the dragged nodes have the same parent as the target parentNode
+    // This will prevent reordering within the same folder but allow dropping into subfolders
+    const isReorderingInSameFolder = dragNodes.some((dragNode: any) => dragNode.parent.id === parentNode.id);
+
+    // Disable drop if either of the conditions are met
+    return isDroppingFileIntoFolder || isReorderingInSameFolder;
+  };
 
   const createFileFolder = (
     <div className="flex gap-2">
@@ -31,7 +54,14 @@ const Arborist: React.FC = () => {
   );
 
   return (
-    <DragContext.Provider value={{ hoveredNodeId, setHoveredNodeId }}>
+    <DragContext.Provider
+      value={{
+        hoveredNode,
+        setHoveredNode,
+        draggedNode,
+        setDraggedNode,
+      }}
+    >
       <div className="max-w-[300px] flex flex-col gap-4 min-h-full p-5">
         <div className="flex justify-between items-center">
           {createFileFolder}
@@ -44,6 +74,7 @@ const Arborist: React.FC = () => {
           />
         </div>
         <Tree
+          renderCursor={CustomCursor}
           ref={treeRef}
           disableMultiSelection={false}
           initialData={data}
@@ -52,6 +83,7 @@ const Arborist: React.FC = () => {
           indent={24}
           rowHeight={32}
           searchTerm={term}
+          disableDrop={disableDrop}
           searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
         >
           {Node as any}

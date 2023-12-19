@@ -8,6 +8,8 @@ type DragContextType = {
   setDraggedNode: (node: SimpleNodeType) => void;
   hoveredFolderId: string | null;
   setHoveredFolderId: (id: string | null) => void;
+  contextDisableDrop: boolean | null;
+  setContextDisableDrop: (disable: boolean) => void;
 };
 
 const DragContext = React.createContext<DragContextType>({
@@ -17,6 +19,8 @@ const DragContext = React.createContext<DragContextType>({
   setDraggedNode: () => {},
   hoveredFolderId: null,
   setHoveredFolderId: () => {},
+  contextDisableDrop: null,
+  setContextDisableDrop: () => {},
 });
 
 export default DragContext;

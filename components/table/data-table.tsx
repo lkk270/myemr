@@ -85,7 +85,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            { isLoading ? (
+            {isLoading ? (
               // When rows are undefined, assume data is loading
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">

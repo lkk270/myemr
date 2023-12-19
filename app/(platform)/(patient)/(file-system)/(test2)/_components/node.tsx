@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AiFillFolder, AiFillFile } from "react-icons/ai";
 import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
@@ -41,11 +41,27 @@ type NodeProps = {
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const CustomIcon = node.data.icon;
   const iconColor = node.data.iconColor;
-  const [contextEditClicked, setContextEditClicked] = React.useState(false);
-  const [contextEditClickedTime, setContextEditClickedTime] = React.useState(0);
+  const [contextEditClicked, setContextEditClicked] = useState(false);
+  const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
 
-  // const [isDragOver, setIsDragOver] = React.useState(false);
-  const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode } = React.useContext(DragContext);
+  // const [isDragOver, setIsDragOver] = useState(false);
+  const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, hoveredFolderId, setHoveredFolderId } =
+    React.useContext(DragContext);
+  const isBackgroundChanged =
+    (node.id === hoveredFolderId || node.data.parentId === hoveredFolderId) &&
+    draggedNode.parentId &&
+    node.data.parentId &&
+    draggedNode.parentId !== node.data.parentId;
+
+  const isBackgroundChanged2 =
+    (node.data.path?.includes(hoveredNode.path) || node.data.parentId?.includes(hoveredNode.path)) &&
+    draggedNode.path &&
+    draggedNode.path !== node.data.path &&
+    draggedNode.parentId !== "-1" &&
+    draggedNode.path !== node.data.path &&
+    ((!draggedNode.isFile && draggedNode.parentId !== node.data.parentId) ||
+      (draggedNode.isFile && draggedNode.parentId !== node.data.parentId));
+
   // const handleDragOver = (e: React.DragEvent) => {
   //   e.preventDefault();
   //   const parentFolder = node.isLeaf ? node.parent : node;
@@ -60,13 +76,36 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   //   }
   // };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (node.data.isFile) {
+      // Check if it's a file
+      setHoveredFolderId(node.data.parentId); // Set the hoveredFolderId to the file's parentId
+      setHoveredNode({
+        id: node.data.id,
+        parentId: node.data.parentId,
+        path: node.data.path,
+        isFile: node.data.isFile,
+      });
+      console.log(hoveredNode);
+    } else if (!node.data.isFile) {
+      // If it's a folder
+      setHoveredFolderId(node.id); // Set to the folder's id
+      setHoveredNode({
+        id: node.data.id,
+        parentId: node.data.parentId,
+        path: node.data.path,
+        isFile: node.data.isFile,
+      });
+    }
+  };
+
   const handleDragStart = () => {
-    setDraggedNode({ id: node.id, parentId: node.data.parentId });
-    setDraggedNode({ id: node.id, parentId: node.data.parentId });
+    setDraggedNode({ id: node.id, parentId: node.data.parentId, path: node.data.path, isFile: node.data.isFile });
   };
 
   const handleDragEnd = () => {
-    setDraggedNode({ id: null, parentId: null });
+    setDraggedNode({ id: null, parentId: null, path: null, isFile: null });
   };
 
   // const handleDrop = (e: React.DragEvent) => {
@@ -97,13 +136,22 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // if (draggedNodeParentId) {
   //   console.log(draggedNodeParentId);
   // }
+  const handleDragLeave = () => {
+    setHoveredFolderId(null);
+    setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
+  };
   return (
     <ContextMenu>
       <ContextMenuTrigger
         className={cn(
           "flex items-center w-full h-full node-container",
-          node.state.isSelected && !node.state.isDragging && !node.isEditing && "bg-red-300",
-          node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
+          node.state.isSelected && !node.state.isDragging && !node.isEditing && "bg-primary/10",
+          // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
+          draggedNode.id &&
+            node.id !== draggedNode.id &&
+            node.id !== draggedNode.parentId &&
+            isBackgroundChanged2 &&
+            "bg-red-300",
           // node.id.includes(draggedNode.parentId) &&
           //   node.id !== draggedNode.id &&
           //   node.id !== draggedNode.parentId &&
@@ -111,8 +159,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         )}
         style={style}
         ref={dragHandle}
-        // onDragOver={handleDragOver}
-        // onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         // onDrop={handleDrop}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}

@@ -8,17 +8,17 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useSearch } from "@/hooks/use-search";
-import { FoldersTree } from "./folders-tree";
+// import { FoldersTree } from "./folders-tree";
 import { Item } from "./item";
 import { Navbar } from "./navbar";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-import { CitiesTree } from "../(test)/cities-tree";
-import Arborist from "../(test2)/_components/tree";
+// import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+// import { CitiesTree } from "../(test)/cities-tree";
+import Arborist from "./file-tree/_components/tree";
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
-  data: any[];
+  // data: any[];
 }
-export const Sidebar = ({ data }: SidebarProps) => {
+export const Sidebar = ({}: SidebarProps) => {
   const router = useRouter();
   const search = useSearch();
   const params = useParams();

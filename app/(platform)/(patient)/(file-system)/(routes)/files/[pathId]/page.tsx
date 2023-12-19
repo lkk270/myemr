@@ -1,5 +1,5 @@
 import { auth, redirectToSignIn } from "@clerk/nextjs";
-import { Sidebar } from "../../_components/sidebar";
+import { CustomDataTable } from "../../../_components/file-table/custom-data-table";
 import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
@@ -126,7 +126,11 @@ const FileSystem = async () => {
   //   return <div>something went wrong</div>;
   // }
 
-  return <div>Hello</div>;
+  return (
+    <div className="pt-16 px-6 w-full">
+      <CustomDataTable data={[]} />
+    </div>
+  );
 };
 
 export default FileSystem;

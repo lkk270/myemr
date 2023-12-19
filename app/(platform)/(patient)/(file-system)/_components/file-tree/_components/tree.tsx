@@ -34,7 +34,7 @@ const Arborist: React.FC = () => {
     isFile: null,
   });
   const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
-
+  const [contextDisableDrop, setContextDisableDrop] = useState(false);
   const disableDrop = ({ parentNode, dragNodes, index }: any) => {
     // Check if any of the dragged nodes are files and if they are being dropped into a folder
     const isDroppingFileIntoFolder = dragNodes.some(
@@ -44,7 +44,7 @@ const Arborist: React.FC = () => {
     // Check if any of the dragged nodes have the same parent as the target parentNode
     // This will prevent reordering within the same folder but allow dropping into subfolders
     const isReorderingInSameFolder = dragNodes.some((dragNode: any) => dragNode.parent.id === parentNode.id);
-
+    setContextDisableDrop(isDroppingFileIntoFolder || isReorderingInSameFolder);
     // Disable drop if either of the conditions are met
     return isDroppingFileIntoFolder || isReorderingInSameFolder;
   };
@@ -77,6 +77,8 @@ const Arborist: React.FC = () => {
         setDraggedNode,
         hoveredFolderId,
         setHoveredFolderId,
+        contextDisableDrop,
+        setContextDisableDrop,
       }}
     >
       <div className="max-w-[300px] flex flex-col gap-4 min-h-full p-5">

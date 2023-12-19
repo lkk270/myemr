@@ -43,10 +43,20 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const iconColor = node.data.iconColor;
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
+  if (tree.disableDropdown) {
+    console.log("HELLO");
+  }
 
   // const [isDragOver, setIsDragOver] = useState(false);
-  const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, hoveredFolderId, setHoveredFolderId } =
-    React.useContext(DragContext);
+  const {
+    hoveredNode,
+    setHoveredNode,
+    draggedNode,
+    setDraggedNode,
+    hoveredFolderId,
+    setHoveredFolderId,
+    contextDisableDrop,
+  } = React.useContext(DragContext);
   const isBackgroundChanged =
     (node.id === hoveredFolderId || node.data.parentId === hoveredFolderId) &&
     draggedNode.parentId &&
@@ -59,9 +69,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     draggedNode.path !== node.data.path &&
     draggedNode.parentId !== "-1" &&
     draggedNode.path !== node.data.path &&
+    !contextDisableDrop &&
     ((!draggedNode.isFile && draggedNode.parentId !== node.data.parentId) ||
       (draggedNode.isFile && draggedNode.parentId !== node.data.parentId));
 
+  const isBackgroundChanged3 = !contextDisableDrop;
   // const handleDragOver = (e: React.DragEvent) => {
   //   e.preventDefault();
   //   const parentFolder = node.isLeaf ? node.parent : node;
@@ -87,7 +99,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         path: node.data.path,
         isFile: node.data.isFile,
       });
-      console.log(hoveredNode);
     } else if (!node.data.isFile) {
       // If it's a folder
       setHoveredFolderId(node.id); // Set to the folder's id
@@ -151,7 +162,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
             node.id !== draggedNode.id &&
             node.id !== draggedNode.parentId &&
             isBackgroundChanged2 &&
-            "bg-red-300",
+            "bg-primary/10",
           // node.id.includes(draggedNode.parentId) &&
           //   node.id !== draggedNode.id &&
           //   node.id !== draggedNode.parentId &&

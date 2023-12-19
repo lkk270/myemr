@@ -11,14 +11,29 @@ const CustomCursor = () => null;
 const Arborist: React.FC = () => {
   const [term, setTerm] = useState<string>("");
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
-  const [hoveredNode, setHoveredNode] = useState<{ id: string | null; parentId: string | null }>({
+  const [hoveredNode, setHoveredNode] = useState<{
+    id: string | null;
+    parentId: string | null;
+    path: string | null;
+    isFile: boolean | null;
+  }>({
     id: null,
     parentId: null,
+    path: null,
+    isFile: null,
   });
-  const [draggedNode, setDraggedNode] = useState<{ id: string | null; parentId: string | null }>({
+  const [draggedNode, setDraggedNode] = useState<{
+    id: string | null;
+    parentId: string | null;
+    path: string | null;
+    isFile: boolean | null;
+  }>({
     id: null,
     parentId: null,
+    path: null,
+    isFile: null,
   });
+  const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
 
   const disableDrop = ({ parentNode, dragNodes, index }: any) => {
     // Check if any of the dragged nodes are files and if they are being dropped into a folder
@@ -60,6 +75,8 @@ const Arborist: React.FC = () => {
         setHoveredNode,
         draggedNode,
         setDraggedNode,
+        hoveredFolderId,
+        setHoveredFolderId,
       }}
     >
       <div className="max-w-[300px] flex flex-col gap-4 min-h-full p-5">
@@ -74,12 +91,13 @@ const Arborist: React.FC = () => {
           />
         </div>
         <Tree
-          // renderCursor={CustomCursor}
+          renderCursor={CustomCursor}
           ref={treeRef}
           disableMultiSelection={false}
+          // openByDefault={false}
           initialData={data}
           width={300}
-          height={1000}
+          height={400}
           indent={24}
           rowHeight={32}
           searchTerm={term}

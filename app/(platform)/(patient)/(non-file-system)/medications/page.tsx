@@ -3,7 +3,7 @@ import { auth, redirectToSignIn } from "@clerk/nextjs";
 import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
-import { CustomDataTable } from "../../(file-system)/_components/file-table/custom-data-table";
+import { CustomDataTable } from "./_components/table/custom-data-table";
 
 const PatientMedications = async () => {
   const { userId } = auth();

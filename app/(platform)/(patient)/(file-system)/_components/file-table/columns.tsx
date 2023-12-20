@@ -12,22 +12,23 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">{row.getValue("name")}</span>
+          <span className="truncate font-medium">{row.getValue("name")}</span>
         </div>
       );
     },
   },
   {
     accessorKey: "modified",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Modified" />,
+    header: ({ column }) => <DataTableColumnHeader className="justify-end" column={column} title="Modified" />,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">{row.getValue("modified")}</span>
+          <span className="truncate font-medium">{row.getValue("modified")}</span>
         </div>
       );
     },
   },
+
   {
     id: "actions",
     cell: ({ row }) => <CustomDataTableRowActions row={row} />,

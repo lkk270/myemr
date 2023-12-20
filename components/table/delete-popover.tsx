@@ -57,7 +57,7 @@ export const DeletePopover = ({ onConfirmFunc }: DeletePopoverProps) => {
               <Button disabled={isLoading} variant="default" onClick={closePopover}>
                 Confirm
               </Button>
-              <Button disabled={isLoading} variant="outline" onClick={closePopover}>
+              <Button disabled={isLoading} variant="outline" onClick={togglePopover}>
                 Cancel
               </Button>
             </div>

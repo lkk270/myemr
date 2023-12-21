@@ -99,11 +99,12 @@ const Arborist: React.FC = () => {
           // openByDefault={false}
           initialData={data}
           width={300}
-          height={400}
+          height={500}
           indent={24}
           rowHeight={32}
           searchTerm={term}
           disableDrop={disableDrop}
+          disableDrag={draggedNode.parentId === "-1"}
           searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
         >
           {Node as any}

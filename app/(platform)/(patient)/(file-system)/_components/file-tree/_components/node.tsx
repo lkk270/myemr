@@ -48,32 +48,24 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   }
 
   // const [isDragOver, setIsDragOver] = useState(false);
-  const {
-    hoveredNode,
-    setHoveredNode,
-    draggedNode,
-    setDraggedNode,
-    hoveredFolderId,
-    setHoveredFolderId,
-    contextDisableDrop,
-  } = React.useContext(DragContext);
-  const isBackgroundChanged =
-    (node.id === hoveredFolderId || node.data.parentId === hoveredFolderId) &&
-    draggedNode.parentId &&
-    node.data.parentId &&
-    draggedNode.parentId !== node.data.parentId;
+  const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode } = React.useContext(DragContext);
 
-  const isBackgroundChanged2 =
-    (node.data.path?.includes(hoveredNode.path) || node.data.parentId?.includes(hoveredNode.path)) &&
-    draggedNode.path &&
-    draggedNode.path !== node.data.path &&
-    draggedNode.parentId !== "-1" &&
-    draggedNode.path !== node.data.path &&
-    !contextDisableDrop &&
-    ((!draggedNode.isFile && draggedNode.parentId !== node.data.parentId) ||
-      (draggedNode.isFile && draggedNode.parentId !== node.data.parentId));
+  let isBackgroundChanged4 = false;
+  if (draggedNode.isFile && node.data.path.includes(hoveredNode.path) && hoveredNode.path !== draggedNode.path) {
+    isBackgroundChanged4 = true;
+  }
 
-  const isBackgroundChanged3 = !contextDisableDrop;
+  if (
+    !draggedNode.isFile &&
+    node.data.path.includes(hoveredNode.path) &&
+    node.data.path !== draggedNode.path &&
+    !node.data.path.includes(draggedNode.path) &&
+    node.data.path !== draggedNode.path?.split("/" + draggedNode.id)[0] &&
+    hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0]
+  ) {
+    isBackgroundChanged4 = true;
+  }
+
   // const handleDragOver = (e: React.DragEvent) => {
   //   e.preventDefault();
   //   const parentFolder = node.isLeaf ? node.parent : node;
@@ -92,7 +84,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     e.preventDefault();
     if (node.data.isFile) {
       // Check if it's a file
-      setHoveredFolderId(node.data.parentId); // Set the hoveredFolderId to the file's parentId
       setHoveredNode({
         id: node.data.id,
         parentId: node.data.parentId,
@@ -101,7 +92,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       });
     } else if (!node.data.isFile) {
       // If it's a folder
-      setHoveredFolderId(node.id); // Set to the folder's id
       setHoveredNode({
         id: node.data.id,
         parentId: node.data.parentId,
@@ -148,7 +138,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   //   console.log(draggedNodeParentId);
   // }
   const handleDragLeave = () => {
-    setHoveredFolderId(null);
     setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
   };
   return (
@@ -158,10 +147,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           "flex items-center w-full h-full node-container",
           node.state.isSelected && !node.state.isDragging && !node.isEditing && "bg-primary/10",
           // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
+
           draggedNode.id &&
             node.id !== draggedNode.id &&
             node.id !== draggedNode.parentId &&
-            isBackgroundChanged2 &&
+            isBackgroundChanged4 &&
             "bg-primary/10",
           // node.id.includes(draggedNode.parentId) &&
           //   node.id !== draggedNode.id &&
@@ -198,7 +188,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           )}
           {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
            */}
-          <span className={cn("cursor-grab")}>
+          <span className={cn(node.data.parentId === "-1" ? "cursor-default" : "cursor-grab")}>
             {node.isEditing ? (
               <input
                 // className="border-black border"

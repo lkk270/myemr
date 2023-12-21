@@ -46,7 +46,7 @@ const Arborist: React.FC = () => {
     const isReorderingInSameFolder = dragNodes.some((dragNode: any) => dragNode.parent.id === parentNode.id);
     setContextDisableDrop(isDroppingFileIntoFolder || isReorderingInSameFolder);
     // Disable drop if either of the conditions are met
-    return isDroppingFileIntoFolder || isReorderingInSameFolder;
+    return isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id;
   };
 
   const createFileFolder = (

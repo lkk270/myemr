@@ -8,6 +8,23 @@ import DragContext from "./drag-context";
 
 const CustomCursor = () => null;
 
+const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any) => {
+  if (!isDragging || !mouse) return null;
+
+  const style: React.CSSProperties = {
+    // Use React.CSSProperties for correct typing
+    position: "fixed",
+    left: mouse.x + "px",
+    top: mouse.y + "px",
+    pointerEvents: "none", // TypeScript recognizes this as a valid value
+    opacity: 0.8,
+    // Add more styles as needed
+  };
+
+  // You can customize this further based on the node being dragged
+  return <div style={style}>{dragIds.length > 1 ? `Dragging ${dragIds.length} items` : `Dragging: ${id}`}</div>;
+};
+
 const Arborist: React.FC = () => {
   const [term, setTerm] = useState<string>("");
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
@@ -94,6 +111,7 @@ const Arborist: React.FC = () => {
         </div>
         <Tree
           renderCursor={CustomCursor}
+          renderDragPreview={customDragPreview}
           ref={treeRef}
           disableMultiSelection={false}
           // openByDefault={false}

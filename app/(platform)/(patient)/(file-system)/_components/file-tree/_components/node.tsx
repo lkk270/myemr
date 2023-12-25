@@ -51,7 +51,12 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode } = React.useContext(DragContext);
 
   let isBackgroundChanged4 = false;
-  if (draggedNode.isFile && node.data.path.includes(hoveredNode.path) && hoveredNode.path !== draggedNode.path) {
+  if (
+    draggedNode.isFile &&
+    node.data.path.includes(hoveredNode.path) &&
+    hoveredNode.path !== draggedNode.path &&
+    node.data.path !== draggedNode.path
+  ) {
     isBackgroundChanged4 = true;
   }
 
@@ -221,14 +226,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
             )}
           </span>
           {/* Action Buttons */}
-          <div className="gap-x-2">
+          {/* <div className="gap-x-2">
             <button className="cursor-pointer" onClick={() => node.edit()} title="Rename...">
               <MdEdit />
             </button>
             <button className="cursor-pointer" onClick={() => tree.delete(node.id)} title="Delete">
               <RxCross2 />
             </button>
-          </div>
+          </div> */}
         </div>
         <ContextMenuContent className="w-64 z-[999999]">
           <ContextMenuItem

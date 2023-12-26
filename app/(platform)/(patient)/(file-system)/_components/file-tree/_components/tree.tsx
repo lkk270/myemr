@@ -12,61 +12,17 @@ const CustomCursor = () => null;
 const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
   if (!isDragging || !mouse || !tree) return null;
 
-  //dragIds doesn't work. I tried using selectedIds instead but then nodes needs to be clicked on to be dragged which defeats the purpose
   const selectedIds = Array.from(tree.selectedIds);
-
   const numberOfSelectedIds = selectedIds.length;
   const baseZIndex = 1000;
-
-  if (numberOfSelectedIds === 1) {
-    const style: React.CSSProperties = {
-      left: mouse.x + "px",
-      top: mouse.y + "px",
-      position: "fixed",
-      pointerEvents: "none",
-      boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6)", // Standard shadow
-      backgroundColor: "rgba(79, 94, 255, 0.8)",
-      color: "white",
-      padding: "2px",
-      paddingLeft: "10px",
-      // borderRadius: "5px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "left",
-      fontSize: "11px",
-      fontFamily: "Arial, sans-serif",
-      zIndex: baseZIndex,
-      width: "125px",
-      height: "35px",
-    };
-
-    const firstItemData = id ? tree.get(id).data : null;
-    const firstName = firstItemData && firstItemData.name ? firstItemData.name : "";
-    const isFile = firstItemData && firstItemData.isFile;
-
-    // Truncate the name if it's too long
-    const truncatedName = firstName.length > 15 ? `${firstName.substring(0, 15)}...` : firstName;
-
-    return (
-      <div style={style}>
-        <>
-          {isFile ? <File className="w-4 h-4 pr-1" /> : <FolderClosed className="w-4 h-4 pr-1" />}
-          <span>{truncatedName}</span>
-        </>
-      </div>
-    );
-  }
-  console.log(selectedIds[0] + "||" + id);
-
   const baseStyle: React.CSSProperties = {
     position: "fixed",
     pointerEvents: "none",
-    boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6)", // Standard shadow
+    boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6)",
     backgroundColor: "rgba(79, 94, 255, 0.8)",
     color: "white",
     padding: "2px",
     paddingLeft: "10px",
-    // borderRadius: "5px",
     display: "flex",
     alignItems: "center",
     justifyContent: "left",
@@ -76,6 +32,24 @@ const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree
     width: "125px",
     height: "35px",
   };
+
+  const getItemData = (itemId: string) => {
+    const itemData = itemId ? tree.get(itemId).data : null;
+    const name = itemData && itemData.name ? itemData.name : "";
+    const isFile = itemData && itemData.isFile;
+    return { name, isFile };
+  };
+
+  const truncateName = (name: string) => {
+    return name.length > 15 ? `${name.substring(0, 15)}...` : name;
+  };
+
+  const renderIconAndName = (isFile: boolean | null, name: string) => (
+    <>
+      {isFile ? <File className="w-4 h-4 pr-1" /> : <FolderClosed className="w-4 h-4 pr-1" />}
+      <span>{name}</span>
+    </>
+  );
 
   const badgeStyle: React.CSSProperties = {
     backgroundColor: "red",
@@ -92,42 +66,32 @@ const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree
     fontSize: "12px",
   };
 
-  const firstId = selectedIds[0];
-  const firstItemData = firstId ? tree.get(firstId).data : null;
-  const firstName = firstItemData && firstItemData.name ? firstItemData.name : "";
-  const isFile = firstItemData && firstItemData.isFile;
+  if (numberOfSelectedIds <= 1) {
+    const { name, isFile } = getItemData(id);
+    const truncatedName = truncateName(name);
 
-  // Truncate the name if it's too long
-  const truncatedName = firstName.length > 15 ? `${firstName.substring(0, 15)}...` : firstName;
+    return (
+      <div style={{ ...baseStyle, left: mouse.x + "px", top: mouse.y + "px" }}>
+        {renderIconAndName(isFile, truncatedName)}
+      </div>
+    );
+  }
 
-  const firstItemStyle = {
-    ...baseStyle,
-    // opacity: 0.8,
-    left: mouse.x + "px",
-    top: mouse.y + "px",
-    zIndex: 1001, // Higher zIndex for the top item
-    // boxShadow: "5px 5px 8px rgba(0, 0, 0, 0.7)", // More pronounced shadow for the top item
-  };
-
-  // Render all items except the first one
   const stackedItems = selectedIds.map((selectedId, index) => {
-    const itemStyle =
-      index === 0
-        ? firstItemStyle
-        : {
-            ...baseStyle,
-            left: mouse.x + 5 * index + "px",
-            top: mouse.y + 5 * index + "px",
-            zIndex: baseZIndex - index,
-            // boxShadow: `${index * 2}px ${index * 2}px ${6 + index * 2}px rgba(0, 0, 0, 0.5 - index * 0.05)`,
-          };
+    const { name, isFile } = getItemData(selectedId as string);
+    const truncatedName = truncateName(name);
+    const itemStyle = {
+      ...baseStyle,
+      left: mouse.x + 5 * index + "px",
+      top: mouse.y + 5 * index + "px",
+      zIndex: baseZIndex - index,
+    };
 
     return (
       <div key={index} style={itemStyle}>
         {index === 0 && (
           <>
-            {isFile ? <File className="w-4 h-4 pr-1" /> : <FolderClosed className="w-4 h-4 pr-1" />}
-            <span>{truncatedName}</span>
+            {renderIconAndName(isFile, truncatedName)}
             <div style={badgeStyle}>{numberOfSelectedIds}</div>
           </>
         )}

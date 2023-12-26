@@ -6,18 +6,28 @@ import { TbFolderPlus } from "react-icons/tb";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
 import { File, FolderClosed } from "lucide-react";
+import { toast } from "sonner";
 
 const CustomCursor = () => null;
 
-const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
-  if (!isDragging || !mouse || !tree) return null;
-  if (tree.isDragging("c4-1-1-14")) {
-    console.log("TRUE");
-  } else {
-    console.log("FALSE");
+const customDragPreview = (
+  { offset, mouse, id, dragIds, isDragging }: any,
+  tree: any,
+  allSelectedHaveSameParent: boolean,
+  setAllSelectedHaveSameParent: Function,
+) => {
+  if (!isDragging || !mouse || !tree) {
+    setAllSelectedHaveSameParent(true);
+    return null;
+  }
+  if (!allSelectedHaveSameParent) {
+    return null;
   }
 
   const selectedIds = Array.from(tree.selectedIds);
+
+  // Set a flag in the tree instance to use later in disableDrag
+
   const numberOfSelectedIds = selectedIds.length;
   const baseZIndex = 1000;
   const baseStyle: React.CSSProperties = {
@@ -82,6 +92,17 @@ const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree
     );
   }
 
+  const allHaveSameParent =
+    selectedIds.length > 1 &&
+    selectedIds.every((selectedId) => tree.get(selectedId).parent.id === tree.get(selectedIds[0]).parent.id);
+  setAllSelectedHaveSameParent(allHaveSameParent);
+  if (!allHaveSameParent) {
+    tree.deselectAll();
+    tree.select("c2-2");
+    toast.error("Dragged nodes must have the same parent", { duration: 1750 });
+    return null;
+  }
+
   const stackedItems = selectedIds.map((selectedId, index) => {
     const { name, isFile } = getItemData(selectedId as string);
     const truncatedName = truncateName(name);
@@ -111,7 +132,9 @@ const Arborist: React.FC = () => {
   // const [treeInstance, setTreeInstance] = useState<any>(null);
 
   const [term, setTerm] = useState<string>("");
+  const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
+  // Now, this is just a reference to the tree component
 
   // // Update the ref callback
   // useEffect(() => {
@@ -123,9 +146,12 @@ const Arborist: React.FC = () => {
       console.warn("Tree instance not available");
       return null;
     }
-    return customDragPreview(props, treeRef.current);
+    return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
   };
 
+  const disableDrag = () => {
+    return draggedNode.parentId === "-1" || !allSelectedHaveSameParent;
+  };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 
   const [hoveredNode, setHoveredNode] = useState<{
@@ -161,9 +187,11 @@ const Arborist: React.FC = () => {
     // Check if any of the dragged nodes have the same parent as the target parentNode
     // This will prevent reordering within the same folder but allow dropping into subfolders
     const isReorderingInSameFolder = dragNodes.some((dragNode: any) => dragNode.parent.id === parentNode.id);
-    setContextDisableDrop(isDroppingFileIntoFolder || isReorderingInSameFolder);
+    setContextDisableDrop(
+      isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id || !allSelectedHaveSameParent,
+    );
     // Disable drop if either of the conditions are met
-    return isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id;
+    return isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id || !allSelectedHaveSameParent;
   };
 
   const createFileFolder = (
@@ -222,7 +250,7 @@ const Arborist: React.FC = () => {
           rowHeight={32}
           searchTerm={term}
           disableDrop={disableDrop}
-          disableDrag={draggedNode.parentId === "-1"}
+          disableDrag={disableDrag}
           searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
         >
           {Node as any}

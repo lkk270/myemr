@@ -48,7 +48,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   }
 
   // const [isDragOver, setIsDragOver] = useState(false);
-  const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode } = React.useContext(DragContext);
+  const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
+    React.useContext(DragContext);
 
   let isBackgroundChanged4 = false;
   if (
@@ -154,6 +155,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
           draggedNode.id &&
+            !contextDisableDrop &&
             node.id !== draggedNode.id &&
             node.id !== draggedNode.parentId &&
             isBackgroundChanged4 &&

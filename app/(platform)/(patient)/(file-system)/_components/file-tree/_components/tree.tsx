@@ -11,6 +11,11 @@ const CustomCursor = () => null;
 
 const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
   if (!isDragging || !mouse || !tree) return null;
+  if (tree.isDragging("c4-1-1-14")) {
+    console.log("TRUE");
+  } else {
+    console.log("FALSE");
+  }
 
   const selectedIds = Array.from(tree.selectedIds);
   const numberOfSelectedIds = selectedIds.length;

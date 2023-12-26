@@ -18,7 +18,7 @@ export const navRoutes = [
   },
   {
     icon: Contact,
-    href: "/demographics",
+    href: "/about",
     label: "About",
   },
   {

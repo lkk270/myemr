@@ -20,6 +20,13 @@ export type PatientDemographicsType = {
   addresses: Address[] | any;
 };
 
+export type PatientDemographicsContactType = {
+  mobilePhone?: string | null;
+  homePhone?: string | null;
+  email: string;
+  addresses: Address[] | any;
+};
+
 export type MedicationType = {
   id: string;
   userId?: string;

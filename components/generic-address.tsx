@@ -13,7 +13,7 @@ interface AddressProps {
   handleChange: (value: any) => void;
 }
 
-export const GenericAddress = ({ address, disabled = false, handleChange}: AddressProps) => {
+export const GenericAddress = ({ address, disabled = false, handleChange }: AddressProps) => {
   let localAddress: any = address || {};
   const handleLocalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,7 +37,7 @@ export const GenericAddress = ({ address, disabled = false, handleChange}: Addre
             type="text"
             id="address"
             name="address"
-            className="dark:bg-slate-800"
+            // className="dark:bg-slate-800"
             value={localAddress?.address || ""}
             disabled={disabled}
             onChange={handleLocalChange}
@@ -49,7 +49,7 @@ export const GenericAddress = ({ address, disabled = false, handleChange}: Addre
             type="text"
             id="address2"
             name="address2"
-            className="dark:bg-slate-800"
+            // className="dark:bg-slate-800"
             value={localAddress?.address2 || ""}
             disabled={disabled}
             onChange={handleLocalChange}
@@ -63,7 +63,7 @@ export const GenericAddress = ({ address, disabled = false, handleChange}: Addre
             type="text"
             id="city"
             name="city"
-            className="dark:bg-slate-800"
+            // className="dark:bg-slate-800"
             value={localAddress?.city || ""}
             disabled={disabled}
             onChange={handleLocalChange}
@@ -75,7 +75,7 @@ export const GenericAddress = ({ address, disabled = false, handleChange}: Addre
             valueParam={localAddress?.state || ""}
             handleChange={(value) => handleLocalChangeForCombobox("state", value)}
             disabled={disabled}
-            className="dark:bg-slate-800 font-normal w-full"
+            className="font-normal w-full"
             placeholder="Select..."
             searchPlaceholder="Search..."
             noItemsMessage="No state found."
@@ -88,7 +88,7 @@ export const GenericAddress = ({ address, disabled = false, handleChange}: Addre
             type="text"
             id="zipcode"
             name="zipcode"
-            className="dark:bg-slate-800"
+            // className="dark:bg-slate-800"
             value={localAddress?.zipcode || ""}
             disabled={disabled}
             onChange={handleLocalChange}

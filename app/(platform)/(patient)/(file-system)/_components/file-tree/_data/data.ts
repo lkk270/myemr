@@ -6,7 +6,7 @@ export const data = [
     id: "1",
     name: "public",
     parentId: "-1",
-    path: "/1",
+    path: "/1/",
     children: [
       {
         id: "c1-1",
@@ -15,7 +15,7 @@ export const data = [
         iconColor: "#dc4a25",
         isFile: true,
         parentId: "1",
-        path: "/1",
+        path: "/1/",
       },
     ],
   },
@@ -23,7 +23,7 @@ export const data = [
     id: "2",
     name: "src",
     parentId: "-1",
-    path: "/2",
+    path: "/2/",
     children: [
       {
         id: "c2-1",
@@ -32,7 +32,7 @@ export const data = [
         iconColor: "#efd81e",
         isFile: true,
         parentId: "2",
-        path: "/2",
+        path: "/2/",
       },
       {
         id: "c2-2",
@@ -41,7 +41,7 @@ export const data = [
         iconColor: "#efd81e",
         isFile: true,
         parentId: "2",
-        path: "/2",
+        path: "/2/",
       },
       {
         id: "c2-3",
@@ -50,7 +50,7 @@ export const data = [
         icon: SiCss3,
         iconColor: "#42a5f5",
         isFile: true,
-        path: "/2",
+        path: "/2/",
       },
     ],
   },
@@ -58,7 +58,7 @@ export const data = [
     id: "3",
     name: "components",
     parentId: "-1",
-    path: "/3",
+    path: "/3/",
     children: [
       {
         id: "c3-1",
@@ -67,13 +67,13 @@ export const data = [
         iconColor: "#dc4a25",
         isFile: true,
         parentId: "3",
-        path: "/3",
+        path: "/3/",
       },
       {
         id: "4",
         name: "navbar",
         parentId: "3",
-        path: "/3/4",
+        path: "/3/4/",
         children: [
           {
             id: "c4-1",
@@ -82,7 +82,7 @@ export const data = [
             iconColor: "#dc4a25",
             isFile: true,
             parentId: "4",
-            path: "/3/4",
+            path: "/3/4/",
           },
         ],
       },
@@ -90,7 +90,7 @@ export const data = [
         id: "4-1",
         name: "footer",
         parentId: "3",
-        path: "/3/4-1",
+        path: "/3/4-1/",
         children: [
           {
             id: "c4-1-1",
@@ -99,13 +99,13 @@ export const data = [
             iconColor: "#dc4a25",
             isFile: true,
             parentId: "4-1",
-            path: "/3/4-1",
+            path: "/3/4-1/",
           },
           {
             id: "4-1-2",
             name: "middle",
             parentId: "4-1",
-            path: "/3/4-1/4-1-2",
+            path: "/3/4-1/4-1-2/",
             children: [
               {
                 id: "c4-1-1-12",
@@ -114,7 +114,7 @@ export const data = [
                 iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
-                path: "/3/4-1/4-1-2",
+                path: "/3/4-1/4-1-2/",
               },
               {
                 id: "c4-1-1-13",
@@ -123,7 +123,7 @@ export const data = [
                 iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
-                path: "/3/4-1/4-1-2",
+                path: "/3/4-1/4-1-2/",
               },
               {
                 id: "c4-1-1-14",
@@ -132,7 +132,7 @@ export const data = [
                 iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
-                path: "/3/4-1/4-1-2",
+                path: "/3/4-1/4-1-2/",
               },
             ],
           },

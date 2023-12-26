@@ -9,13 +9,54 @@ import { File, FolderClosed } from "lucide-react";
 
 const CustomCursor = () => null;
 
-const customDragPreviewOld = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
+const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
   if (!isDragging || !mouse || !tree) return null;
 
   //dragIds doesn't work. I tried using selectedIds instead but then nodes needs to be clicked on to be dragged which defeats the purpose
   const selectedIds = Array.from(tree.selectedIds);
+
   const numberOfSelectedIds = selectedIds.length;
   const baseZIndex = 1000;
+
+  if (numberOfSelectedIds === 1) {
+    const style: React.CSSProperties = {
+      left: mouse.x + "px",
+      top: mouse.y + "px",
+      position: "fixed",
+      pointerEvents: "none",
+      boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6)", // Standard shadow
+      backgroundColor: "rgba(79, 94, 255, 0.8)",
+      color: "white",
+      padding: "2px",
+      paddingLeft: "10px",
+      // borderRadius: "5px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "left",
+      fontSize: "11px",
+      fontFamily: "Arial, sans-serif",
+      zIndex: baseZIndex,
+      width: "125px",
+      height: "35px",
+    };
+
+    const firstItemData = id ? tree.get(id).data : null;
+    const firstName = firstItemData && firstItemData.name ? firstItemData.name : "";
+    const isFile = firstItemData && firstItemData.isFile;
+
+    // Truncate the name if it's too long
+    const truncatedName = firstName.length > 15 ? `${firstName.substring(0, 15)}...` : firstName;
+
+    return (
+      <div style={style}>
+        <>
+          {isFile ? <File className="w-4 h-4 pr-1" /> : <FolderClosed className="w-4 h-4 pr-1" />}
+          <span>{truncatedName}</span>
+        </>
+      </div>
+    );
+  }
+  console.log(selectedIds[0] + "||" + id);
 
   const baseStyle: React.CSSProperties = {
     position: "fixed",
@@ -95,49 +136,6 @@ const customDragPreviewOld = ({ offset, mouse, id, dragIds, isDragging }: any, t
   });
 
   return <div>{stackedItems}</div>;
-};
-
-const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
-  if (!isDragging || !mouse || !tree) return null;
-
-  const baseZIndex = 1000;
-
-  const style: React.CSSProperties = {
-    left: mouse.x + "px",
-    top: mouse.y + "px",
-    position: "fixed",
-    pointerEvents: "none",
-    boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6)", // Standard shadow
-    backgroundColor: "rgba(79, 94, 255, 0.8)",
-    color: "white",
-    padding: "2px",
-    paddingLeft: "10px",
-    // borderRadius: "5px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "left",
-    fontSize: "11px",
-    fontFamily: "Arial, sans-serif",
-    zIndex: baseZIndex,
-    width: "125px",
-    height: "35px",
-  };
-  
-  const firstItemData = id ? tree.get(id).data : null;
-  const firstName = firstItemData && firstItemData.name ? firstItemData.name : "";
-  const isFile = firstItemData && firstItemData.isFile;
-
-  // Truncate the name if it's too long
-  const truncatedName = firstName.length > 15 ? `${firstName.substring(0, 15)}...` : firstName;
-
-  return (
-    <div style={style}>
-      <>
-        {isFile ? <File className="w-4 h-4 pr-1" /> : <FolderClosed className="w-4 h-4 pr-1" />}
-        <span>{truncatedName}</span>
-      </>
-    </div>
-  );
 };
 
 const Arborist: React.FC = () => {
@@ -246,7 +244,7 @@ const Arborist: React.FC = () => {
           renderCursor={CustomCursor}
           renderDragPreview={customDragPreviewWithTree}
           ref={treeRef}
-          disableMultiSelection={true}
+          disableMultiSelection={false}
           // openByDefault={false}
           initialData={data}
           width={300}

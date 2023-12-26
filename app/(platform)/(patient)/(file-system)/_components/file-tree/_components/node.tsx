@@ -150,7 +150,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       <ContextMenuTrigger
         className={cn(
           "flex items-center w-full h-full node-container",
-          node.state.isSelected && !node.state.isDragging && !node.isEditing && "bg-primary/10",
+          node.state.isSelected && !node.state.isDragging && !node.isEditing && !draggedNode.id && "bg-primary/10",
           // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
           draggedNode.id &&

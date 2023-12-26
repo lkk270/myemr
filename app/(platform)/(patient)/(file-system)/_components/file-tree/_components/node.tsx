@@ -55,8 +55,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   if (
     draggedNode.isFile &&
     node.data.path.includes(hoveredNode.path) &&
-    hoveredNode.path !== draggedNode.path &&
-    node.data.path !== draggedNode.path
+    hoveredNode.path !== draggedNode.path
+    // node.data.path !== draggedNode.path
   ) {
     isBackgroundChanged4 = true;
   }
@@ -66,8 +66,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     node.data.path.includes(hoveredNode.path) &&
     node.data.path !== draggedNode.path &&
     !node.data.path.includes(draggedNode.path) &&
-    node.data.path !== draggedNode.path?.split("/" + draggedNode.id)[0] &&
-    hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0]
+    node.data.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
+    hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/"
   ) {
     isBackgroundChanged4 = true;
   }
@@ -156,8 +156,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
           draggedNode.id &&
             !contextDisableDrop &&
-            node.id !== draggedNode.id &&
-            node.id !== draggedNode.parentId &&
+            // node.id !== draggedNode.id &&
+            // node.id !== draggedNode.parentId &&
             isBackgroundChanged4 &&
             "bg-primary/10",
           // node.id.includes(draggedNode.parentId) &&

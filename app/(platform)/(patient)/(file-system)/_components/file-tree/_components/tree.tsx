@@ -1,33 +1,122 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Tree } from "react-arborist";
 import { data } from "../_data/data";
 import Node from "./node";
 import { TbFolderPlus } from "react-icons/tb";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
+import { File, FolderClosed } from "lucide-react";
 
 const CustomCursor = () => null;
 
-const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any) => {
-  if (!isDragging || !mouse) return null;
+const customDragPreview = ({ offset, mouse, id, dragIds, isDragging }: any, tree: any) => {
+  if (!isDragging || !mouse || !tree) return null;
 
-  const style: React.CSSProperties = {
-    // Use React.CSSProperties for correct typing
+  const selectedIds = Array.from(tree.selectedIds);
+  const numberOfSelectedIds = selectedIds.length;
+  const baseZIndex = 1000;
+
+  const baseStyle: React.CSSProperties = {
     position: "fixed",
-    left: mouse.x + "px",
-    top: mouse.y + "px",
-    pointerEvents: "none", // TypeScript recognizes this as a valid value
-    opacity: 0.8,
-    // Add more styles as needed
+    pointerEvents: "none",
+    boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6)", // Standard shadow
+    backgroundColor: "rgba(79, 94, 255, 0.8)",
+    color: "white",
+    padding: "2px",
+    paddingLeft: "10px",
+    // borderRadius: "5px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "left",
+    fontSize: "11px",
+    fontFamily: "Arial, sans-serif",
+    zIndex: baseZIndex,
+    width: "125px",
+    height: "35px",
   };
 
-  // You can customize this further based on the node being dragged
-  return <div style={style}>{dragIds.length > 1 ? `Dragging ${dragIds.length} items` : `Dragging: ${id}`}</div>;
+  const badgeStyle: React.CSSProperties = {
+    backgroundColor: "red",
+    borderRadius: "50%",
+    color: "white",
+    width: "20px",
+    height: "20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: "-10px",
+    right: "-10px",
+    fontSize: "12px",
+  };
+
+  const firstId = selectedIds[0];
+  const firstItemData = firstId ? tree.get(firstId).data : null;
+  const firstName = firstItemData && firstItemData.name ? firstItemData.name : "";
+  const isFile = firstItemData && firstItemData.isFile;
+
+  // Truncate the name if it's too long
+  const truncatedName = firstName.length > 15 ? `${firstName.substring(0, 15)}...` : firstName;
+
+  const firstItemStyle = {
+    ...baseStyle,
+    // opacity: 0.8,
+    left: mouse.x + "px",
+    top: mouse.y + "px",
+    zIndex: 1001, // Higher zIndex for the top item
+    // boxShadow: "5px 5px 8px rgba(0, 0, 0, 0.7)", // More pronounced shadow for the top item
+  };
+
+  // Render all items except the first one
+  const stackedItems = selectedIds.map((selectedId, index) => {
+    const itemStyle =
+      index === 0
+        ? firstItemStyle
+        : {
+            ...baseStyle,
+            left: mouse.x + 5 * index + "px",
+            top: mouse.y + 5 * index + "px",
+            zIndex: baseZIndex - index,
+            // boxShadow: `${index * 2}px ${index * 2}px ${6 + index * 2}px rgba(0, 0, 0, 0.5 - index * 0.05)`,
+          };
+
+    return (
+      <div key={index} style={itemStyle}>
+        {index === 0 && (
+          <>
+            {isFile ? <File className="w-4 h-4 pr-1" /> : <FolderClosed className="w-4 h-4 pr-1" />}
+            <span>{truncatedName}</span>
+            <div style={badgeStyle}>{numberOfSelectedIds}</div>
+          </>
+        )}
+      </div>
+    );
+  });
+
+  return <div>{stackedItems}</div>;
 };
 
 const Arborist: React.FC = () => {
+  // const [treeInstance, setTreeInstance] = useState<any>(null);
+
   const [term, setTerm] = useState<string>("");
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
+
+  // // Update the ref callback
+  // useEffect(() => {
+  //   setTreeInstance(treeRef.current);
+  // }, []);
+
+  const customDragPreviewWithTree = (props: any) => {
+    if (!treeRef.current) {
+      console.warn("Tree instance not available");
+      return null;
+    }
+    return customDragPreview(props, treeRef.current);
+  };
+
+  // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
+
   const [hoveredNode, setHoveredNode] = useState<{
     id: string | null;
     parentId: string | null;
@@ -111,7 +200,7 @@ const Arborist: React.FC = () => {
         </div>
         <Tree
           renderCursor={CustomCursor}
-          renderDragPreview={customDragPreview}
+          renderDragPreview={customDragPreviewWithTree}
           ref={treeRef}
           disableMultiSelection={false}
           // openByDefault={false}

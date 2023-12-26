@@ -81,7 +81,7 @@ const customDragPreview = (
     fontSize: "12px",
   };
 
-  if (numberOfSelectedIds <= 1) {
+  if (numberOfSelectedIds <= 1 || (selectedIds.length > 1 && !selectedIds.includes(id))) {
     const { name, isFile } = getItemData(id);
     const truncatedName = truncateName(name);
 

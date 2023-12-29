@@ -12,15 +12,9 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="h-full flex">
+    <div className="flex overflow-auto h-screen">
       <Navbar />
-      {/* <div className="fixed inset-y-0 flex-col hidden w-20 mt-16 sm:flex">
-				<Sidebar />
-			</div> */}
-      <main className="pt-16 flex-1 h-full">
-        {/* <SearchCommand /> */}
-        {children}
-      </main>
+      <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 };

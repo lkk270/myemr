@@ -127,7 +127,7 @@ const FileSystem = async () => {
   // }
 
   return (
-    <div className="pt-16 px-6 w-full">
+    <div className="pt-16 px-6">
       <CustomDataTable data={[]} />
     </div>
   );

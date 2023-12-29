@@ -146,6 +146,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const handleDragLeave = () => {
     setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
   };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -175,27 +176,27 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       >
         {/* Node Content */}
         <div
-          className="flex items-center cursor-pointer text-sm flex-grow"
+          className="truncate w-full flex items-center cursor-pointer text-sm flex-grow"
           onClick={() => node.isInternal && node.toggle()}
         >
           {node.isLeaf ? (
             <>
-              <span className="w-5"></span>
-              <span className="mr-2 flex items-center">
+              <span className="w-5 flex-shrink-0"></span>
+              <span className="mr-2 flex items-center flex-shrink-0">
                 {CustomIcon ? <CustomIcon color={iconColor || "#6bc7f6"} /> : <AiFillFile color="#6bc7f6" />}
               </span>
             </>
           ) : (
             <>
-              <span className="mr-2">{node.isOpen ? <MdArrowDropDown /> : <MdArrowRight />}</span>
-              <span className="mr-2">
+              <span className="mr-2 flex-shrink-0">{node.isOpen ? <MdArrowDropDown /> : <MdArrowRight />}</span>
+              <span className="mr-2 flex-shrink-0">
                 {CustomIcon ? <CustomIcon color={iconColor || "#f6cf60"} /> : <AiFillFolder color="#f6cf60" />}
               </span>
             </>
           )}
           {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
            */}
-          <span className={cn(node.data.parentId === "-1" ? "cursor-default" : "cursor-grab")}>
+          <span className={cn("truncate flex-grow", node.data.parentId === "-1" ? "cursor-default" : "cursor-grab")}>
             {node.isEditing ? (
               <input
                 // className="border-black border"
@@ -227,6 +228,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               <span>{node.data.name}</span>
             )}
           </span>
+
           {/* Action Buttons */}
           {/* <div className="gap-x-2">
             <button className="cursor-pointer" onClick={() => node.edit()} title="Rename...">

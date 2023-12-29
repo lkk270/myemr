@@ -126,7 +126,7 @@ const FileSystem = async () => {
   //   return <div>something went wrong</div>;
   // }
 
-  return <div>Hello</div>;
+  return <div className="flex-1">Hello</div>;
 };
 
 export default FileSystem;

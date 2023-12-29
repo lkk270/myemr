@@ -250,7 +250,7 @@ const Arborist = ({ width }: ArboristProps) => {
         setContextDisableDrop,
       }}
     >
-      <div className={cn("px-4 overflow-y-hidden")}>
+      <div className="tree-container px-4 overflow-y-hidden">
         {/* <div className="flex items-center">
           {createFileFolder}
           <input
@@ -274,7 +274,7 @@ const Arborist = ({ width }: ArboristProps) => {
           initialData={data}
           width={width - 32}
           height={screenHeight - 200}
-          // rowClassName={styles.row}
+          // rowClassName={"max-w-[200px] w-full"}
           indent={18}
           rowHeight={32}
           searchTerm={term}

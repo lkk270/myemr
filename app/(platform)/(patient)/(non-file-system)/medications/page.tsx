@@ -39,8 +39,8 @@ const PatientMedications = async () => {
   }
 
   return (
-    <div className="flex sm:px-10 h-full justify-center">
-      <div className="h-full flex-1 flex-col space-y-8 p-2 sm:p-8 flex">
+    <div className="flex-1 sm:px-10 h-full justify-center">
+      <div className="h-full flex-1 flex-col space-y-8 p-3 sm:p-8 flex">
         <div className="flex items-center justify-between space-y-2">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Medications</h2>

@@ -71,3 +71,40 @@ body,
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
+
+.custom-scrollbar {
+  /* Style for Chrome, Safari, and Opera */
+  &::-webkit-scrollbar {
+    width: 4px; /* Slimmer scrollbar by default */
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: lightgray; /* Lighter color by default */
+    border-radius: 4px;
+    border: 2px solid transparent;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: darkgray; /* Darker color on hover */
+  }
+
+  &:hover::-webkit-scrollbar {
+    width: 8px; /* Wider scrollbar on hover */
+  }
+
+  /* Firefox scrollbar style */
+  scrollbar-width: thin; /* This is the only styling available in Firefox */
+  scrollbar-color: lightgray transparent; /* Lighter color by default */
+
+  &:hover {
+    scrollbar-color: darkgray transparent; /* Darker color on hover */
+  }
+
+  /* Hide scrollbar for IE and Edge */
+  -ms-overflow-style: none;
+}

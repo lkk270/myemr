@@ -7,6 +7,12 @@ import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
 import { File, FolderClosed } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { FillFlexParent } from "./fill-flex-parent";
+
+interface ArboristProps {
+  width: number;
+}
 
 const CustomCursor = () => null;
 
@@ -128,32 +134,16 @@ const customDragPreview = (
   return <div>{stackedItems}</div>;
 };
 
-const Arborist: React.FC = () => {
+const Arborist = ({ width }: ArboristProps) => {
   // const [treeInstance, setTreeInstance] = useState<any>(null);
 
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
-  // Now, this is just a reference to the tree component
 
-  // // Update the ref callback
-  // useEffect(() => {
-  //   setTreeInstance(treeRef.current);
-  // }, []);
-
-  const customDragPreviewWithTree = (props: any) => {
-    if (!treeRef.current) {
-      console.warn("Tree instance not available");
-      return null;
-    }
-    return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
-  };
-
-  const disableDrag = () => {
-    return draggedNode.parentId === "-1" || !allSelectedHaveSameParent;
-  };
-  // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
-
+  const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
+  const [contextDisableDrop, setContextDisableDrop] = useState(false);
+  const [screenHeight, setScreenHeight] = useState(0);
   const [hoveredNode, setHoveredNode] = useState<{
     id: string | null;
     parentId: string | null;
@@ -176,8 +166,42 @@ const Arborist: React.FC = () => {
     path: null,
     isFile: null,
   });
-  const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
-  const [contextDisableDrop, setContextDisableDrop] = useState(false);
+
+  useEffect(() => {
+    // Set the screen height after the component mounts
+    setScreenHeight(window.innerHeight);
+
+    // Optional: Handle window resize
+    const handleResize = () => {
+      setScreenHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Now, this is just a reference to the tree component
+
+  // // Update the ref callback
+  // useEffect(() => {
+  //   setTreeInstance(treeRef.current);
+  // }, []);
+
+  const customDragPreviewWithTree = (props: any) => {
+    if (!treeRef.current) {
+      console.warn("Tree instance not available");
+      return null;
+    }
+    return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
+  };
+
+  const disableDrag = () => {
+    return draggedNode.parentId === "-1" || !allSelectedHaveSameParent;
+  };
+  // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
+
   const disableDrop = ({ parentNode, dragNodes, index }: any) => {
     // Check if any of the dragged nodes are files and if they are being dropped into a folder
     const isDroppingFileIntoFolder = dragNodes.some(
@@ -226,35 +250,43 @@ const Arborist: React.FC = () => {
         setContextDisableDrop,
       }}
     >
-      <div className="max-w-[300px] flex flex-col gap-4 min-h-full p-5">
-        <div className="flex justify-between items-center">
+      <div className={cn("px-4 overflow-y-hidden")}>
+        {/* <div className="flex items-center">
           {createFileFolder}
           <input
             type="text"
             placeholder="Search..."
-            className="border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
+            className="w-10 border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
           />
-        </div>
+        </div> */}
+        {/* <FillFlexParent realWidth={width - 24} height={500}>
+          {(dimens) => ( */}
         <Tree
+          // {...dimens}
+          className="overflow-y-hidden h-[calc(100vh-100px)]"
           renderCursor={CustomCursor}
           renderDragPreview={customDragPreviewWithTree}
           ref={treeRef}
           disableMultiSelection={false}
           // openByDefault={false}
           initialData={data}
-          width={300}
-          height={500}
-          indent={24}
+          width={width - 32}
+          height={screenHeight - 200}
+          // rowClassName={styles.row}
+          indent={18}
           rowHeight={32}
           searchTerm={term}
           disableDrop={disableDrop}
           disableDrag={disableDrag}
-          searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
+
+          // searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
         >
           {Node as any}
         </Tree>
+        {/* )}
+       </FillFlexParent> */}
       </div>
     </DragContext.Provider>
   );

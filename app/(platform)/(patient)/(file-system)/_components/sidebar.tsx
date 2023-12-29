@@ -12,7 +12,7 @@ import { useSearch } from "@/hooks/use-search";
 import { Item } from "./item";
 import { Navbar } from "./navbar";
 // import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-// import { CitiesTree } from "../(test)/cities-tree";
+import { CitiesTree } from "../(test)/cities-tree";
 import Arborist from "./file-tree/_components/tree";
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
@@ -105,12 +105,12 @@ export const Sidebar = ({}: SidebarProps) => {
       <aside
         ref={sidebarRef}
         className={cn(
-          "group/sidebar h-full bg-secondary overflow-y-auto relative flex w-[300px] flex-col z-[99999]",
+          "flex flex-col h-screen bg-primary/5 relative w-[300px] z-[99999]",
           isResetting && "transition-all ease-in-out duration-300",
           isMobile && "w-0",
         )}
       >
-        <div className="pt-2 flex justify-between p-4">
+        <div className="p-4 h-[100px]">
           <Logo showText={false} />
           <div
             onClick={collapse}
@@ -123,22 +123,26 @@ export const Sidebar = ({}: SidebarProps) => {
             <ChevronsLeft className="h-6 w-6" />
           </div>
         </div>
-        <div className="pt-4">
-          <div>
-            <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-            <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
-          </div>
-          <div className="mt-4">
-            {/* <CitiesTree width={sidebarWidth} /> */}
-            <Arborist />
-            {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
-          </div>
-          <div
-            onMouseDown={handleMouseDown}
-            onClick={resetWidth}
-            className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
-          />
+        {/* <div className="pt-4">
+            <div>
+              <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
+              <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
+            </div>
+          </div> */}
+        <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}>
+          {/* <CitiesTree width={sidebarWidth} /> */}
+          <Arborist width={sidebarWidth} />
+          {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
         </div>
+        <div className="p-4 h-[100px]">
+          <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
+          <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
+        </div>
+        <div
+          onMouseDown={handleMouseDown}
+          onClick={resetWidth}
+          className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
+        />
       </aside>
       {/* </DragDropContext> */}
       <div

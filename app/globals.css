@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 html,
-body,
+body {
+  overflow: hidden;
+}
 :root {
   height: 100%;
 }

@@ -14,6 +14,7 @@ import { Navbar } from "./navbar";
 // import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { CitiesTree } from "../(test)/cities-tree";
 import Arborist from "./file-tree/_components/tree";
+
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
   // data: any[];
@@ -53,8 +54,8 @@ export const Sidebar = ({}: SidebarProps) => {
   const handleMouseMove = (event: MouseEvent) => {
     if (!isResizingRef.current) return;
     let newWidth = event.clientX;
-    if (newWidth < 240) newWidth = 240;
-    if (newWidth > 480) newWidth = 480;
+    if (newWidth < 300) newWidth = 300;
+    if (newWidth > 420) newWidth = 420;
     if (sidebarRef.current && navbarRef.current) {
       sidebarRef.current.style.width = `${newWidth}px`;
       setSidebarWidth(newWidth);
@@ -105,7 +106,7 @@ export const Sidebar = ({}: SidebarProps) => {
       <aside
         ref={sidebarRef}
         className={cn(
-          "flex flex-col h-screen bg-primary/5 relative w-[300px] z-[99999]",
+          "group/sidebar h-full bg-primary/5 overflow-y-auto relative flex w-60 flex-col z-[99999]",
           isResetting && "transition-all ease-in-out duration-300",
           isMobile && "w-0",
         )}
@@ -116,7 +117,7 @@ export const Sidebar = ({}: SidebarProps) => {
             onClick={collapse}
             role="button"
             className={cn(
-              "h-6 w-6 mt-3 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 relative opacity-0 group-hover/sidebar:opacity-100 transition",
+              "h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 absolute top-3 right-2 opacity-0 group-hover/sidebar:opacity-100 transition",
               isMobile && "opacity-100",
             )}
           >

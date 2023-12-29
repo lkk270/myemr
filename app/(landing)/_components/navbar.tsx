@@ -13,9 +13,12 @@ import { cn } from "@/lib/utils";
 
 import { Logo } from "@/components/logo";
 
-export const Navbar = () => {
+interface NavbarProps {
+  scrolled: boolean;
+}
+
+export const Navbar = ({ scrolled }: NavbarProps) => {
   const { user, isSignedIn, isLoaded } = useUser();
-  const scrolled = useScrollTop();
 
   return (
     <div

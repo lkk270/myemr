@@ -46,7 +46,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   if (tree.disableDropdown) {
     console.log("HELLO");
   }
-
+  console.log(tree.width);
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);
@@ -146,12 +146,13 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const handleDragLeave = () => {
     setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
   };
-
+  console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <ContextMenu>
       <ContextMenuTrigger
         className={cn(
-          "flex items-center w-full h-full node-container",
+          "z-[999] flex items-center h-full node-container hover:bg-primary/10 rounded-sm",
+          // `max-w-[${(tree.width - 100).toString()}px]`,
           node.state.isSelected && !node.state.isDragging && !node.isEditing && !draggedNode.id && "bg-primary/10",
           // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
@@ -160,13 +161,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
             // node.id !== draggedNode.id &&
             // node.id !== draggedNode.parentId &&
             isBackgroundChanged4 &&
-            "bg-primary/10",
+            "bg-primary/10 rounded-none",
           // node.id.includes(draggedNode.parentId) &&
           //   node.id !== draggedNode.id &&
           //   node.id !== draggedNode.parentId &&
           //   "bg-blue-300",
         )}
         style={style}
+        // style={{ ...style, paddingRight: "20px" }}
         ref={dragHandle}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -176,7 +178,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       >
         {/* Node Content */}
         <div
-          className="truncate w-full flex items-center cursor-pointer text-sm flex-grow"
+          className={cn(
+            `min-w-[${(tree.width - 100).toString()}px]`,
+            "truncate flex items-center cursor-pointer text-sm flex-grow",
+          )}
           onClick={() => node.isInternal && node.toggle()}
         >
           {node.isLeaf ? (
@@ -204,7 +209,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 defaultValue={node.data.name}
                 onFocus={(e) => e.currentTarget.select()}
                 onBlur={(e) => {
-                  if (!contextEditClicked || Date.now() - contextEditClickedTime > 250) {
+                  if (!contextEditClicked || Date.now() - contextEditClickedTime > 400) {
                     e.currentTarget.blur();
                     node.deselect();
                     node.reset();

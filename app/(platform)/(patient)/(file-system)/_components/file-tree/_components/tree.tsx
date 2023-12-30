@@ -250,7 +250,7 @@ const Arborist = ({ width }: ArboristProps) => {
         setContextDisableDrop,
       }}
     >
-      <div className="tree-container px-4 overflow-y-hidden">
+      <div className="tree-container overflow-x-hidden overflow-y-hidden">
         {/* <div className="flex items-center">
           {createFileFolder}
           <input
@@ -265,14 +265,14 @@ const Arborist = ({ width }: ArboristProps) => {
           {(dimens) => ( */}
         <Tree
           // {...dimens}
-          className="overflow-y-hidden h-[calc(100vh-100px)]"
+          className="custom-scrollbar overflow-y-hidden h-[calc(100vh-100px)]"
           renderCursor={CustomCursor}
           renderDragPreview={customDragPreviewWithTree}
           ref={treeRef}
           disableMultiSelection={false}
           // openByDefault={false}
           initialData={data}
-          width={width - 32}
+          width={width - 32 - 4}
           height={screenHeight - 200}
           // rowClassName={"max-w-[200px] w-full"}
           indent={18}

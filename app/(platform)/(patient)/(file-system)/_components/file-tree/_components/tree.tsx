@@ -272,11 +272,11 @@ const Arborist = ({ width }: ArboristProps) => {
           disableMultiSelection={false}
           // openByDefault={false}
           initialData={data}
-          width={width - 32 - 4}
+          width={width - 30}
           height={screenHeight - 200}
           // rowClassName={"max-w-[200px] w-full"}
-          indent={18}
-          rowHeight={32}
+          indent={15}
+          rowHeight={31}
           searchTerm={term}
           disableDrop={disableDrop}
           disableDrag={disableDrag}

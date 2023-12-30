@@ -97,7 +97,7 @@ body {
   }
 
   &:hover::-webkit-scrollbar {
-    width: 0px; /* Wider scrollbar on hover */
+    width: 4px; /* Wider scrollbar on hover */
   }
 
   /* Firefox scrollbar style */

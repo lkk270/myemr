@@ -148,7 +148,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   };
   console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
-    <div className="px-4">
+    <div className="px-2">
       <ContextMenu>
         <ContextMenuTrigger
           className={cn(

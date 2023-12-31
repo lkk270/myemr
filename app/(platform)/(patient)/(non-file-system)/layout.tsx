@@ -5,11 +5,11 @@ import { Navbar } from "../_components/navbar";
 import { Sidebar } from "../_components/sidebar";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
-  const user = await currentUser();
+  // const user = await currentUser();
 
-  if (!user || user.unsafeMetadata.userType !== "patient") {
-    return redirect("/");
-  }
+  // if (!user || user.unsafeMetadata.userType !== "patient") {
+  //   return redirect("/");
+  // }
 
   return (
     <div className="flex overflow-auto h-screen">

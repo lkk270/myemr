@@ -12,6 +12,7 @@ import { Spinner } from "@/components/spinner";
 import { cn } from "@/lib/utils";
 
 import { Logo } from "@/components/logo";
+import { LoginButton } from "@/auth/components/auth/login-button";
 
 interface NavbarProps {
   scrolled: boolean;
@@ -32,6 +33,11 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
         {!isLoaded && <Spinner />}
         {!isSignedIn && isLoaded && (
           <>
+            <LoginButton asChild>
+              <Button variant="secondary" size="lg">
+                Sign in
+              </Button>
+            </LoginButton>
             <SignUpButton mode="modal" redirectUrl="/patient-home" unsafeMetadata={{ userType: "patient" }}>
               <Button variant="ghost" size="sm" className="font-semibold border">
                 Patient

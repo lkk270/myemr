@@ -13,13 +13,11 @@ import { sendVerificationEmail } from "@/auth/lib/mail";
 import { UserType } from "@prisma/client";
 
 export const settings = async (values: z.infer<typeof SettingsSchema>) => {
-  console.log("IN HERE");
   const user = await currentUser();
 
   if (!user) {
     return { error: "Unauthorized" };
   }
-
   const dbUser = await getUserById(user.id);
 
   if (!dbUser) {

@@ -73,7 +73,7 @@ const SettingsPage = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="john.doe@example.com" type="email" disabled={isPending} />
+                          <Input {...field} type="email" disabled={true} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

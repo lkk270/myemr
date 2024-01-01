@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { states } from "@/lib/constants";
-import { Address } from "@prisma/client";
+import { PatientAddress, ProviderAddress } from "@prisma/client";
 
 interface AddressProps {
-  address?: Address | null;
+  address?: PatientAddress | null;
   disabled?: boolean;
   handleChange: (value: any) => void;
 }

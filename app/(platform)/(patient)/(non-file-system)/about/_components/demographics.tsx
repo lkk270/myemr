@@ -13,7 +13,7 @@ import React, { useState } from "react";
 
 import axios from "axios";
 
-import { Address, Unit } from "@prisma/client";
+import { PatientAddress, Unit } from "@prisma/client";
 import { PatientDemographicsType } from "@/app/types";
 import { PhoneNumber } from "@/components/phone-number";
 import { GenericCombobox } from "@/components/generic-combobox";
@@ -168,7 +168,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddressChange = (newAddress: Address) => {
+  const handleAddressChange = (newAddress: PatientAddress) => {
     setUser((prev) => ({
       ...prev,
       addresses: [newAddress], // Update the first address or add new

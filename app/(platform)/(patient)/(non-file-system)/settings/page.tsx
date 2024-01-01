@@ -39,10 +39,7 @@ const SettingsPage = () => {
   });
 
   const onSubmit = (values: z.infer<typeof SettingsSchema>) => {
-    console.log(values);
-    console.log("CALLED");
     startTransition(() => {
-      console.log("CALLED22");
       settings(values)
         .then((data) => {
           if (data.error) {

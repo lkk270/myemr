@@ -18,7 +18,7 @@ import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 export const SearchCommand = () => {
   // const { user } = useUser();
-  const user = useCurrentUser();
+  // const user = useCurrentUser();
 
   const router = useRouter();
   const documents: any[] = [];

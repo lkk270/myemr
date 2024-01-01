@@ -15,7 +15,6 @@ import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirm
 import { UserType } from "@prisma/client";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
-  console.log(values);
   const validatedFields = LoginSchema.safeParse(values);
 
   if (!validatedFields.success) {

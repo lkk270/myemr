@@ -81,7 +81,6 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
   }
 
   try {
-    console.log("IN HERE");
     await signIn("credentials", {
       email,
       password,

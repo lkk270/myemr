@@ -1,10 +1,11 @@
 "use server";
 
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 import { getUserByEmail } from "@/auth/data/user";
 import { getVerificationTokenByToken } from "@/auth/data/verificiation-token";
+import { UserType } from "@prisma/client";
 
-export const newVerification = async (token: string) => {
+export const newVerification = async (token: string, userType: UserType) => {
   const existingToken = await getVerificationTokenByToken(token);
 
   if (!existingToken) {
@@ -17,22 +18,22 @@ export const newVerification = async (token: string) => {
     return { error: "Token has expired!" };
   }
 
-  const existingUser = await getUserByEmail(existingToken.email);
+  const existingUser = await getUserByEmail(existingToken.email, userType);
 
   if (!existingUser) {
     return { error: "Email does not exist!" };
   }
 
-  await db.user.update({
+  await prismadb.user.update({
     where: { id: existingUser.id },
-    data: { 
+    data: {
       emailVerified: new Date(),
       email: existingToken.email,
-    }
+    },
   });
 
-  await db.verificationToken.delete({
-    where: { id: existingToken.id }
+  await prismadb.verificationToken.delete({
+    where: { id: existingToken.id },
   });
 
   return { success: "Email verified!" };

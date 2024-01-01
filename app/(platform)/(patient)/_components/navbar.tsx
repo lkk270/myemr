@@ -1,5 +1,5 @@
 "use client";
-import { UserButton } from "@clerk/nextjs";
+// import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -7,6 +7,7 @@ import { MobileSidebar } from "./mobile-sidebar";
 import { navRoutes } from "@/lib/constants";
 
 import { usePathname, useRouter } from "next/navigation";
+import { UserButton } from "@/auth/components/auth/user-button";
 // import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {}
@@ -51,7 +52,8 @@ export const Navbar = ({}: NavbarProps) => {
 						<Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
 					)} */}
           <ModeToggle />
-          <UserButton afterSignOutUrl="/" />
+          {/* <UserButton afterSignOutUrl="/" /> */}
+          <UserButton />
         </div>
       </div>
     </div>

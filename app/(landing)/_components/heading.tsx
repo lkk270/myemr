@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
 import { SignUpButton } from "@clerk/clerk-react";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 
 export const Heading = () => {
-  const { isSignedIn, user, isLoaded } = useUser();
+  // const { isSignedIn, user, isLoaded } = useUser();
 
   return (
     <div className="max-w-3xl space-y-4">
@@ -26,20 +26,20 @@ export const Heading = () => {
         We makes it easy to securely store and access your records, while also being able to share them with care
         providers and clinical trials of your choosing.
       </h3>
-      {!isLoaded && (
+      {/* {!isLoaded && (
         <div className="w-full flex items-center justify-center">
           <Spinner size="lg" />
         </div>
-      )}
-      {isSignedIn && user && isLoaded && (
+      )} */}
+      {/* {isSignedIn && user && isLoaded && (
         <Button asChild>
           <Link href={`/${user.unsafeMetadata.userType}-home`}>
             Enter Emridoc
             <ArrowRight className="h-4 w-4 ml-2" />
           </Link>
         </Button>
-      )}
-      {!isSignedIn && isLoaded && (
+      )} */}
+      {/* {!isSignedIn && isLoaded && (
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -58,7 +58,7 @@ export const Heading = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

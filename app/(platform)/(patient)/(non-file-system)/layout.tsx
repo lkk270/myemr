@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs";
+// import { currentUser } from "@clerk/nextjs";
 // import { MainNavbar } from "@/components/headers/main-navbar";
 import { Navbar } from "../_components/navbar";
 import { Sidebar } from "../_components/sidebar";

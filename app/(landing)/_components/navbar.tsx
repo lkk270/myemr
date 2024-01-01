@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs";
 import { SignUpButton, UserButton } from "@clerk/clerk-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -19,7 +19,7 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ scrolled }: NavbarProps) => {
-  const { user, isSignedIn, isLoaded } = useUser();
+  // const { user, isSignedIn, isLoaded } = useUser();
 
   return (
     <div
@@ -30,8 +30,13 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
     >
       <Logo />
       <div className="ml-auto justify-end w-full flex items-center gap-x-2">
-        {!isLoaded && <Spinner />}
-        {!isSignedIn && isLoaded && (
+        <LoginButton asChild userType="PATIENT">
+          <Button variant="secondary" size="lg">
+            Sign in
+          </Button>
+        </LoginButton>
+        {/* {!isLoaded && <Spinner />} */}
+        {/* {!isSignedIn && isLoaded && (
           <>
             <LoginButton asChild>
               <Button variant="secondary" size="lg">
@@ -58,7 +63,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
             {redirect(`/${user.unsafeMetadata.userType}-home`)}
             <UserButton afterSignOutUrl="/" />
           </>
-        )}
+        )} */}
         <div className="hidden sm:flex">
           <ModeToggle />
         </div>

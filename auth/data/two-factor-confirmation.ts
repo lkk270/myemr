@@ -1,8 +1,8 @@
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 
 export const getTwoFactorConfirmationByUserId = async (userId: string) => {
   try {
-    const twoFactorConfirmation = await db.twoFactorConfirmation.findUnique({
+    const twoFactorConfirmation = await prismadb.twoFactorConfirmation.findUnique({
       where: { userId },
     });
 

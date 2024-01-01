@@ -3,22 +3,23 @@
  * These routes do not require authentication
  * @type {string[]}
  */
-export const publicRoutes = [
-  "/",
-  "/auth/new-verification"
-];
+export const publicRoutes = ["/", "/auth/patient-new-verification", "/auth/provider-new-verification"];
 
 /**
  * An array of routes that are used for authentication
- * These routes will redirect logged in users to /settings
+ * These routes will redirect logged in users to /home
  * @type {string[]}
  */
 export const authRoutes = [
-  "/auth/login",
-  "/auth/register",
+  "/auth/patient-login",
+  "/auth/provider-login",
+  "/auth/patient-register",
+  "/auth/provider-register",
   "/auth/error",
-  "/auth/reset",
-  "/auth/new-password"
+  "/auth/patient-reset",
+  "/auth/provider-reset",
+  "/auth/patient-new-password",
+  "/auth/provider-new-password",
 ];
 
 /**
@@ -32,4 +33,5 @@ export const apiAuthPrefix = "/api/auth";
  * The default redirect path after logging in
  * @type {string}
  */
-export const DEFAULT_LOGIN_REDIRECT = "/settings";
+export const PATIENT_DEFAULT_LOGIN_REDIRECT = "/patient-home";
+export const PROVIDER_DEFAULT_LOGIN_REDIRECT = "/provider-home";

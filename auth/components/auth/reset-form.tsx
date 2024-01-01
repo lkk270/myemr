@@ -13,8 +13,13 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { reset } from "@/auth/actions/reset";
+import { UserType } from "@prisma/client";
 
-export const ResetForm = () => {
+interface ResetFormProps {
+  userType: UserType;
+}
+
+export const ResetForm = ({ userType }: ResetFormProps) => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -23,6 +28,7 @@ export const ResetForm = () => {
     resolver: zodResolver(ResetSchema),
     defaultValues: {
       email: "",
+      userType: userType,
     },
   });
 
@@ -39,7 +45,11 @@ export const ResetForm = () => {
   };
 
   return (
-    <CardWrapper headerLabel="Forgot your password?" backButtonLabel="Back to login" backButtonHref="/auth/login">
+    <CardWrapper
+      headerLabel="Forgot your password?"
+      backButtonLabel="Back to login"
+      backButtonHref="/auth/patient-login"
+    >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">

@@ -1,8 +1,8 @@
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 
 export const getTwoFactorTokenByToken = async (token: string) => {
   try {
-    const twoFactorToken = await db.twoFactorToken.findUnique({
+    const twoFactorToken = await prismadb.twoFactorToken.findUnique({
       where: { token },
     });
 
@@ -14,7 +14,7 @@ export const getTwoFactorTokenByToken = async (token: string) => {
 
 export const getTwoFactorTokenByEmail = async (email: string) => {
   try {
-    const twoFactorToken = await db.twoFactorToken.findFirst({
+    const twoFactorToken = await prismadb.twoFactorToken.findFirst({
       where: { email },
     });
 

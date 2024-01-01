@@ -2,7 +2,7 @@
 
 // import { useUser } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
-import { SignUpButton } from "@clerk/clerk-react";
+// import { SignUpButton } from "@clerk/clerk-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -12,10 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
+import { useSession } from "next-auth/react";
+import { LoginButton } from "@/auth/components/auth/login-button";
 
 export const Heading = () => {
   // const { isSignedIn, user, isLoaded } = useUser();
-
+  const session = useSession();
+  const user = session.data;
+  console.log(user);
   return (
     <div className="max-w-3xl space-y-4">
       <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
@@ -39,7 +43,7 @@ export const Heading = () => {
           </Link>
         </Button>
       )} */}
-      {/* {!isSignedIn && isLoaded && (
+      {!user && (
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -49,16 +53,20 @@ export const Heading = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
-              <SignUpButton mode="modal" redirectUrl="/patient-home" unsafeMetadata={{ userType: "patient" }}>
-                <DropdownMenuItem>Patient</DropdownMenuItem>
-              </SignUpButton>
-              <SignUpButton mode="modal" redirectUrl="/provider-home" unsafeMetadata={{ userType: "provider" }}>
-                <DropdownMenuItem>Provider</DropdownMenuItem>
-              </SignUpButton>
+              <LoginButton mode="modal" asChild userType="PATIENT">
+                <Button variant="secondary" size="lg">
+                  Patient
+                </Button>
+              </LoginButton>
+              <LoginButton mode="modal" asChild userType="PROVIDER">
+                <Button variant="secondary" size="lg">
+                  Provider
+                </Button>
+              </LoginButton>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

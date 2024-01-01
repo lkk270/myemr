@@ -15,8 +15,13 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/auth/actions/login";
+import { UserType } from "@prisma/client";
 
-export const LoginForm = () => {
+interface LoginFormProps {
+  userType: UserType;
+}
+
+export const LoginForm = ({ userType }: LoginFormProps) => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const urlError =
@@ -32,6 +37,7 @@ export const LoginForm = () => {
     defaultValues: {
       email: "",
       password: "",
+      userType: userType,
     },
   });
 
@@ -43,7 +49,7 @@ export const LoginForm = () => {
       login(values, callbackUrl)
         .then((data) => {
           if (data?.error) {
-            form.reset();
+            // form.reset();
             setError(data.error);
           }
 
@@ -64,7 +70,7 @@ export const LoginForm = () => {
     <CardWrapper
       headerLabel="Welcome back"
       backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/register"
+      backButtonHref="/auth/patient-register"
       showSocial
     >
       <Form {...form}>

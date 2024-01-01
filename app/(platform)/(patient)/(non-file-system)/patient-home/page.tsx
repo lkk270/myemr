@@ -1,7 +1,7 @@
-import { initialPatientProfile } from "@/lib/initial-profile";
+// import { initialPatientProfile } from "@/lib/initial-profile";
 
 const PatientHome = async () => {
-  await initialPatientProfile();
+  // await initialPatientProfile();
   return <p className="text-indigo-700 text-3xl">Hello Patient</p>;
 };
 

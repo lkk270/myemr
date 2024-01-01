@@ -4,12 +4,13 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 
 import { update } from "@/auth";
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 import { SettingsSchema } from "@/auth/schemas";
 import { getUserByEmail, getUserById } from "@/auth/data/user";
 import { currentUser } from "@/auth/lib/auth";
 import { generateVerificationToken } from "@/auth/lib/tokens";
 import { sendVerificationEmail } from "@/auth/lib/mail";
+import { UserType } from "@prisma/client";
 
 export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   const user = await currentUser();
@@ -32,7 +33,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   }
 
   if (values.email && values.email !== user.email) {
-    const existingUser = await getUserByEmail(values.email);
+    const existingUser = await getUserByEmail(values.email, values.userType);
 
     if (existingUser && existingUser.id !== user.id) {
       return { error: "Email already in use!" };
@@ -56,7 +57,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     values.newPassword = undefined;
   }
 
-  const updatedUser = await db.user.update({
+  const updatedUser = await prismadb.user.update({
     where: { id: dbUser.id },
     data: {
       ...values,
@@ -65,7 +66,8 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
 
   update({
     user: {
-      name: updatedUser.name,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
       email: updatedUser.email,
       isTwoFactorEnabled: updatedUser.isTwoFactorEnabled,
       role: updatedUser.role,

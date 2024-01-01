@@ -3,26 +3,28 @@
 import * as z from "zod";
 import { AuthError } from "next-auth";
 
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 import { signIn } from "@/auth";
 import { LoginSchema } from "@/auth/schemas";
 import { getUserByEmail } from "@/auth/data/user";
 import { getTwoFactorTokenByEmail } from "@/auth/data/two-factor-token";
 import { sendVerificationEmail, sendTwoFactorTokenEmail } from "@/auth/lib/mail";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { PATIENT_DEFAULT_LOGIN_REDIRECT, PROVIDER_DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { generateVerificationToken, generateTwoFactorToken } from "@/auth/lib/tokens";
 import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";
+import { UserType } from "@prisma/client";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
+  console.log(values);
   const validatedFields = LoginSchema.safeParse(values);
 
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
 
-  const { email, password, code } = validatedFields.data;
+  const { email, password, userType, code } = validatedFields.data;
 
-  const existingUser = await getUserByEmail(email);
+  const existingUser = await getUserByEmail(email || "", values.userType);
 
   if (!existingUser || !existingUser.email || !existingUser.password) {
     return { error: "Email does not exist!" };
@@ -54,19 +56,19 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
         return { error: "Code expired!" };
       }
 
-      await db.twoFactorToken.delete({
+      await prismadb.twoFactorToken.delete({
         where: { id: twoFactorToken.id },
       });
 
       const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
 
       if (existingConfirmation) {
-        await db.twoFactorConfirmation.delete({
+        await prismadb.twoFactorConfirmation.delete({
           where: { id: existingConfirmation.id },
         });
       }
 
-      await db.twoFactorConfirmation.create({
+      await prismadb.twoFactorConfirmation.create({
         data: {
           userId: existingUser.id,
         },
@@ -80,10 +82,13 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
   }
 
   try {
+    console.log("IN HERE");
     await signIn("credentials", {
       email,
       password,
-      redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
+      userType,
+      redirectTo:
+        callbackUrl || userType === UserType.PATIENT ? PATIENT_DEFAULT_LOGIN_REDIRECT : PROVIDER_DEFAULT_LOGIN_REDIRECT,
     });
   } catch (error) {
     if (error instanceof AuthError) {

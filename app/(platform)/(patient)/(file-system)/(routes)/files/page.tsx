@@ -1,4 +1,4 @@
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+// import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { Sidebar } from "../../_components/sidebar";
 import prismadb from "@/lib/prismadb";
 
@@ -94,11 +94,11 @@ const dummyData = [
 ];
 
 const FileSystem = async () => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
-  if (!userId) {
-    return redirectToSignIn;
-  }
+  // if (!userId) {
+  //   return redirectToSignIn;
+  // }
   // const patientMedications = await prismadb.patientProfile.findUnique({
   //   where: {
   //     userId: userId,

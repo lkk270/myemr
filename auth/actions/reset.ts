@@ -14,9 +14,9 @@ export const reset = async (values: z.infer<typeof ResetSchema>) => {
     return { error: "Invalid emaiL!" };
   }
 
-  const { email } = validatedFields.data;
+  const { email, userType } = validatedFields.data;
 
-  const existingUser = await getUserByEmail(email);
+  const existingUser = await getUserByEmail(email, userType);
 
   if (!existingUser) {
     return { error: "Email not found!" };

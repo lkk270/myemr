@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+// import { UserButton } from "@clerk/nextjs";
 import { Ban, Bell } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";
@@ -20,7 +20,7 @@ export const MainNavbar = () => {
 			<div className="flex items-center">
 				<div className="flex items-center sm:flex gap-x-4">
 					<ModeToggle />
-					<UserButton afterSignOutUrl="/" />
+					{/* <UserButton afterSignOutUrl="/" /> */}
 				</div>
 			</div>
 		</div>

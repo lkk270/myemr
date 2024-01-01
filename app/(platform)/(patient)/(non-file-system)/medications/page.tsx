@@ -1,4 +1,6 @@
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+// import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 import prismadb from "@/lib/prismadb";
 
@@ -6,14 +8,21 @@ import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { CustomDataTable } from "./_components/table/custom-data-table";
 
 const PatientMedications = async () => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
-  if (!userId) {
-    return redirectToSignIn;
+  // if (!userId) {
+  //   return redirectToSignIn;
+  // }
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
   }
+  const user = session?.user;
+
   const patientMedications = await prismadb.patientProfile.findUnique({
     where: {
-      userId: userId,
+      userId: user?.id,
     },
     select: {
       medications: {

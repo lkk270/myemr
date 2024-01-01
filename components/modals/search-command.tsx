@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { File } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/clerk-react";
+// import { useUser } from "@clerk/clerk-react";
 
 import {
   CommandDialog,
@@ -14,9 +14,12 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useSearch } from "@/hooks/use-search";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 export const SearchCommand = () => {
-  const { user } = useUser();
+  // const { user } = useUser();
+  const user = useCurrentUser();
+
   const router = useRouter();
   const documents: any[] = [];
   const [isMounted, setIsMounted] = useState(false);
@@ -52,7 +55,7 @@ export const SearchCommand = () => {
 
   return (
     <CommandDialog open={isOpen} onOpenChange={onClose}>
-      <CommandInput placeholder={`Search ${user?.fullName}'s Jotion...`} />
+      <CommandInput placeholder={`Search ${user?.firstName}'s Jotion...`} />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Documents">

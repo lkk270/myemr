@@ -2,8 +2,10 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { dark } from "@clerk/themes";
-import { ClerkProvider } from "@clerk/nextjs";
+// import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -18,16 +20,19 @@ export const metadata: Metadata = {
   description: "A patient focused EMR",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-        layout: {
-          termsPageUrl: "https://clerk.com/terms",
-        },
-      }}
-    >
+    // <ClerkProvider
+    //   appearance={{
+    //     baseTheme: dark,
+    //     layout: {
+    //       termsPageUrl: "https://clerk.com/terms",
+    //     },
+    //   }}
+    // >
+    <SessionProvider session={session}>
       <html lang="en" suppressHydrationWarning>
         <body className={cn("bg-secondary/20", font.className)}>
           <ThemeProvider
@@ -45,6 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </SessionProvider>
   );
 }

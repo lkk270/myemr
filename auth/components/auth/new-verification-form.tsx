@@ -8,8 +8,13 @@ import { newVerification } from "@/auth/actions/new-verification";
 import { CardWrapper } from "./card-wrapper";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
+import { UserType } from "@prisma/client";
 
-export const NewVerificationForm = () => {
+interface NewVerificationFormProps {
+  userType: UserType;
+}
+
+export const NewVerificationForm = ({ userType }: NewVerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
 
@@ -25,14 +30,14 @@ export const NewVerificationForm = () => {
       return;
     }
 
-    newVerification(token)
+    newVerification(token, userType)
       .then((data) => {
         setSuccess(data.success);
         setError(data.error);
       })
       .catch(() => {
         setError("Something went wrong!");
-      })
+      });
   }, [token, success, error]);
 
   useEffect(() => {
@@ -46,14 +51,10 @@ export const NewVerificationForm = () => {
       backButtonHref="/auth/login"
     >
       <div className="flex items-center w-full justify-center">
-        {!success && !error && (
-          <BeatLoader />
-        )}
+        {!success && !error && <BeatLoader />}
         <FormSuccess message={success} />
-        {!success && (
-          <FormError message={error} />
-        )}
+        {!success && <FormError message={error} />}
       </div>
     </CardWrapper>
-  )
-}
+  );
+};

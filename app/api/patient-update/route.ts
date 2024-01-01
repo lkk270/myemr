@@ -1,4 +1,7 @@
-import { auth, currentUser } from "@clerk/nextjs";
+// import { auth, currentUser } from "@clerk/nextjs";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+
 import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
@@ -39,8 +42,17 @@ export async function POST(req: Request) {
     const updateType = body.updateType;
     const data = body.fieldsObj;
 
-    const { userId } = auth();
-    const user = await currentUser();
+    // const { userId } = auth();
+    // const user = await currentUser();
+
+    const session = await auth();
+
+    if (!session) {
+      return redirect("/");
+    }
+
+    const user = session?.user;
+    const userId = user?.id;
 
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -86,7 +98,6 @@ export async function POST(req: Request) {
         const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
         await prismadb.address.update({
           where: {
-            userId: userId,
             patientProfileId: patient.id,
             id: patient.addresses[0].id,
           },

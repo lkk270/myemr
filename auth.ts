@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import { UserRole } from "@prisma/client";
-// import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 import authConfig from "./auth.config";
 import { getUserById } from "@/auth/data/user";
 import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";
@@ -16,12 +16,12 @@ export const {
   update,
 } = NextAuth({
   pages: {
-    signIn: "/auth/login",
+    signIn: "/auth/patient-login",
     error: "/auth/error",
   },
   events: {
     async linkAccount({ user }) {
-      await db.user.update({
+      await prismadb.user.update({
         where: { id: user.id },
         data: { emailVerified: new Date() },
       });
@@ -33,6 +33,7 @@ export const {
       if (account?.provider !== "credentials") return true;
 
       const existingUser = await getUserById(user.id);
+      console.log(existingUser);
 
       // Prevent sign in without email verification
       if (!existingUser?.emailVerified) return false;
@@ -43,7 +44,7 @@ export const {
         if (!twoFactorConfirmation) return false;
 
         // Delete two factor confirmation for next sign in
-        await db.twoFactorConfirmation.delete({
+        await prismadb.twoFactorConfirmation.delete({
           where: { id: twoFactorConfirmation.id },
         });
       }
@@ -64,7 +65,8 @@ export const {
       }
 
       if (session.user) {
-        session.user.name = token.name;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
         session.user.email = token.email;
         session.user.isOAuth = token.isOAuth as boolean;
       }
@@ -81,7 +83,8 @@ export const {
       const existingAccount = await getAccountByUserId(existingUser.id);
 
       token.isOAuth = !!existingAccount;
-      token.name = existingUser.name;
+      token.firstName = existingUser.firstName;
+      token.lastName = existingUser.lastName;
       token.email = existingUser.email;
       token.role = existingUser.role;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
@@ -89,7 +92,7 @@ export const {
       return token;
     },
   },
-//   adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(prismadb),
   session: { strategy: "jwt" },
   ...authConfig,
 });

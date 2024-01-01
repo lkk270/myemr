@@ -41,20 +41,34 @@ enum OrganizationType {
   DOCTOR_OFFICE
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserType {
+  PROVIDER
+  PATIENT
+}
+
 model Address {
-  id               String         @id @default(uuid())
-  userId           String
-  address          String
-  address2         String?
-  city             String
-  state            String
-  zipcode          String
-  patientProfileId String
-  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  id       String  @id @default(uuid())
+  address  String
+  address2 String?
+  city     String
+  state    String
+  zipcode  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  patientProfileId  String?
+  providerProfileId String?
+
+  patientProfile  PatientProfile?  @relation(name: "PatientAddress", fields: [patientProfileId], references: [id], map: "PatientAddressConstraint")
+  providerProfile ProviderProfile? @relation(name: "ProviderAddress", fields: [providerProfileId], references: [id], map: "ProviderAddressConstraint")
+
+  @@index([providerProfileId])
   @@index([patientProfileId])
 }
 
@@ -73,8 +87,6 @@ model DosageHistory {
 
 model Medication {
   id               String          @id @default(uuid())
-  userId           String
-  patientProfileId String
   name             String
   prescribedById   String?
   prescribedByName String
@@ -86,20 +98,174 @@ model Medication {
   status           String
   dosageHistory    DosageHistory[]
 
-  PatientProfile PatientProfile @relation(fields: [patientProfileId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  patientProfileId String
+
+  @@unique([patientProfileId, name])
+  @@index([patientProfileId])
+}
+
+// model PatientProfile {
+//   id                String  @id @default(uuid())
+//   userId            String  @unique
+//   firstName         String
+//   lastName          String
+//   gender            String?
+//   dateOfBirth       String?
+//   maritalStatus     String?
+//   race              String?
+//   height            String?
+//   weight            String?
+//   allergies         String?
+//   unit              Unit    @default(IMPERIAL)
+//   mobilePhone       String?
+//   homePhone         String?
+//   insuranceProvider String?
+//   policyNumber      String?
+//   groupNumber       String?
+//   imageUrl          String  @db.Text
+//   email             String
+//   publicKey         String  @db.Text
+//   privateKey        String  @db.Text
+//   symmetricKey      String  @db.Text
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   member      Member[]
+//   addresses   Address[]
+//   medications Medication[]
+//   Folder      Folder[]
+//   File        File[]
+// }
+
+model Folder {
+  id    String @id @default(uuid())
+  title String
+  order Int
+  files File[]
+
+  parentId String?  @map("folderId")
+  parent   Folder?  @relation("SubFolders", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Folder[] @relation("SubFolders")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  patientProfileId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, name])
+  @@index([patientProfileId])
+  @@index([parentId])
+}
+
+model File {
+  id String @id @default(uuid())
+
+  title       String
+  order       Int
+  description String? @db.Text
+
+  folderId String
+  folder   Folder @relation(fields: [folderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+
+  @@index([patientProfileId])
+  @@index([folderId])
+}
+
+// model ProviderProfile {
+//   id            String         @id @default(uuid())
+//   userId        String         @unique
+//   name          String
+//   imageUrl      String         @db.Text
+//   email         String
+//   publicKey     String         @db.Text
+//   privateKey    String         @db.Text
+//   organizations Organization[]
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   member    Member[]
+// }
+
+model Organization {
+  id               String           @id @default(uuid())
+  name             String
+  imageUrl         String           @db.Text
+  inviteCode       String           @unique
+  organizationType OrganizationType
+
+  // providerProfileId String
+  // providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+
+  members Member[]
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id])
+  providerProfileId String
+
+  @@index([providerProfileId])
+}
+
+model Member {
+  id   String           @id @default(uuid())
+  role OrganizationRole
+
+  organizationId String
+  Organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  patientProfileId String
+
+  // @@index([providerProfileId])
+  // @@index([patientProfileId])
+  @@index([organizationId])
   @@index([patientProfileId])
 }
 
+model User {
+  id              String           @id @default(cuid())
+  firstName       String
+  lastName        String
+  password        String?
+  email           String
+  emailVerified   DateTime?
+  image           String?
+  role            UserRole         @default(USER)
+  type            UserType         @default(PATIENT)
+  patientProfile  PatientProfile?
+  providerProfile ProviderProfile?
+
+  accounts                Account[]
+  isTwoFactorEnabled      Boolean                @default(false)
+  twoFactorConfirmationId String?
+  twoFactorConfirmation   TwoFactorConfirmation?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, role, type])
+  @@index([twoFactorConfirmationId])
+}
+
 model PatientProfile {
-  id                String  @id @default(uuid())
+  id                String  @id @default(cuid())
   userId            String  @unique
   firstName         String
   lastName          String
+  email             String  @unique
+  imageUrl          String?
   gender            String?
   dateOfBirth       String?
   maritalStatus     String?
@@ -113,150 +279,54 @@ model PatientProfile {
   insuranceProvider String?
   policyNumber      String?
   groupNumber       String?
-  imageUrl          String  @db.Text
-  email             String
   publicKey         String  @db.Text
   privateKey        String  @db.Text
   symmetricKey      String  @db.Text
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   member      Member[]
-  addresses   Address[]
+  addresses   Address[]    @relation("PatientAddress")
   medications Medication[]
-  Folder      Folder[]
-  File        File[]
-}
+  folders     Folder[]
+  files       File[]
 
-model Folder {
-  id               String @id @default(uuid())
-  userId           String
-  patientProfileId String
-  title            String
-  order            Int
-  files            File[]
-
-  parentId String?  @map("folderId")
-  parent   Folder?  @relation("SubFolders", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children Folder[] @relation("SubFolders")
-
-  PatientProfile PatientProfile @relation(fields: [patientProfileId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([patientProfileId])
-  @@index([parentId])
-}
-
-model File {
-  id               String  @id @default(uuid())
-  userId           String
-  patientProfileId String
-  title            String
-  order            Int
-  description      String? @db.Text
-
-  folderId String
-  folder   Folder @relation(fields: [folderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  PatientProfile PatientProfile @relation(fields: [patientProfileId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([patientProfileId])
-  @@index([folderId])
+  @@index([userId])
 }
 
 model ProviderProfile {
-  id            String         @id @default(uuid())
+  id            String         @id @default(cuid())
   userId        String         @unique
-  name          String
-  imageUrl      String         @db.Text
-  email         String
+  firstName     String
+  lastName      String
+  email         String         @unique
+  imageUrl      String?
   publicKey     String         @db.Text
   privateKey    String         @db.Text
   organizations Organization[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses     Address[]      @relation("ProviderAddress")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  member    Member[]
-}
-
-model Organization {
-  id               String           @id @default(uuid())
-  name             String
-  imageUrl         String           @db.Text
-  inviteCode       String           @unique
-  organizationType OrganizationType
-
-  providerProfileId String
-  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
-
-  members Member[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([providerProfileId])
-}
-
-model Member {
-  id   String           @id @default(uuid())
-  role OrganizationRole
-
-  providerProfileId String?
-  providerProfile   ProviderProfile? @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
-  patientProfileId  String?
-  patientProfile    PatientProfile?  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
-  organizationId    String
-  Organization      Organization     @relation(fields: [organizationId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([providerProfileId])
-  @@index([patientProfileId])
-  @@index([organizationId])
-}
-
-enum UserRole {
-  ADMIN
-  USER
-}
-
-model User {
-  id                    String                 @id @default(cuid())
-  name                  String?
-  email                 String?                @unique
-  emailVerified         DateTime?
-  image                 String?
-  password              String?
-  role                  UserRole               @default(USER)
-  accounts              Account[]
-  isTwoFactorEnabled    Boolean                @default(false)
-  twoFactorConfirmation TwoFactorConfirmation?
+  @@index([userId])
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  id            String  @id @default(cuid())
+  userId        String
+  type          String
+  provider      String
+  refresh_token String? @db.Text
+  access_token  String? @db.Text
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String? @db.Text
+  session_state String?
+  user          User    @relation(fields: [userId], references: [id])
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
   @@index([userId])
 }
 

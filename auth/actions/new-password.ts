@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { NewPasswordSchema } from "@/auth/schemas";
 import { getPasswordResetTokenByToken } from "@/auth/data/password-reset-token";
 import { getUserByEmail } from "@/auth/data/user";
-import { db } from "@/auth/lib/db";
+import prismadb from "@/lib/prismadb";
 
 export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, token?: string | null) => {
   if (!token) {
@@ -19,7 +19,7 @@ export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, tok
     return { error: "Invalid fields!" };
   }
 
-  const { password } = validatedFields.data;
+  const { password, userType } = validatedFields.data;
 
   const existingToken = await getPasswordResetTokenByToken(token);
 
@@ -33,7 +33,7 @@ export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, tok
     return { error: "Token has expired!" };
   }
 
-  const existingUser = await getUserByEmail(existingToken.email);
+  const existingUser = await getUserByEmail(existingToken.email, userType);
 
   if (!existingUser) {
     return { error: "Email does not exist!" };
@@ -41,12 +41,12 @@ export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, tok
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  await db.user.update({
+  await prismadb.user.update({
     where: { id: existingUser.id },
     data: { password: hashedPassword },
   });
 
-  await db.passwordResetToken.delete({
+  await prismadb.passwordResetToken.delete({
     where: { id: existingToken.id },
   });
 

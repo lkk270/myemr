@@ -19,14 +19,6 @@ export const UserInfo = ({ user, label }: UserInfoProps) => {
           <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">{user?.id}</p>
         </div>
         <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-          <p className="text-sm font-medium">First Name</p>
-          <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">{user?.firstName}</p>
-        </div>
-        <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-          <p className="text-sm font-medium">Last Name</p>
-          <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">{user?.lastName}</p>
-        </div>
-        <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
           <p className="text-sm font-medium">Email</p>
           <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">{user?.email}</p>
         </div>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 import axios from "axios";
 
-import { Address, Unit } from "@prisma/client";
+import { PatientAddress, Unit } from "@prisma/client";
 import { PatientDemographicsContactType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -155,7 +155,7 @@ export const ContactForm = ({ patientDemographics }: PatientDemographicsContactP
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddressChange = (newAddress: Address) => {
+  const handleAddressChange = (newAddress: PatientAddress) => {
     setUser((prev) => ({
       ...prev,
       addresses: [newAddress], // Update the first address or add new

@@ -41,8 +41,6 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     await prismadb.$transaction([
       prismadb.user.create({
         data: {
-          firstName,
-          lastName,
           email,
           password: hashedPassword,
           type: "PATIENT",
@@ -88,8 +86,6 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     await prismadb.$transaction([
       prismadb.user.create({
         data: {
-          firstName,
-          lastName,
           email,
           password: hashedPassword,
           type: "PROVIDER",

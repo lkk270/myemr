@@ -29,11 +29,9 @@ const SettingsPage = () => {
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
+      email: user?.email || undefined,
       password: undefined,
       newPassword: undefined,
-      firstName: user?.firstName || undefined,
-      lastName: user?.lastName || undefined,
-      email: user?.email || undefined,
       role: user?.role || undefined,
       userType: user?.userType || undefined,
       isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
@@ -69,32 +67,6 @@ const SettingsPage = () => {
         <Form {...form}>
           <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="John" disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Doe" disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               {user?.isOAuth === false && (
                 <>
                   <FormField

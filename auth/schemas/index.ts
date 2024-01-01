@@ -3,8 +3,6 @@ import { UserRole, UserType } from "@prisma/client";
 
 export const SettingsSchema = z
   .object({
-    firstName: z.optional(z.string()),
-    lastName: z.optional(z.string()),
     isTwoFactorEnabled: z.optional(z.boolean()),
     userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
     role: z.enum([UserRole.USER, UserRole.ADMIN]),

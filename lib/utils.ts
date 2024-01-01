@@ -4,7 +4,7 @@ import { Unit } from "@prisma/client";
 import { NewMedicationType } from "@/app/types";
 import { genders, martialStatuses, races, heightsImperial, heightsMetric, states, dosageFrequency } from "./constants";
 export * from "./encryption";
-export * from "./initial-profile";
+// export * from "./initial-profile";
 export * from "./request-validation";
 
 export function cn(...inputs: ClassValue[]) {

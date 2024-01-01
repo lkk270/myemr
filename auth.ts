@@ -33,7 +33,6 @@ export const {
       if (account?.provider !== "credentials") return true;
 
       const existingUser = await getUserById(user.id);
-      console.log(existingUser);
 
       // Prevent sign in without email verification
       if (!existingUser?.emailVerified) return false;
@@ -65,8 +64,6 @@ export const {
       }
 
       if (session.user) {
-        session.user.firstName = token.firstName as string;
-        session.user.lastName = token.lastName as string;
         session.user.email = token.email;
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
@@ -84,8 +81,6 @@ export const {
       const existingAccount = await getAccountByUserId(existingUser.id);
 
       token.isOAuth = !!existingAccount;
-      token.firstName = existingUser.firstName;
-      token.lastName = existingUser.lastName;
       token.email = existingUser.email;
       token.userType = existingUser.type;
       token.role = existingUser.role;

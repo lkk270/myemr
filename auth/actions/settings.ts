@@ -61,15 +61,14 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   const updatedUser = await prismadb.user.update({
     where: { id: dbUser.id },
     data: {
-      ...values,
+      isTwoFactorEnabled: values.isTwoFactorEnabled,
+      role: values.role,
+      password: values.password,
     },
   });
 
   update({
     user: {
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
       isTwoFactorEnabled: updatedUser.isTwoFactorEnabled,
       role: updatedUser.role,
     },

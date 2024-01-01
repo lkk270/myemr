@@ -68,6 +68,7 @@ export const {
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.email = token.email;
+        session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
       }
 
@@ -86,6 +87,7 @@ export const {
       token.firstName = existingUser.firstName;
       token.lastName = existingUser.lastName;
       token.email = existingUser.email;
+      token.userType = existingUser.type;
       token.role = existingUser.role;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 

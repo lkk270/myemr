@@ -51,7 +51,7 @@ enum UserType {
   PATIENT
 }
 
-model Address {
+model PatientAddress {
   id       String  @id @default(uuid())
   address  String
   address2 String?
@@ -59,17 +59,30 @@ model Address {
   state    String
   zipcode  String
 
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  patientProfileId  String?
-  providerProfileId String?
+  @@index([patientProfileId])
+}
 
-  patientProfile  PatientProfile?  @relation(name: "PatientAddress", fields: [patientProfileId], references: [id], map: "PatientAddressConstraint")
-  providerProfile ProviderProfile? @relation(name: "ProviderAddress", fields: [providerProfileId], references: [id], map: "ProviderAddressConstraint")
+model ProviderAddress {
+  id       String  @id @default(uuid())
+  address  String
+  address2 String?
+  city     String
+  state    String
+  zipcode  String
+
+  providerProfileId String
+  ProviderProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([providerProfileId])
-  @@index([patientProfileId])
 }
 
 model DosageHistory {
@@ -284,10 +297,10 @@ model PatientProfile {
   symmetricKey      String  @db.Text
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   member      Member[]
-  addresses   Address[]    @relation("PatientAddress")
+  addresses   PatientAddress[]
   medications Medication[]
   folders     Folder[]
   files       File[]
@@ -296,19 +309,19 @@ model PatientProfile {
 }
 
 model ProviderProfile {
-  id            String         @id @default(cuid())
-  userId        String         @unique
+  id            String            @id @default(cuid())
+  userId        String            @unique
   firstName     String
   lastName      String
-  email         String         @unique
+  email         String            @unique
   imageUrl      String?
-  publicKey     String         @db.Text
-  privateKey    String         @db.Text
+  publicKey     String            @db.Text
+  privateKey    String            @db.Text
   organizations Organization[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addresses     Address[]      @relation("ProviderAddress")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses     ProviderAddress[]
 
   @@index([userId])
 }

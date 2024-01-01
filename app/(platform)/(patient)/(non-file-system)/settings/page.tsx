@@ -21,7 +21,6 @@ import { UserRole } from "@prisma/client";
 
 const SettingsPage = () => {
   const user = useCurrentUser();
-  
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const { update } = useSession();
@@ -36,13 +35,16 @@ const SettingsPage = () => {
       lastName: user?.lastName || undefined,
       email: user?.email || undefined,
       role: user?.role || undefined,
-      userType: user?.type || undefined,
+      userType: user?.userType || undefined,
       isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
     },
   });
 
   const onSubmit = (values: z.infer<typeof SettingsSchema>) => {
+    console.log(values);
+    console.log("CALLED");
     startTransition(() => {
+      console.log("CALLED22");
       settings(values)
         .then((data) => {
           if (data.error) {

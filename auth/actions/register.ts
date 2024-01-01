@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import bcrypt from "bcryptjs";
-import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey } from "@/lib/encryption";
+import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "@/lib/encryption";
 import prismadb from "@/lib/prismadb";
 import { RegisterSchema } from "@/auth/schemas";
 import { getUserByEmail } from "@/auth/data/user";
@@ -49,9 +49,9 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
           role: "ADMIN",
           patientProfile: {
             create: {
-              firstName,
-              lastName,
-              email,
+              firstName: encryptPatientRecord(firstName, symmetricKey),
+              lastName: encryptPatientRecord(lastName, symmetricKey),
+              email: encryptPatientRecord(email, symmetricKey),
               publicKey: encryptKey(publicKey, "patientPublicKey"),
               privateKey: encryptKey(privateKey, "patientPrivateKey"),
               symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),

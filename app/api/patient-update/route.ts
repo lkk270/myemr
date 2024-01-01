@@ -91,12 +91,13 @@ export async function POST(req: Request) {
 
       if (patient.addresses.length === 0 && data.addresses) {
         const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
-        await prismadb.address.create({
-          data: { ...encryptedAddress, patientProfileId: patient.id, userId },
+        console.log(encryptedAddress);
+        await prismadb.patientAddress.create({
+          data: { ...encryptedAddress, patientProfileId: patient.id },
         });
       } else if (patient.addresses.length === 1 && data.addresses) {
         const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
-        await prismadb.address.update({
+        await prismadb.patientAddress.update({
           where: {
             patientProfileId: patient.id,
             id: patient.addresses[0].id,
@@ -110,7 +111,7 @@ export async function POST(req: Request) {
       }
       const encryptedMedication = buildUpdatePayload(data, decryptedSymmetricKey);
       const newMedication = await prismadb.medication.create({
-        data: { ...encryptedMedication, ...{ userId: userId, patientProfileId: patient.id } },
+        data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
       });
       return new NextResponse(JSON.stringify({ newMedicationId: newMedication.id }));
     } else if (updateType === "editMedication") {

@@ -18,8 +18,9 @@ import { LoginButton } from "@/auth/components/auth/login-button";
 export const Heading = () => {
   // const { isSignedIn, user, isLoaded } = useUser();
   const session = useSession();
-  const user = session.data;
-  console.log(user);
+  const sessionData = session.data;
+  const user = sessionData?.user || null;
+ 
   return (
     <div className="max-w-3xl space-y-4">
       <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
@@ -30,19 +31,19 @@ export const Heading = () => {
         We makes it easy to securely store and access your records, while also being able to share them with care
         providers and clinical trials of your choosing.
       </h3>
-      {/* {!isLoaded && (
+      {session.status === "loading" && (
         <div className="w-full flex items-center justify-center">
           <Spinner size="lg" />
         </div>
-      )} */}
-      {/* {isSignedIn && user && isLoaded && (
+      )}
+      {session.status === "authenticated" && user && (
         <Button asChild>
-          <Link href={`/${user.unsafeMetadata.userType}-home`}>
+          <Link href={`/${user.userType.toLowerCase()}-home`}>
             Enter Emridoc
             <ArrowRight className="h-4 w-4 ml-2" />
           </Link>
         </Button>
-      )} */}
+      )}
       {!user && (
         <div>
           <DropdownMenu>

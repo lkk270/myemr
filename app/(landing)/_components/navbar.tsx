@@ -4,6 +4,7 @@
 import { SignUpButton, UserButton } from "@clerk/clerk-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -19,7 +20,9 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ scrolled }: NavbarProps) => {
-  // const { user, isSignedIn, isLoaded } = useUser();
+  const session = useSession();
+  const sessionData = session.data;
+  const user = sessionData?.user || null;
 
   return (
     <div
@@ -30,17 +33,22 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
     >
       <Logo />
       <div className="ml-auto justify-end w-full flex items-center gap-x-2">
-        <LoginButton mode="modal" asChild userType="PATIENT">
-          <Button variant="ghost" size="sm">
-            Patient
-          </Button>
-        </LoginButton>
-        <LoginButton mode="modal" asChild userType="PROVIDER">
-          <Button variant="ghost" size="sm">
-            Provider
-          </Button>
-        </LoginButton>
-        {/* {!isLoaded && <Spinner />} */}
+        {(!user || session.status === "unauthenticated") && (
+          <>
+            <LoginButton mode="modal" asChild userType="PATIENT">
+              <Button variant="ghost" size="sm">
+                Patient
+              </Button>
+            </LoginButton>
+            <LoginButton mode="modal" asChild userType="PROVIDER">
+              <Button variant="ghost" size="sm">
+                Provider
+              </Button>
+            </LoginButton>
+          </>
+        )}
+        {session.status === "loading" && <Spinner />}
+        {user && session.status === "authenticated" && <>{redirect(`/${user.userType.toLowerCase()}-home`)}</>}
         {/* {!isSignedIn && isLoaded && (
           <>
             <LoginButton asChild>

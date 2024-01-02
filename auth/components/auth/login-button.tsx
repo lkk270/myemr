@@ -28,8 +28,8 @@ export const LoginButton = ({ children, mode = "redirect", asChild, userType }: 
     return (
       <Dialog>
         <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
-        <DialogContent className="p-0 w-auto bg-transparent border-none">
-          <LoginForm userType={userType} />
+        <DialogContent className="p-0 bg-transparent border-none">
+          <LoginForm cardClassName="w-full" userType={userType} />
         </DialogContent>
       </Dialog>
     );

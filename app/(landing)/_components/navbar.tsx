@@ -30,9 +30,14 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
     >
       <Logo />
       <div className="ml-auto justify-end w-full flex items-center gap-x-2">
-        <LoginButton asChild userType="PATIENT">
-          <Button variant="secondary" size="lg">
-            Sign in
+        <LoginButton mode="modal" asChild userType="PATIENT">
+          <Button variant="ghost" size="sm">
+            Patient
+          </Button>
+        </LoginButton>
+        <LoginButton mode="modal" asChild userType="PROVIDER">
+          <Button variant="ghost" size="sm">
+            Provider
           </Button>
         </LoginButton>
         {/* {!isLoaded && <Spinner />} */}

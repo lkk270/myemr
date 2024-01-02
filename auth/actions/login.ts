@@ -85,8 +85,11 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
       email,
       password,
       userType,
-      redirectTo:
-        callbackUrl || userType === UserType.PATIENT ? PATIENT_DEFAULT_LOGIN_REDIRECT : PROVIDER_DEFAULT_LOGIN_REDIRECT,
+      redirectTo: callbackUrl
+        ? callbackUrl
+        : userType === UserType.PATIENT
+        ? PATIENT_DEFAULT_LOGIN_REDIRECT
+        : PROVIDER_DEFAULT_LOGIN_REDIRECT,
     });
   } catch (error) {
     if (error instanceof AuthError) {

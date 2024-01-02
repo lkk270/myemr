@@ -93,3 +93,5 @@ export const {
   session: { strategy: "jwt", maxAge: 2 * 24 * 60 * 60 },
   ...authConfig,
 });
+
+export const auth2 = auth;

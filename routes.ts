@@ -7,7 +7,7 @@ export const publicRoutes = ["/", "/auth/patient-new-verification", "/auth/provi
 
 /**
  * An array of routes that are used for authentication
- * These routes will redirect logged in users to /home
+ * These routes will redirect logged in users to their respective home page
  * @type {string[]}
  */
 export const authRoutes = [
@@ -21,6 +21,26 @@ export const authRoutes = [
   "/auth/patient-new-password",
   "/auth/provider-new-password",
 ];
+
+/**
+ * An array of routes that are patient specific
+ * @type {string[]}
+ */
+export const patientRoutes = [
+  "/patient-home",
+  "/files",
+  "/about",
+  "/meds",
+  "/notes",
+  "/providers",
+  "/patient-settings",
+];
+
+/**
+ * An array of routes that are provider specific
+ * @type {string[]}
+ */
+export const providerRoutes = ["/provider-home", "/patients", "/provider-settings", "/organization"];
 
 /**
  * The prefix for API authentication routes

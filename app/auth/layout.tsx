@@ -1,7 +1,9 @@
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#4f5eff] to-violet-400">
-      {children}
+    <div className="flex overflow-auto h-screen">
+      <main className="flex-1 flex sm:items-center pt-16 sm:pt-0 justify-center p-4" style={{ minHeight: "100vh" }}>
+        <div className="overflow-y-auto max-h-full w-full max-w-[400px]">{children}</div>
+      </main>
     </div>
   );
 };

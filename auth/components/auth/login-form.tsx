@@ -19,10 +19,9 @@ import { UserType } from "@prisma/client";
 
 interface LoginFormProps {
   userType: UserType;
-  cardClassName?: string;
 }
 
-export const LoginForm = ({ userType, cardClassName }: LoginFormProps) => {
+export const LoginForm = ({ userType }: LoginFormProps) => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const urlError =
@@ -73,7 +72,6 @@ export const LoginForm = ({ userType, cardClassName }: LoginFormProps) => {
       backButtonLabel="Don't have an account?"
       backButtonHref="/auth/patient-register"
       showSocial
-      className={cardClassName}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

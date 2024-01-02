@@ -51,7 +51,7 @@ export const RegisterForm = ({ userType }: RegisterFormProps) => {
     <CardWrapper
       headerLabel="Create an account"
       backButtonLabel="Already have an account?"
-      backButtonHref="/auth/patient-login"
+      backButtonHref={userType === UserType.PATIENT ? "/auth/patient-login" : "/auth/provider-login"}
       showSocial
     >
       <Form {...form}>

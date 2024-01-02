@@ -70,7 +70,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
     <CardWrapper
       headerLabel="Welcome back"
       backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/patient-register"
+      backButtonHref={userType === UserType.PATIENT ? "/auth/patient-register" : "/auth/provider-register"}
       showSocial
     >
       <Form {...form}>

@@ -23,6 +23,8 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
 
   const { email, password, userType, code } = validatedFields.data;
 
+  console.log("FROM 26 userType", userType);
+
   const existingUser = await getUserByEmail(email || "", values.userType);
 
   if (!existingUser || !existingUser.email || !existingUser.password) {

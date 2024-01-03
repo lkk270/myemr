@@ -50,7 +50,7 @@ export default auth(async (req) => {
 
     const encodedCallbackUrl = encodeURIComponent(callbackUrl);
     //TODO change to base-login
-    return Response.redirect(new URL(`/auth/patient-login?callbackUrl=${encodedCallbackUrl}`, nextUrl));
+    return Response.redirect(new URL(`/auth/base-login?callbackUrl=${encodedCallbackUrl}`, nextUrl));
   }
   if (isPatientRoute && isLoggedIn && user?.userType !== UserType.PATIENT) {
     return Response.redirect(new URL(redirectUrl, nextUrl));

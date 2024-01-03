@@ -16,8 +16,8 @@ export const {
   update,
 } = NextAuth({
   pages: {
-    signIn: "/auth/patient-login",
-    error: "/auth/error",
+    signIn: "/auth/base-login", //something goes wrong it redirects to this page
+    error: "/auth/error", //if something else goes wrong it redirects to this page
   },
   events: {
     async linkAccount({ user }) {

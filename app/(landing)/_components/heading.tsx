@@ -42,10 +42,8 @@ export const Heading = () => {
         {session.status === "authenticated" && user && (
           <Button asChild>
             <Link href={`/${user.userType.toLowerCase()}-home`}>
-              <a>
-                Enter Emridoc
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </a>
+              Enter Emridoc
+              <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>
         )}

@@ -134,7 +134,7 @@ export const BaseLoginForm = () => {
                         <Input {...field} disabled={isPending} placeholder="******" type="password" />
                       </FormControl>
                       <Button size="sm" variant="link" asChild className="px-0 font-normal">
-                        <Link href="/auth/reset">Forgot password?</Link>
+                        <Link href={`/auth/${watchedUserType.toLowerCase()}-reset`}>Forgot password?</Link>
                       </Button>
                       <FormMessage />
                     </FormItem>

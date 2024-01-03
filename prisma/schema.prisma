@@ -352,30 +352,33 @@ model Account {
 }
 
 model VerificationToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+  id       String   @id @default(cuid())
+  email    String
+  userType UserType
+  token    String   @unique
+  expires  DateTime
 
-  @@unique([email, token])
+  @@unique([email, token, userType])
 }
 
 model PasswordResetToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+  id       String   @id @default(cuid())
+  email    String
+  userType UserType
+  token    String   @unique
+  expires  DateTime
 
-  @@unique([email, token])
+  @@unique([email, token, userType])
 }
 
 model TwoFactorToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+  id       String   @id @default(cuid())
+  email    String
+  userType UserType
+  token    String   @unique
+  expires  DateTime
 
-  @@unique([email, token])
+  @@unique([email, token, userType])
 }
 
 model TwoFactorConfirmation {

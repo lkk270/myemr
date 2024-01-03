@@ -3,7 +3,7 @@ import { UserType } from "@prisma/client";
 
 export const getUserByEmail = async (email: string, type: UserType) => {
   try {
-    const user = await prismadb.user.findFirst({ where: { email, type } });
+    const user = await prismadb.user.findFirst({ where: { email: email.toLowerCase(), type } });
     return user;
   } catch {
     return null;

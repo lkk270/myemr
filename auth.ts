@@ -42,7 +42,7 @@ export const {
           await prismadb.$transaction([
             prismadb.user.create({
               data: {
-                email: user.email,
+                email: user.email?.toLowerCase(),
                 emailVerified: new Date(),
                 type: "PATIENT",
                 role: "ADMIN",

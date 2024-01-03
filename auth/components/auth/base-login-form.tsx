@@ -17,7 +17,6 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/auth/actions/login";
 import { UserType } from "@prisma/client";
-import { User } from "lucide-react";
 
 export const BaseLoginForm = () => {
   const searchParams = useSearchParams();

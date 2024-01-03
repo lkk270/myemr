@@ -51,7 +51,7 @@ export const NewPasswordForm = ({ userType }: NewPasswordFormProps) => {
     <CardWrapper
       headerLabel="Enter a new password"
       backButtonLabel="Back to login"
-      backButtonHref="/auth/patient-login"
+      backButtonHref={`/auth/${userType.toLocaleLowerCase()}-login`}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

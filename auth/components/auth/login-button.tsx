@@ -17,11 +17,7 @@ export const LoginButton = ({ children, mode = "redirect", asChild, userType }: 
   const router = useRouter();
 
   const onClick = () => {
-    if (userType === UserType.PATIENT) {
-      router.push("/auth/patient-login");
-    } else {
-      router.push("/auth/provider-login");
-    }
+    router.push(`/auth/${userType.toLocaleLowerCase()}-login`);
   };
 
   if (mode === "modal") {

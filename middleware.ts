@@ -18,7 +18,7 @@ export default auth(async (req) => {
   const { nextUrl } = req;
 
   const isLoggedIn = !!req.auth;
-
+  console.log("isLoggedIn", isLoggedIn);
   const session = await auth2();
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
@@ -27,13 +27,14 @@ export default auth(async (req) => {
   const isPatientRoute = patientRoutes.includes(nextUrl.pathname);
   const isProviderRoute = providerRoutes.includes(nextUrl.pathname);
 
-  if (isApiAuthRoute || !session || !session.user.userType) {
+  if (isApiAuthRoute) {
     return null;
   }
-  const user = session.user;
+
+  const user = session?.user;
 
   const redirectUrl =
-    user.userType === UserType.PATIENT ? PATIENT_DEFAULT_LOGIN_REDIRECT : PROVIDER_DEFAULT_LOGIN_REDIRECT;
+    user?.userType === UserType.PATIENT ? PATIENT_DEFAULT_LOGIN_REDIRECT : PROVIDER_DEFAULT_LOGIN_REDIRECT;
   if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(redirectUrl, nextUrl));
@@ -51,10 +52,10 @@ export default auth(async (req) => {
     //TODO change to base-login
     return Response.redirect(new URL(`/auth/patient-login?callbackUrl=${encodedCallbackUrl}`, nextUrl));
   }
-  if (isPatientRoute && isLoggedIn && user.userType !== UserType.PATIENT) {
+  if (isPatientRoute && isLoggedIn && user?.userType !== UserType.PATIENT) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
-  if (isProviderRoute && isLoggedIn && user.userType !== UserType.PROVIDER) {
+  if (isProviderRoute && isLoggedIn && user?.userType !== UserType.PROVIDER) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
 

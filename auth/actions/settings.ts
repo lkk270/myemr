@@ -38,8 +38,8 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
       return { error: "Email already in use!" };
     }
 
-    const verificationToken = await generateVerificationToken(values.email);
-    await sendVerificationEmail(verificationToken.email, verificationToken.token);
+    const verificationToken = await generateVerificationToken(values.email, values.userType);
+    await sendVerificationEmail(verificationToken.email, verificationToken.token, values.userType);
 
     return { success: "Verification email sent!" };
   }

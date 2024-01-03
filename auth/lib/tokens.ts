@@ -5,12 +5,13 @@ import prismadb from "@/lib/prismadb";
 import { getVerificationTokenByEmail } from "../data/verificiation-token";
 import { getPasswordResetTokenByEmail } from "../data/password-reset-token";
 import { getTwoFactorTokenByEmail } from "../data/two-factor-token";
+import { UserType } from "@prisma/client";
 
-export const generateTwoFactorToken = async (email: string) => {
+export const generateTwoFactorToken = async (email: string, userType: UserType) => {
   const token = crypto.randomInt(100_000, 1_000_000).toString();
   const expires = new Date(new Date().getTime() + 5 * 60 * 1000);
 
-  const existingToken = await getTwoFactorTokenByEmail(email);
+  const existingToken = await getTwoFactorTokenByEmail(email, userType);
 
   if (existingToken) {
     await prismadb.twoFactorToken.delete({
@@ -22,7 +23,8 @@ export const generateTwoFactorToken = async (email: string) => {
 
   const twoFactorToken = await prismadb.twoFactorToken.create({
     data: {
-      email,
+      userType,
+      email: email.toLowerCase(),
       token,
       expires,
     },
@@ -31,11 +33,11 @@ export const generateTwoFactorToken = async (email: string) => {
   return twoFactorToken;
 };
 
-export const generatePasswordResetToken = async (email: string) => {
+export const generatePasswordResetToken = async (email: string, userType: UserType) => {
   const token = uuidv4();
   const expires = new Date(new Date().getTime() + 3600 * 1000);
 
-  const existingToken = await getPasswordResetTokenByEmail(email);
+  const existingToken = await getPasswordResetTokenByEmail(email, userType);
 
   if (existingToken) {
     await prismadb.passwordResetToken.delete({
@@ -45,7 +47,8 @@ export const generatePasswordResetToken = async (email: string) => {
 
   const passwordResetToken = await prismadb.passwordResetToken.create({
     data: {
-      email,
+      userType,
+      email: email.toLowerCase(),
       token,
       expires,
     },
@@ -54,11 +57,11 @@ export const generatePasswordResetToken = async (email: string) => {
   return passwordResetToken;
 };
 
-export const generateVerificationToken = async (email: string) => {
+export const generateVerificationToken = async (email: string, userType: UserType) => {
   const token = uuidv4();
   const expires = new Date(new Date().getTime() + 3600 * 1000);
 
-  const existingToken = await getVerificationTokenByEmail(email);
+  const existingToken = await getVerificationTokenByEmail(email, userType);
 
   if (existingToken) {
     await prismadb.verificationToken.delete({
@@ -70,7 +73,8 @@ export const generateVerificationToken = async (email: string) => {
 
   const verificationToken = await prismadb.verificationToken.create({
     data: {
-      email,
+      userType,
+      email: email.toLowerCase(),
       token,
       expires,
     },

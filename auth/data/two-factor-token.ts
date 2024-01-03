@@ -1,4 +1,5 @@
 import prismadb from "@/lib/prismadb";
+import { UserType } from "@prisma/client";
 
 export const getTwoFactorTokenByToken = async (token: string) => {
   try {
@@ -12,10 +13,10 @@ export const getTwoFactorTokenByToken = async (token: string) => {
   }
 };
 
-export const getTwoFactorTokenByEmail = async (email: string) => {
+export const getTwoFactorTokenByEmail = async (email: string, userType: UserType) => {
   try {
     const twoFactorToken = await prismadb.twoFactorToken.findFirst({
-      where: { email },
+      where: { email, userType },
     });
 
     return twoFactorToken;

@@ -28,21 +28,21 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
   if (!existingUser || !existingUser.email) {
     return { error: "Email does not exist!" };
   }
-  console.log(existingUser);
+
   if (password && existingUser && !existingUser.password && existingUser.accountType === AccountType.OAUTH) {
     return { error: "Email is already being used through Google Sign in!" };
   }
   if (!existingUser.emailVerified) {
-    const verificationToken = await generateVerificationToken(existingUser.email);
+    const verificationToken = await generateVerificationToken(existingUser.email, userType);
 
-    await sendVerificationEmail(verificationToken.email, verificationToken.token);
+    await sendVerificationEmail(verificationToken.email, verificationToken.token, userType);
 
     return { success: "Confirmation email sent!" };
   }
 
   if (existingUser.isTwoFactorEnabled && existingUser.email) {
     if (code) {
-      const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
+      const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email, userType);
 
       if (!twoFactorToken) {
         return { error: "Invalid code!" };
@@ -76,7 +76,7 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
         },
       });
     } else {
-      const twoFactorToken = await generateTwoFactorToken(existingUser.email);
+      const twoFactorToken = await generateTwoFactorToken(existingUser.email, userType);
       await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
 
       return { twoFactor: true };

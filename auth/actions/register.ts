@@ -41,7 +41,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     await prismadb.$transaction([
       prismadb.user.create({
         data: {
-          email,
+          email: email.toLowerCase(),
           password: hashedPassword,
           type: "PATIENT",
           role: "ADMIN",
@@ -87,7 +87,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     await prismadb.$transaction([
       prismadb.user.create({
         data: {
-          email,
+          email: email.toLowerCase(),
           password: hashedPassword,
           type: "PROVIDER",
           providerProfile: {
@@ -104,8 +104,8 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     ]);
   }
 
-  const verificationToken = await generateVerificationToken(email);
-  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  const verificationToken = await generateVerificationToken(email, userType);
+  await sendVerificationEmail(verificationToken.email, verificationToken.token, userType);
 
   return { success: "Confirmation email sent!" };
 };

@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { UserRole } from "@prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
+import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "@/lib/encryption";
 import prismadb from "@/lib/prismadb";
 import authConfig from "./auth.config";
 import { getUserById } from "@/auth/data/user";
@@ -30,22 +31,74 @@ export const {
   callbacks: {
     async signIn({ user, account }) {
       // Allow OAuth without email verification
-      if (account?.provider !== "credentials") return true;
+      if (account?.provider === "google") {
+        const existingUser = await getUserById(user.id);
+        if (!existingUser) {
+          const { publicKey, privateKey } = generateAsymmetricKeyPairs();
+          const symmetricKey = generateSymmetricKey();
+          console.log(user);
+          console.log(account);
+          console.log("HULLO");
+          const safeName = (user.name + " ").split(" ");
+          const email = user.email;
+          if (!email) return false;
+          await prismadb.$transaction([
+            prismadb.user.create({
+              data: {
+                email: user.email,
+                emailVerified: new Date(),
+                type: "PATIENT",
+                role: "ADMIN",
+                image: user.image,
+                patientProfile: {
+                  create: {
+                    firstName: encryptPatientRecord(safeName[0], symmetricKey),
+                    lastName: encryptPatientRecord(safeName[1], symmetricKey),
+                    email: encryptPatientRecord(email, symmetricKey),
+                    publicKey: encryptKey(publicKey, "patientPublicKey"),
+                    privateKey: encryptKey(privateKey, "patientPrivateKey"),
+                    symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
+                  },
+                },
+                accounts: {
+                  createMany: {
+                    data: [
+                      {
+                        type: account.type,
+                        provider: account.provider,
+                        providerAccountId: account.providerAccountId,
+                        refresh_token: account.refresh_token,
+                        access_token: account.access_token,
+                        expires_at: account.expires_at,
+                        token_type: account.token_type,
+                        scope: account.scope,
+                        id_token: account.id_token,
+                      },
+                    ],
+                  },
+                },
+              },
+            }),
+          ]);
+        }
+      }
+      // if (account?.provider !== "credentials") return true;
+      else {
+        const existingUser = await getUserById(user.id);
 
-      const existingUser = await getUserById(user.id);
+        // Prevent sign in without email verification
+        if (!existingUser?.emailVerified) return false;
 
-      // Prevent sign in without email verification
-      if (!existingUser?.emailVerified) return false;
+        if (existingUser.isTwoFactorEnabled) {
+          const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
 
-      if (existingUser.isTwoFactorEnabled) {
-        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
+          if (!twoFactorConfirmation) return false;
 
-        if (!twoFactorConfirmation) return false;
-
-        // Delete two factor confirmation for next sign in
-        await prismadb.twoFactorConfirmation.delete({
-          where: { id: twoFactorConfirmation.id },
-        });
+          // Delete two factor confirmation for next sign in
+          await prismadb.twoFactorConfirmation.delete({
+            where: { id: twoFactorConfirmation.id },
+          });
+        }
       }
 
       return true;

@@ -5,12 +5,24 @@ import Google from "next-auth/providers/google";
 
 import { LoginSchema } from "@/auth/schemas";
 import { getUserByEmail } from "@/auth/data/user";
+import GoogleProvider from "@auth/core/providers/google";
 
 export default {
   providers: [
-    Google({
+    // Google({
+    //   clientId: process.env.GOOGLE_CLIENT_ID,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    // }),
+
+    GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      // async profile(profile) {
+      //   return {
+      //     userId: profile.id,
+      //     email: profile.email,
+      //   };
+      // },
     }),
 
     Credentials({

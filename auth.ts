@@ -36,9 +36,6 @@ export const {
         if (!existingUser) {
           const { publicKey, privateKey } = generateAsymmetricKeyPairs();
           const symmetricKey = generateSymmetricKey();
-          console.log(user);
-          console.log(account);
-          console.log("HULLO");
           const safeName = (user.name + " ").split(" ");
           const email = user.email;
           if (!email) return false;
@@ -141,6 +138,7 @@ export const {
 
       return token;
     },
+    // async signOut() {},
   },
   adapter: PrismaAdapter(prismadb),
   session: { strategy: "jwt", maxAge: 2 * 24 * 60 * 60 },

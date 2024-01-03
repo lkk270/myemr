@@ -11,6 +11,7 @@ export const publicRoutes = ["/", "/auth/patient-new-verification", "/auth/provi
  * @type {string[]}
  */
 export const authRoutes = [
+  "/auth/base-login",
   "/auth/patient-login",
   "/auth/provider-login",
   "/auth/patient-register",

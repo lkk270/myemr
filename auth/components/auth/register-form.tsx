@@ -52,7 +52,7 @@ export const RegisterForm = ({ userType }: RegisterFormProps) => {
       headerLabel="Create an account"
       backButtonLabel="Already have an account?"
       backButtonHref={`/auth/${userType.toLocaleLowerCase()}-login`}
-      showSocial
+      // showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

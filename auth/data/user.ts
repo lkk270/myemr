@@ -12,7 +12,7 @@ export const getUserByEmail = async (email: string, type: UserType) => {
 
 export const getUserById = async (id: string) => {
   try {
-    const user = await prismadb.user.findUnique({ where: { id } });
+    const user = await prismadb.user.findFirst({ where: { id } });
     return user;
   } catch (error) {
     return null;

@@ -10,14 +10,16 @@ import { PATIENT_DEFAULT_LOGIN_REDIRECT, PROVIDER_DEFAULT_LOGIN_REDIRECT } from 
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { UserType } from "@prisma/client";
 
-export const Social = () => {
-  const user = useCurrentUser();
-  const userType = user?.userType || "PATIENT";
+interface SocialProps {
+  userType: UserType;
+}
+export const Social = ({ userType }: SocialProps) => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const redirectUrl = userType === UserType.PATIENT ? PATIENT_DEFAULT_LOGIN_REDIRECT : PROVIDER_DEFAULT_LOGIN_REDIRECT;
   const onClick = (provider: "google") => {
     signIn(provider, {
+      type: userType,
       callbackUrl: callbackUrl || redirectUrl,
     });
   };

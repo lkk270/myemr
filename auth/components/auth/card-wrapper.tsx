@@ -5,6 +5,7 @@ import { Header } from "./header";
 import { Social } from "./social";
 import { BackButton } from "./back-button";
 import { cn } from "@/lib/utils";
+import { UserType } from "@prisma/client";
 interface CardWrapperProps {
   children: React.ReactNode;
   headerLabel: string;
@@ -32,11 +33,11 @@ export const CardWrapper = ({
             <span className="flex-grow border-t border-primary/5"></span>
             <span style={{ color: "#4b59f0" }} className="mx-2 text-sm">
               or
-            </span>{" "}
+            </span>
             {/* Updated color class here */}
             <span className="flex-grow border-t border-primary/5"></span>
           </div>
-          <Social />
+          <Social userType={backButtonHref.includes("patient") ? UserType.PATIENT : UserType.PROVIDER} />
         </CardFooter>
       )}
       <CardFooter>

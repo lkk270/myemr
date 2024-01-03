@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { BeatLoader } from "react-spinners";
 import { useSearchParams } from "next/navigation";
 
@@ -17,7 +17,7 @@ interface NewVerificationFormProps {
 export const NewVerificationForm = ({ userType }: NewVerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-
+  const useEffectCalled = useRef(false);
   const searchParams = useSearchParams();
 
   const token = searchParams.get("token");
@@ -41,19 +41,22 @@ export const NewVerificationForm = ({ userType }: NewVerificationFormProps) => {
   }, [token, success, error]);
 
   useEffect(() => {
-    onSubmit();
+    if (!useEffectCalled.current) {
+      useEffectCalled.current = true;
+      onSubmit();
+    }
   }, [onSubmit]);
 
   return (
     <CardWrapper
       headerLabel="Confirming your verification"
       backButtonLabel="Back to login"
-      backButtonHref="/auth/login"
+      backButtonHref={`/auth/${userType.toLowerCase()}-login`}
     >
       <div className="flex items-center w-full justify-center">
         {!success && !error && <BeatLoader />}
-        <FormSuccess message={success} />
-        {!success && <FormError message={error} />}
+        {success && <FormSuccess message={success} />}
+        {!success && error && <FormError message={error} />}
       </div>
     </CardWrapper>
   );

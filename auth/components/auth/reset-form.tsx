@@ -48,7 +48,7 @@ export const ResetForm = ({ userType }: ResetFormProps) => {
     <CardWrapper
       headerLabel="Forgot your password?"
       backButtonLabel="Back to login"
-      backButtonHref="/auth/patient-login"
+      backButtonHref={`/auth/${userType.toLocaleLowerCase()}-login`}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

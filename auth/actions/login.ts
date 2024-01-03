@@ -12,7 +12,7 @@ import { sendVerificationEmail, sendTwoFactorTokenEmail } from "@/auth/lib/mail"
 import { PATIENT_DEFAULT_LOGIN_REDIRECT, PROVIDER_DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { generateVerificationToken, generateTwoFactorToken } from "@/auth/lib/tokens";
 import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";
-import { UserType } from "@prisma/client";
+import { AccountType, UserType } from "@prisma/client";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -25,10 +25,13 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
 
   const existingUser = await getUserByEmail(email || "", values.userType);
 
-  if (!existingUser || !existingUser.email || !existingUser.password) {
+  if (!existingUser || !existingUser.email) {
     return { error: "Email does not exist!" };
   }
-
+  console.log(existingUser);
+  if (password && existingUser && !existingUser.password && existingUser.accountType === AccountType.OAUTH) {
+    return { error: "Email is already being used through Google Sign in!" };
+  }
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
 

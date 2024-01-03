@@ -8,7 +8,7 @@ import { RegisterSchema } from "@/auth/schemas";
 import { getUserByEmail } from "@/auth/data/user";
 import { sendVerificationEmail } from "@/auth/lib/mail";
 import { generateVerificationToken } from "@/auth/lib/tokens";
-import { UserType } from "@prisma/client";
+import { AccountType, UserType } from "@prisma/client";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);
@@ -45,6 +45,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
           password: hashedPassword,
           type: "PATIENT",
           role: "ADMIN",
+          accountType: AccountType.CREDENTIALS,
           patientProfile: {
             create: {
               firstName: encryptPatientRecord(firstName, symmetricKey),

@@ -25,7 +25,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked" ? "Email already in use with different provider!" : "";
+    searchParams.get("error") === "OAuthAccountNotLinked" ? "Email is already being used through Google Sign in!" : "";
 
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [error, setError] = useState<string | undefined>("");
@@ -71,7 +71,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
       headerLabel="Welcome back"
       backButtonLabel="Don't have an account?"
       backButtonHref={userType === UserType.PATIENT ? "/auth/patient-register" : "/auth/provider-register"}
-      // showSocial
+      showSocial={userType === UserType.PATIENT}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

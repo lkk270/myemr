@@ -51,6 +51,11 @@ enum UserType {
   PATIENT
 }
 
+enum AccountType {
+  OAUTH
+  CREDENTIALS
+}
+
 model PatientAddress {
   id       String  @id @default(uuid())
   address  String
@@ -258,6 +263,7 @@ model User {
   type            UserType         @default(PATIENT)
   patientProfile  PatientProfile?
   providerProfile ProviderProfile?
+  accountType     AccountType      @default(OAUTH)
 
   accounts                Account[]
   isTwoFactorEnabled      Boolean                @default(false)

@@ -71,7 +71,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
       headerLabel="Welcome back"
       backButtonLabel="Don't have an account?"
       backButtonHref={userType === UserType.PATIENT ? "/auth/patient-register" : "/auth/provider-register"}
-      showSocial
+      // showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

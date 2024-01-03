@@ -249,10 +249,11 @@ model Member {
 
 model User {
   id              String           @id @default(cuid())
-  password        String?
-  email           String
+  name            String?
+  email           String?
   emailVerified   DateTime?
   image           String?
+  password        String?
   role            UserRole         @default(USER)
   type            UserType         @default(PATIENT)
   patientProfile  PatientProfile?
@@ -260,14 +261,14 @@ model User {
 
   accounts                Account[]
   isTwoFactorEnabled      Boolean                @default(false)
-  twoFactorConfirmationId String?
   twoFactorConfirmation   TwoFactorConfirmation?
+  twoFactorConfirmationId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // @@index([twoFactorConfirmationId])
 
-  @@unique([email, role, type])
-  @@index([twoFactorConfirmationId])
+  @@unique([email, type])
 }
 
 model PatientProfile {
@@ -325,19 +326,22 @@ model ProviderProfile {
 }
 
 model Account {
-  id            String  @id @default(cuid())
-  userId        String
-  type          String
-  provider      String
-  refresh_token String? @db.Text
-  access_token  String? @db.Text
-  expires_at    Int?
-  token_type    String?
-  scope         String?
-  id_token      String? @db.Text
-  session_state String?
-  user          User    @relation(fields: [userId], references: [id])
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
   @@index([userId])
 }
 

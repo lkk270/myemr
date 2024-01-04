@@ -22,7 +22,8 @@ const customDragPreview = (
   allSelectedHaveSameParent: boolean,
   setAllSelectedHaveSameParent: Function,
 ) => {
-  if (!tree.initialData && !isDragging) {
+  const selectedIds = Array.from(tree.selectedIds);
+  if (!tree.initialData && selectedIds.length === 0 && !id) {
     return null;
   }
   if (!isDragging || !mouse || !tree) {
@@ -32,8 +33,6 @@ const customDragPreview = (
   if (!allSelectedHaveSameParent) {
     return null;
   }
-
-  const selectedIds = Array.from(tree.selectedIds);
 
   // Set a flag in the tree instance to use later in disableDrag
 

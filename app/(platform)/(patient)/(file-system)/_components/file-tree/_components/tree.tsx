@@ -22,6 +22,9 @@ const customDragPreview = (
   allSelectedHaveSameParent: boolean,
   setAllSelectedHaveSameParent: Function,
 ) => {
+  if (!tree.initialData) {
+    return null;
+  }
   if (!isDragging || !mouse || !tree) {
     setAllSelectedHaveSameParent(true);
     return null;

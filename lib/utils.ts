@@ -182,8 +182,11 @@ export function checkForInvalidNewMedication(data: NewMedicationType | null) {
   if (typeof data.prescribedById === "string" && (!data.prescribedById || !data.prescribedByName)) {
     return "Invalid prescriber";
   }
-  if (isNaN(parseFloat(data.dosage))) {
-    return "Invalid dosage";
+  if (typeof data.dosage === "string") {
+    const dosageNum = parseFloat(data.dosage);
+    if (isNaN(dosageNum) || dosageNum <= 0) {
+      return "Invalid dosage";
+    }
   }
   if (!isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
     return "Invalid dosage frequency";
@@ -215,8 +218,12 @@ export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>
   if (data.status && data.status !== "active" && data.status !== "inactive") {
     return "Invalid status";
   }
-  if (data.dosage && isNaN(parseFloat(data.dosage))) {
-    return "Invalid dosage";
+
+  if (typeof data.dosage === "string") {
+    const dosageNum = parseFloat(data.dosage);
+    if (isNaN(dosageNum) || dosageNum <= 0) {
+      return "Invalid dosage";
+    }
   }
   if (data.frequency && !isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
     return "Invalid dosage frequency";

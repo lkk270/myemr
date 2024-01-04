@@ -233,3 +233,8 @@ export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>
   }
   return checkForExtraneousFields(Object.keys(data), Object.keys(allowedFields));
 }
+
+export function capitalizeFirstLetter(str: string) {
+  if (!str) return str; // Return the original string if it's empty
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}

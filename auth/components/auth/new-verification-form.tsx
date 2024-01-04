@@ -54,7 +54,7 @@ export const NewVerificationForm = ({ userType }: NewVerificationFormProps) => {
       backButtonHref={`/auth/${userType.toLowerCase()}-login`}
     >
       <div className="flex items-center w-full justify-center">
-        {!success && !error && <BeatLoader />}
+        {!success && !error && <BeatLoader color="#4b59f0" />}
         {success && <FormSuccess message={success} />}
         {!success && error && <FormError message={error} />}
       </div>

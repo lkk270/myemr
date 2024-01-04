@@ -8,6 +8,7 @@ import { navRoutes } from "@/lib/constants";
 
 import { usePathname, useRouter } from "next/navigation";
 import { UserButton } from "@/auth/components/auth/user-button";
+import { useLoading } from "@/hooks/use-loading";
 // import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {}
@@ -15,8 +16,10 @@ interface NavbarProps {}
 export const Navbar = ({}: NavbarProps) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { showLoading } = useLoading();
 
   const onNavigate = (url: string) => {
+    showLoading();
     return router.push(url);
   };
 

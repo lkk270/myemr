@@ -17,6 +17,7 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/auth/actions/login";
 import { UserType } from "@prisma/client";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 export const BaseLoginForm = () => {
   const searchParams = useSearchParams();
@@ -73,7 +74,7 @@ export const BaseLoginForm = () => {
 
   return (
     <CardWrapper
-      headerLabel="Welcome back"
+      headerLabel={`Welcome Back ${capitalizeFirstLetter(watchedUserType)}`}
       backButtonLabel="Don't have an account?"
       backButtonHref={watchedUserType === UserType.PATIENT ? "/auth/patient-register" : "/auth/provider-register"}
       showSocial={watchedUserType === UserType.PATIENT}

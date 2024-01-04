@@ -14,6 +14,7 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { register } from "@/auth/actions/register";
 import { UserType } from "@prisma/client";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface RegisterFormProps {
   userType: UserType;
@@ -49,7 +50,7 @@ export const RegisterForm = ({ userType }: RegisterFormProps) => {
 
   return (
     <CardWrapper
-      headerLabel="Create an account"
+      headerLabel={`Create a ${capitalizeFirstLetter(userType)} Account`}
       backButtonLabel="Already have an account?"
       backButtonHref={`/auth/${userType.toLocaleLowerCase()}-login`}
       showSocial={userType === UserType.PATIENT}

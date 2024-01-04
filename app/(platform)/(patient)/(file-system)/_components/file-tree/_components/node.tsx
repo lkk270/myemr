@@ -43,10 +43,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const iconColor = node.data.iconColor;
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
-  if (tree.disableDropdown) {
-    console.log("HELLO");
-  }
-  console.log(tree.width);
+  
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);
@@ -146,7 +143,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const handleDragLeave = () => {
     setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
   };
-  console.log(`w-[${(tree.width - 100).toString()}px]`);
+  // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
       <ContextMenu>

@@ -43,7 +43,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const iconColor = node.data.iconColor;
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
-  
+
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);

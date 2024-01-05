@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/navigation-menu";
 
 import { LayoutGrid, LucideIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 interface GenericNavigationMenuProps {
   navRoutes: {
@@ -24,12 +25,7 @@ interface GenericNavigationMenuProps {
 }
 
 export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps) => {
-  const router = useRouter();
   const pathname = usePathname();
-
-  const onNavigate = (url: string) => {
-    return router.push(url);
-  };
 
   return (
     <NavigationMenu>
@@ -41,9 +37,8 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 grid-cols-2 w-[215px]">
               {navRoutes.map((route) => (
-                <div key={route.href}>
+                <Link href={route.href}>
                   <div
-                    onClick={() => onNavigate(route.href)}
                     className={cn(
                       "text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
                       pathname === route.href && "bg-primary/10 text-primary",
@@ -54,7 +49,7 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
                       {route.label}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </ul>
           </NavigationMenuContent>

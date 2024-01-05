@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { AiFillFolder, AiFillFile } from "react-icons/ai";
+import { FaFolder, FaFolderOpen } from "react-icons/fa";
+
 import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
-import { cn } from "@/lib/utils";
+import { cn, getFileIcon } from "@/lib/utils";
+
 // Assuming a Node type is defined somewhere
 // If not, you'll need to define it accordingly
 import {
   ContextMenu,
-  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuLabel,
-  ContextMenuRadioGroup,
-  ContextMenuRadioItem,
-  ContextMenuSeparator,
   ContextMenuShortcut,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
@@ -38,8 +32,10 @@ type NodeProps = {
   tree: any; // Replace 'any' with the appropriate type
 };
 
+const iconSize = "15px";
+const folderColor = "#4f5eff";
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
-  const CustomIcon = node.data.icon;
+  const CustomIcon = node.data.isFile ? getFileIcon(node.data.name) : FaFolderOpen;
   const iconColor = node.data.iconColor;
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
@@ -151,7 +147,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           className={cn(
             "p-2 flex items-center h-full node-container hover:bg-primary/10 rounded-sm",
             // `max-w-[${(tree.width - 100).toString()}px]`,
-            node.state.isSelected && !node.state.isDragging && !node.isEditing && !draggedNode.id && "bg-primary/10",
+            node.state.isSelected &&
+              !node.state.isDragging &&
+              !node.isEditing &&
+              !draggedNode.id &&
+              "bg-primary/10 py-[7.5px]",
             // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
             draggedNode.id &&
@@ -159,7 +159,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               // node.id !== draggedNode.id &&
               // node.id !== draggedNode.parentId &&
               isBackgroundChanged4 &&
-              "bg-primary/10 rounded-none",
+              "bg-primary/10 rounded-none py-[7.5px]",
             // node.id.includes(draggedNode.parentId) &&
             //   node.id !== draggedNode.id &&
             //   node.id !== draggedNode.parentId &&
@@ -184,16 +184,22 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           >
             {node.isLeaf ? (
               <>
-                <span className="w-5 flex-shrink-0"></span>
-                <span className="mr-2 flex items-center flex-shrink-0">
-                  {CustomIcon ? <CustomIcon color={iconColor || "#6bc7f6"} /> : <AiFillFile color="#6bc7f6" />}
+                <span className="w-4 flex-shrink-0"></span>
+                <span className="mr-1 flex items-center flex-shrink-0">
+                  <CustomIcon size={iconSize} />
                 </span>
               </>
             ) : (
               <>
-                <span className="mr-2 flex-shrink-0">{node.isOpen ? <MdArrowDropDown /> : <MdArrowRight />}</span>
-                <span className="mr-2 flex-shrink-0">
-                  {CustomIcon ? <CustomIcon color={iconColor || "#f6cf60"} /> : <AiFillFolder color="#f6cf60" />}
+                <span className="mr-1 flex-shrink-0">
+                  {node.isOpen ? <MdArrowDropDown size={iconSize} /> : <MdArrowRight size={iconSize} />}
+                </span>
+                <span className="mr-1 flex-shrink-0">
+                  {node.isOpen ? (
+                    <FaFolderOpen size={iconSize} color={folderColor} />
+                  ) : (
+                    <FaFolder size={iconSize} color={folderColor} />
+                  )}
                 </span>
               </>
             )}

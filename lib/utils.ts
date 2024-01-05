@@ -7,6 +7,21 @@ export * from "./encryption";
 // export * from "./initial-profile";
 export * from "./request-validation";
 
+import { FaRegFilePowerpoint } from "react-icons/fa";
+import { BiMoviePlay } from "react-icons/bi";
+import {
+  BsFiletypePng,
+  BsFiletypeJpg,
+  BsFiletypeCsv,
+  BsFiletypeMp4,
+  BsFiletypeMp3,
+  BsFiletypeTxt,
+  BsFiletypeDocx,
+  BsFileEarmarkExcel,
+  BsFiletypePdf,
+  BsFileEarmark,
+} from "react-icons/bs";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -237,4 +252,41 @@ export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>
 export function capitalizeFirstLetter(str: string) {
   if (!str) return str; // Return the original string if it's empty
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function getFileIcon(filename: string) {
+  // Provide a fallback ('') for pop() in case the array is empty
+  const extension = filename.split(".").pop()?.toLowerCase() || "";
+
+  switch (extension) {
+    case "doc":
+    case "docx":
+      return BsFiletypeDocx;
+    case "xls":
+    case "xlsx":
+      return BsFileEarmarkExcel;
+    case "ppt":
+    case "pptx":
+    case "pptm":
+      return FaRegFilePowerpoint;
+    case "pdf":
+      return BsFiletypePdf;
+    case "mov":
+      return BiMoviePlay;
+    case "png":
+      return BsFiletypePng;
+    case "jpg":
+    case "jpeg":
+      return BsFiletypeJpg;
+    case "csv":
+      return BsFiletypeCsv;
+    case "mp4":
+      return BsFiletypeMp4;
+    case "mp3":
+      return BsFiletypeMp3;
+    case "txt":
+      return BsFiletypeTxt;
+    default:
+      return BsFileEarmark;
+  }
 }

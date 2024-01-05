@@ -10,7 +10,7 @@ export const data = [
     children: [
       {
         id: "c1-1",
-        name: "index.html",
+        name: "index.docx",
         icon: SiHtml5,
         iconColor: "#dc4a25",
         isFile: true,
@@ -27,7 +27,7 @@ export const data = [
     children: [
       {
         id: "c2-1",
-        name: "App.docx",
+        name: "App.csv",
         icon: SiJavascript,
         iconColor: "#efd81e",
         isFile: true,
@@ -36,7 +36,7 @@ export const data = [
       },
       {
         id: "c2-2",
-        name: "index.pdf",
+        name: "index.png",
         icon: SiJavascript,
         iconColor: "#efd81e",
         isFile: true,
@@ -46,7 +46,7 @@ export const data = [
       {
         id: "c2-3",
         parentId: "2",
-        name: "styles.css",
+        name: "styles.jpg",
         icon: SiCss3,
         iconColor: "#42a5f5",
         isFile: true,
@@ -62,7 +62,7 @@ export const data = [
     children: [
       {
         id: "c3-1",
-        name: "modal.tsx",
+        name: "modal.mp4",
         icon: SiHtml5,
         iconColor: "#dc4a25",
         isFile: true,
@@ -77,7 +77,7 @@ export const data = [
         children: [
           {
             id: "c4-1",
-            name: "home.tsx",
+            name: "home.mp3",
             icon: SiHtml5,
             iconColor: "#dc4a25",
             isFile: true,
@@ -94,7 +94,7 @@ export const data = [
         children: [
           {
             id: "c4-1-1",
-            name: "bottom.tsx",
+            name: "bottom.txt",
             icon: SiHtml5,
             iconColor: "#dc4a25",
             isFile: true,
@@ -109,7 +109,7 @@ export const data = [
             children: [
               {
                 id: "c4-1-1-12",
-                name: "mid-bottom.tsx",
+                name: "mid-bottom.pdf",
                 icon: SiHtml5,
                 iconColor: "#dc4a25",
                 isFile: true,
@@ -118,7 +118,7 @@ export const data = [
               },
               {
                 id: "c4-1-1-13",
-                name: "top-bottom.tsx",
+                name: "top-bottom.mov",
                 icon: SiHtml5,
                 iconColor: "#dc4a25",
                 isFile: true,

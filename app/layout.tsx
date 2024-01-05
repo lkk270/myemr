@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
+import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
@@ -36,6 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <SessionProvider session={session}>
       <html lang="en" suppressHydrationWarning>
         <body className={cn("bg-secondary/20", font.className)}>
+          <NextTopLoader color="#4b59f0" />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -45,7 +47,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             <NewMedicationModal />
             <ViewMedicationModal />
-            <TopLoader />
             <Toaster closeButton position="bottom-right" richColors theme="system" />
 
             {children}

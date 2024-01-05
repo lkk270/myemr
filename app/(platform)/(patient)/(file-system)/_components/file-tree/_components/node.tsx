@@ -35,14 +35,30 @@ type NodeProps = {
 const iconSize = "15px";
 const folderColor = "#4f5eff";
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
-  const CustomIcon = node.data.isFile ? getFileIcon(node.data.name) : FaFolderOpen;
-  const iconColor = node.data.iconColor;
+  const [isMounted, setIsMounted] = useState(false);
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
 
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);
+
+  // useEffect(() => {
+  //   setIsMounted(true);
+  // }, []);
+
+  // if (!isMounted) {
+  //   return null;
+  // }
+
+  useEffect(() => {
+    setIsMounted(true);
+    if (tree && node && node.data.lastOpened === true) {
+      node.open();
+    }
+  }, [tree, node]); // Add dependencies here
+
+  const CustomIcon = node.data.isFile ? getFileIcon(node.data.name) : FaFolderOpen;
 
   let isBackgroundChanged4 = false;
   if (
@@ -142,104 +158,107 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
-      <ContextMenu>
-        <ContextMenuTrigger
-          className={cn(
-            "p-2 flex items-center h-full node-container hover:bg-primary/10 rounded-sm",
-            // `max-w-[${(tree.width - 100).toString()}px]`,
-            node.state.isSelected &&
-              !node.state.isDragging &&
-              !node.isEditing &&
-              !draggedNode.id &&
-              "bg-primary/10 py-[7.5px]",
-            // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
-
-            draggedNode.id &&
-              !contextDisableDrop &&
-              // node.id !== draggedNode.id &&
-              // node.id !== draggedNode.parentId &&
-              isBackgroundChanged4 &&
-              "bg-primary/10 rounded-none py-[7.5px]",
-            // node.id.includes(draggedNode.parentId) &&
-            //   node.id !== draggedNode.id &&
-            //   node.id !== draggedNode.parentId &&
-            //   "bg-blue-300",
-          )}
-          style={style}
-          // style={{ ...style, paddingRight: "20px" }}
-          ref={dragHandle}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          // onDrop={handleDrop}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          {/* Node Content */}
-          <div
+      {isMounted && (
+        <ContextMenu>
+          <ContextMenuTrigger
             className={cn(
-              `min-w-[${(tree.width - 100).toString()}px]`,
-              "truncate flex items-center cursor-pointer text-xs flex-grow",
-            )}
-            onClick={() => node.isInternal && node.toggle()}
-          >
-            {node.isLeaf ? (
-              <>
-                <span className="w-4 flex-shrink-0"></span>
-                <span className="mr-1 flex items-center flex-shrink-0">
-                  <CustomIcon size={iconSize} />
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="mr-1 flex-shrink-0">
-                  {node.isOpen ? <MdArrowDropDown size={iconSize} /> : <MdArrowRight size={iconSize} />}
-                </span>
-                <span className="mr-1 flex-shrink-0">
-                  {node.isOpen ? (
-                    <FaFolderOpen size={iconSize} color={folderColor} />
-                  ) : (
-                    <FaFolder size={iconSize} color={folderColor} />
-                  )}
-                </span>
-              </>
-            )}
-            {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
-             */}
-            <span className={cn("truncate flex-grow", node.data.parentId === "-1" ? "cursor-default" : "cursor-grab")}>
-              {node.isEditing ? (
-                <input
-                  // className="border-black border"
-                  type="text"
-                  defaultValue={node.data.name}
-                  onFocus={(e) => e.currentTarget.select()}
-                  onBlur={(e) => {
-                    if (!contextEditClicked || Date.now() - contextEditClickedTime > 400) {
-                      e.currentTarget.blur();
-                      node.deselect();
-                      node.reset();
-                    } else {
-                      e.currentTarget.select();
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setContextEditClicked(false);
-                      node.reset();
-                    }
-                    if (e.key === "Enter") {
-                      setContextEditClicked(false);
-                      node.submit(e.currentTarget.value);
-                    }
-                  }}
-                  autoFocus
-                />
-              ) : (
-                <span>{node.data.name}</span>
-              )}
-            </span>
+              "p-2 flex items-center h-full node-container hover:bg-primary/10 rounded-sm",
+              // `max-w-[${(tree.width - 100).toString()}px]`,
+              node.state.isSelected &&
+                !node.state.isDragging &&
+                !node.isEditing &&
+                !draggedNode.id &&
+                "bg-primary/10 py-[7.5px]",
+              // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
-            {/* Action Buttons */}
-            {/* <div className="gap-x-2">
+              draggedNode.id &&
+                !contextDisableDrop &&
+                // node.id !== draggedNode.id &&
+                // node.id !== draggedNode.parentId &&
+                isBackgroundChanged4 &&
+                "bg-primary/10 rounded-none py-[7.5px]",
+              // node.id.includes(draggedNode.parentId) &&
+              //   node.id !== draggedNode.id &&
+              //   node.id !== draggedNode.parentId &&
+              //   "bg-blue-300",
+            )}
+            style={style}
+            // style={{ ...style, paddingRight: "20px" }}
+            ref={dragHandle}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            // onDrop={handleDrop}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            {/* Node Content */}
+            <div
+              className={cn(
+                `min-w-[${(tree.width - 100).toString()}px]`,
+                "truncate flex items-center cursor-pointer text-xs flex-grow",
+              )}
+              onClick={() => node.isInternal && node.toggle()}
+            >
+              {node.isLeaf ? (
+                <>
+                  <span className="w-5 flex-shrink-0"></span>
+                  <span className="mr-1 flex items-center flex-shrink-0">
+                    <CustomIcon size={iconSize} />
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="mr-1 flex-shrink-0">
+                    {node.isOpen ? <MdArrowDropDown size={iconSize} /> : <MdArrowRight size={iconSize} />}
+                  </span>
+                  <span className="mr-1 flex-shrink-0">
+                    {node.isOpen ? (
+                      <FaFolderOpen size={iconSize} color={folderColor} />
+                    ) : (
+                      <FaFolder size={iconSize} color={folderColor} />
+                    )}
+                  </span>
+                </>
+              )}
+              {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
+               */}
+              <span
+                className={cn("truncate flex-grow", node.data.parentId === "-1" ? "cursor-default" : "cursor-grab")}
+              >
+                {node.isEditing ? (
+                  <input
+                    // className="border-black border"
+                    type="text"
+                    defaultValue={node.data.name}
+                    onFocus={(e) => e.currentTarget.select()}
+                    onBlur={(e) => {
+                      if (!contextEditClicked || Date.now() - contextEditClickedTime > 400) {
+                        e.currentTarget.blur();
+                        node.deselect();
+                        node.reset();
+                      } else {
+                        e.currentTarget.select();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        setContextEditClicked(false);
+                        node.reset();
+                      }
+                      if (e.key === "Enter") {
+                        setContextEditClicked(false);
+                        node.submit(e.currentTarget.value);
+                      }
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  <span>{node.data.name}</span>
+                )}
+              </span>
+
+              {/* Action Buttons */}
+              {/* <div className="gap-x-2">
             <button className="cursor-pointer" onClick={() => node.edit()} title="Rename...">
               <MdEdit />
             </button>
@@ -247,26 +266,27 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               <RxCross2 />
             </button>
           </div> */}
-          </div>
-          <ContextMenuContent className="w-64 z-[999999]">
-            <ContextMenuItem
-              inset
-              onClick={() => {
-                setContextEditClicked(true);
-                setContextEditClickedTime(Date.now());
-                node.edit();
-              }}
-            >
-              Rename
-              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem inset onClick={() => tree.delete(node.id)}>
-              Delete
-              <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuTrigger>
-      </ContextMenu>
+            </div>
+            <ContextMenuContent className="w-64 z-[999999]">
+              <ContextMenuItem
+                inset
+                onClick={() => {
+                  setContextEditClicked(true);
+                  setContextEditClickedTime(Date.now());
+                  node.edit();
+                }}
+              >
+                Rename
+                <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuItem inset onClick={() => tree.delete(node.id)}>
+                Delete
+                <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuTrigger>
+        </ContextMenu>
+      )}
     </div>
   );
 };

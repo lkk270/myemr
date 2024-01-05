@@ -272,7 +272,7 @@ const Arborist = ({ width }: ArboristProps) => {
           renderDragPreview={customDragPreviewWithTree}
           ref={treeRef}
           disableMultiSelection={false}
-          // openByDefault={false}
+          openByDefault={false}
           initialData={data}
           width={width - 8}
           height={screenHeight - 200}

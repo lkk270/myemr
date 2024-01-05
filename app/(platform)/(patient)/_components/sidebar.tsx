@@ -53,8 +53,8 @@ export const Sidebar = () => {
         <div className="flex justify-center flex-1 p-3">
           <div className="flex flex-col items-center space-y-2 pt-7">
             {routes.map((route, index) => (
-              <SheetClose asChild>
-                <Link href={route.href}>
+              <SheetClose asChild key={index}>
+                <Link key={route.href} href={route.href}>
                   <div
                     className={cn(
                       "text-muted-foreground text-xs group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",

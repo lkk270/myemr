@@ -111,7 +111,7 @@ export const Sidebar = ({}: SidebarProps) => {
           isMobile && "w-0",
         )}
       >
-        <div className="p-4 h-[100px]">
+        <div className="pl-4 pt-4 w-20">
           <Logo showText={false} />
           <div
             onClick={collapse}
@@ -130,24 +130,15 @@ export const Sidebar = ({}: SidebarProps) => {
               <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
             </div>
           </div> */}
-        <div
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              console.log("IN HERE");
-            }
-          }}
-          className="overflow-y-auto"
-          style={{ height: `calc(100vh - 100px)` }}
-        >
-          {/* <CitiesTree width={sidebarWidth} /> */}
-          <Arborist width={sidebarWidth} />
-          {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
-        </div>
-        <div className="p-4 h-[100px]">
+        {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
+        {/* <CitiesTree width={sidebarWidth} /> */}
+        <Arborist width={sidebarWidth} />
+        {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
+        {/* </div> */}
+        {/* <div className="p-4 h-[100px]">
           <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
-        </div>
+        </div> */}
         <div
           onMouseDown={handleMouseDown}
           onClick={resetWidth}

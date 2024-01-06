@@ -7,15 +7,17 @@ export const data = [
     name: "public",
     parentId: "-1",
     path: "/1/",
+    namePath: "/public",
     children: [
       {
         id: "c1-1",
         name: "index.docx",
         icon: SiHtml5,
-        iconColor: "#dc4a25",
+        iconColor: "#dc4325",
         isFile: true,
         parentId: "1",
         path: "/1/",
+        namePath: "/public/index.docx",
       },
     ],
   },
@@ -24,6 +26,7 @@ export const data = [
     name: "src",
     parentId: "-1",
     path: "/2/",
+    namePath: "/src",
     children: [
       {
         id: "c2-1",
@@ -33,6 +36,7 @@ export const data = [
         isFile: true,
         parentId: "2",
         path: "/2/",
+        namePath: "/src/App.csv",
       },
       {
         id: "c2-2",
@@ -42,6 +46,7 @@ export const data = [
         isFile: true,
         parentId: "2",
         path: "/2/",
+        namePath: "/src/index.png",
       },
       {
         id: "c2-3",
@@ -51,6 +56,7 @@ export const data = [
         iconColor: "#42a5f5",
         isFile: true,
         path: "/2/",
+        namePath: "/src/styles.jpg",
       },
     ],
   },
@@ -59,6 +65,7 @@ export const data = [
     name: "components",
     parentId: "-1",
     path: "/3/",
+    namePath: "/components",
     children: [
       {
         id: "c3-1",
@@ -68,12 +75,14 @@ export const data = [
         isFile: true,
         parentId: "3",
         path: "/3/",
+        namePath: "/components/modal.mp4",
       },
       {
         id: "4",
         name: "navbar",
         parentId: "3",
         path: "/3/4/",
+        namePath: "/components/navbar",
         children: [
           {
             id: "c4-1",
@@ -83,6 +92,7 @@ export const data = [
             isFile: true,
             parentId: "4",
             path: "/3/4/",
+            namePath: "/components/navbar/home.mp3",
           },
         ],
       },
@@ -91,6 +101,7 @@ export const data = [
         name: "footer",
         parentId: "3",
         path: "/3/4-1/",
+        namePath: "/components/footer",
         children: [
           {
             id: "c4-1-1",
@@ -100,12 +111,14 @@ export const data = [
             isFile: true,
             parentId: "4-1",
             path: "/3/4-1/",
+            namePath: "/components/footer/bottom.txt",
           },
           {
             id: "4-1-2",
             name: "middle",
             parentId: "4-1",
             path: "/3/4-1/4-1-2/",
+            namePath: "/components/footer/middle",
             children: [
               {
                 id: "c4-1-1-12",
@@ -115,6 +128,7 @@ export const data = [
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
+                namePath: "/components/footer/middle/mid-bottom.pdf",
               },
               {
                 id: "c4-1-1-13",
@@ -124,6 +138,7 @@ export const data = [
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
+                namePath: "/components/footer/middle/top-bottom.mov",
               },
               {
                 id: "c4-1-1-14000",
@@ -133,60 +148,18 @@ export const data = [
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
+                namePath: "/components/footer/middle/topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsxf",
               },
-              {
-                id: "c4-1-1-1411",
-                name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
-                isFile: true,
-                parentId: "4-1-2",
-                path: "/3/4-1/4-1-2/",
-              },
-              {
-                id: "c4-1-1-1422",
-                name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
-                isFile: true,
-                parentId: "4-1-2",
-                path: "/3/4-1/4-1-2/",
-              },
-              {
-                id: "c4-1-1-1433",
-                name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
-                isFile: true,
-                parentId: "4-1-2",
-                path: "/3/4-1/4-1-2/",
-              },
-              {
-                id: "c4-1-1-1444",
-                name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
-                isFile: true,
-                parentId: "4-1-2",
-                path: "/3/4-1/4-1-2/",
-              },
-              {
-                id: "c4-1-1-1455",
-                name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
-                isFile: true,
-                parentId: "4-1-2",
-                path: "/3/4-1/4-1-2/",
-              },
+
               {
                 id: "c4-1-1-166",
-                name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
+                name: "topdsfasdfnsjdfnalpgheajskdnfkjsdf-bkl.tsx",
                 icon: SiHtml5,
                 iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
+                namePath: "/components/footer/middle/topdsfasdfnsjdfnalpgheajskdnfkjsdf-bkl.tsxf",
               },
             ],
           },

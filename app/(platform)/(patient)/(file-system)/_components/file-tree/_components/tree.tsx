@@ -5,11 +5,13 @@ import Node from "./node";
 import { TbFolderPlus } from "react-icons/tb";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
-import { File, FolderClosed } from "lucide-react";
+import { File, FolderClosed, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FillFlexParent } from "./fill-flex-parent";
-
+import { Item } from "../../item";
+import { useSearch } from "@/hooks/use-search";
+import { Input } from "@/components/ui/input";
 interface ArboristProps {
   width: number;
 }
@@ -138,7 +140,8 @@ const customDragPreview = (
 
 const Arborist = ({ width }: ArboristProps) => {
   // const [treeInstance, setTreeInstance] = useState<any>(null);
-
+  const search = useSearch();
+  const [treeData, setTreeData] = useState(data);
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
@@ -191,6 +194,10 @@ const Arborist = ({ width }: ArboristProps) => {
   //   setTreeInstance(treeRef.current);
   // }, []);
 
+  const clearInput = () => {
+    setTerm("");
+  };
+
   const customDragPreviewWithTree = (props: any) => {
     if (!treeRef.current) {
       console.warn("Tree instance not available");
@@ -239,58 +246,79 @@ const Arborist = ({ width }: ArboristProps) => {
     </div>
   );
 
-  return (
-    <DragContext.Provider
-      value={{
-        hoveredNode,
-        setHoveredNode,
-        draggedNode,
-        setDraggedNode,
-        hoveredFolderId,
-        setHoveredFolderId,
-        contextDisableDrop,
-        setContextDisableDrop,
-      }}
-    >
-      <div className="tree-container overflow-x-hidden overflow-y-hidden">
-        {/* <div className="flex items-center">
-          {createFileFolder}
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-10 border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-          />
-        </div> */}
-        {/* <FillFlexParent realWidth={width - 24} height={500}>
-          {(dimens) => ( */}
-        <Tree
-          // {...dimens}
-          className="custom-scrollbar overflow-y-hidden h-[calc(100vh-100px)]"
-          renderCursor={CustomCursor}
-          renderDragPreview={customDragPreviewWithTree}
-          ref={treeRef}
-          disableMultiSelection={false}
-          openByDefault={false}
-          initialData={data}
-          width={width - 8}
-          height={screenHeight - 200}
-          // rowClassName={"max-w-[200px] w-full"}
-          indent={15}
-          rowHeight={31}
-          searchTerm={term}
-          disableDrop={disableDrop}
-          disableDrag={disableDrag}
+  const onMove = ({ dragIds, parentId, index }: any) => {
+    console.log("Moving");
+    console.log(dragIds);
+    console.log(parentId);
+    console.log(index);
+  };
 
-          // searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
-        >
-          {Node as any}
-        </Tree>
-        {/* )}
-       </FillFlexParent> */}
+  return (
+    <>
+      <div className="p-4">
+        {/* <Item label="Search" icon={Search} isSearch onClick={search.onOpen} /> */}
+        {/* <Item onClick={handleCreate} label="New page" icon={PlusCircle} /> */}
+        <Input className="pr-8" placeholder="Filter" value={term} onChange={(e) => setTerm(e.target.value)} />
+        {term && (
+          <div role="button" onClick={clearInput}>
+            <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-20 right-6" />
+          </div>
+        )}
       </div>
-    </DragContext.Provider>
+      <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}>
+        <DragContext.Provider
+          value={{
+            hoveredNode,
+            setHoveredNode,
+            draggedNode,
+            setDraggedNode,
+            hoveredFolderId,
+            setHoveredFolderId,
+            contextDisableDrop,
+            setContextDisableDrop,
+          }}
+        >
+          <div className="tree-container overflow-x-hidden overflow-y-hidden">
+            {/* <div className="flex items-center">
+              {createFileFolder}
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-10 border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+              />
+            </div> */}
+            {/* <FillFlexParent realWidth={width - 24} height={500}>
+          {(dimens) => ( */}
+            <Tree
+              // {...dimens}
+              className="custom-scrollbar overflow-y-hidden h-[calc(100vh-100px)]"
+              renderCursor={CustomCursor}
+              renderDragPreview={customDragPreviewWithTree}
+              ref={treeRef}
+              disableMultiSelection={false}
+              openByDefault={false}
+              data={treeData}
+              width={width - 8}
+              height={screenHeight - 200}
+              // rowClassName={"max-w-[200px] w-full"}
+              indent={15}
+              rowHeight={31}
+              searchTerm={term}
+              disableDrop={disableDrop}
+              disableDrag={disableDrag}
+              onMove={onMove}
+              searchMatch={(node, term) => node.data.namePath.toLowerCase().includes(term.toLowerCase())}
+            >
+              {Node as any}
+            </Tree>
+            {/* )}
+       </FillFlexParent> */}
+          </div>
+        </DragContext.Provider>
+      </div>
+    </>
   );
 };
 

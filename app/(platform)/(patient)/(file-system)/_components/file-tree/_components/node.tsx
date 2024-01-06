@@ -62,6 +62,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   let isBackgroundChanged4 = false;
   if (
+    draggedNode.id &&
     draggedNode.isFile &&
     node.data.path.includes(hoveredNode.path) &&
     hoveredNode.path !== draggedNode.path
@@ -71,6 +72,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   }
 
   if (
+    draggedNode.id &&
     !draggedNode.isFile &&
     node.data.path.includes(hoveredNode.path) &&
     node.data.path !== draggedNode.path &&

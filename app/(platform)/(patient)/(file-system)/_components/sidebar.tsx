@@ -23,6 +23,7 @@ export const Sidebar = ({}: SidebarProps) => {
   const router = useRouter();
   const search = useSearch();
   const params = useParams();
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isResizingRef = useRef(false);
@@ -31,6 +32,11 @@ export const Sidebar = ({}: SidebarProps) => {
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(300);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     if (isMobile) {
       collapse();
@@ -101,61 +107,63 @@ export const Sidebar = ({}: SidebarProps) => {
     // This is where you would reorder folders/files based on the drag result
   };
   return (
-    <>
-      {/* <DragDropContext onDragEnd={onDragEnd}> */}
-      <aside
-        ref={sidebarRef}
-        className={cn(
-          "group/sidebar h-full bg-primary/5 overflow-y-auto relative flex w-60 flex-col z-[99999]",
-          isResetting && "transition-all ease-in-out duration-300",
-          isMobile && "w-0",
-        )}
-      >
-        <div className="pl-4 pt-4 w-20">
-          <Logo showText={false} />
-          <div
-            onClick={collapse}
-            role="button"
-            className={cn(
-              "h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 absolute top-3 right-2 opacity-0 group-hover/sidebar:opacity-100 transition",
-              isMobile && "opacity-100",
-            )}
-          >
-            <ChevronsLeft className="h-6 w-6" />
+    isMounted && (
+      <>
+        {/* <DragDropContext onDragEnd={onDragEnd}> */}
+        <aside
+          ref={sidebarRef}
+          className={cn(
+            "group/sidebar h-full bg-primary/5 overflow-y-auto relative flex w-[300px] flex-col z-[99999]",
+            isResetting && "transition-all ease-in-out duration-300",
+            isMobile && "w-0",
+          )}
+        >
+          <div className="pl-4 pt-4 w-20">
+            <Logo showText={false} />
+            <div
+              onClick={collapse}
+              role="button"
+              className={cn(
+                "h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 absolute top-3 right-2 opacity-0 group-hover/sidebar:opacity-100 transition",
+                isMobile && "opacity-100",
+              )}
+            >
+              <ChevronsLeft className="h-6 w-6" />
+            </div>
           </div>
-        </div>
-        {/* <div className="pt-4">
+          {/* <div className="pt-4">
             <div>
               <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
               <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
             </div>
           </div> */}
-        {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
-        {/* <CitiesTree width={sidebarWidth} /> */}
-        <Arborist width={sidebarWidth} />
-        {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
-        {/* </div> */}
-        {/* <div className="p-4 h-[100px]">
+          {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
+          {/* <CitiesTree width={sidebarWidth} /> */}
+          <Arborist width={sidebarWidth} />
+          {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
+          {/* </div> */}
+          {/* <div className="p-4 h-[100px]">
           <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div> */}
+          <div
+            onMouseDown={handleMouseDown}
+            onClick={resetWidth}
+            className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
+          />
+        </aside>
+        {/* </DragDropContext> */}
         <div
-          onMouseDown={handleMouseDown}
-          onClick={resetWidth}
-          className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
-        />
-      </aside>
-      {/* </DragDropContext> */}
-      <div
-        ref={navbarRef}
-        className={cn(
-          "absolute top-0 z-[99999] left-60 w-[calc(100%-300px)]",
-          isResetting && "transition-all ease-in-out duration-300",
-          isMobile && "left-0 w-full",
-        )}
-      >
-        <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
-      </div>
-    </>
+          ref={navbarRef}
+          className={cn(
+            "absolute top-0 z-[99999] left-[300px] w-[calc(100%-300px)]",
+            isResetting && "transition-all ease-in-out duration-300",
+            isMobile && "left-0 w-full",
+          )}
+        >
+          <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
+        </div>
+      </>
+    )
   );
 };

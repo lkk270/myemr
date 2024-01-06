@@ -16,9 +16,11 @@ import { checkForInvalidNewMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useNewMedicationModal } from "../_components/hooks/use-new-medication-modal";
+import { cn } from "@/lib/utils";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
+const inputClassName = "bg-secondary border-primary/10";
 
 export const NewMedicationForm = () => {
   const medicationStore = useMedicationStore();
@@ -123,7 +125,7 @@ export const NewMedicationForm = () => {
                     valueParam={medication?.name}
                     handleChange={(value) => handleChange("name", value)}
                     disabled={isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn("font-normal w-full", inputClassName)}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No medication found."
@@ -137,7 +139,7 @@ export const NewMedicationForm = () => {
                     handleChange={(value) => handleChange("category", value)}
                     valueParam={medication?.category}
                     disabled={isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn("font-normal w-full", inputClassName)}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No category found."
@@ -150,7 +152,7 @@ export const NewMedicationForm = () => {
                 <div>
                   <Label htmlFor="dosage">Dosage</Label>
                   <Input
-                    className="bg-transparent border-secondary dark:bg-slate-800"
+                    className={inputClassName}
                     id="dosage"
                     name="dosage"
                     autoComplete="off"
@@ -166,7 +168,7 @@ export const NewMedicationForm = () => {
                     valueParam={medication?.dosageUnits}
                     handleChange={(value) => handleChange("dosageUnits", value)}
                     disabled={isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn("font-normal w-full", inputClassName)}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No units found."
@@ -180,7 +182,7 @@ export const NewMedicationForm = () => {
                     valueParam={medication?.frequency}
                     handleChange={(value) => handleChange("frequency", value)}
                     disabled={isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn("font-normal w-full", inputClassName)}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No dosage frequency found."
@@ -192,7 +194,7 @@ export const NewMedicationForm = () => {
                 <div>
                   <Label htmlFor="prescribedByName">Prescriber</Label>
                   <Input
-                    className="bg-transparent border-secondary dark:bg-slate-800"
+                    className={inputClassName}
                     id="prescribedByName"
                     name="prescribedByName"
                     autoComplete="off"

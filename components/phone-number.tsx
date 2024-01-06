@@ -38,7 +38,7 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
       <Input
         type="tel"
         autoComplete="tel"
-        // className="dark:bg-slate-800"
+        className="bg-secondary border-primary/10"
         value={value}
         onChange={onChange}
         placeholder="(000) 000-0000"

@@ -37,7 +37,7 @@ export const DeletePopover = ({ onConfirmFunc }: DeletePopoverProps) => {
         <div
           role={"menuitem"}
           onClick={togglePopover}
-          className="w-full text-sm px-2 py-1.5 rounded-md hover:bg-[#f1f5f9] hover:dark:bg-[#1e293b] hover:cursor-pointer"
+          className="w-full text-sm px-2 py-1.5 rounded-md hover:bg-[#f1f5f9] hover:dark:bg-secondary hover:cursor-pointer"
         >
           Delete
         </div>

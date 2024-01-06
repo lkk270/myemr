@@ -14,12 +14,14 @@ import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
 import { checkForInvalidEditedMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-
+import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { DosageHistoryPopover } from "./dosage-history-popover";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
+
+const inputClassName = "bg-secondary border-primary/10";
 
 interface MedicationProps {
   medicationParam: MedicationType | null;
@@ -170,7 +172,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     handleChange={(value) => handleChange("name", value)}
                     valueParam={medication?.name}
                     disabled={true}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className="bg-secondary border-primary/10 font-normal w-full"
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No medication found."
@@ -184,7 +186,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     handleChange={(value) => handleChange("category", value)}
                     valueParam={medication?.category}
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn(inputClassName, "font-normal w-full")}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No category found."
@@ -197,7 +199,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                 <div>
                   <Label htmlFor="dosage">Dosage</Label>
                   <Input
-                    className="bg-transparent border-secondary dark:bg-slate-800"
+                    className={inputClassName}
                     id="dosage"
                     name="dosage"
                     autoComplete="off"
@@ -214,7 +216,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     handleChange={(value) => handleChange("dosageUnits", value)}
                     valueParam={medication?.dosageUnits}
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn(inputClassName, "font-normal w-full")}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No units found."
@@ -228,7 +230,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     handleChange={(value) => handleChange("frequency", value)}
                     valueParam={medication?.frequency}
                     disabled={!isEditing || isLoading}
-                    className="dark:bg-slate-800 font-normal w-full"
+                    className={cn(inputClassName, "font-normal w-full")}
                     placeholder="Select..."
                     searchPlaceholder="Search..."
                     noItemsMessage="No dosage frequency found."
@@ -240,7 +242,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                 <div>
                   <Label htmlFor="prescribedByName">Prescriber</Label>
                   <Input
-                    className="bg-transparent border-secondary dark:bg-slate-800"
+                    className={inputClassName}
                     id="prescribedByName"
                     name="prescribedByName"
                     autoComplete="off"

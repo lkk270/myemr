@@ -24,7 +24,7 @@ export const RegisterButton = ({ children, mode = "redirect", asChild, userType 
     return (
       <Dialog>
         <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
-        <DialogContent className="p-0 bg-transparent border-none">
+        <DialogContent className="p-0 bg-transparent border-none rounded-lg">
           <RegisterForm userType={userType} />
         </DialogContent>
       </Dialog>

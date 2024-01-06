@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FillFlexParent } from "./fill-flex-parent";
 import { Item } from "../../item";
-import { useSearch } from "@/hooks/use-search";
 import { Input } from "@/components/ui/input";
 interface ArboristProps {
   width: number;
@@ -140,7 +139,6 @@ const customDragPreview = (
 
 const Arborist = ({ width }: ArboristProps) => {
   // const [treeInstance, setTreeInstance] = useState<any>(null);
-  const search = useSearch();
   const [treeData, setTreeData] = useState(data);
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
@@ -259,7 +257,7 @@ const Arborist = ({ width }: ArboristProps) => {
         {/* <Item label="Search" icon={Search} isSearch onClick={search.onOpen} /> */}
         {/* <Item onClick={handleCreate} label="New page" icon={PlusCircle} /> */}
         <Input
-          className="pr-8 bg-primary/5"
+          className="pr-8 bg-secondary border-primary/10"
           placeholder="Filter"
           value={term}
           onChange={(e) => setTerm(e.target.value)}

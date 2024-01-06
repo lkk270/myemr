@@ -258,7 +258,12 @@ const Arborist = ({ width }: ArboristProps) => {
       <div className="p-4">
         {/* <Item label="Search" icon={Search} isSearch onClick={search.onOpen} /> */}
         {/* <Item onClick={handleCreate} label="New page" icon={PlusCircle} /> */}
-        <Input className="pr-8" placeholder="Filter" value={term} onChange={(e) => setTerm(e.target.value)} />
+        <Input
+          className="pr-8 bg-primary/5"
+          placeholder="Filter"
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+        />
         {term && (
           <div role="button" onClick={clearInput}>
             <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-20 right-6" />

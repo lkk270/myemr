@@ -25,6 +25,7 @@ import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 
 import _ from "lodash";
+const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
   patientDemographics: PatientDemographicsType;
@@ -211,7 +212,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <div>
                     <Label htmlFor="firstName">First Name</Label>
                     <Input
-                      className="bg-transparent border-secondary dark:bg-slate-800"
+                      className={inputClassName}
                       id="firstName"
                       name="firstName"
                       autoComplete="off"
@@ -226,7 +227,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     <Input
                       id="lastName"
                       name="lastName"
-                      className="dark:bg-slate-800"
+                      className={inputClassName}
                       value={user.lastName}
                       onChange={handleInputChange}
                       placeholder="Last Name"
@@ -238,21 +239,14 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <div className="w-[240px] ">
                     <Label htmlFor="dateOfBirth">Date of Birth</Label>
 
-                    <div
-                      className={cn(
-                        "border-[1px] font-bold dark:border-none border-[#f0f4f7] rounded-md",
-                        isEditing && "",
-                      )}
-                    >
-                      {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
-                      {/*                       isEditing && "dark:text-[#d8dce1] text-[#0a101e]",
-                       */}
-                      <GenericCalendar
-                        disabled={!isEditing || isLoading}
-                        handleChange={(value) => handleChange("dateOfBirth", value)}
-                        valueParam={user.dateOfBirth}
-                      />
-                    </div>
+                    {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
+                    {/*                       isEditing && "dark:text-[#d8dce1] text-[#0a101e]",
+                     */}
+                    <GenericCalendar
+                      disabled={!isEditing || isLoading}
+                      handleChange={(value) => handleChange("dateOfBirth", value)}
+                      valueParam={user.dateOfBirth}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="gender">Gender</Label>
@@ -260,7 +254,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       handleChange={(value) => handleChange("gender", value)}
                       valueParam={user.gender}
                       disabled={!isEditing || isLoading}
-                      className="dark:bg-slate-800 font-normal"
+                      className={inputClassName}
                       placeholder="Select..."
                       searchPlaceholder="Search..."
                       noItemsMessage="No gender found."
@@ -274,7 +268,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       handleChange={(value) => handleChange("race", value)}
                       valueParam={user.race}
                       disabled={!isEditing || isLoading}
-                      className="dark:bg-slate-800 font-normal"
+                      className={inputClassName}
                       placeholder="Select..."
                       searchPlaceholder="Search..."
                       noItemsMessage="No race found."
@@ -288,7 +282,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       valueParam={user.maritalStatus}
                       handleChange={(value) => handleChange("maritalStatus", value)}
                       disabled={!isEditing || isLoading}
-                      className="dark:bg-slate-800 font-normal"
+                      className={inputClassName}
                       placeholder="Select..."
                       searchPlaceholder="Search..."
                       noItemsMessage="No race found."
@@ -303,7 +297,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       valueParam={user.height}
                       handleChange={(value) => handleChange("height", value)}
                       disabled={!isEditing || isLoading}
-                      className="dark:bg-slate-800 font-normal sm:max-w-[120px]"
+                      className={cn("sm:max-w-[120px]", inputClassName)}
                       placeholder="Select..."
                       searchPlaceholder="Search..."
                       noItemsMessage="No results"
@@ -319,7 +313,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                         name="weight"
                         min={2}
                         max={1500}
-                        className="dark:bg-slate-800 max-w-[240px] sm:max-w-[120px]"
+                        className={cn(inputClassName, " max-w-[240px] sm:max-w-[120px]")}
                         value={user.weight || ""}
                         onChange={handleInputChange}
                         placeholder="Weight"
@@ -335,7 +329,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       id="bmi"
                       name="bmi"
                       placeholder="N/A"
-                      className="dark:bg-slate-800 max-w-[240px] sm:max-w-[120px]"
+                      className={cn(inputClassName, " max-w-[240px] sm:max-w-[120px]")}
                       value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
                       disabled={true}
                     />
@@ -378,7 +372,13 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   </div>
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" className="dark:bg-slate-800" value={user.email} disabled={true} />
+                    <Input
+                      id="email"
+                      name="email"
+                      className="bg-secondary border-primary/10"
+                      value={user.email}
+                      disabled={true}
+                    />
                   </div>
                 </div>
                 <GenericAddress

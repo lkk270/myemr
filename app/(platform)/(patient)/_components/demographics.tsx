@@ -207,7 +207,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <Input
                     id="lastName"
                     name="lastName"
-                    className="dark:bg-slate-800"
+                    className="my-class"
                     value={user.lastName}
                     onChange={handleInputChange}
                     placeholder="Last Name"
@@ -346,7 +346,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" className="dark:bg-slate-800" value={user.email} disabled={true} />
+                  <Input id="email" name="email" className="my-class" value={user.email} disabled={true} />
                 </div>
               </div>
               <GenericAddress

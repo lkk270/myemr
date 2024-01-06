@@ -202,7 +202,7 @@ export const ContactForm = ({ patientDemographics }: PatientDemographicsContactP
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" className="dark:bg-slate-800" value={user.email} disabled={true} />
+              <Input id="email" name="email" className="my-class" value={user.email} disabled={true} />
             </div>
           </div>
           <GenericAddress

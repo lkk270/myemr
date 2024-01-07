@@ -6,6 +6,7 @@ import { RxCross2 } from "react-icons/rx";
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
+import { ActionButton } from "./action-button";
 
 // Assuming a Node type is defined somewhere
 // If not, you'll need to define it accordingly
@@ -164,6 +165,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         <ContextMenu>
           <ContextMenuTrigger
             className={cn(
+              "node-container",
               "text-muted-foreground p-2 flex items-center h-full node-container rounded-sm",
               // `max-w-[${(tree.width - 100).toString()}px]`,
               !node.state.isSelected &&
@@ -264,16 +266,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   <span>{node.data.name}</span>
                 )}
               </span>
-
-              {/* Action Buttons */}
-              {/* <div className="gap-x-2">
-            <button className="cursor-pointer" onClick={() => node.edit()} title="Rename...">
-              <MdEdit />
-            </button>
-            <button className="cursor-pointer" onClick={() => tree.delete(node.id)} title="Delete">
-              <RxCross2 />
-            </button>
-          </div> */}
+              <div className="action-button">
+                <ActionButton />
+              </div>
             </div>
             <ContextMenuContent className="w-64 z-[999999]">
               <ContextMenuItem

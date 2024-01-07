@@ -206,3 +206,15 @@ body {
   /* Hide scrollbar for IE and Edge */
   -ms-overflow-style: none;
 }
+
+.action-button {
+  visibility: hidden;
+}
+
+.node-container:hover .action-button {
+  visibility: visible;
+}
+
+.action-button-clicked {
+  visibility: visible;
+}

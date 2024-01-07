@@ -101,9 +101,9 @@ const customDragPreview = (
     );
   }
 
+  const firstNodeParentId = tree.get(selectedIds[0]).parent.id;
   const allHaveSameParent =
-    selectedIds.length > 1 &&
-    selectedIds.every((selectedId) => tree.get(selectedId).parent.id === tree.get(selectedIds[0]).parent.id);
+    selectedIds.length > 1 && selectedIds.every((selectedId) => tree.get(selectedId).parent.id === firstNodeParentId);
   setAllSelectedHaveSameParent(allHaveSameParent);
   if (!allHaveSameParent) {
     tree.deselectAll();
@@ -257,7 +257,7 @@ const Arborist = ({ width }: ArboristProps) => {
         {/* <Item label="Search" icon={Search} isSearch onClick={search.onOpen} /> */}
         {/* <Item onClick={handleCreate} label="New page" icon={PlusCircle} /> */}
         <Input
-          className="pr-8 bg-secondary border-primary/10"
+          className="pr-8 bg-secondary border-primary/10 text-muted-foreground font-medium"
           placeholder="Filter"
           value={term}
           onChange={(e) => setTerm(e.target.value)}

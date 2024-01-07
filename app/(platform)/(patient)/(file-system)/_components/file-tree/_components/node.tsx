@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { IconType } from "react-icons";
@@ -32,7 +32,7 @@ type NodeProps = {
   tree: any; // Replace 'any' with the appropriate type
 };
 
-const iconSize = "15px";
+const iconSize = "17px";
 const folderColor = "#4f5eff";
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -164,13 +164,18 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         <ContextMenu>
           <ContextMenuTrigger
             className={cn(
-              "p-2 flex items-center h-full node-container hover:bg-primary/10 rounded-sm",
+              "text-muted-foreground p-2 flex items-center h-full node-container rounded-sm",
               // `max-w-[${(tree.width - 100).toString()}px]`,
+              !node.state.isSelected &&
+                !node.state.isDragging &&
+                !node.isEditing &&
+                !draggedNode.id &&
+                "hover:bg-primary/10 py-[6.45px] hover:text-primary",
               node.state.isSelected &&
                 !node.state.isDragging &&
                 !node.isEditing &&
                 !draggedNode.id &&
-                "bg-primary/10 py-[7.5px]",
+                "bg-primary/10 py-[6.45px] text-primary",
               // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
               draggedNode.id &&
@@ -178,7 +183,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 // node.id !== draggedNode.id &&
                 // node.id !== draggedNode.parentId &&
                 isBackgroundChanged4 &&
-                "bg-primary/10 rounded-none py-[7.5px]",
+                "bg-primary/10 rounded-none py-[6.45px] text-primary",
               // node.id.includes(draggedNode.parentId) &&
               //   node.id !== draggedNode.id &&
               //   node.id !== draggedNode.parentId &&
@@ -195,9 +200,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
           >
             {/* Node Content */}
             <div
+              style={{ lineHeight: "18px", fontSize: "13px" }}
               className={cn(
                 `min-w-[${(tree.width - 100).toString()}px]`,
-                "truncate flex items-center cursor-pointer text-xs flex-grow",
+                "truncate flex items-center cursor-pointer flex-grow",
               )}
               onClick={() => node.isInternal && node.toggle()}
             >
@@ -210,10 +216,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 </>
               ) : (
                 <>
-                  <span className="mr-1 flex-shrink-0">
-                    {node.isOpen ? <MdArrowDropDown size={iconSize} /> : <MdArrowRight size={iconSize} />}
+                  <span className="mr-2 flex-shrink-0">
+                    {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
-                  <span className="mr-1 flex-shrink-0">
+                  <span className="mr-[6px] flex-shrink-0">
                     {node.isOpen ? (
                       <FaFolderOpen size={iconSize} color={folderColor} />
                     ) : (

@@ -14,10 +14,10 @@ export const SearchBox = () => {
       onClick={search.onOpen}
       role="button"
       className={cn(
-        "rounded-md px-2 min-w-[125px] xs:min-w-[300px] group cursor-pointer min-h-[40px] text-sm py-1 pr-3 w-full bg-primary/5 flex items-center text-muted-foreground font-medium",
+        "hover:bg-primary/10 rounded-md px-2 min-w-[125px] xs:min-w-[300px] group cursor-pointer min-h-[40px] text-sm py-1 pr-3 w-full bg-primary/5 flex items-center text-muted-foreground font-medium",
       )}
     >
-      <div role="button" className="h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-1">
+      <div role="button" className="h-full rounded-sm  mr-1">
         <Search className="h-4 w-4 shrink-0 text-muted-foreground/50" />
       </div>
 

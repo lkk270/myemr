@@ -24,9 +24,17 @@ const customDragPreview = (
   setAllSelectedHaveSameParent: Function,
 ) => {
   const selectedIds = Array.from(tree.selectedIds);
-  if (!tree.initialData && selectedIds.length === 0 && !id) {
+  //bad selectedIds exists, id does not exist
+  //drag one or more: both selectedIds and id exist
+  // console.log(!tree.data);
+  console.log(selectedIds);
+  console.log(id);
+  if (selectedIds.length === 0 && !id) {
     return null;
   }
+  // if ((selectedIds.length === 0 && !id) || (selectedIds.length > 0 && !id)) {
+  //   return null;
+  // }
   if (!isDragging || !mouse || !tree) {
     setAllSelectedHaveSameParent(true);
     return null;
@@ -93,6 +101,9 @@ const customDragPreview = (
   if (numberOfSelectedIds <= 1 || (selectedIds.length > 1 && !selectedIds.includes(id))) {
     const { name, isFile } = getItemData(id);
     const truncatedName = truncateName(name);
+    if (!truncatedName) {
+      return null;
+    }
 
     return (
       <div style={{ ...baseStyle, left: mouse.x + "px", top: mouse.y + "px" }}>

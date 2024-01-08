@@ -1,4 +1,6 @@
-import { DeleteModal } from "./_components/file-tree/_components/modals/delete-modal";
+import { DeleteModal } from "./_components/file-tree/_components/modals/delete-file-modal";
+import { DownloadModal } from "./_components/file-tree/_components/modals/download-modal";
+import { RenameModal } from "./_components/file-tree/_components/modals/rename-modal";
 import { Sidebar } from "./_components/sidebar";
 import { SearchCommand } from "@/components/modals/search-command";
 // import { useUser } from "@clerk/nextjs";
@@ -15,6 +17,8 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     <main className="h-screen flex overflow-y-auto">
       <Sidebar />
       <DeleteModal />
+      <DownloadModal />
+      <RenameModal />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />

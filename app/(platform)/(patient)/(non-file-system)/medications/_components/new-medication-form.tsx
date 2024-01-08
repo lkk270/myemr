@@ -23,6 +23,7 @@ import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } f
 const inputClassName = "bg-secondary border-primary/10";
 
 export const NewMedicationForm = () => {
+  let error = "Something went wrong";
   const medicationStore = useMedicationStore();
   const newMedicationModal = useNewMedicationModal();
   const [medication, setMedication] = useState<NewMedicationType | null>({
@@ -77,7 +78,11 @@ export const NewMedicationForm = () => {
         newMedicationModal.onClose();
       })
       .catch((error) => {
+        console.log(error?.response?.data);
+        error = error?.response?.data || "Something went wrong";
+        console.log(error);
         setIsLoading(false);
+
         throw error;
       })
       .finally(() => {
@@ -87,7 +92,7 @@ export const NewMedicationForm = () => {
     toast.promise(promise, {
       loading: "Saving changes",
       success: "Changes saved successfully",
-      error: "Something went wrong",
+      error: error,
       duration: 1250,
     });
   };

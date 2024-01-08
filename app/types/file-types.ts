@@ -4,3 +4,12 @@ export type SimpleNodeType = {
   path: string | null;
   isFile: boolean | null;
 };
+
+export type NodeDataType = {
+  id: string;
+  name: string;
+  parentId: string;
+  path: string;
+  namePath: string;
+  isFile: boolean;
+};

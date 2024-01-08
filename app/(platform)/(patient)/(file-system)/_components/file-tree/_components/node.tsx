@@ -16,7 +16,7 @@ import {
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
-import { ActionButton } from "./action-button";
+import { useDeleteModal } from "./hooks/use-delete-modal";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { NodeDataType } from "@/app/types/file-types";
 
 interface NodeData {
   id: string;
@@ -55,7 +56,7 @@ type NodeProps = {
 interface MenuItemData {
   label: string;
   icon: LucideIcon;
-  action: (node: any) => void; // Replace 'any' with the actual type of 'node'
+  action: () => void;
   differentClassName?: string;
   isFile?: boolean;
 }
@@ -70,31 +71,6 @@ interface HandleMenuItemClickParams {
   setContextEditClicked: (value: boolean) => void;
   action: () => void;
 }
-
-const menuItems: MenuItemData[] = [
-  {
-    label: "Rename",
-    icon: Pencil,
-    action: (node: any) => node.edit,
-  },
-  {
-    label: "Move",
-    icon: FileInput,
-    isFile: true, // Assuming this is a flag to determine the icon
-    action: () => {},
-  },
-  {
-    label: "Export",
-    icon: Download,
-    action: () => {},
-  },
-  {
-    label: "Delete",
-    icon: Trash,
-    action: () => {},
-    differentClassName: "font-normal text-red-400 focus:text-red-500",
-  },
-];
 
 // Reusable menu item component
 const MenuHeader = ({ title, icon: Icon }: MenuHeaderProps) => (
@@ -114,10 +90,22 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
+  const deleteModal = useDeleteModal();
 
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);
+  console.log(node.data);
+
+  const nodeData = node.data;
+  const customNodeData: NodeDataType = {
+    id: nodeData.id,
+    name: nodeData.name,
+    parentId: nodeData.parentId,
+    path: nodeData.path,
+    namePath: nodeData.namePath,
+    isFile: nodeData.isFile,
+  };
 
   // useEffect(() => {
   //   setIsMounted(true);
@@ -126,6 +114,31 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // if (!isMounted) {
   //   return null;
   // }
+
+  const menuItems: MenuItemData[] = [
+    {
+      label: "Rename",
+      icon: Pencil,
+      action: () => {},
+    },
+    {
+      label: "Move",
+      icon: FileInput,
+      isFile: true, // Assuming this is a flag to determine the icon
+      action: () => {},
+    },
+    {
+      label: "Export",
+      icon: Download,
+      action: () => {},
+    },
+    {
+      label: "Delete",
+      icon: Trash,
+      action: () => deleteModal.onOpen(customNodeData),
+      differentClassName: "font-normal text-red-400 focus:text-red-500",
+    },
+  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -352,50 +365,61 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px] flex flex-col">
                     <MenuHeader title={node.data.name} icon={CustomIcon} />
-                    {/* ... Other content before menu items ... */}
-                    {menuItems.map((item, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className={cn(
-                          item.differentClassName ? item.differentClassName : "font-normal text-primary/90",
-                        )}
-                        onClick={(e) => {
-                          item.action;
-                        }}
-                      >
-                        <item.icon className="w-3 h-3 mr-2" />
-                        {item.label}
-                      </DropdownMenuItem>
+                    {menuItems.map((item, index) => {
+                      // Check the condition - if it's true, return null (nothing will be rendered)
+                      if (item.label === "Move" && node.data.parentId === "-1") {
+                        return null;
+                      }
 
-                      //   <DropdownMenuItem>
-                      //   <MenuItem
-                      //     key={item.label}
-                      //     onClick={item.action}
-                      //     icon={item.icon}
-                      //     label={item.label}
-                      //     isFile={item.isFile}
-                      //     className={item.className}
-                      //   />
-                      // </DropdownMenuItem>
-                    ))}
+                      // If the condition is not met, render the DropdownMenuItem as usual
+                      return (
+                        <DropdownMenuItem
+                          key={index}
+                          className={cn(
+                            item.differentClassName ? item.differentClassName : "font-normal text-primary/90",
+                          )}
+                          onClick={() => {
+                            node.toggle();
+                            item.action();
+                          }}
+                        >
+                          {item.label === "Move" && !node.data.isFile ? (
+                            <FolderInput className={iconClassName} />
+                          ) : (
+                            <item.icon className={iconClassName} />
+                          )}
+                          {item.label}
+                        </DropdownMenuItem>
+                      );
+                    })}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </div>
             <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
               <MenuHeader title={node.data.name} icon={CustomIcon} />
-              {menuItems.map((item, index) => (
-                <ContextMenuItem
-                  key={index}
-                  className={cn(item.differentClassName ? item.differentClassName : "font-normal text-primary/90")}
-                  onClick={(e) => {
-                    item.action;
-                  }}
-                >
-                  <item.icon className="w-3 h-3 mr-2" />
-                  {item.label}
-                </ContextMenuItem>
-              ))}
+              {menuItems.map((item, index) => {
+                // Check the condition - if it's true, return null (nothing will be rendered)
+                if (item.label === "Move" && node.data.parentId === "-1") {
+                  return null;
+                }
+
+                // If the condition is not met, render the DropdownMenuItem as usual
+                return (
+                  <ContextMenuItem
+                    key={index}
+                    className={cn(item.differentClassName ? item.differentClassName : "font-normal text-primary/90")}
+                    onClick={item.action}
+                  >
+                    {item.label === "Move" && !node.data.isFile ? (
+                      <FolderInput className={iconClassName} />
+                    ) : (
+                      <item.icon className={iconClassName} />
+                    )}
+                    {item.label}
+                  </ContextMenuItem>
+                );
+              })}
               {/* {onConfirmFunc && <DeletePopover onConfirmFunc={onConfirmFunc} />} */}
             </ContextMenuContent>
           </ContextMenuTrigger>

@@ -12,7 +12,11 @@ import { useEffect, useState, useRef } from "react";
 // import { DataTableRowActionsProps } from "@/app/types";
 // import { DeletePopover } from "./delete-popover";
 
-export const ActionButton = () => {
+interface ActionButtonProps {
+  node: any;
+}
+
+export const ActionButton = ({ node }: ActionButtonProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -21,17 +25,19 @@ export const ActionButton = () => {
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px]">
+      <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px] flex flex-col">
+        <span className="text-sm text-muted-foreground justify-center flex">{node.data.name}</span>
         <DropdownMenuItem
           onClick={(e) => {
-            // e.preventDefault();
+            e.preventDefault();
+            node.edit();
             // e.stopPropagation();
             // if (onOpen) {
             //   onOpen(row.original, true);
             // }
           }}
         >
-          Edit
+          Rename
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {/* {onConfirmFunc && <DeletePopover onConfirmFunc={onConfirmFunc} />} */}

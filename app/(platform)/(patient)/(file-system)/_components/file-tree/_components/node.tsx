@@ -16,7 +16,10 @@ import {
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
-import { useDeleteModal } from "./hooks/use-delete-modal";
+import { useDeleteModal } from "./hooks/use-delete-file-modal";
+import { useDownloadModal } from "./hooks/use-download-modal";
+import { useRenameModal } from "./hooks/use-rename-modal";
+import { useMediaQuery } from "usehooks-ts";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -89,13 +92,15 @@ const iconClassName = "w-3 h-3 mr-2";
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [contextEditClicked, setContextEditClicked] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 450px)");
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
   const deleteModal = useDeleteModal();
+  const downloadModal = useDownloadModal();
+  const renameModal = useRenameModal();
 
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);
-  console.log(node.data);
 
   const nodeData = node.data;
   const customNodeData: NodeDataType = {
@@ -119,18 +124,18 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     {
       label: "Rename",
       icon: Pencil,
-      action: () => {},
+      action: () => renameModal.onOpen(customNodeData),
     },
     {
       label: "Move",
       icon: FileInput,
-      isFile: true, // Assuming this is a flag to determine the icon
+      isFile: true,
       action: () => {},
     },
     {
       label: "Export",
       icon: Download,
-      action: () => {},
+      action: () => downloadModal.onOpen(customNodeData),
     },
     {
       label: "Delete",
@@ -355,7 +360,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   <span>{node.data.name}</span>
                 )}
               </span>
-              <div className="action-button">
+              <div className={cn(isMobile ? "" : "action-button")}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="none" className="flex h-4 w-4 p-0 bg-transparent">

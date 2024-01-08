@@ -1,6 +1,6 @@
 "use client";
 
-import { MenuIcon, Search } from "lucide-react";
+import { Folders, Search } from "lucide-react";
 // import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
         {isCollapsed && (
           <div className="flex items-center gap-x-2">
             <Logo showText={false} />
-            <MenuIcon role="button" onClick={onResetWidth} className="w-8 h-8" />
+            <Folders role="button" onClick={onResetWidth} className="w-6 h-6" />
           </div>
         )}
 

@@ -109,7 +109,24 @@ export async function POST(req: Request) {
       if (checkForInvalidNewMedication(data) !== "") {
         return new NextResponse("Invalid body", { status: 400 });
       }
+      const currentMedicationNames = await prismadb.medication.findMany({
+        where: {
+          patientProfileId: patient.id,
+        },
+        select: {
+          name: true,
+        },
+      });
+      const decryptedCurrentMedicationNames = decryptMultiplePatientFields(
+        currentMedicationNames,
+        decryptedSymmetricKey,
+      );
+
+      if (decryptedCurrentMedicationNames.some((medication: { name: string }) => medication.name === data.name)) {
+        return new NextResponse("Medication already exists", { status: 400 });
+      }
       const encryptedMedication = buildUpdatePayload(data, decryptedSymmetricKey);
+
       const newMedication = await prismadb.medication.create({
         data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
       });

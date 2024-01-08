@@ -12,7 +12,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import { LayoutGrid, LucideIcon } from "lucide-react";
+import { MenuIcon, LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -32,7 +32,7 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger className="bg-transparent px-0">
-            <LayoutGrid className="hover:opacity-50 transition-opacity duration-300 p-0" />
+            <MenuIcon className="hover:opacity-50 transition-opacity duration-300 p-0" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 grid-cols-2 w-[215px]">

@@ -1,12 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import { ChevronRight, ChevronDown } from "lucide-react";
-import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
-import { RxCross2 } from "react-icons/rx";
+import {
+  ChevronRight,
+  ChevronDown,
+  MoreHorizontal,
+  Pencil,
+  FolderInput,
+  FileInput,
+  Download,
+  Trash,
+  File,
+  FolderClosed,
+  LucideIcon,
+} from "lucide-react";
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
 import { ActionButton } from "./action-button";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Assuming a Node type is defined somewhere
 // If not, you'll need to define it accordingly
@@ -33,8 +52,64 @@ type NodeProps = {
   tree: any; // Replace 'any' with the appropriate type
 };
 
+interface MenuItemData {
+  label: string;
+  icon: LucideIcon;
+  action: (node: any) => void; // Replace 'any' with the actual type of 'node'
+  differentClassName?: string;
+  isFile?: boolean;
+}
+
+interface MenuHeaderProps {
+  title: string;
+  icon: IconType;
+}
+
+interface HandleMenuItemClickParams {
+  node: any; // Replace 'any' with the specific type of your node
+  setContextEditClicked: (value: boolean) => void;
+  action: () => void;
+}
+
+const menuItems: MenuItemData[] = [
+  {
+    label: "Rename",
+    icon: Pencil,
+    action: (node: any) => node.edit,
+  },
+  {
+    label: "Move",
+    icon: FileInput,
+    isFile: true, // Assuming this is a flag to determine the icon
+    action: () => {},
+  },
+  {
+    label: "Export",
+    icon: Download,
+    action: () => {},
+  },
+  {
+    label: "Delete",
+    icon: Trash,
+    action: () => {},
+    differentClassName: "font-normal text-red-400 focus:text-red-500",
+  },
+];
+
+// Reusable menu item component
+const MenuHeader = ({ title, icon: Icon }: MenuHeaderProps) => (
+  <div className="text-sm text-muted-foreground flex items-center justify-center py-1">
+    <Icon size={iconSize} color={folderColor} className="w-4 h-4 mr-2" />
+    {title}
+  </div>
+);
+
+// Common function for handling menu item clicks
+
 const iconSize = "17px";
 const folderColor = "#4f5eff";
+const iconClassName = "w-3 h-3 mr-2";
+
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [contextEditClicked, setContextEditClicked] = useState(false);
@@ -59,7 +134,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     }
   }, [tree, node]); // Add dependencies here
 
-  const CustomIcon = node.data.isFile ? getFileIcon(node.data.name) : FaFolderOpen;
+  const CustomIcon = node.data.isFile ? getFileIcon(node.data.name) : FaFolder;
 
   let isBackgroundChanged4 = false;
   if (
@@ -158,6 +233,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const handleDragLeave = () => {
     setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
   };
+
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
@@ -267,25 +343,60 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 )}
               </span>
               <div className="action-button">
-                <ActionButton />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="none" className="flex h-4 w-4 p-0 bg-transparent">
+                      <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px] flex flex-col">
+                    <MenuHeader title={node.data.name} icon={CustomIcon} />
+                    {/* ... Other content before menu items ... */}
+                    {menuItems.map((item, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        className={cn(
+                          item.differentClassName ? item.differentClassName : "font-normal text-primary/90",
+                        )}
+                        onClick={(e) => {
+                          item.action;
+                        }}
+                      >
+                        <item.icon className="w-3 h-3 mr-2" />
+                        {item.label}
+                      </DropdownMenuItem>
+
+                      //   <DropdownMenuItem>
+                      //   <MenuItem
+                      //     key={item.label}
+                      //     onClick={item.action}
+                      //     icon={item.icon}
+                      //     label={item.label}
+                      //     isFile={item.isFile}
+                      //     className={item.className}
+                      //   />
+                      // </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <ContextMenuContent className="w-64 z-[999999]">
-              <ContextMenuItem
-                inset
-                onClick={() => {
-                  setContextEditClicked(true);
-                  setContextEditClickedTime(Date.now());
-                  node.edit();
-                }}
-              >
-                Rename
-                <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-              </ContextMenuItem>
-              <ContextMenuItem inset onClick={() => tree.delete(node.id)}>
-                Delete
-                <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-              </ContextMenuItem>
+            <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
+              <MenuHeader title={node.data.name} icon={CustomIcon} />
+              {menuItems.map((item, index) => (
+                <ContextMenuItem
+                  key={index}
+                  className={cn(item.differentClassName ? item.differentClassName : "font-normal text-primary/90")}
+                  onClick={(e) => {
+                    item.action;
+                  }}
+                >
+                  <item.icon className="w-3 h-3 mr-2" />
+                  {item.label}
+                </ContextMenuItem>
+              ))}
+              {/* {onConfirmFunc && <DeletePopover onConfirmFunc={onConfirmFunc} />} */}
             </ContextMenuContent>
           </ContextMenuTrigger>
         </ContextMenu>

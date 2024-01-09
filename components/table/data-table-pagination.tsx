@@ -14,13 +14,13 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
   const rowsText = numRows === 1 ? "row." : "rows.";
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setIsMounted(true);
+  // }, []);
 
-  if (!isMounted) {
-    return null;
-  }
+  // if (!isMounted) {
+  //   return null;
+  // }
 
   return (
     <div className="flex items-center justify-between px-2">

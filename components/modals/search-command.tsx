@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { File } from "lucide-react";
+import { File, FolderPlus, Upload, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 // import { useUser } from "@clerk/clerk-react";
 
@@ -55,9 +55,20 @@ export const SearchCommand = () => {
 
   return (
     <CommandDialog open={isOpen} onOpenChange={onClose}>
-      <CommandInput placeholder={`Search Files`} />
+      <CommandInput placeholder={`Search`} />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
+        <CommandGroup heading="Actions">
+          <CommandItem className="text-md" key={0} title={"New Folder"} onSelect={() => {}}>
+            <FolderPlus className="w-5 h-5 mr-2" /> Create a new folder
+          </CommandItem>
+          <CommandItem className="text-md" key={1} title={"upload"} onSelect={() => {}}>
+            <Upload className="w-5 h-5 mr-2" /> Upload records
+          </CommandItem>
+          <CommandItem className="text-md" key={2} title={"back"} onSelect={onClose}>
+            <ChevronLeft className="w-6 h-6 mr-2" /> Back
+          </CommandItem>
+        </CommandGroup>
         <CommandGroup heading="Documents">
           {documents?.map((document) => (
             <CommandItem

@@ -98,6 +98,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
 
+  const completeNodePath = node.data.isFile ? node.data.path : `${node.data.path}${node.data.id}/`;
+
   // const [isDragOver, setIsDragOver] = useState(false);
   const { hoveredNode, setHoveredNode, draggedNode, setDraggedNode, contextDisableDrop } =
     React.useContext(DragContext);
@@ -107,7 +109,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     id: nodeData.id,
     name: nodeData.name,
     parentId: nodeData.parentId,
-    path: nodeData.path,
+    path: completeNodePath,
     namePath: nodeData.namePath,
     isFile: nodeData.isFile,
   };
@@ -158,9 +160,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   if (
     draggedNode.id &&
     draggedNode.isFile &&
-    node.data.path.includes(hoveredNode.path) &&
+    completeNodePath.includes(hoveredNode.path) &&
     hoveredNode.path !== draggedNode.path
-    // node.data.path !== draggedNode.path
+    // completeNodePath !== draggedNode.path
   ) {
     isBackgroundChanged4 = true;
   }
@@ -168,10 +170,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   if (
     draggedNode.id &&
     !draggedNode.isFile &&
-    node.data.path.includes(hoveredNode.path) &&
-    node.data.path !== draggedNode.path &&
-    !node.data.path.includes(draggedNode.path) &&
-    node.data.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
+    completeNodePath.includes(hoveredNode.path) &&
+    completeNodePath !== draggedNode.path &&
+    !completeNodePath.includes(draggedNode.path) &&
+    completeNodePath !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
     hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/"
   ) {
     isBackgroundChanged4 = true;
@@ -198,7 +200,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       setHoveredNode({
         id: node.data.id,
         parentId: node.data.parentId,
-        path: node.data.path,
+        path: completeNodePath,
         isFile: node.data.isFile,
       });
     } else if (!node.data.isFile) {
@@ -206,14 +208,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       setHoveredNode({
         id: node.data.id,
         parentId: node.data.parentId,
-        path: node.data.path,
+        path: completeNodePath,
         isFile: node.data.isFile,
       });
     }
   };
 
   const handleDragStart = () => {
-    setDraggedNode({ id: node.id, parentId: node.data.parentId, path: node.data.path, isFile: node.data.isFile });
+    setDraggedNode({ id: node.id, parentId: node.data.parentId, path: completeNodePath, isFile: node.data.isFile });
   };
 
   const handleDragEnd = () => {
@@ -326,9 +328,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               )}
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
-              <span
-                className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}
-              >
+              <span className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}>
                 {node.isEditing ? (
                   <input
                     // className="border-black border"

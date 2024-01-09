@@ -5,7 +5,7 @@ export const data = [
   {
     id: "1",
     name: "public",
-    path: "/1/",
+    path: "/",
     namePath: "/public",
     children: [
       {
@@ -21,7 +21,7 @@ export const data = [
   {
     id: "2",
     name: "src",
-    path: "/2/",
+    path: "/",
     namePath: "/src",
     children: [
       {
@@ -53,7 +53,7 @@ export const data = [
   {
     id: "3",
     name: "components",
-    path: "/3/",
+    path: "/",
     namePath: "/components",
     children: [
       {
@@ -67,7 +67,8 @@ export const data = [
       {
         id: "4",
         name: "navbar",
-        path: "/3/4/",
+        path: "/3/",
+        parentId: "3",
         namePath: "/components/navbar",
         children: [
           {
@@ -83,7 +84,8 @@ export const data = [
       {
         id: "4-1",
         name: "footer",
-        path: "/3/4-1/",
+        path: "/3/",
+        parentId: "3",
         namePath: "/components/footer",
         children: [
           {
@@ -97,7 +99,8 @@ export const data = [
           {
             id: "4-1-2",
             name: "middle",
-            path: "/3/4-1/4-1-2/",
+            path: "/3/4-1/",
+            parentId: "4-1",
             namePath: "/components/footer/middle",
             children: [
               {

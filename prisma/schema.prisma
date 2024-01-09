@@ -162,7 +162,7 @@ model Medication {
 model Folder {
   id       String  @id @default(uuid())
   name     String
-  path     String
+  path     String  @default("/")
   namePath String
   isFile   Boolean @default(false)
   files    File[]

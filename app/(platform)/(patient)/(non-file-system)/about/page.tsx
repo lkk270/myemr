@@ -20,7 +20,7 @@ const PatientDemographics = async () => {
     return redirect("/");
   }
   const user = session?.user;
-
+  
   const patientDemographics = await prismadb.patientProfile.findUnique({
     where: {
       userId: user.id,

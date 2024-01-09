@@ -5,15 +5,12 @@ export const data = [
   {
     id: "1",
     name: "public",
-    parentId: "-1",
     path: "/1/",
     namePath: "/public",
     children: [
       {
         id: "c1-1",
         name: "index.docx",
-        icon: SiHtml5,
-        iconColor: "#dc4325",
         isFile: true,
         parentId: "1",
         path: "/1/",
@@ -24,15 +21,12 @@ export const data = [
   {
     id: "2",
     name: "src",
-    parentId: "-1",
     path: "/2/",
     namePath: "/src",
     children: [
       {
         id: "c2-1",
         name: "App.csv",
-        icon: SiJavascript,
-        iconColor: "#efd81e",
         isFile: true,
         parentId: "2",
         path: "/2/",
@@ -41,8 +35,6 @@ export const data = [
       {
         id: "c2-2",
         name: "index.png",
-        icon: SiJavascript,
-        iconColor: "#efd81e",
         isFile: true,
         parentId: "2",
         path: "/2/",
@@ -52,8 +44,6 @@ export const data = [
         id: "c2-3",
         parentId: "2",
         name: "styles.jpg",
-        icon: SiCss3,
-        iconColor: "#42a5f5",
         isFile: true,
         path: "/2/",
         namePath: "/src/styles.jpg",
@@ -63,15 +53,12 @@ export const data = [
   {
     id: "3",
     name: "components",
-    parentId: "-1",
     path: "/3/",
     namePath: "/components",
     children: [
       {
         id: "c3-1",
         name: "modal.mp4",
-        icon: SiHtml5,
-        iconColor: "#dc4a25",
         isFile: true,
         parentId: "3",
         path: "/3/",
@@ -80,15 +67,12 @@ export const data = [
       {
         id: "4",
         name: "navbar",
-        parentId: "3",
         path: "/3/4/",
         namePath: "/components/navbar",
         children: [
           {
             id: "c4-1",
             name: "home.mp3",
-            icon: SiHtml5,
-            iconColor: "#dc4a25",
             isFile: true,
             parentId: "4",
             path: "/3/4/",
@@ -99,15 +83,12 @@ export const data = [
       {
         id: "4-1",
         name: "footer",
-        parentId: "3",
         path: "/3/4-1/",
         namePath: "/components/footer",
         children: [
           {
             id: "c4-1-1",
             name: "bottom.txt",
-            icon: SiHtml5,
-            iconColor: "#dc4a25",
             isFile: true,
             parentId: "4-1",
             path: "/3/4-1/",
@@ -116,15 +97,12 @@ export const data = [
           {
             id: "4-1-2",
             name: "middle",
-            parentId: "4-1",
             path: "/3/4-1/4-1-2/",
             namePath: "/components/footer/middle",
             children: [
               {
                 id: "c4-1-1-12",
                 name: "mid-bottom.pdf",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
@@ -133,8 +111,6 @@ export const data = [
               {
                 id: "c4-1-1-13",
                 name: "top-bottom.mov",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
@@ -143,8 +119,6 @@ export const data = [
               {
                 id: "c4-1-1-14000",
                 name: "topdsfasdfnsjdfnjskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",
@@ -154,8 +128,6 @@ export const data = [
               {
                 id: "c4-1-1-166",
                 name: "topdsfasdfnsjdfnalpgheajskdnfkjsdf-bkl.tsx",
-                icon: SiHtml5,
-                iconColor: "#dc4a25",
                 isFile: true,
                 parentId: "4-1-2",
                 path: "/3/4-1/4-1-2/",

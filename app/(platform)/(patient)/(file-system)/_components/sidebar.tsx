@@ -17,9 +17,9 @@ import Arborist from "./file-tree/_components/tree";
 
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
-  // data: any[];
+  data: any[];
 }
-export const Sidebar = ({}: SidebarProps) => {
+export const Sidebar = ({ data }: SidebarProps) => {
   const router = useRouter();
   const search = useSearch();
   const params = useParams();
@@ -32,6 +32,8 @@ export const Sidebar = ({}: SidebarProps) => {
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(300);
+
+  console.log(data);
 
   useEffect(() => {
     setIsMounted(true);

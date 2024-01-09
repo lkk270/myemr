@@ -14,16 +14,16 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // }
 
   return (
-    <main className="h-screen flex overflow-y-auto">
-      <Sidebar />
+    <>
+      {/* <Sidebar /> */}
       <DeleteModal />
       <DownloadModal />
       <RenameModal />
-      <div className="flex-1 h-full overflow-y-auto">{children}</div>
+      <main className="h-screen flex overflow-y-auto">{children}</main>
       <div className="flex h-screen pt-16">
         <SearchCommand />
       </div>
-    </main>
+    </>
   );
 };
 

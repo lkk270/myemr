@@ -195,7 +195,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
       <div className="md:ml-6 flex justify-center w-full max-w-[1500px] pb-28 xs:pb-0 ">
         <TabsContent className="w-full" value="demographics">
-          <Card className="min-h-full flex-grow shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
+          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
             <CardHeaderComponent
               title="Personal Information"
               isEditing={isEditing}

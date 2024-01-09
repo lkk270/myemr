@@ -32,8 +32,8 @@ export const GenericCalendar = ({ disabled, className, valueParam, handleChange 
   const inputClassName = cn(
     "rounded-md h-[40px] p-2 w-full text-sm",
     disabled
-      ? "dark:bg-[#1a1817] dark:text-[#838281] text-[#858484] cursor-not-allowed"
-      : "bg-secondary dark:text-[#fafaf9]",
+      ? "bg-[#ececec] dark:bg-[#282828] dark:text-[#7c7c7c] text-[#818181] cursor-not-allowed"
+      : "bg-secondary dark:text-[#d9d9d9]",
   );
   return (
     <div className="border-primary/10 border-[1px] rounded-md">

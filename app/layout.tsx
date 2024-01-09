@@ -36,9 +36,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // >
     //dark:bg-[#171717] bg-[#f5f5f5]
     //bg-secondary/5
+    //dark:bg-[#1f1f1f] bg-[#fafafa]
     <SessionProvider session={session}>
       <html lang="en" suppressHydrationWarning>
-        <body className={cn("dark:bg-[#171717] bg-[#f5f5f5]", font.className)}>
+        <body className={cn(font.className)}>
           <NextTopLoader color="#4f5eff" />
           <ThemeProvider
             attribute="class"

@@ -193,7 +193,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
       <Separator orientation="vertical" className="md:flex ml-6 hidden max-h-[200px] w-[2px]" />
       <Separator orientation="horizontal" className="flex mt-2 md:hidden w-full h-[2px]" />
 
-      <div className="md:ml-6 flex justify-center w-full max-w-[1500px]">
+      <div className="md:ml-6 flex justify-center w-full max-w-[1500px] pb-28 xs:pb-0 ">
         <TabsContent className="w-full" value="demographics">
           <Card className="min-h-full flex-grow shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
             <CardHeaderComponent

@@ -2,7 +2,7 @@ import { DeleteModal } from "./_components/file-tree/_components/modals/delete-f
 import { DownloadModal } from "./_components/file-tree/_components/modals/download-modal";
 import { RenameModal } from "./_components/file-tree/_components/modals/rename-modal";
 import { Sidebar } from "./_components/sidebar";
-import { SearchCommand } from "@/components/modals/search-command";
+import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
 // import { useUser } from "@clerk/nextjs";
 // import { auth, redirectToSignIn } from "@clerk/nextjs";
 

@@ -53,23 +53,39 @@ export const SearchCommand = () => {
     return null;
   }
 
+  const actionItems = [
+    {
+      label: "Create a new Folder",
+      icon: FolderPlus,
+      action: () => onClose(),
+    },
+    { label: "Upload records", icon: Upload, action: onClose },
+    { label: "Back", icon: ChevronLeft, action: onClose },
+  ];
+
   return (
     <CommandDialog open={isOpen} onOpenChange={onClose}>
-      <CommandInput placeholder={`Search`} />
+      <CommandInput placeholder={`Search records`} />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Actions">
-          <CommandItem className="text-md" key={0} title={"New Folder"} onSelect={() => {}}>
-            <FolderPlus className="w-5 h-5 mr-2" /> Create a new folder
-          </CommandItem>
-          <CommandItem className="text-md" key={1} title={"upload"} onSelect={() => {}}>
-            <Upload className="w-5 h-5 mr-2" /> Upload records
-          </CommandItem>
-          <CommandItem className="text-md" key={2} title={"back"} onSelect={onClose}>
-            <ChevronLeft className="w-6 h-6 mr-2" /> Back
-          </CommandItem>
+          {actionItems.map((item, index) => (
+            <CommandItem
+              className="text-md text-muted-foreground hover:text-primary "
+              key={index}
+              title={item.label}
+              onSelect={() => item.action()}
+            >
+              <div className="flex gap-x-4 items-center justify-center">
+                <div className="bg-primary/10 rounded-md p-2">
+                  <item.icon className="flex w-6 h-6" />
+                </div>
+                {item.label}
+              </div>
+            </CommandItem>
+          ))}
         </CommandGroup>
-        <CommandGroup heading="Documents">
+        <CommandGroup heading="Recent Records">
           {documents?.map((document) => (
             <CommandItem
               key={document._id}

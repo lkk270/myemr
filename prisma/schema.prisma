@@ -160,7 +160,7 @@ model Medication {
 // }
 
 model Folder {
-  id       String  @id @default(uuid())
+  id       String  @id @default(cuid())
   name     String
   path     String  @default("/")
   namePath String
@@ -171,8 +171,8 @@ model Folder {
   parent   Folder?  @relation("SubFolders", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children Folder[] @relation("SubFolders")
 
-  patientProfileId String?
-  PatientProfile   PatientProfile? @relation(fields: [patientProfileId], references: [id])
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,7 +182,7 @@ model Folder {
 }
 
 model File {
-  id       String  @id @default(uuid())
+  id       String  @id @default(cuid())
   name     String
   isFile   Boolean @default(true)
   parentId String
@@ -192,8 +192,8 @@ model File {
   folderId String
   folder   Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
 
-  patientProfileId String?
-  PatientProfile   PatientProfile? @relation(fields: [patientProfileId], references: [id])
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

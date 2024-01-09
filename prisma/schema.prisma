@@ -105,8 +105,8 @@ model DosageHistory {
 
 model Medication {
   id               String          @id @default(uuid())
-  name             String          @unique
-  prescribedById   String
+  name             String
+  prescribedById   String?
   prescribedByName String
   category         String
   dosage           String

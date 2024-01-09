@@ -327,7 +327,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
               <span
-                className={cn("truncate flex-grow", node.data.parentId === "-1" ? "cursor-default" : "cursor-grab")}
+                className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}
               >
                 {node.isEditing ? (
                   <input
@@ -372,7 +372,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     <MenuHeader title={node.data.name} icon={CustomIcon} />
                     {menuItems.map((item, index) => {
                       // Check the condition - if it's true, return null (nothing will be rendered)
-                      if (item.label === "Move" && node.data.parentId === "-1") {
+                      if (item.label === "Move" && !node.data.parentId) {
                         return null;
                       }
 
@@ -405,7 +405,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               <MenuHeader title={node.data.name} icon={CustomIcon} />
               {menuItems.map((item, index) => {
                 // Check the condition - if it's true, return null (nothing will be rendered)
-                if (item.label === "Move" && node.data.parentId === "-1") {
+                if (item.label === "Move" && !node.data.parentId) {
                   return null;
                 }
 

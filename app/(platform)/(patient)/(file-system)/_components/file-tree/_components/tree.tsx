@@ -216,7 +216,7 @@ const Arborist = ({ width }: ArboristProps) => {
   };
 
   const disableDrag = () => {
-    return draggedNode.parentId === "-1" || !allSelectedHaveSameParent;
+    return !draggedNode.parentId|| !allSelectedHaveSameParent;
   };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 

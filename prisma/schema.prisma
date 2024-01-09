@@ -160,43 +160,46 @@ model Medication {
 // }
 
 model Folder {
-  id    String @id @default(uuid())
-  title String
-  order Int
-  files File[]
+  id       String  @id @default(uuid())
+  name     String
+  path     String
+  namePath String
+  isFile   Boolean @default(false)
+  files    File[]
 
   parentId String?  @map("folderId")
   parent   Folder?  @relation("SubFolders", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children Folder[] @relation("SubFolders")
 
-  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
-  patientProfileId String
+  patientProfileId String?
+  PatientProfile   PatientProfile? @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([patientProfileId])
   @@index([parentId])
+  @@index([patientProfileId])
 }
 
 model File {
-  id String @id @default(uuid())
-
-  title       String
-  order       Int
-  description String? @db.Text
+  id       String  @id @default(uuid())
+  name     String
+  isFile   Boolean @default(true)
+  parentId String
+  path     String
+  namePath String
 
   folderId String
-  folder   Folder @relation(fields: [folderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  folder   Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  patientProfileId String?
+  PatientProfile   PatientProfile? @relation(fields: [patientProfileId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  patientProfileId String
-  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
-
-  @@index([patientProfileId])
   @@index([folderId])
+  @@index([patientProfileId])
 }
 
 // model ProviderProfile {

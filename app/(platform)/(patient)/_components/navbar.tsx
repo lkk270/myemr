@@ -17,7 +17,7 @@ export const Navbar = ({}: NavbarProps) => {
   const pathname = usePathname();
 
   return (
-    <div className="dark:bg-[#0a0a0a] bg-[#ffffff] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
+    <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
       <div className="flex items-center">
         <MobileSidebar />
         <Logo />

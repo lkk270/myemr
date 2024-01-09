@@ -120,7 +120,7 @@ export const NewMedicationForm = () => {
           </Button>
         </div>
         {/* Personal Information Card */}
-        <Card className="w-full ">
+        <Card className="w-full">
           <CardContent className="pt-2">
             <div className="grid gap-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">

@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { UserRole } from "@prisma/client";
+import { UserRole, UserType } from "@prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "@/lib/encryption";
@@ -135,7 +135,6 @@ export const {
       token.userType = existingUser.type;
       token.role = existingUser.role;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
-
       return token;
     },
     // async signOut() {},

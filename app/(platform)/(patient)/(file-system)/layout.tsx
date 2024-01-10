@@ -5,25 +5,112 @@ import { Sidebar } from "./_components/sidebar";
 import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
 // import { useUser } from "@clerk/nextjs";
 // import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+
+import prismadb from "@/lib/prismadb";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
-  // const { userId } = auth();
+  const session = await auth();
 
-  // if (!userId) {
-  //   return redirectToSignIn;
-  // }
+  if (!session) {
+    return redirect("/");
+  }
+  const user = session?.user;
+  console.log(user);
+
+  async function fetchAllFoldersForPatient(parentId = null) {
+    // Fetch folders and their files
+    const folders = (await prismadb.folder.findMany({
+      where: {
+        AND: [{ userId: user.id }, { parentId: parentId }],
+      },
+      include: {
+        files: true,
+      },
+    })) as any[];
+
+    for (const folder of folders) {
+      // Recursively fetch subfolders
+      const subFolders = await fetchAllFoldersForPatient(folder.id);
+
+      // Combine files and subfolders into the children array
+      folder.children = [...folder.files, ...subFolders];
+
+      // Optionally, remove the original files array if you want all children in one array
+      delete folder.files;
+    }
+
+    return folders;
+  }
+
+  function flattenStructure(data: any[]) {
+    let result: any[] = [];
+
+    function flattenItem(item: any) {
+      // Add the current item to the result
+      result.push({
+        id: item.id,
+        path: item.path,
+        namePath: item.namePath,
+        name: item.name,
+        isFile: item.isFile,
+      });
+
+      // If the item has children, flatten each child
+      if (item.children && item.children.length) {
+        item.children.forEach((child: any) => flattenItem(child));
+      }
+    }
+
+    flattenItem(data); // start with the root item
+    return result;
+  }
+
+  const allFolders = await fetchAllFoldersForPatient(null);
+
+  const singleLayerFolders = await prismadb.folder.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      path: true,
+      namePath: true,
+      isFile: true,
+    },
+  });
+
+  const singleLayerFiles = await prismadb.file.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      path: true,
+      namePath: true,
+      isFile: true,
+    },
+  });
+
+  const singleLayerNodes = singleLayerFolders.concat(singleLayerFiles);
+  if (!allFolders || !singleLayerNodes) {
+    return <div>something went wrong</div>;
+  }
 
   return (
-    <>
-      {/* <Sidebar /> */}
+    <main className="h-screen flex overflow-y-auto">
+      <Sidebar data={allFolders} singleLayerNodes={singleLayerNodes} />
       <DeleteModal />
       <DownloadModal />
       <RenameModal />
-      <main className="h-screen flex overflow-y-auto">{children}</main>
+      <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />
       </div>
-    </>
+    </main>
   );
 };
 

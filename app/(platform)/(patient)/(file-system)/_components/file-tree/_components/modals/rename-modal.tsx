@@ -36,9 +36,9 @@ export const RenameModal = () => {
   }
   return (
     <AlertDialog open={renameModal.isOpen} onOpenChange={renameModal.onClose}>
-      <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
+      <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>
+          <AlertDialogTitle className="whitespace-normal break-all">
             Rename <span className="italic">{renameModal.nodeData.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-primary">

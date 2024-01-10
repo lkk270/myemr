@@ -30,7 +30,7 @@ export const DownloadModal = () => {
     <AlertDialog open={downloadModal.isOpen} onOpenChange={downloadModal.onClose}>
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>
+          <AlertDialogTitle className="whitespace-normal break-all">
             Export <span className="italic">{downloadModal.nodeData.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription>

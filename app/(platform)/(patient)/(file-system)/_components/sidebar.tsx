@@ -141,7 +141,7 @@ export const Sidebar = ({ data }: SidebarProps) => {
           </div> */}
           {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
           {/* <CitiesTree width={sidebarWidth} /> */}
-          <Arborist width={sidebarWidth} />
+          <Arborist width={sidebarWidth} data={data}/>
           {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           {/* </div> */}
           {/* <div className="p-4 h-[100px]">

@@ -31,7 +31,7 @@ export const GenericCombobox = ({
   placeholder = "Select item...",
   searchPlaceholder = "Search item...",
   noItemsMessage = "No item found.",
-  width = "w-[240px]",
+  width = "w-[220px] md:w-full",
   valueParam,
   handleChange,
   className = "bg-secondary",

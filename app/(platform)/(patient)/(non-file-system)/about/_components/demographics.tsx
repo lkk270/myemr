@@ -236,7 +236,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
-                  <div className="w-[240px] ">
+                  <div className="w-[220px] md:w-full">
                     <Label htmlFor="dateOfBirth">Date of Birth</Label>
 
                     {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
@@ -290,7 +290,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:max-w-[50%] items-center gap-4 px-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:max-w-[60%] items-center gap-4 px-4">
                   <div>
                     <Label htmlFor="height">Height</Label>
                     <GenericCombobox

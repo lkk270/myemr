@@ -29,7 +29,7 @@ export const DeleteModal = () => {
     <AlertDialog open={deleteModal.isOpen} onOpenChange={deleteModal.onClose}>
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>
+          <AlertDialogTitle className="whitespace-normal break-all">
             Send <span className="italic">{deleteModal.nodeData.name}</span> to trash?
           </AlertDialogTitle>
           <AlertDialogDescription>

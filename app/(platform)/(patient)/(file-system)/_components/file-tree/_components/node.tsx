@@ -77,9 +77,11 @@ interface HandleMenuItemClickParams {
 
 // Reusable menu item component
 const MenuHeader = ({ title, icon: Icon }: MenuHeaderProps) => (
-  <div className="text-sm text-muted-foreground flex items-center justify-center py-1">
-    <Icon size={iconSize} color={folderColor} className="w-4 h-4 mr-2" />
-    {title}
+  <div className="flex justify-center py-1 overflow-hidden">
+    <div className="flex items-center text-sm text-muted-foreground max-w-full">
+      <Icon size={iconSize} color={folderColor} className="w-4 h-4 mr-2 flex-shrink-0" />
+      <div className="truncate flex-1">{title}</div>
+    </div>
   </div>
 );
 

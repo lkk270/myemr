@@ -8,8 +8,9 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useSearch } from "@/hooks/use-search";
+import { useFolderStore } from "../_components/hooks/use-folders";
 // import { FoldersTree } from "./folders-tree";
-import { Item } from "./item";
+import { NodeData2Type } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
 // import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 // import { CitiesTree } from "../(test)/cities-tree";
@@ -18,11 +19,13 @@ import Arborist from "./file-tree/_components/tree";
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
   data: any[];
+  singleLayerNodes: NodeData2Type[];
 }
-export const Sidebar = ({ data }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   const router = useRouter();
   const search = useSearch();
   const params = useParams();
+  const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -33,10 +36,12 @@ export const Sidebar = ({ data }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(300);
 
-  console.log(data);
+  console.log(singleLayerNodes);
 
   useEffect(() => {
     setIsMounted(true);
+    folderStore.setFolders(data);
+    folderStore.setSingleLayerNodes(singleLayerNodes);
   }, []);
 
   useEffect(() => {
@@ -141,7 +146,7 @@ export const Sidebar = ({ data }: SidebarProps) => {
           </div> */}
           {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
           {/* <CitiesTree width={sidebarWidth} /> */}
-          <Arborist width={sidebarWidth} data={data}/>
+          <Arborist width={sidebarWidth} />
           {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           {/* </div> */}
           {/* <div className="p-4 h-[100px]">

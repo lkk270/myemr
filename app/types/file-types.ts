@@ -13,3 +13,11 @@ export type NodeDataType = {
   namePath: string;
   isFile: boolean;
 };
+
+export type NodeData2Type = {
+  id: string;
+  name: string;
+  path: string;
+  namePath: string;
+  isFile: boolean;
+};

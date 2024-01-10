@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils";
 import { FillFlexParent } from "./fill-flex-parent";
 import { Item } from "../../item";
 import { Input } from "@/components/ui/input";
+
+import { useFolderStore } from "../../hooks/use-folders";
 interface ArboristProps {
   width: number;
-  data: any[];
 }
 
 const CustomCursor = () => null;
@@ -149,9 +150,12 @@ const customDragPreview = (
   return <div>{stackedItems}</div>;
 };
 
-const Arborist = ({ width, data }: ArboristProps) => {
+const Arborist = ({ width }: ArboristProps) => {
+  const folderStore = useFolderStore();
   // const [treeInstance, setTreeInstance] = useState<any>(null);
-  const [treeData, setTreeData] = useState(data);
+  // folderStore.setFolders(data);
+  // console.log(folderStore.folders);
+  // const [treeData, setTreeData] = useState(data);
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
@@ -262,6 +266,9 @@ const Arborist = ({ width, data }: ArboristProps) => {
     console.log(parentId);
     console.log(index);
   };
+  if (!folderStore.foldersSet) {
+    return null;
+  }
 
   return (
     <>
@@ -314,7 +321,7 @@ const Arborist = ({ width, data }: ArboristProps) => {
               ref={treeRef}
               disableMultiSelection={false}
               openByDefault={false}
-              data={treeData}
+              data={folderStore.folders}
               width={width - 8}
               height={screenHeight - 200}
               // rowClassName={"max-w-[200px] w-full"}

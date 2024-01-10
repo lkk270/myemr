@@ -26,13 +26,14 @@ const PatientDemographics = async () => {
   //     id: "clr71tl9c0010neauwv20y7kc",
   //   },
   // });
-  // await createFolder("Root", "/", "/Root", null, "clqy00gdg000q60yoc8kuxpf2", 3);
+  // await createFolder("Root", "/", "/Root", null, "clqy00gdg000q60yoc8kuxpf2", "clqvdl88c0003cah8li8dt7fy", 3);
   async function createFolder(
     name: string,
     path: string,
     namePath: string,
     parentId: string | null,
     patientProfileId: string,
+    userId: string,
     depth: number,
   ) {
     if (depth === 0) return null;
@@ -45,10 +46,23 @@ const PatientDemographics = async () => {
         namePath,
         parentId,
         patientProfileId,
+        userId,
         files: {
           create: [
-            { name: `File1_in_${name}`, path: `${path}${name}/`, namePath: `${namePath}/File1`, patientProfileId },
-            { name: `File2_in_${name}`, path: `${path}${name}/`, namePath: `${namePath}/File2`, patientProfileId },
+            {
+              name: `File1_in_${name}`,
+              path: `${path}${name}/`,
+              namePath: `${namePath}/File1`,
+              patientProfileId,
+              userId,
+            },
+            {
+              name: `File2_in_${name}`,
+              path: `${path}${name}/`,
+              namePath: `${namePath}/File2`,
+              patientProfileId,
+              userId,
+            },
           ],
         },
       },
@@ -61,6 +75,7 @@ const PatientDemographics = async () => {
       `${namePath}/Subfolder1`,
       folder.id,
       patientProfileId,
+      userId,
       depth - 1,
     );
     await createFolder(
@@ -69,6 +84,7 @@ const PatientDemographics = async () => {
       `${namePath}/Subfolder2`,
       folder.id,
       patientProfileId,
+      userId,
       depth - 1,
     );
 

@@ -20,7 +20,61 @@ const PatientDemographics = async () => {
     return redirect("/");
   }
   const user = session?.user;
-  
+
+  // await prismadb.folder.delete({
+  //   where: {
+  //     id: "clr71tl9c0010neauwv20y7kc",
+  //   },
+  // });
+  // await createFolder("Root", "/", "/Root", null, "clqy00gdg000q60yoc8kuxpf2", 3);
+  async function createFolder(
+    name: string,
+    path: string,
+    namePath: string,
+    parentId: string | null,
+    patientProfileId: string,
+    depth: number,
+  ) {
+    if (depth === 0) return null;
+
+    // Create folder
+    const folder = await prismadb.folder.create({
+      data: {
+        name,
+        path,
+        namePath,
+        parentId,
+        patientProfileId,
+        files: {
+          create: [
+            { name: `File1_in_${name}`, path: `${path}${name}/`, namePath: `${namePath}/File1`, patientProfileId },
+            { name: `File2_in_${name}`, path: `${path}${name}/`, namePath: `${namePath}/File2`, patientProfileId },
+          ],
+        },
+      },
+    });
+
+    // Create subfolders
+    await createFolder(
+      `Subfolder1_of_${name}`,
+      `${path}${name}/`,
+      `${namePath}/Subfolder1`,
+      folder.id,
+      patientProfileId,
+      depth - 1,
+    );
+    await createFolder(
+      `Subfolder2_of_${name}`,
+      `${path}${name}/`,
+      `${namePath}/Subfolder2`,
+      folder.id,
+      patientProfileId,
+      depth - 1,
+    );
+
+    return folder;
+  }
+
   const patientDemographics = await prismadb.patientProfile.findUnique({
     where: {
       userId: user.id,

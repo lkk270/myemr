@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Tree } from "react-arborist";
-import { data } from "../_data/data";
+// import { data } from "../_data/data";
 import Node from "./node";
 import { TbFolderPlus } from "react-icons/tb";
 import { AiOutlineFileAdd } from "react-icons/ai";
@@ -13,6 +13,7 @@ import { Item } from "../../item";
 import { Input } from "@/components/ui/input";
 interface ArboristProps {
   width: number;
+  data: any[];
 }
 
 const CustomCursor = () => null;
@@ -148,7 +149,7 @@ const customDragPreview = (
   return <div>{stackedItems}</div>;
 };
 
-const Arborist = ({ width }: ArboristProps) => {
+const Arborist = ({ width, data }: ArboristProps) => {
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   const [treeData, setTreeData] = useState(data);
   const [term, setTerm] = useState<string>("");
@@ -216,7 +217,7 @@ const Arborist = ({ width }: ArboristProps) => {
   };
 
   const disableDrag = () => {
-    return !draggedNode.parentId|| !allSelectedHaveSameParent;
+    return !draggedNode.parentId || !allSelectedHaveSameParent;
   };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 

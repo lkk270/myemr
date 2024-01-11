@@ -63,7 +63,7 @@ export const SearchCommand = () => {
       action: () => onClose(),
     },
     { label: "Upload records", icon: Upload, action: onClose },
-    { label: "Back", icon: ChevronLeft, action: onClose },
+    // { label: "Back", icon: ChevronLeft, action: onClose },
   ];
 
   return (

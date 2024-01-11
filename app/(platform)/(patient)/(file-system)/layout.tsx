@@ -7,7 +7,7 @@ import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_compone
 // import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-
+import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -17,7 +17,6 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     return redirect("/");
   }
   const user = session?.user;
-  console.log(user);
 
   async function fetchAllFoldersForPatient(parentId = null) {
     // Fetch folders and their files
@@ -42,6 +41,31 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     }
 
     return folders;
+  }
+
+  function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLayerNodesType2[] {
+    // Extract lastViewedAt and remove recordViewActivity
+    const updatedArray = array.map((item) => {
+      const lastViewedAt = item.recordViewActivity.length > 0 ? item.recordViewActivity[0].lastViewedAt : undefined;
+
+      const { recordViewActivity, ...rest } = item;
+      return { ...rest, lastViewedAt };
+    });
+
+    // Separate items with and without a lastViewedAt
+    const itemsWithDate = updatedArray.filter((item) => item.lastViewedAt != null);
+    const itemsWithoutDate = updatedArray.filter((item) => item.lastViewedAt == null);
+
+    // Sort items with a lastViewedAt and then concatenate the rest
+    const sortedItems = itemsWithDate
+      .sort((a, b) => {
+        const dateA = a.lastViewedAt as Date;
+        const dateB = b.lastViewedAt as Date;
+        return dateB.getTime() - dateA.getTime();
+      })
+      .concat(itemsWithoutDate);
+
+    return sortedItems;
   }
 
   function flattenStructure(data: any[]) {
@@ -79,6 +103,14 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       path: true,
       namePath: true,
       isFile: true,
+      recordViewActivity: {
+        where: {
+          userId: user.id,
+        },
+        select: {
+          lastViewedAt: true,
+        },
+      },
     },
   });
 
@@ -92,10 +124,19 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       path: true,
       namePath: true,
       isFile: true,
+      recordViewActivity: {
+        where: {
+          userId: user.id,
+        },
+        select: {
+          lastViewedAt: true,
+        },
+      },
     },
   });
 
-  const singleLayerNodes = singleLayerFolders.concat(singleLayerFiles);
+  const singleLayerNodes = addLastViewedAtAndSort(singleLayerFolders.concat(singleLayerFiles));
+
   if (!allFolders || !singleLayerNodes) {
     return <div>something went wrong</div>;
   }

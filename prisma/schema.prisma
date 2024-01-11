@@ -159,19 +159,35 @@ model Medication {
 //   File        File[]
 // }
 
+model RecordViewActivity {
+  id           Int      @id @default(autoincrement())
+  lastViewedAt DateTime @default(now())
+  userId       String
+  fileId       String?  @unique
+  folderId     String?  @unique
+  user         User     @relation(fields: [userId], references: [id])
+  file         File?    @relation(fields: [fileId], references: [id])
+  folder       Folder?  @relation(fields: [folderId], references: [id])
+
+  @@unique([userId, fileId])
+  @@unique([userId, folderId])
+}
+
 model Folder {
-  id       String  @id @default(cuid())
-  name     String
-  path     String  @default("/")
-  namePath String
-  isFile   Boolean @default(false)
-
+  id            String   @id @default(cuid())
+  name          String
+  path          String   @default("/")
+  namePath      String
+  isFile        Boolean  @default(false)
+  addedByUserId String?
+  addedByName   String   @default("Charli Dog")
   // Relations
-  parentId   String?
-  parent     Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subFolders Folder[] @relation("ParentFolder")
+  parentId      String?
+  parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subFolders    Folder[] @relation("ParentFolder")
 
-  files File[]
+  files              File[]
+  recordViewActivity RecordViewActivity[]
 
   userId           String
   patientProfileId String
@@ -185,14 +201,17 @@ model Folder {
 }
 
 model File {
-  id       String  @id @default(cuid())
-  name     String
-  isFile   Boolean @default(true)
-  path     String
-  namePath String
-  parentId String
+  id               String  @id @default(cuid())
+  name             String
+  isFile           Boolean @default(true)
+  path             String
+  namePath         String
+  parentId         String
+  uploadedByUserId String?
+  uploadedByName   String  @default("Charli Dog")
 
-  folder Folder @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  folder             Folder               @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  recordViewActivity RecordViewActivity[]
 
   userId           String
   patientProfileId String
@@ -259,17 +278,18 @@ model Member {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  name            String?
-  email           String?
-  emailVerified   DateTime?
-  image           String?
-  password        String?
-  role            UserRole         @default(USER)
-  type            UserType         @default(PATIENT)
-  patientProfile  PatientProfile?
-  providerProfile ProviderProfile?
-  accountType     AccountType      @default(OAUTH)
+  id                 String               @id @default(cuid())
+  name               String?
+  email              String?
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  role               UserRole             @default(USER)
+  type               UserType             @default(PATIENT)
+  patientProfile     PatientProfile?
+  providerProfile    ProviderProfile?
+  accountType        AccountType          @default(OAUTH)
+  recordViewActivity RecordViewActivity[]
 
   accounts                Account[]
   isTwoFactorEnabled      Boolean                @default(false)

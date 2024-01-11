@@ -21,3 +21,24 @@ export type NodeData2Type = {
   namePath: string;
   isFile: boolean;
 };
+
+export type SingleLayerNodesType = {
+  id: string;
+  name: string;
+  path: string;
+  namePath: string;
+  isFile: boolean;
+  lastViewedAt?: Date;
+  recordViewActivity: {
+    lastViewedAt: Date;
+  }[];
+};
+
+export type SingleLayerNodesType2 = {
+  id: string;
+  name: string;
+  path: string;
+  namePath: string;
+  isFile: boolean;
+  lastViewedAt?: Date;
+};

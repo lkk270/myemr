@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { NodeData2Type } from "@/app/types/file-types";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 
 interface FolderStore {
   folders: any[];
-  singleLayerNodes: NodeData2Type[];
+  singleLayerNodes: SingleLayerNodesType2[];
   singleLayerNodesSet: boolean;
   foldersSet: boolean;
   setSingleLayerNodes: (nodes: any[]) => void;

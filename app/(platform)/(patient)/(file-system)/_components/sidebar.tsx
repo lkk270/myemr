@@ -22,6 +22,7 @@ interface SidebarProps {
   singleLayerNodes: NodeData2Type[];
 }
 export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
+  console.log(singleLayerNodes);
   const router = useRouter();
   const search = useSearch();
   const params = useParams();
@@ -34,9 +35,7 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   const navbarRef = useRef<ElementRef<"div">>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
-  const [sidebarWidth, setSidebarWidth] = useState(300);
-
-  console.log(singleLayerNodes);
+  const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
 
   useEffect(() => {
     setIsMounted(true);

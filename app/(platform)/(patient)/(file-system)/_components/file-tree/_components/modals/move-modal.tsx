@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import { Folder, FolderPlus, Upload, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFolderStore } from "../../../hooks/use-folders";
@@ -22,6 +23,7 @@ export const MoveModal = () => {
   const moveNode = moveModal.nodeData;
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -46,20 +48,31 @@ export const MoveModal = () => {
 
   const isValidReceivingFolder = (node: SingleLayerNodesType2) => {
     const completeNodePath = `${node.path}${node.id}/`;
-
     if (
       !node.isFile &&
+      !moveNode.isFile &&
       moveNode.parentId &&
       node.id !== moveNode.parentId &&
       !completeNodePath.includes(moveNode.path)
     ) {
       return true;
     }
+    if (!node.isFile && moveNode.isFile && moveNode.parentId && node.id !== moveNode.parentId) {
+      return true;
+    }
     return false;
   };
   return (
     <CommandDialog open={moveModal.isOpen} onOpenChange={moveModal.onClose}>
-      <CommandInput placeholder={`Move the ${moveNode.isFile ? "file" : "folder"} "${moveNode.name}" to...`} />
+      {isMobile ? (
+        <div>
+          <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${moveNode.name})`}</span>
+          <CommandInput placeholder={`Move ${moveNode.isFile ? "file" : "folder"} to...`} />
+        </div>
+      ) : (
+        <CommandInput placeholder={`Move the ${moveNode.isFile ? "file" : "folder"} "${moveNode.name}" to...`} />
+      )}
+
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading={`Recent Folders`}>

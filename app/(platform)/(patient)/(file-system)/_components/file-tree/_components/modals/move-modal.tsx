@@ -15,6 +15,7 @@ import {
 import { useMoveModal } from "../hooks/use-move-modal";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
@@ -38,12 +39,27 @@ export const MoveModal = () => {
     return null;
   }
   const parentFolder = singleLayerNodes.find((element) => element.id === moveNode.parentId);
+
   if (!parentFolder) {
     return null;
   }
+
+  const isValidReceivingFolder = (node: SingleLayerNodesType2) => {
+    const completeNodePath = `${node.path}${node.id}/`;
+
+    if (
+      !node.isFile &&
+      moveNode.parentId &&
+      node.id !== moveNode.parentId &&
+      !completeNodePath.includes(moveNode.path)
+    ) {
+      return true;
+    }
+    return false;
+  };
   return (
     <CommandDialog open={moveModal.isOpen} onOpenChange={moveModal.onClose}>
-      <CommandInput placeholder={`Move ${moveNode.isFile ? "file" : "folder"} to...`} />
+      <CommandInput placeholder={`Move the ${moveNode.isFile ? "file" : "folder"} "${moveNode.name}" to...`} />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading={`Recent Folders`}>
@@ -68,9 +84,7 @@ export const MoveModal = () => {
 
           {singleLayerNodes?.map(
             (node) =>
-              !node.isFile &&
-              moveNode.parentId &&
-              node.id !== moveNode.parentId && (
+              isValidReceivingFolder(node) && (
                 <CommandItem className="text-md text-primary/70" key={node.id} value={`${node.name}`} title={node.name}>
                   <div className="flex gap-x-4 items-center justify-center">
                     <div className="bg-primary/10 rounded-md p-2">

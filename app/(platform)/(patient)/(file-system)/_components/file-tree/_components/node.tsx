@@ -102,6 +102,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
+  const search = useSearch();
 
   const completeNodePath = node.data.isFile ? node.data.path : `${node.data.path}${node.data.id}/`;
 

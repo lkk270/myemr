@@ -68,7 +68,7 @@ export const SearchCommand = () => {
         <CommandGroup heading="Actions">
           {actionItems.map((item, index) => (
             <CommandItem
-              className="text-md text-muted-foreground hover:text-primary "
+              className="text-md text-primary/70 hover:text-primary "
               key={index}
               title={item.label}
               onSelect={() => item.action()}
@@ -85,7 +85,7 @@ export const SearchCommand = () => {
         <CommandGroup heading="Recent Records">
           {singleLayerNodes?.map((node, index) => (
             <Link key={index} href={`/files/${node.id}`} onClick={onClose}>
-              <CommandItem key={node.id} value={`${node.name}`} title={node.name}>
+              <CommandItem key={node.id} value={`${node.name}`} title={node.name} className="text-primary/70">
                 <File className="mr-2 h-4 w-4" />
                 <span>{node.name}</span>
               </CommandItem>

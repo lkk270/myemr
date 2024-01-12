@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 import { GenericNavigationMenu } from "@/components/generic-navigation-menu";
 import { navRoutes } from "@/lib/constants";
-import { useSearch } from "@/hooks/use-search";
 import { SearchBox } from "./search-box";
 import { UserButton } from "@/auth/components/auth/user-button";
 
@@ -17,8 +16,6 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
-  const search = useSearch();
-
   return (
     <>
       <nav className="justify-between px-3 py-2 w-full flex items-center gap-x-4">

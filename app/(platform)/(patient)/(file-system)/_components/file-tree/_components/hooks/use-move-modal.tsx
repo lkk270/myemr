@@ -3,7 +3,7 @@ import { NodeDataType } from "@/app/types/file-types";
 
 interface useMoveModalStore {
   isOpen: boolean;
-  nodeData: any;
+  nodeData: NodeDataType | null;
   onOpen: (nodeData: NodeDataType) => void;
   onClose: () => void;
 }

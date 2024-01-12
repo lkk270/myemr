@@ -19,7 +19,9 @@ import { cn, getFileIcon } from "@/lib/utils";
 import { useDeleteModal } from "./hooks/use-delete-file-modal";
 import { useDownloadModal } from "./hooks/use-download-modal";
 import { useRenameModal } from "./hooks/use-rename-modal";
+import { useMoveModal } from "./hooks/use-move-modal";
 import { useMediaQuery } from "usehooks-ts";
+import { useSearch } from "@/hooks/use-search";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -99,6 +101,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const deleteModal = useDeleteModal();
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
+  const moveModal = useMoveModal();
 
   const completeNodePath = node.data.isFile ? node.data.path : `${node.data.path}${node.data.id}/`;
 
@@ -134,7 +137,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       label: "Move",
       icon: FileInput,
       isFile: true,
-      action: () => {},
+      action: () => {
+        moveModal.onOpen(customNodeData);
+      },
     },
     {
       label: "Export",

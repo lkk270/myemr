@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { useSearch } from "@/hooks/use-search";
 import { useFolderStore } from "../_components/hooks/use-folders";
 // import { FoldersTree } from "./folders-tree";
 import { NodeData2Type } from "@/app/types/file-types";
@@ -24,7 +23,6 @@ interface SidebarProps {
 export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   console.log(singleLayerNodes);
   const router = useRouter();
-  const search = useSearch();
   const params = useParams();
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);

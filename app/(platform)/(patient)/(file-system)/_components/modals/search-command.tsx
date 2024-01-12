@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { File, FolderPlus, Upload, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-// import { useUser } from "@clerk/clerk-react";
 import { useFolderStore } from "../hooks/use-folders";
 import {
   CommandDialog,
@@ -14,17 +13,12 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useSearch } from "@/hooks/use-search";
-import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import Link from "next/link";
 
 export const SearchCommand = () => {
-  // const { user } = useUser();
-  // const user = useCurrentUser();
   const foldersStore = useFolderStore();
-  const folders = foldersStore.folders;
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const router = useRouter();
-  const documents: any[] = [];
   const [isMounted, setIsMounted] = useState(false);
 
   const toggle = useSearch((store) => store.toggle);

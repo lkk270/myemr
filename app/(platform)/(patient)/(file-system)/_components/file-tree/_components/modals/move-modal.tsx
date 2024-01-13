@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { Folder, FolderPlus, Upload, ChevronLeft } from "lucide-react";
+import { Folder } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFolderStore } from "../../../hooks/use-folders";
 import {
@@ -14,7 +14,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useMoveModal } from "../hooks/use-move-modal";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 
@@ -24,8 +23,6 @@ export const MoveModal = () => {
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const isMobile = useMediaQuery("(max-width: 768px)");
-
-  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -33,7 +30,6 @@ export const MoveModal = () => {
   }, []);
 
   const onSelect = (id: string) => {
-    router.push(`/files/${id}`);
     moveModal.onClose();
   };
 

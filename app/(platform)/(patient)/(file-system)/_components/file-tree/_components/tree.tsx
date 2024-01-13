@@ -29,8 +29,6 @@ const customDragPreview = (
   //bad selectedIds exists, id does not exist
   //drag one or more: both selectedIds and id exist
   // console.log(!tree.data);
-  console.log(selectedIds);
-  console.log(id);
   if (selectedIds.length === 0 && !id) {
     return null;
   }

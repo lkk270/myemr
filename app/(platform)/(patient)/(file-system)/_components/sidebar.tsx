@@ -6,7 +6,6 @@ import { useMediaQuery } from "usehooks-ts";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useFolderStore } from "../_components/hooks/use-folders";
 // import { FoldersTree } from "./folders-tree";
 import { NodeData2Type } from "@/app/types/file-types";
@@ -21,9 +20,8 @@ interface SidebarProps {
   singleLayerNodes: NodeData2Type[];
 }
 export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
+  console.log(data);
   console.log(singleLayerNodes);
-  const router = useRouter();
-  const params = useParams();
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();

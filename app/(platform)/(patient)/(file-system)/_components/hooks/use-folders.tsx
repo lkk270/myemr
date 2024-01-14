@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
-import { SingleLayerNodesType2 } from "@/app/types/file-types";
+import { SimpleNodeType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import _ from "lodash";
 
 interface FolderStore {
   folders: any[];
@@ -10,7 +11,108 @@ interface FolderStore {
   setSingleLayerNodes: (nodes: SingleLayerNodesType2[]) => void;
   setFolders: (folders: any[]) => void;
   updateNodeName: (nodeId: string, newName: string) => void;
+  moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
 }
+
+const getAllChildrenIds = (node: any, allNodes: any[]): Set<string> => {
+  const childrenIds = new Set<string>();
+  if (node.children) {
+    for (const child of node.children) {
+      childrenIds.add(child.id);
+      const childChildrenIds = getAllChildrenIds(child, allNodes);
+      childChildrenIds.forEach((id) => childrenIds.add(id));
+    }
+  }
+  return childrenIds;
+};
+
+const isChildOfSelectedNode = (
+  node: any,
+  selectedNodeIds: Set<string>,
+  allNodes: any[],
+  visitedNodeIds: Set<string> = new Set(),
+): boolean => {
+  if (selectedNodeIds.has(node.id)) {
+    return true;
+  }
+  if (node.parentId && !visitedNodeIds.has(node.id)) {
+    visitedNodeIds.add(node.id);
+    const parentNode = allNodes.find((n) => n.id === node.parentId);
+    return parentNode ? isChildOfSelectedNode(parentNode, selectedNodeIds, allNodes, visitedNodeIds) : false;
+  }
+  return false;
+};
+
+const updateNodePaths = (
+  node: any,
+  newPath: string,
+  newParentPath: string,
+  newParentId: string | null,
+  selectedNodeIds: Set<string>,
+  allNodes: any[],
+): void => {
+  if (selectedNodeIds.has(node.id) || isChildOfSelectedNode(node, selectedNodeIds, allNodes)) {
+    node.parentId = newParentId;
+    node.namePath = `${newPath}/${node.name}`;
+    node.path = newParentPath;
+
+    if (node.children) {
+      node.children.forEach((childNode: any) => {
+        updateNodePaths(childNode, node.namePath, node.path, node.id, selectedNodeIds, allNodes);
+      });
+    }
+  }
+};
+
+const updateFolderAndChildren = (folder: any, targetNode: any, selectedNodeMap: Map<string, any>) => {
+  let updatedFolder = { ...folder };
+
+  // Update the folder if it is one of the selected nodes
+
+  if (selectedNodeMap.has(folder.id)) {
+    const selectedNode = selectedNodeMap.get(folder.id);
+    updatedFolder = {
+      ...updatedFolder,
+      parentId: targetNode.id,
+      path: `${targetNode.path}${targetNode.id}/`,
+      namePath: `${targetNode.namePath}/${selectedNode.name}`,
+    };
+  }
+
+  // Remove the selected nodes from their original children array
+
+  if (folder.children) {
+    updatedFolder.children = folder.children
+      .filter((child: any) => !selectedNodeMap.has(child.id))
+      .map((child: any) => updateFolderAndChildren(child, targetNode, selectedNodeMap));
+  }
+
+  return updatedFolder;
+};
+
+const insertIntoFolder = (folder: any, node: any, targetNodeId: string) => {
+  if (folder.id === targetNodeId) {
+    if (!folder.isFile) {
+      const updatedNode = {
+        ...node,
+        parentId: targetNodeId,
+        path: `${folder.path}${folder.id}/`,
+        namePath: `${folder.namePath}/${node.name}`,
+      };
+      return { ...folder, children: [...folder.children, updatedNode] };
+    } else {
+      console.error("Cannot insert a node into a file.");
+      return folder;
+    }
+  } else if (folder.children) {
+    // Recursive call uses the original node, not updatedNode
+    return {
+      ...folder,
+      children: folder.children.map((child: any) => insertIntoFolder(child, node, targetNodeId)),
+    };
+  }
+  return folder;
+};
 
 export const useFolderStore = create<FolderStore>((set, get) => ({
   folders: [],
@@ -19,6 +121,52 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   foldersSet: false,
   setSingleLayerNodes: (singleLayerNodes) => set({ singleLayerNodes, singleLayerNodesSet: true }),
   setFolders: (folders) => set({ folders, foldersSet: true }),
+
+  moveNodes: (selectedIds: string[], targetNodeId: string) => {
+    set((state) => {
+      const selectedNodes = state.singleLayerNodes.filter((node) => selectedIds.includes(node.id));
+
+      const selectedNodeMap = new Map(
+        state.singleLayerNodes
+          .filter((node) => selectedIds.includes(node.id))
+          .map((node) => [node.id, _.cloneDeep(node)]),
+      );
+
+      const targetNode = state.singleLayerNodes.find((node) => node.id === targetNodeId);
+      if (!targetNode) {
+        toast.error(`Target node with id ${targetNodeId} not found`);
+        return { ...state };
+      }
+
+      // Update folders by removing original references of moved nodes
+      let updatedFolders = state.folders.map((folder) =>
+        updateFolderAndChildren(folder, targetNode, new Map(selectedNodes.map((node) => [node.id, node]))),
+      );
+
+      selectedNodes.forEach((node) => {
+        updatedFolders = updatedFolders.map((folder) => insertIntoFolder(folder, node, targetNodeId));
+      });
+
+      // Update singleLayerNodes with new properties
+      const updatedNodes = state.singleLayerNodes.map((node) => {
+        if (selectedNodeMap.has(node.id)) {
+          const selectedNode = selectedNodeMap.get(node.id);
+          return {
+            ...node,
+            parentId: targetNode.id,
+            path: `${targetNode.path}${targetNode.id}/`,
+            namePath: `${targetNode.namePath}/${selectedNode?.name}`,
+          };
+        }
+        return node;
+      });
+
+      console.log(updatedFolders);
+      console.log(updatedNodes);
+      return { ...state, singleLayerNodes: updatedNodes, folders: updatedFolders };
+    });
+  },
+
   updateNodeName: (nodeId, newName) => {
     const findFolderById = (folders: any[], id: string): any | null => {
       for (let folder of folders) {

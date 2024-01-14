@@ -13,9 +13,9 @@ type DragContextType = {
 };
 
 const DragContext = React.createContext<DragContextType>({
-  hoveredNode: { id: null, parentId: null, path: null, isFile: null },
+  hoveredNode: { id: null, parentId: null, path: null, namePath: null, isFile: null },
   setHoveredNode: () => {},
-  draggedNode: { id: null, parentId: null, path: null, isFile: null },
+  draggedNode: { id: null, parentId: null, path: null, namePath: null, isFile: null },
   setDraggedNode: () => {},
   hoveredFolderId: null,
   setHoveredFolderId: () => {},

@@ -2,6 +2,7 @@ export type SimpleNodeType = {
   id: string | null;
   parentId: string | null;
   path: string | null;
+  namePath: string | null;
   isFile: boolean | null;
 };
 

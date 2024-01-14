@@ -20,8 +20,6 @@ interface SidebarProps {
   singleLayerNodes: NodeData2Type[];
 }
 export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
-  console.log(data);
-  console.log(singleLayerNodes);
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
@@ -34,6 +32,7 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
 
   useEffect(() => {
+    console.log(" IN HERE");
     setIsMounted(true);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);

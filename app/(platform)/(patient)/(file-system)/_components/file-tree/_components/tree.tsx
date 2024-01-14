@@ -150,6 +150,7 @@ const customDragPreview = (
 
 const Arborist = ({ width }: ArboristProps) => {
   const folderStore = useFolderStore();
+  console.log(folderStore.folders);
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
   // console.log(folderStore.folders);
@@ -164,22 +165,26 @@ const Arborist = ({ width }: ArboristProps) => {
   const [hoveredNode, setHoveredNode] = useState<{
     id: string | null;
     parentId: string | null;
+    namePath: string | null;
     path: string | null;
     isFile: boolean | null;
   }>({
     id: null,
     parentId: null,
+    namePath: null,
     path: null,
     isFile: null,
   });
   const [draggedNode, setDraggedNode] = useState<{
     id: string | null;
     parentId: string | null;
+    namePath: string | null;
     path: string | null;
     isFile: boolean | null;
   }>({
     id: null,
     parentId: null,
+    namePath: null,
     path: null,
     isFile: null,
   });
@@ -263,6 +268,8 @@ const Arborist = ({ width }: ArboristProps) => {
     console.log(dragIds);
     console.log(parentId);
     console.log(index);
+    folderStore.moveNodes(dragIds, parentId);
+    setContextDisableDrop(true);
   };
   if (!folderStore.foldersSet) {
     return null;
@@ -320,6 +327,7 @@ const Arborist = ({ width }: ArboristProps) => {
               disableMultiSelection={false}
               openByDefault={false}
               data={folderStore.folders}
+              // initialData={folderStore.folders}
               width={width - 8}
               height={screenHeight - 200}
               // rowClassName={"max-w-[200px] w-full"}

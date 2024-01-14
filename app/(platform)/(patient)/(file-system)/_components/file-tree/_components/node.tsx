@@ -22,6 +22,7 @@ import { useRenameModal } from "./hooks/use-rename-modal";
 import { useMoveModal } from "./hooks/use-move-modal";
 import { useMediaQuery } from "usehooks-ts";
 import { useSearch } from "@/hooks/use-search";
+import { useFolderStore } from "../../hooks/use-folders";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -102,7 +103,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
-  const search = useSearch();
+  const foldersStore = useFolderStore();
 
   const completeNodePath = node.data.isFile ? node.data.path : `${node.data.path}${node.data.id}/`;
 
@@ -208,6 +209,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       setHoveredNode({
         id: node.data.id,
         parentId: node.data.parentId,
+        namePath: node.data.namePath,
         path: completeNodePath,
         isFile: node.data.isFile,
       });
@@ -216,6 +218,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       setHoveredNode({
         id: node.data.id,
         parentId: node.data.parentId,
+        namePath: node.data.namePath,
         path: completeNodePath,
         isFile: node.data.isFile,
       });
@@ -223,11 +226,26 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   };
 
   const handleDragStart = () => {
-    setDraggedNode({ id: node.id, parentId: node.data.parentId, path: completeNodePath, isFile: node.data.isFile });
+    setDraggedNode({
+      id: node.id,
+      parentId: node.data.parentId,
+      path: completeNodePath,
+      namePath: node.data.namePath,
+      isFile: node.data.isFile,
+    });
   };
 
   const handleDragEnd = () => {
-    setDraggedNode({ id: null, parentId: null, path: null, isFile: null });
+    console.log("DONE");
+    console.log(hoveredNode);
+    console.log(tree.selectedIds);
+    // if (hoveredNode.id) {
+    //   const selectedNodes = Array.from(tree.selectedIds).map((id) => tree.get(id).data);
+    //   console.log(selectedNodes);
+    //   console.log(selectedNodes.length);
+    //   foldersStore.moveNodes(selectedNodes, hoveredNode);
+    // }
+    setDraggedNode({ id: null, parentId: null, path: null, namePath: null, isFile: null });
   };
 
   // const handleDrop = (e: React.DragEvent) => {
@@ -259,7 +277,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   //   console.log(draggedNodeParentId);
   // }
   const handleDragLeave = () => {
-    setHoveredNode({ id: null, parentId: null, path: null, isFile: null });
+    setHoveredNode({ id: null, parentId: null, path: null, namePath: null, isFile: null });
   };
 
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
@@ -285,6 +303,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
               draggedNode.id &&
+                hoveredNode.id &&
                 !contextDisableDrop &&
                 // node.id !== draggedNode.id &&
                 // node.id !== draggedNode.parentId &&

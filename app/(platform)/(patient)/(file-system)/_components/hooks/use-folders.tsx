@@ -117,11 +117,8 @@ const insertIntoFolder = (folder: any, node: any, targetNodeId: string) => {
 const updateNodePathsForFolder = (node: any, newPath: string, newParentPath: string) => {
   // Clone the node to avoid direct state mutation
   let updatedNode = { ...node, path: newParentPath, namePath: newPath };
-  console.log(node);
-  console.log("======");
   // Recursively update paths for children if it's a folder
   if (!node.isFile && node.children) {
-    console.log("INNNN");
     updatedNode.children = node.children.map((childNode: any) => {
       const childNewPath = `${newPath}/${childNode.name}`;
       const childNewParentPath = `${newParentPath}${node.id}/`;
@@ -192,23 +189,47 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         updatedFolders = updatedFolders.map((folder) => insertIntoFolder(folder, updatedNode, targetNodeId));
       });
 
-      // Update singleLayerNodes with new properties
-      const updatedNodes = state.singleLayerNodes.map((node) => {
-        if (selectedNodeMap.has(node.id)) {
-          const selectedNode = selectedNodeMap.get(node.id);
-          return {
-            ...node,
-            parentId: targetNode.id,
-            path: node.isFile ? `${targetNode.path}${targetNode.id}/` : node.path,
-            namePath: `${targetNode.namePath}/${node.name}`,
-          };
+      // Extract all nodes from the updated folders array
+      let allUpdatedNodes: any[] = [];
+      const extractNodes = (folders: any[]) => {
+        folders.forEach((folder) => {
+          allUpdatedNodes.push(folder);
+          if (folder.children) {
+            extractNodes(folder.children);
+          }
+        });
+      };
+      extractNodes(updatedFolders);
+
+      // Create a map for quick lookup
+      const updatedNodeMap = new Map(allUpdatedNodes.map((node) => [node.id, { ...node, children: undefined }]));
+
+      // Update the singleLayerNodes array
+      const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
+        if (updatedNodeMap.has(node.id)) {
+          return updatedNodeMap.get(node.id);
         }
         return node;
       });
 
+      console.log(updatedSingleLayerNodes);
+
+      const selectedNodes = updatedSingleLayerNodes.filter((node) => selectedIds.includes(node.id));
+
+      // Filter out the non-selected nodes
+      const nonSelectedNodes = updatedSingleLayerNodes.filter((node) => !selectedIds.includes(node.id));
+
+      // Concatenate the selected nodes at the beginning and the non-selected nodes
+      const finalUpdatedSingleLayerNodes = selectedNodes.concat(nonSelectedNodes);
+
       console.log(updatedFolders);
-      console.log(updatedNodes);
-      return { ...state, singleLayerNodes: updatedNodes as SingleLayerNodesType2[], folders: updatedFolders };
+      console.log(finalUpdatedSingleLayerNodes);
+
+      return {
+        ...state,
+        singleLayerNodes: finalUpdatedSingleLayerNodes,
+        folders: updatedFolders,
+      };
     });
   },
 
@@ -273,10 +294,10 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       const oldPath = folderToUpdate.namePath;
       const newPath = oldPath.split("/").slice(0, -1).concat(newName).join("/");
 
-      if (state.singleLayerNodes.some((node) => node.namePath === newPath)) {
-        toast.error(`A node with the namePath '${newPath}' already exists.`);
-        return { ...state };
-      }
+      // if (state.singleLayerNodes.some((node) => node.namePath === newPath)) {
+      //   toast.error(`A node with the namePath '${newPath}' already exists.`);
+      //   return { ...state };
+      // }
 
       const updatedFolders = updateFolders(state.folders, nodeId, newName);
       let updatedNode = null;

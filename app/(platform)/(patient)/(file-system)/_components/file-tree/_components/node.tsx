@@ -180,9 +180,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     draggedNode.id &&
     !draggedNode.isFile &&
     completeNodePath.includes(hoveredNode.path) &&
-    completeNodePath !== draggedNode.path &&
-    !completeNodePath.includes(draggedNode.path) &&
-    completeNodePath !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
+    // completeNodePath !== draggedNode.path &&
+    // !completeNodePath.includes(draggedNode.path) &&
+    // completeNodePath !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
     hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/"
   ) {
     isBackgroundChanged4 = true;

@@ -114,6 +114,40 @@ const insertIntoFolder = (folder: any, node: any, targetNodeId: string) => {
   return folder;
 };
 
+const updateNodePathsForFolder = (node: any, newPath: string, newParentPath: string) => {
+  // Clone the node to avoid direct state mutation
+  let updatedNode = { ...node, path: newParentPath, namePath: newPath };
+  console.log(node);
+  console.log("======");
+  // Recursively update paths for children if it's a folder
+  if (!node.isFile && node.children) {
+    console.log("INNNN");
+    updatedNode.children = node.children.map((childNode: any) => {
+      const childNewPath = `${newPath}/${childNode.name}`;
+      const childNewParentPath = `${newParentPath}${node.id}/`;
+      return updateNodePathsForFolder(childNode, childNewPath, childNewParentPath);
+    });
+  }
+
+  return updatedNode;
+};
+
+// Utility function to find a node in the folders array
+const findNodeInFolders = (folders: any[], nodeId: string): any | null => {
+  for (const folder of folders) {
+    if (folder.id === nodeId) {
+      return folder;
+    }
+    if (folder.children) {
+      const foundNode = findNodeInFolders(folder.children, nodeId);
+      if (foundNode) {
+        return foundNode;
+      }
+    }
+  }
+  return null;
+};
+
 export const useFolderStore = create<FolderStore>((set, get) => ({
   folders: [],
   singleLayerNodes: [],
@@ -124,27 +158,38 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
   moveNodes: (selectedIds: string[], targetNodeId: string) => {
     set((state) => {
-      const selectedNodes = state.singleLayerNodes.filter((node) => selectedIds.includes(node.id));
+      // Retrieve the complete node information from the folders array
+      const selectedNodesInfo: any[] = []; // Replace 'any' with your node type if defined
+      const findSelectedNodes = (folders: any[], ids: Set<string>) => {
+        folders.forEach((folder) => {
+          if (ids.has(folder.id)) {
+            selectedNodesInfo.push(_.cloneDeep(folder));
+          }
+          if (folder.children) {
+            findSelectedNodes(folder.children, ids);
+          }
+        });
+      };
+      findSelectedNodes(state.folders, new Set(selectedIds));
 
-      const selectedNodeMap = new Map(
-        state.singleLayerNodes
-          .filter((node) => selectedIds.includes(node.id))
-          .map((node) => [node.id, _.cloneDeep(node)]),
-      );
-
-      const targetNode = state.singleLayerNodes.find((node) => node.id === targetNodeId);
+      const targetNode = findNodeInFolders(state.folders, targetNodeId);
       if (!targetNode) {
         toast.error(`Target node with id ${targetNodeId} not found`);
         return { ...state };
       }
 
-      // Update folders by removing original references of moved nodes
-      let updatedFolders = state.folders.map((folder) =>
-        updateFolderAndChildren(folder, targetNode, new Map(selectedNodes.map((node) => [node.id, node]))),
-      );
+      const selectedNodeMap = new Map(selectedNodesInfo.map((node) => [node.id, node]));
 
-      selectedNodes.forEach((node) => {
-        updatedFolders = updatedFolders.map((folder) => insertIntoFolder(folder, node, targetNodeId));
+      // Update folders by removing original references of moved nodes and updating paths
+      let updatedFolders = state.folders.map((folder) => updateFolderAndChildren(folder, targetNode, selectedNodeMap));
+
+      // Insert the nodes into the new location and update their paths
+      selectedNodeMap.forEach((node, nodeId) => {
+        const newPath = `${targetNode.namePath}/${node.name}`;
+        const newParentPath = `${targetNode.path}${targetNode.id}/`;
+        const updatedNode = updateNodePathsForFolder(node, newPath, newParentPath);
+
+        updatedFolders = updatedFolders.map((folder) => insertIntoFolder(folder, updatedNode, targetNodeId));
       });
 
       // Update singleLayerNodes with new properties
@@ -154,8 +199,8 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
           return {
             ...node,
             parentId: targetNode.id,
-            path: `${targetNode.path}${targetNode.id}/`,
-            namePath: `${targetNode.namePath}/${selectedNode?.name}`,
+            path: node.isFile ? `${targetNode.path}${targetNode.id}/` : node.path,
+            namePath: `${targetNode.namePath}/${node.name}`,
           };
         }
         return node;
@@ -163,7 +208,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
       console.log(updatedFolders);
       console.log(updatedNodes);
-      return { ...state, singleLayerNodes: updatedNodes, folders: updatedFolders };
+      return { ...state, singleLayerNodes: updatedNodes as SingleLayerNodesType2[], folders: updatedFolders };
     });
   },
 

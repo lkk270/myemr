@@ -12,6 +12,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
+import { sortFolderChildren } from "@/lib/utils";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -95,6 +96,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   const allFolders = await fetchAllFoldersForPatient(null);
+  const sortedFolders = allFolders.map((folder) => sortFolderChildren(folder));
 
   const singleLayerFolders = await prismadb.folder.findMany({
     where: {
@@ -142,13 +144,13 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
 
   const singleLayerNodes = addLastViewedAtAndSort(singleLayerFolders.concat(singleLayerFiles));
 
-  if (!allFolders || !singleLayerNodes) {
+  if (!sortedFolders || !singleLayerNodes) {
     return <div>something went wrong</div>;
   }
 
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar data={allFolders} singleLayerNodes={singleLayerNodes} />
+      <Sidebar data={sortedFolders} singleLayerNodes={singleLayerNodes} />
       <DeleteModal />
       <DownloadModal />
       <RenameModal />

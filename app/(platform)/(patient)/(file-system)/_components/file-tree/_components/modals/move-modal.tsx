@@ -30,6 +30,9 @@ export const MoveModal = () => {
   }, []);
 
   const onSelect = (id: string) => {
+    if (moveNode) {
+      foldersStore.moveNodes([moveNode.id], id);
+    }
     moveModal.onClose();
   };
 
@@ -94,7 +97,13 @@ export const MoveModal = () => {
           {singleLayerNodes?.map(
             (node) =>
               isValidReceivingFolder(node) && (
-                <CommandItem className="text-md text-primary/70" key={node.id} value={`${node.name}`} title={node.name}>
+                <CommandItem
+                  onSelect={() => onSelect(node.id)}
+                  className="text-md text-primary/70"
+                  key={node.id}
+                  value={`${node.name}`}
+                  title={node.name}
+                >
                   <div className="flex gap-x-4 items-center justify-center">
                     <div className="bg-primary/10 rounded-md p-2">
                       <Folder className="flex w-6 h-6" />

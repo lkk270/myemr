@@ -290,3 +290,26 @@ export function getFileIcon(filename: string) {
       return BsFileEarmark;
   }
 }
+
+// Utility function to sort nodes: folders first (alphabetically), then files (alphabetically).
+const sortNodes = (nodes: any[]): any[] => {
+  return nodes.sort((a, b) => {
+    // Sort folders before files
+    if (a.isFile !== b.isFile) {
+      return a.isFile ? 1 : -1;
+    }
+    // Then sort alphabetically by name
+    return a.name.localeCompare(b.name);
+  });
+};
+
+// Recursive function to apply sorting to each folder's children
+export const sortFolderChildren = (folder: any): any => {
+  let sortedFolder = { ...folder };
+
+  if (folder.children && folder.children.length > 0) {
+    sortedFolder.children = sortNodes(folder.children.map((child: any) => sortFolderChildren(child)));
+  }
+
+  return sortedFolder;
+};

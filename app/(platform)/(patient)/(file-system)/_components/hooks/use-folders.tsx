@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { SimpleNodeType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { sortFolderChildren } from "@/lib/utils";
 import _ from "lodash";
 
 interface FolderStore {
@@ -224,11 +225,12 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
       console.log(updatedFolders);
       console.log(finalUpdatedSingleLayerNodes);
+      const sortedFolders = updatedFolders.map((folder) => sortFolderChildren(folder));
 
       return {
         ...state,
         singleLayerNodes: finalUpdatedSingleLayerNodes,
-        folders: updatedFolders,
+        folders: sortedFolders,
       };
     });
   },
@@ -313,9 +315,11 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       if (updatedNode) {
         updatedSingleLayerNodes.unshift(updatedNode);
       }
+      const sortedFolders = updatedFolders.map((folder) => sortFolderChildren(folder));
+
       console.log(updatedFolders);
       console.log(updatedSingleLayerNodes);
-      return { ...state, folders: updatedFolders, singleLayerNodes: updatedSingleLayerNodes };
+      return { ...state, folders: sortedFolders, singleLayerNodes: updatedSingleLayerNodes };
     });
   },
 }));

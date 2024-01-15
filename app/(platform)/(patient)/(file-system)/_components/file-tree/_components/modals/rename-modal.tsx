@@ -60,7 +60,6 @@ export const RenameModal = () => {
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              console.log("Hello");
               folderStore.updateNodeName(renameModal.nodeData.id, name);
             }}
             className="w-20 h-8 text-sm"

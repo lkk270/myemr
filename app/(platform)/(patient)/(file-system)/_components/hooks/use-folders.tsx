@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { SimpleNodeType, SingleLayerNodesType2 } from "@/app/types/file-types";
-import { sortFolderChildren } from "@/lib/utils";
+import { sortFolderChildren, extractNodes, sortSingleLayerNodes } from "@/lib/utils";
 import _ from "lodash";
 
 interface FolderStore {
@@ -13,6 +13,7 @@ interface FolderStore {
   setFolders: (folders: any[]) => void;
   updateNodeName: (nodeId: string, newName: string) => void;
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
+  deleteNode: (nodeId: string) => void;
 }
 
 const getAllChildrenIds = (node: any, allNodes: any[]): Set<string> => {
@@ -146,6 +147,22 @@ const findNodeInFolders = (folders: any[], nodeId: string): any | null => {
   return null;
 };
 
+const recursivelyDelete = (nodeId: string, nodes: any[]) => {
+  return nodes.reduce((acc, node) => {
+    if (node.id === nodeId) {
+      // Skip the node to delete, and if it's a folder, also delete its children
+      return acc;
+    } else {
+      // Keep the node, but check its children recursively
+      if (node.children) {
+        node.children = recursivelyDelete(nodeId, node.children);
+      }
+      acc.push(node);
+      return acc;
+    }
+  }, []);
+};
+
 export const useFolderStore = create<FolderStore>((set, get) => ({
   folders: [],
   singleLayerNodes: [],
@@ -193,20 +210,13 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       });
 
       // Extract all nodes from the updated folders array
-      let allUpdatedNodes: any[] = [];
-      const extractNodes = (folders: any[]) => {
-        folders.forEach((folder) => {
-          allUpdatedNodes.push(folder);
-          if (folder.children) {
-            extractNodes(folder.children);
-          }
-        });
-      };
-      extractNodes(updatedFolders);
+      let allUpdatedNodes: any[] = extractNodes(updatedFolders);
 
       // Create a map for quick lookup
+      console.log(allUpdatedNodes);
       const updatedNodeMap = new Map(allUpdatedNodes.map((node) => [node.id, { ...node, children: undefined }]));
 
+      console.log(updatedNodeMap);
       // Update the singleLayerNodes array
       const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
         if (updatedNodeMap.has(node.id)) {
@@ -225,7 +235,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       // Concatenate the selected nodes at the beginning and the non-selected nodes
       const finalUpdatedSingleLayerNodes = selectedNodes.concat(nonSelectedNodes);
 
-      console.log(updatedFolders);
+      console.log(allUpdatedNodes);
       console.log(finalUpdatedSingleLayerNodes);
       const sortedFolders = updatedFolders.map((folder) => sortFolderChildren(folder));
 
@@ -322,6 +332,17 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       console.log(updatedFolders);
       console.log(updatedSingleLayerNodes);
       return { ...state, folders: sortedFolders, singleLayerNodes: updatedSingleLayerNodes };
+    });
+  },
+  deleteNode: (nodeId) => {
+    set((state) => {
+      const newFolders = recursivelyDelete(nodeId, state.folders);
+      let rawAllNodes = extractNodes(newFolders);
+      const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
+      const allNodesArray = Array.from(allNodesMap.values());
+      const updatedSingleLayerNodes = sortSingleLayerNodes(allNodesArray);
+
+      return { ...state, folders: newFolders, singleLayerNodes: updatedSingleLayerNodes };
     });
   },
 }));

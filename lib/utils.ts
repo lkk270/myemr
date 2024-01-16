@@ -21,6 +21,7 @@ import {
   BsFiletypePdf,
   BsFileEarmark,
 } from "react-icons/bs";
+import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -322,3 +323,36 @@ export const sortFolderChildren = (folder: any): any => {
 
   return sortedFolder;
 };
+
+export const extractNodes = (folders: any[]) => {
+  let rawAllNodes: any[] = [];
+
+  const extract = (folders: any[]) => {
+    folders.forEach((folder) => {
+      rawAllNodes.push({ ...folder, children: undefined }); // Assuming you want to remove 'children' from each node
+      if (folder.children) {
+        extract(folder.children);
+      }
+    });
+  };
+
+  extract(folders);
+  return rawAllNodes;
+};
+
+export function sortSingleLayerNodes(array: SingleLayerNodesType2[]): SingleLayerNodesType2[] {
+  // Separate items with and without a lastViewedAt
+  const itemsWithDate = array.filter((item) => item.lastViewedAt != null);
+  const itemsWithoutDate = array.filter((item) => item.lastViewedAt == null);
+
+  // Sort items with a lastViewedAt and then concatenate the rest
+  const sortedItems = itemsWithDate
+    .sort((a, b) => {
+      const dateA = a.lastViewedAt as Date;
+      const dateB = b.lastViewedAt as Date;
+      return dateB.getTime() - dateA.getTime();
+    })
+    .concat(itemsWithoutDate);
+
+  return sortedItems;
+}

@@ -67,7 +67,7 @@ export const RenameModal = () => {
         updateType: "renameNode",
       })
       .then(({ data }) => {
-        folderStore.updateNodeName(renameModal.nodeData.id, name);
+        folderStore.updateNodeName(nodeData.id, name);
         setIsLoading(false);
         renameModal.onClose();
       })

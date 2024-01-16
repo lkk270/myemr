@@ -12,7 +12,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
-import { sortFolderChildren } from "@/lib/utils";
+import { sortFolderChildren, extractNodes, sortSingleLayerNodes } from "@/lib/utils";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -29,7 +29,26 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
         AND: [{ userId: user.id }, { parentId: parentId }],
       },
       include: {
-        files: true,
+        files: {
+          include: {
+            recordViewActivity: {
+              where: {
+                userId: user.id,
+              },
+              select: {
+                lastViewedAt: true,
+              },
+            },
+          },
+        },
+        recordViewActivity: {
+          where: {
+            userId: user.id,
+          },
+          select: {
+            lastViewedAt: true,
+          },
+        },
       },
     })) as any[];
 
@@ -56,20 +75,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       return { ...rest, lastViewedAt };
     });
 
-    // Separate items with and without a lastViewedAt
-    const itemsWithDate = updatedArray.filter((item) => item.lastViewedAt != null);
-    const itemsWithoutDate = updatedArray.filter((item) => item.lastViewedAt == null);
-
-    // Sort items with a lastViewedAt and then concatenate the rest
-    const sortedItems = itemsWithDate
-      .sort((a, b) => {
-        const dateA = a.lastViewedAt as Date;
-        const dateB = b.lastViewedAt as Date;
-        return dateB.getTime() - dateA.getTime();
-      })
-      .concat(itemsWithoutDate);
-
-    return sortedItems;
+    return sortSingleLayerNodes(updatedArray);
   }
 
   function flattenStructure(data: any[]) {
@@ -98,51 +104,58 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const allFolders = await fetchAllFoldersForPatient(null);
   const sortedFolders = allFolders.map((folder) => sortFolderChildren(folder));
 
-  const singleLayerFolders = await prismadb.folder.findMany({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      id: true,
-      name: true,
-      path: true,
-      parentId: true,
-      namePath: true,
-      isFile: true,
-      recordViewActivity: {
-        where: {
-          userId: user.id,
-        },
-        select: {
-          lastViewedAt: true,
-        },
-      },
-    },
-  });
+  // const singleLayerFolders = await prismadb.folder.findMany({
+  //   where: {
+  //     userId: user.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     path: true,
+  //     parentId: true,
+  //     namePath: true,
+  //     isFile: true,
+  //     recordViewActivity: {
+  //       where: {
+  //         userId: user.id,
+  //       },
+  //       select: {
+  //         lastViewedAt: true,
+  //       },
+  //     },
+  //   },
+  // });
 
-  const singleLayerFiles = await prismadb.file.findMany({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      id: true,
-      name: true,
-      parentId: true,
-      path: true,
-      namePath: true,
-      isFile: true,
-      recordViewActivity: {
-        where: {
-          userId: user.id,
-        },
-        select: {
-          lastViewedAt: true,
-        },
-      },
-    },
-  });
+  // const singleLayerFiles = await prismadb.file.findMany({
+  //   where: {
+  //     userId: user.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     parentId: true,
+  //     path: true,
+  //     namePath: true,
+  //     isFile: true,
+  //     recordViewActivity: {
+  //       where: {
+  //         userId: user.id,
+  //       },
+  //       select: {
+  //         lastViewedAt: true,
+  //       },
+  //     },
+  //   },
+  // });
+  let rawAllNodes = extractNodes(allFolders);
+  const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
+  const allNodesArray = Array.from(allNodesMap.values());
 
-  const singleLayerNodes = addLastViewedAtAndSort(singleLayerFolders.concat(singleLayerFiles));
+  // const singleLayerNodes = addLastViewedAtAndSort(singleLayerFolders.concat(singleLayerFiles));
+  // const singleLayerNodesOld = addLastViewedAtAndSort(singleLayerFolders.concat(singleLayerFiles));
+  // console.log(singleLayerNodesOld);
+  const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
+  // console.log(singleLayerNodes);
 
   if (!sortedFolders || !singleLayerNodes) {
     return <div>something went wrong</div>;

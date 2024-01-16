@@ -177,17 +177,23 @@ export async function POST(req: Request) {
         const oldNamePath = currentFolder.namePath;
         const newNamePath = oldNamePath.substring(0, oldNamePath.lastIndexOf("/") + 1) + newName;
 
-        // Update the folder
-        await prismadb.folder.update({
-          where: { id: nodeId },
-          data: {
-            name: newName,
-            namePath: newNamePath,
-          },
-        });
+        await prismadb.$transaction(
+          async (prisma) => {
+            // Update the folder
+            await prisma.folder.update({
+              where: { id: nodeId },
+              data: {
+                name: newName,
+                namePath: newNamePath,
+              },
+            });
 
-        // Retrieve and update descendants
-        await updateDescendantsForRename(nodeId, oldNamePath, newNamePath);
+            // Retrieve and update descendants
+            // Pass the transactional Prisma client to the function
+            await updateDescendantsForRename(nodeId, oldNamePath, newNamePath);
+          },
+          { timeout: 60000 },
+        );
         await updateRecordViewActivity(userId, nodeId, false);
       }
     } else if (updateType === "moveNode") {

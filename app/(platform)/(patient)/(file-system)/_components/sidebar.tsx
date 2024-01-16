@@ -34,6 +34,8 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   useEffect(() => {
     console.log(" IN HERE");
     setIsMounted(true);
+    console.log(data);
+    console.log(singleLayerNodes);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
   }, []);

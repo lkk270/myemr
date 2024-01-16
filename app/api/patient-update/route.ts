@@ -16,7 +16,7 @@ import {
   patientUpdateVerification,
   isValidNodeName,
 } from "@/lib/utils";
-import { updateDescendants, updateRecordViewActivity } from "@/lib/files";
+import { updateDescendantsForRename, updateRecordViewActivity, moveNodes } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
@@ -187,9 +187,13 @@ export async function POST(req: Request) {
         });
 
         // Retrieve and update descendants
-        await updateDescendants(nodeId, oldNamePath, newNamePath);
+        await updateDescendantsForRename(nodeId, oldNamePath, newNamePath);
         await updateRecordViewActivity(userId, nodeId, false);
       }
+    } else if (updateType === "moveNode") {
+      const selectedIds = body.selectedIds;
+      const targetId = body.targetId;
+      await moveNodes(selectedIds, targetId);
     }
 
     return new NextResponse("Success", { status: 200 });

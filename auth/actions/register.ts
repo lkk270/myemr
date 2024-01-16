@@ -38,27 +38,30 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   if (userType === UserType.PATIENT) {
     const { publicKey, privateKey } = generateAsymmetricKeyPairs();
     const symmetricKey = generateSymmetricKey();
-    await prismadb.$transaction([
-      prismadb.user.create({
-        data: {
-          email: email.toLowerCase(),
-          password: hashedPassword,
-          type: "PATIENT",
-          role: "ADMIN",
-          accountType: AccountType.CREDENTIALS,
-          patientProfile: {
-            create: {
-              firstName: encryptPatientRecord(firstName, symmetricKey),
-              lastName: encryptPatientRecord(lastName, symmetricKey),
-              email: encryptPatientRecord(email, symmetricKey),
-              publicKey: encryptKey(publicKey, "patientPublicKey"),
-              privateKey: encryptKey(privateKey, "patientPrivateKey"),
-              symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
+    await prismadb.$transaction(
+      async (prisma) => {
+        await prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            type: "PATIENT",
+            role: "ADMIN",
+            accountType: AccountType.CREDENTIALS,
+            patientProfile: {
+              create: {
+                firstName: encryptPatientRecord(firstName, symmetricKey),
+                lastName: encryptPatientRecord(lastName, symmetricKey),
+                email: encryptPatientRecord(email, symmetricKey),
+                publicKey: encryptKey(publicKey, "patientPublicKey"),
+                privateKey: encryptKey(privateKey, "patientPrivateKey"),
+                symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
+              },
             },
           },
-        },
-      }),
-    ]);
+        });
+      },
+      { timeout: 20000 },
+    );
   }
   // if (userType === UserType.PATIENT) {
   //   const { publicKey, privateKey } = generateAsymmetricKeyPairs();
@@ -84,24 +87,28 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   // }
   if (userType === UserType.PROVIDER) {
     const { publicKey, privateKey } = generateAsymmetricKeyPairs();
-    await prismadb.$transaction([
-      prismadb.user.create({
-        data: {
-          email: email.toLowerCase(),
-          password: hashedPassword,
-          type: "PROVIDER",
-          providerProfile: {
-            create: {
-              firstName,
-              lastName,
-              email,
-              publicKey: encryptKey(publicKey, "providerPublicKey"),
-              privateKey: encryptKey(privateKey, "providerPrivateKey"),
+    await prismadb.$transaction(
+      async (prisma) => {
+        await prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            type: "PROVIDER",
+            providerProfile: {
+              create: {
+                firstName,
+                lastName,
+                email,
+                publicKey: encryptKey(publicKey, "providerPublicKey"),
+                privateKey: encryptKey(privateKey, "providerPrivateKey"),
+              },
             },
           },
-        },
-      }),
-    ]);
+        });
+        // Include any additional operations if needed
+      },
+      { timeout: 20000 }, // Set your desired timeout in milliseconds
+    );
   }
 
   const verificationToken = await generateVerificationToken(email, userType);

@@ -36,12 +36,11 @@ export const DeleteModal = () => {
   const handleSave = () => {
     setIsLoading(true);
     const nodeData = deleteModal.nodeData;
-    foldersStore.deleteNode(nodeData.id);
     const promise = axios
       .post("/api/patient-update", {
         nodeId: nodeData.id,
         isFile: nodeData.isFile ? true : false,
-        updateType: "deleteNeode",
+        updateType: "deleteNode",
       })
       .then(({ data }) => {
         foldersStore.deleteNode(nodeData.id);

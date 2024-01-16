@@ -24,7 +24,6 @@ export const DeleteModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const foldersStore = useFolderStore();
   const deleteModal = useDeleteModal();
-  const deleteNode = deleteModal.nodeData;
 
   useEffect(() => {
     setIsMounted(true);
@@ -38,12 +37,11 @@ export const DeleteModal = () => {
     setIsLoading(true);
     const nodeData = deleteModal.nodeData;
     foldersStore.deleteNode(nodeData.id);
-    setIsLoading(false);
-    deleteModal.onClose();
     const promise = axios
       .post("/api/patient-update", {
         nodeId: nodeData.id,
-        updateType: "deleteNode",
+        isFile: nodeData.isFile ? true : false,
+        updateType: "deleteNeode",
       })
       .then(({ data }) => {
         foldersStore.deleteNode(nodeData.id);
@@ -62,12 +60,12 @@ export const DeleteModal = () => {
         //no need for set loading to false
         // Toggle edit mode off after operation
       });
-    // toast.promise(promise, {
-    //   loading: "Deleting node...",
-    //   success: "Changes saved successfully",
-    //   error: "Something went wrong",
-    //   duration: 1250,
-    // });
+    toast.promise(promise, {
+      loading: "Deleting node...",
+      success: "Changes saved successfully",
+      error: "Something went wrong",
+      duration: 1250,
+    });
   };
 
   return (

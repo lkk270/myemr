@@ -340,10 +340,18 @@ export const extractNodes = (folders: any[]) => {
   return rawAllNodes;
 };
 
-export function sortSingleLayerNodes(array: SingleLayerNodesType2[]): SingleLayerNodesType2[] {
+export function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLayerNodesType2[] {
+  // Extract lastViewedAt and remove recordViewActivity
+  const updatedArray = array.map((item) => {
+    const lastViewedAt = item.recordViewActivity.length > 0 ? item.recordViewActivity[0].lastViewedAt : undefined;
+
+    const { recordViewActivity, ...rest } = item;
+    return { ...rest, lastViewedAt };
+  });
+
   // Separate items with and without a lastViewedAt
-  const itemsWithDate = array.filter((item) => item.lastViewedAt != null);
-  const itemsWithoutDate = array.filter((item) => item.lastViewedAt == null);
+  const itemsWithDate = updatedArray.filter((item) => item.lastViewedAt != null);
+  const itemsWithoutDate = updatedArray.filter((item) => item.lastViewedAt == null);
 
   // Sort items with a lastViewedAt and then concatenate the rest
   const sortedItems = itemsWithDate

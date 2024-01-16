@@ -1,47 +1,43 @@
 import { Folder, File } from "@prisma/client";
 import prismadb from "./prismadb";
+import { PrismaClient } from "@prisma/client";
 
 export async function updateDescendantsForRename(
+  prisma: any,
   parentId: string,
   oldParentNamePath: string,
   newParentNamePath: string,
 ) {
-  // Start a transaction
-  await prismadb.$transaction(
-    async (prisma) => {
-      // Update subfolders
-      const subFolders = await prisma.folder.findMany({
-        where: { parentId: parentId },
-      });
+  // Update subfolders
+  const subFolders = await prisma.folder.findMany({
+    where: { parentId: parentId },
+  });
 
-      for (const subFolder of subFolders) {
-        const newSubFolderPath = subFolder.namePath.replace(oldParentNamePath, newParentNamePath);
+  for (const subFolder of subFolders) {
+    const newSubFolderPath = subFolder.namePath.replace(oldParentNamePath, newParentNamePath);
 
-        await prisma.folder.update({
-          where: { id: subFolder.id },
-          data: { namePath: newSubFolderPath },
-        });
+    await prisma.folder.update({
+      where: { id: subFolder.id },
+      data: { namePath: newSubFolderPath },
+    });
 
-        // Recursively update each subfolder's descendants
-        await updateDescendantsForRename(subFolder.id, subFolder.namePath, newSubFolderPath);
-      }
+    // Recursively update each subfolder's descendants
+    await updateDescendantsForRename(prisma, subFolder.id, subFolder.namePath, newSubFolderPath);
+  }
 
-      // Update files in this folder
-      const files = await prisma.file.findMany({
-        where: { parentId: parentId },
-      });
+  // Update files in this folder
+  const files = await prisma.file.findMany({
+    where: { parentId: parentId },
+  });
 
-      for (const file of files) {
-        const newFilePath = file.namePath.replace(oldParentNamePath, newParentNamePath);
+  for (const file of files) {
+    const newFilePath = file.namePath.replace(oldParentNamePath, newParentNamePath);
 
-        await prisma.file.update({
-          where: { id: file.id },
-          data: { namePath: newFilePath },
-        });
-      }
-    },
-    { timeout: 60000 },
-  );
+    await prisma.file.update({
+      where: { id: file.id },
+      data: { namePath: newFilePath },
+    });
+  }
 }
 
 export async function updateRecordViewActivity(userId: string, nodeId: string, isFile: boolean) {
@@ -77,7 +73,7 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
       for (const nodeId of selectedIds) {
         // First, determine if the node is a file or a folder
         let isFile = false;
-        let node: File | Folder = (await prismadb.folder.findUnique({ where: { id: nodeId } })) as Folder;
+        let node: File | Folder = (await prisma.folder.findUnique({ where: { id: nodeId } })) as Folder;
         if (!node) {
           node = (await prisma.file.findUnique({ where: { id: nodeId } })) as File;
           if (!node) continue; // Skip if node is not found
@@ -101,7 +97,7 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
           });
 
           // If the node is a folder, recursively update its descendants
-          await updateDescendantsForMove(nodeId, newPath, newNamePath);
+          await updateDescendantsForMove(prisma, nodeId, newPath, newNamePath);
         }
         await updateRecordViewActivity(userId, nodeId, isFile);
       }
@@ -110,8 +106,9 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
   );
 }
 
-async function updateDescendantsForMove(parentId: string, parentPath: string, parentNamePath: string) {
-  const children = await prismadb.folder.findMany({
+// Modified to accept a Prisma client
+async function updateDescendantsForMove(prisma: any, parentId: string, parentPath: string, parentNamePath: string) {
+  const children = await prisma.folder.findMany({
     where: { parentId: parentId },
   });
 
@@ -119,20 +116,17 @@ async function updateDescendantsForMove(parentId: string, parentPath: string, pa
     const newPath = `${parentPath}${parentId}/`;
     const newNamePath = `${parentNamePath}/${child.name}`;
 
-    // Update each child
-    await prismadb.folder.update({
+    await prisma.folder.update({
       where: { id: child.id },
       data: { path: newPath, namePath: newNamePath },
     });
 
-    // Recursively update if the child is a folder
     if (!child.isFile) {
-      await updateDescendantsForMove(child.id, newPath, newNamePath);
+      await updateDescendantsForMove(prisma, child.id, newPath, newNamePath);
     }
   }
 
-  // Also update files in the current folder
-  const files = await prismadb.file.findMany({
+  const files = await prisma.file.findMany({
     where: { parentId: parentId },
   });
 
@@ -140,9 +134,41 @@ async function updateDescendantsForMove(parentId: string, parentPath: string, pa
     const newFilePath = `${parentPath}${parentId}/`;
     const newFileNamePath = `${parentNamePath}/${file.name}`;
 
-    await prismadb.file.update({
+    await prisma.file.update({
       where: { id: file.id },
       data: { path: newFilePath, namePath: newFileNamePath },
     });
   }
+}
+
+export async function deleteNode(nodeId: string, isFile: boolean) {
+  return await prismadb.$transaction(async (prisma) => {
+    if (isFile) {
+      // Delete the file and its associated RecordViewActivity
+      await prisma.recordViewActivity.deleteMany({ where: { fileId: nodeId } });
+      await prisma.file.delete({ where: { id: nodeId } });
+    } else {
+      // Recursively delete folders and their contents
+      const subFolders = await prisma.folder.findMany({
+        where: { parentId: nodeId },
+      });
+
+      for (const subFolder of subFolders) {
+        await deleteNode(subFolder.id, false); // Recursive call for subfolders
+      }
+
+      // Delete all files in the current folder
+      const files = await prisma.file.findMany({
+        where: { parentId: nodeId },
+      });
+
+      for (const file of files) {
+        await deleteNode(file.id, true); // Recursive call for files
+      }
+
+      // Finally, delete the folder itself and its associated RecordViewActivity
+      await prisma.recordViewActivity.deleteMany({ where: { folderId: nodeId } });
+      await prisma.folder.delete({ where: { id: nodeId } });
+    }
+  });
 }

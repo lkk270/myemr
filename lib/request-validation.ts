@@ -15,6 +15,8 @@ const patientConditionals: any = {
   deleteMedication: { requiredFields: ["medicationId"], optionalFields: [] },
   renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
   moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
+  deleteNode: { requiredFields: ["nodeId", "isFile"], optionalFields: [] },
+
 };
 
 export const patientUpdateVerification = (body: any) => {

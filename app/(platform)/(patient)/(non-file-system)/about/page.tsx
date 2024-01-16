@@ -37,6 +37,8 @@ const PatientDemographics = async () => {
   //   },
   // });
 
+  // await prismadb.recordViewActivity.deleteMany({});
+
   const patientDemographics = await prismadb.patientProfile.findUnique({
     where: {
       userId: user.id,

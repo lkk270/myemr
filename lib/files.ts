@@ -58,42 +58,46 @@ export async function updateRecordViewActivity(userId: string, nodeId: string, i
   }
 }
 
-export async function moveNodes(selectedIds: string[], targetNodeId: string) {
+export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string) {
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
 
-  return await prismadb.$transaction(async (prisma) => {
-    for (const nodeId of selectedIds) {
-      // First, determine if the node is a file or a folder
-      let isFile = false;
-      let node: File | Folder = (await prismadb.folder.findUnique({ where: { id: nodeId } })) as Folder;
-      if (!node) {
-        node = (await prisma.file.findUnique({ where: { id: nodeId } })) as File;
-        if (!node) continue; // Skip if node is not found
-        isFile = true;
+  return await prismadb.$transaction(
+    async (prisma) => {
+      for (const nodeId of selectedIds) {
+        // First, determine if the node is a file or a folder
+        let isFile = false;
+        let node: File | Folder = (await prismadb.folder.findUnique({ where: { id: nodeId } })) as Folder;
+        if (!node) {
+          node = (await prisma.file.findUnique({ where: { id: nodeId } })) as File;
+          if (!node) continue; // Skip if node is not found
+          isFile = true;
+        }
+
+        const newPath = `${targetNode.path}${targetNode.id}/`;
+        const newNamePath = `${targetNode.namePath}/${node.name}`;
+
+        if (isFile) {
+          // Update the file
+          await prisma.file.update({
+            where: { id: nodeId },
+            data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
+          });
+        } else {
+          // Update the folder
+          await prisma.folder.update({
+            where: { id: nodeId },
+            data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
+          });
+
+          // If the node is a folder, recursively update its descendants
+          await updateDescendantsForMove(nodeId, newPath, newNamePath);
+        }
+        await updateRecordViewActivity(userId, nodeId, isFile);
       }
-
-      const newPath = `${targetNode.path}${targetNode.id}/`;
-      const newNamePath = `${targetNode.namePath}/${node.name}`;
-
-      if (isFile) {
-        // Update the file
-        await prisma.file.update({
-          where: { id: nodeId },
-          data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
-        });
-      } else {
-        // Update the folder
-        await prisma.folder.update({
-          where: { id: nodeId },
-          data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
-        });
-
-        // If the node is a folder, recursively update its descendants
-        await updateDescendantsForMove(nodeId, newPath, newNamePath);
-      }
-    }
-  });
+    },
+    { timeout: 60000 },
+  );
 }
 
 async function updateDescendantsForMove(parentId: string, parentPath: string, parentNamePath: string) {

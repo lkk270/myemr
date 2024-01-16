@@ -193,9 +193,8 @@ export async function POST(req: Request) {
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
-      await moveNodes(selectedIds, targetId);
+      await moveNodes(selectedIds, targetId, userId);
     }
-
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
     console.log(error);

@@ -39,44 +39,47 @@ export const {
           const safeName = (user.name + " ").split(" ");
           const email = user.email;
           if (!email) return false;
-          await prismadb.$transaction([
-            prismadb.user.create({
-              data: {
-                email: user.email?.toLowerCase(),
-                emailVerified: new Date(),
-                type: "PATIENT",
-                role: "ADMIN",
-                image: user.image,
-                patientProfile: {
-                  create: {
-                    firstName: encryptPatientRecord(safeName[0], symmetricKey),
-                    lastName: encryptPatientRecord(safeName[1], symmetricKey),
-                    email: encryptPatientRecord(email, symmetricKey),
-                    publicKey: encryptKey(publicKey, "patientPublicKey"),
-                    privateKey: encryptKey(privateKey, "patientPrivateKey"),
-                    symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
+          await prismadb.$transaction(
+            async (prisma) => {
+              await prisma.user.create({
+                data: {
+                  email: user.email?.toLowerCase(),
+                  emailVerified: new Date(),
+                  type: "PATIENT",
+                  role: "ADMIN",
+                  image: user.image,
+                  patientProfile: {
+                    create: {
+                      firstName: encryptPatientRecord(safeName[0], symmetricKey),
+                      lastName: encryptPatientRecord(safeName[1], symmetricKey),
+                      email: encryptPatientRecord(email, symmetricKey),
+                      publicKey: encryptKey(publicKey, "patientPublicKey"),
+                      privateKey: encryptKey(privateKey, "patientPrivateKey"),
+                      symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
+                    },
+                  },
+                  accounts: {
+                    createMany: {
+                      data: [
+                        {
+                          type: account.type,
+                          provider: account.provider,
+                          providerAccountId: account.providerAccountId,
+                          refresh_token: account.refresh_token,
+                          access_token: account.access_token,
+                          expires_at: account.expires_at,
+                          token_type: account.token_type,
+                          scope: account.scope,
+                          id_token: account.id_token,
+                        },
+                      ],
+                    },
                   },
                 },
-                accounts: {
-                  createMany: {
-                    data: [
-                      {
-                        type: account.type,
-                        provider: account.provider,
-                        providerAccountId: account.providerAccountId,
-                        refresh_token: account.refresh_token,
-                        access_token: account.access_token,
-                        expires_at: account.expires_at,
-                        token_type: account.token_type,
-                        scope: account.scope,
-                        id_token: account.id_token,
-                      },
-                    ],
-                  },
-                },
-              },
-            }),
-          ]);
+              });
+            },
+            { timeout: 20000 },
+          );
         }
       }
       // if (account?.provider !== "credentials") return true;

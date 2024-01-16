@@ -16,6 +16,9 @@ import {
 import { useMoveModal } from "../hooks/use-move-modal";
 import { Badge } from "@/components/ui/badge";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
+import _ from "lodash";
+import axios from "axios";
+import { toast } from "sonner";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
@@ -24,6 +27,7 @@ export const MoveModal = () => {
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -31,7 +35,36 @@ export const MoveModal = () => {
 
   const onSelect = (id: string) => {
     if (moveNode) {
+      setIsLoading(true);
+      const originalFolders = _.cloneDeep(foldersStore.folders);
       foldersStore.moveNodes([moveNode.id], id);
+      const promise = axios
+        .post("/api/patient-update", {
+          selectedIds: [moveNode.id],
+          targetId: id,
+          updateType: "moveNode",
+        })
+        .then(({ data }) => {
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          foldersStore.setFolders(originalFolders);
+          // error = error?.response?.data || "Something went wrong";
+          // console.log(error);
+          throw error;
+        })
+        .finally(() => {
+          setIsLoading(false);
+          // renameModal.onClose();
+          //no need for set loading to false
+          // Toggle edit mode off after operation
+        });
+      toast.promise(promise, {
+        loading: "Moving node",
+        success: "Changes saved successfully",
+        error: "Something went wrong",
+        duration: 1250,
+      });
     }
     moveModal.onClose();
   };

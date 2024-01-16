@@ -179,6 +179,7 @@ model Folder {
   path          String   @default("/")
   namePath      String
   isFile        Boolean  @default(false)
+  isRoot        Boolean  @default(false)
   addedByUserId String?
   addedByName   String   @default("Charli Dog")
   // Relations

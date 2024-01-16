@@ -83,6 +83,7 @@ export const SearchCommand = () => {
           ))}
         </CommandGroup>
         <CommandGroup heading="Recent Records">
+          {singleLayerNodes.length === 0 && <div className="text-primary/70 ml-2 text-sm">No records :(</div>}
           {singleLayerNodes?.map((node, index) => (
             <Link key={index} href={`/files/${node.id}`} onClick={onClose}>
               <CommandItem key={node.id} value={`${node.name}`} title={node.name} className="text-primary/70">

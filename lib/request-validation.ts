@@ -1,9 +1,19 @@
-const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
+const validUpdateTypes = [
+  "demographics",
+  "newMedication",
+  "editMedication",
+  "deleteMedication",
+  "renameNode",
+  "moveNode",
+  "addNode",
+  "deleteNode",
+];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
   newMedication: { requiredFields: ["fieldsObj"], optionalFields: [] },
   editMedication: { requiredFields: ["fieldsObj", "medicationId"], optionalFields: ["dosageHistoryInitialFields"] },
   deleteMedication: { requiredFields: ["medicationId"], optionalFields: [] },
+  renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
 };
 
 export const patientUpdateVerification = (body: any) => {

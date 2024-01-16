@@ -148,6 +148,25 @@ export async function POST(req: Request) {
       await prismadb.medication.delete({
         where: { id: body.medicationId },
       });
+    } else if (updateType === "renameNode") {
+      const isFile = body.isFile;
+      const nodeId = body.nodeId;
+      const newName = body.newName;
+      if (isFile === true) {
+        await prismadb.file.update({
+          where: {
+            id: nodeId,
+          },
+          data: { name: newName },
+        });
+      } else if (isFile === false) {
+        await prismadb.folder.update({
+          where: {
+            id: nodeId,
+          },
+          data: { name: newName },
+        });
+      }
     }
 
     return new NextResponse("Success", { status: 200 });

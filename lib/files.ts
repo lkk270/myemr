@@ -6,32 +6,42 @@ export async function updateDescendantsForRename(
   oldParentNamePath: string,
   newParentNamePath: string,
 ) {
-  // Update subfolders
-  const subFolders = await prismadb.folder.findMany({
-    where: { parentId: parentId },
-  });
-  for (const subFolder of subFolders) {
-    const newSubFolderPath = subFolder.namePath.replace(oldParentNamePath, newParentNamePath);
-    await prismadb.folder.update({
-      where: { id: subFolder.id },
-      data: { namePath: newSubFolderPath },
-    });
+  // Start a transaction
+  await prismadb.$transaction(
+    async (prisma) => {
+      // Update subfolders
+      const subFolders = await prisma.folder.findMany({
+        where: { parentId: parentId },
+      });
 
-    // Recursively update each subfolder's descendants
-    await updateDescendantsForRename(subFolder.id, subFolder.namePath, newSubFolderPath);
-  }
+      for (const subFolder of subFolders) {
+        const newSubFolderPath = subFolder.namePath.replace(oldParentNamePath, newParentNamePath);
 
-  // Update files in this folder
-  const files = await prismadb.file.findMany({
-    where: { parentId: parentId },
-  });
-  for (const file of files) {
-    const newFilePath = file.namePath.replace(oldParentNamePath, newParentNamePath);
-    await prismadb.file.update({
-      where: { id: file.id },
-      data: { namePath: newFilePath },
-    });
-  }
+        await prisma.folder.update({
+          where: { id: subFolder.id },
+          data: { namePath: newSubFolderPath },
+        });
+
+        // Recursively update each subfolder's descendants
+        await updateDescendantsForRename(subFolder.id, subFolder.namePath, newSubFolderPath);
+      }
+
+      // Update files in this folder
+      const files = await prisma.file.findMany({
+        where: { parentId: parentId },
+      });
+
+      for (const file of files) {
+        const newFilePath = file.namePath.replace(oldParentNamePath, newParentNamePath);
+
+        await prisma.file.update({
+          where: { id: file.id },
+          data: { namePath: newFilePath },
+        });
+      }
+    },
+    { timeout: 60000 },
+  );
 }
 
 export async function updateRecordViewActivity(userId: string, nodeId: string, isFile: boolean) {

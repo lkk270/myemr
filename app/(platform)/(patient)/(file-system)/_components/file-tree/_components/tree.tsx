@@ -7,11 +7,12 @@ import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
 import { File, FolderClosed, Search, X } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 import { cn } from "@/lib/utils";
 import { FillFlexParent } from "./fill-flex-parent";
 import { Item } from "../../item";
 import { Input } from "@/components/ui/input";
-
+import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
 interface ArboristProps {
   width: number;
@@ -150,7 +151,6 @@ const customDragPreview = (
 
 const Arborist = ({ width }: ArboristProps) => {
   const folderStore = useFolderStore();
-  console.log(folderStore.folders);
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
   // console.log(folderStore.folders);
@@ -158,6 +158,7 @@ const Arborist = ({ width }: ArboristProps) => {
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
+  const [isLoading, setIsLoading] = useState(false);
 
   const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
   const [contextDisableDrop, setContextDisableDrop] = useState(false);
@@ -264,12 +265,38 @@ const Arborist = ({ width }: ArboristProps) => {
   );
 
   const onMove = ({ dragIds, parentId, index }: any) => {
-    console.log("Moving");
-    console.log(dragIds);
-    console.log(parentId);
-    console.log(index);
+    setIsLoading(true);
+    const originalFolders = _.cloneDeep(folderStore.folders);
     folderStore.moveNodes(dragIds, parentId);
     setContextDisableDrop(true);
+    const promise = axios
+      .post("/api/patient-update", {
+        selectedIds: dragIds,
+        targetId: parentId,
+        updateType: "moveNode",
+      })
+      .then(({ data }) => {
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        folderStore.setFolders(originalFolders);
+        console.log(error?.response?.data);
+        // error = error?.response?.data || "Something went wrong";
+        // console.log(error);
+        throw error;
+      })
+      .finally(() => {
+        setIsLoading(false);
+        // renameModal.onClose();
+        //no need for set loading to false
+        // Toggle edit mode off after operation
+      });
+    toast.promise(promise, {
+      loading: dragIds.length > 1 ? "Moving nodes" : "Moving node",
+      success: "Changes saved successfully",
+      error: "Something went wrong",
+      duration: 1250,
+    });
   };
   if (!folderStore.foldersSet) {
     return null;

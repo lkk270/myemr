@@ -14,11 +14,13 @@ const patientConditionals: any = {
   editMedication: { requiredFields: ["fieldsObj", "medicationId"], optionalFields: ["dosageHistoryInitialFields"] },
   deleteMedication: { requiredFields: ["medicationId"], optionalFields: [] },
   renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
+  moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
 };
 
 export const patientUpdateVerification = (body: any) => {
   // Basic checks
   if (!body || typeof body !== "object" || Object.keys(body).length === 0) {
+    console.log("FAIL");
     return false;
   }
 

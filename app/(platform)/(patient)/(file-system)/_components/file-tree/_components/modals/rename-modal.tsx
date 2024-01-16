@@ -16,6 +16,8 @@ import { useRenameModal } from "../hooks/use-rename-modal";
 import { useFolderStore } from "../../../hooks/use-folders";
 import { useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import axios from "axios";
 
 export const RenameModal = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -39,6 +41,36 @@ export const RenameModal = () => {
     return null;
   }
 
+  const handleSave = () => {
+    const nodeData = renameModal.nodeData;
+    const promise = axios
+      .post("/api/patient-update", {
+        nodeId: nodeData.id,
+        isFile: nodeData.isFile,
+        newName: name,
+        updateType: "renameNode",
+      })
+      .then(({ data }) => {
+        folderStore.updateNodeName(renameModal.nodeData.id, name);
+      })
+      .catch((error) => {
+        console.log(error?.response?.data);
+        error = error?.response?.data || "Something went wrong";
+        console.log(error);
+        throw error;
+      })
+      .finally(() => {
+        //no need for set loading to false
+        // Toggle edit mode off after operation
+      });
+    toast.promise(promise, {
+      loading: "Saving changes",
+      success: "Changes saved successfully",
+      error: "Something went wrong",
+      duration: 1250,
+    });
+  };
+
   return (
     <AlertDialog open={renameModal.isOpen} onOpenChange={renameModal.onClose}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
@@ -60,7 +92,7 @@ export const RenameModal = () => {
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              folderStore.updateNodeName(renameModal.nodeData.id, name);
+              handleSave();
             }}
             className="w-20 h-8 text-sm"
           >

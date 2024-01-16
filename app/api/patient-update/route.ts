@@ -158,11 +158,19 @@ export async function POST(req: Request) {
         return new NextResponse("Invalid new name", { status: 400 });
       }
       if (isFile === true) {
+        const currentFile = await prismadb.file.findUnique({
+          where: { id: nodeId },
+        });
+        if (!currentFile) {
+          return new NextResponse("File not found", { status: 400 });
+        }
+        const oldPath = currentFile.namePath;
+        const newNamePath = oldPath.replace(/[^/]*$/, newName);
         await prismadb.file.update({
           where: {
             id: nodeId,
           },
-          data: { name: newName },
+          data: { name: newName, namePath: newNamePath },
         });
         await updateRecordViewActivity(userId, nodeId, true);
       } else if (isFile === false) {
@@ -171,7 +179,7 @@ export async function POST(req: Request) {
         });
 
         if (!currentFolder) {
-          throw new Error("Folder not found");
+          return new NextResponse("Folder not found", { status: 400 });
         }
 
         const oldNamePath = currentFolder.namePath;

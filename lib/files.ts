@@ -149,29 +149,33 @@ export async function deleteNode(nodeId: string, isFile: boolean) {
         await prisma.recordViewActivity.deleteMany({ where: { fileId: nodeId } });
         await prisma.file.delete({ where: { id: nodeId } });
       } else {
-        // Recursively delete folders and their contents
-        const subFolders = await prisma.folder.findMany({
-          where: { parentId: nodeId },
-        });
-
-        for (const subFolder of subFolders) {
-          await deleteNode(subFolder.id, false); // Recursive call for subfolders
-        }
+        // Depth-first recursive deletion of subfolders
+        await deleteSubFolders(prisma, nodeId);
 
         // Delete all files in the current folder
-        const files = await prisma.file.findMany({
-          where: { parentId: nodeId },
-        });
+        await prisma.file.deleteMany({ where: { parentId: nodeId } });
 
-        for (const file of files) {
-          await deleteNode(file.id, true); // Recursive call for files
-        }
-
-        // Finally, delete the folder itself and its associated RecordViewActivity
+        // Delete the folder's associated RecordViewActivity
         await prisma.recordViewActivity.deleteMany({ where: { folderId: nodeId } });
+
+        // Finally, delete the folder itself
         await prisma.folder.delete({ where: { id: nodeId } });
       }
     },
     { timeout: 60000 },
   );
+}
+
+async function deleteSubFolders(prisma: any, parentId: string) {
+  const subFolders = await prisma.folder.findMany({
+    where: { parentId: parentId },
+  });
+
+  for (const subFolder of subFolders) {
+    // Recursively delete deeper subfolders first
+    await deleteSubFolders(prisma, subFolder.id);
+
+    // Then delete the subfolder itself
+    await prisma.folder.delete({ where: { id: subFolder.id } });
+  }
 }

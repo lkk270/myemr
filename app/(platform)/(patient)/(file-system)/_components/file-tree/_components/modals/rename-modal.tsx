@@ -62,7 +62,7 @@ export const RenameModal = () => {
     const promise = axios
       .post("/api/patient-update", {
         nodeId: nodeData.id,
-        isFile: nodeData.isFile,
+        isFile: nodeData.isFile ? true : false,
         newName: newName,
         updateType: "renameNode",
       })

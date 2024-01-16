@@ -16,7 +16,7 @@ import {
   patientUpdateVerification,
   isValidNodeName,
 } from "@/lib/utils";
-import { updateDescendantsForRename, updateRecordViewActivity, moveNodes } from "@/lib/files";
+import { updateDescendantsForRename, updateRecordViewActivity, moveNodes, deleteNode } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
@@ -198,7 +198,7 @@ export async function POST(req: Request) {
 
             // Retrieve and update descendants
             // Pass the transactional Prisma client to the function
-            await updateDescendantsForRename(nodeId, oldNamePath, newNamePath);
+            await updateDescendantsForRename(prisma, nodeId, oldNamePath, newNamePath);
           },
           { timeout: 60000 },
         );
@@ -208,6 +208,10 @@ export async function POST(req: Request) {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
       await moveNodes(selectedIds, targetId, userId);
+    } else if (updateType === "deleteNode") {
+      const isFile = body.isFile;
+      const nodeId = body.nodeId;
+      await deleteNode(nodeId, isFile);
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {

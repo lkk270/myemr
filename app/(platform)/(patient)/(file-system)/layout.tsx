@@ -12,7 +12,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
-import { sortFolderChildren, extractNodes, sortSingleLayerNodes } from "@/lib/utils";
+import { sortFolderChildren, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -64,18 +64,6 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     }
 
     return folders;
-  }
-
-  function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLayerNodesType2[] {
-    // Extract lastViewedAt and remove recordViewActivity
-    const updatedArray = array.map((item) => {
-      const lastViewedAt = item.recordViewActivity.length > 0 ? item.recordViewActivity[0].lastViewedAt : undefined;
-
-      const { recordViewActivity, ...rest } = item;
-      return { ...rest, lastViewedAt };
-    });
-
-    return sortSingleLayerNodes(updatedArray);
   }
 
   function flattenStructure(data: any[]) {

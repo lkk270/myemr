@@ -14,7 +14,9 @@ import {
   checkForInvalidNewMedication,
   decryptMultiplePatientFields,
   patientUpdateVerification,
+  isValidNodeName,
 } from "@/lib/utils";
+import { updateDescendants, updateRecordViewActivity } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
@@ -152,6 +154,9 @@ export async function POST(req: Request) {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const newName = body.newName;
+      if (!isValidNodeName(newName)) {
+        return new NextResponse("Invalid new name", { status: 400 });
+      }
       if (isFile === true) {
         await prismadb.file.update({
           where: {
@@ -159,13 +164,31 @@ export async function POST(req: Request) {
           },
           data: { name: newName },
         });
+        await updateRecordViewActivity(userId, nodeId, true);
       } else if (isFile === false) {
-        await prismadb.folder.update({
-          where: {
-            id: nodeId,
-          },
-          data: { name: newName },
+        const currentFolder = await prismadb.folder.findUnique({
+          where: { id: nodeId },
         });
+
+        if (!currentFolder) {
+          throw new Error("Folder not found");
+        }
+
+        const oldNamePath = currentFolder.namePath;
+        const newNamePath = oldNamePath.substring(0, oldNamePath.lastIndexOf("/") + 1) + newName;
+
+        // Update the folder
+        await prismadb.folder.update({
+          where: { id: nodeId },
+          data: {
+            name: newName,
+            namePath: newNamePath,
+          },
+        });
+
+        // Retrieve and update descendants
+        await updateDescendants(nodeId, oldNamePath, newNamePath);
+        await updateRecordViewActivity(userId, nodeId, false);
       }
     }
 

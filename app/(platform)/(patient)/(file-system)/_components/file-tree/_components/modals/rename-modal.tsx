@@ -18,6 +18,7 @@ import { useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import axios from "axios";
+import { isValidNodeName } from "@/lib/utils";
 
 export const RenameModal = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -43,11 +44,20 @@ export const RenameModal = () => {
 
   const handleSave = () => {
     const nodeData = renameModal.nodeData;
+    const newName = name.trim();
+    if (newName === nodeData.name) {
+      toast("No changes were made");
+      return;
+    }
+    if (!isValidNodeName(newName)) {
+      toast.error("New name is invalid");
+      return;
+    }
     const promise = axios
       .post("/api/patient-update", {
         nodeId: nodeData.id,
         isFile: nodeData.isFile,
-        newName: name,
+        newName: newName,
         updateType: "renameNode",
       })
       .then(({ data }) => {

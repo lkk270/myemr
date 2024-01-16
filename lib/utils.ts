@@ -291,6 +291,15 @@ export function getFileIcon(filename: string) {
   }
 }
 
+export function isValidNodeName(fileName: string): boolean {
+  // Check if the file name is empty
+  if (!fileName || fileName.trim().length === 0) {
+    return false;
+  }
+  const invalidChars = /[\/\\?%*:|"<>&]/g;
+  return !invalidChars.test(fileName);
+}
+
 // Utility function to sort nodes: folders first (alphabetically), then files (alphabetically).
 const sortNodes = (nodes: any[]): any[] => {
   return nodes.sort((a, b) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { File, FolderPlus, Upload, ChevronLeft } from "lucide-react";
+import { File, Folder, FolderPlus, Upload, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFolderStore } from "../hooks/use-folders";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/command";
 import { useSearch } from "../hooks/use-search";
 import Link from "next/link";
-
+import { getFileIcon } from "@/lib/utils";
 export const SearchCommand = () => {
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
@@ -87,7 +87,10 @@ export const SearchCommand = () => {
           {singleLayerNodes?.map((node, index) => (
             <Link key={index} href={`/files/${node.id}`} onClick={onClose}>
               <CommandItem key={node.id} value={`${node.name}`} title={node.name} className="text-primary/70">
-                <File className="mr-2 h-4 w-4" />
+                {(() => {
+                  const CustomIcon = node.isFile ? getFileIcon(node.name) : Folder;
+                  return <CustomIcon className="mr-2 h-4 w-4" />;
+                })()}
                 <span>{node.name}</span>
               </CommandItem>
             </Link>

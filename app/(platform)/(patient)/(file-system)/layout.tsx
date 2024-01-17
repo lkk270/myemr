@@ -6,6 +6,8 @@ import { MoveModal } from "./_components/file-tree/_components/modals/move-modal
 import { Sidebar } from "./_components/sidebar";
 
 import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
+import { NewRootFolder } from "./_components/modals/new-root-folder-modal";
+
 // import { useUser } from "@clerk/nextjs";
 // import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
@@ -159,6 +161,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />
+        <NewRootFolder />
       </div>
     </main>
   );

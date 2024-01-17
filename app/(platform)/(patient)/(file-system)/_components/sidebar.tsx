@@ -13,7 +13,8 @@ import { Navbar } from "./navbar";
 // import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 // import { CitiesTree } from "../(test)/cities-tree";
 import Arborist from "./file-tree/_components/tree";
-
+import { Item } from "./item";
+import { NewRootFolderBox } from "./new-root-folder-box";
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
   data: any[];
@@ -145,10 +146,10 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
           <Arborist width={sidebarWidth} />
           {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           {/* </div> */}
-          {/* <div className="p-4 h-[100px]">
-          <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-          <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
-        </div> */}
+          <div className="py-4 px-6">
+            <NewRootFolderBox />
+            {/* <Item onClick={handleCreate} label="New Root Folder" icon={PlusCircle} /> */}
+          </div>
           <div
             onMouseDown={handleMouseDown}
             onClick={resetWidth}

@@ -21,7 +21,7 @@ import { useDownloadModal } from "./hooks/use-download-modal";
 import { useRenameModal } from "./hooks/use-rename-modal";
 import { useMoveModal } from "./hooks/use-move-modal";
 import { useMediaQuery } from "usehooks-ts";
-import { useSearch } from "@/hooks/use-search";
+import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
 import { useFolderStore } from "../../hooks/use-folders";
 
 import { Button } from "@/components/ui/button";

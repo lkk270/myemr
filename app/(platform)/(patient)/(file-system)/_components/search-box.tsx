@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-import { useSearch } from "@/hooks/use-search";
+import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
 
 export const SearchBox = () => {
   const search = useSearch();

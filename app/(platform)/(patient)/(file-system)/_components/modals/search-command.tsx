@@ -12,7 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useSearch } from "@/hooks/use-search";
+import { useSearch } from "../hooks/use-search";
 import Link from "next/link";
 
 export const SearchCommand = () => {

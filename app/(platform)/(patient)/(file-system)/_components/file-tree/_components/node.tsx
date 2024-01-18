@@ -12,6 +12,7 @@ import {
   File,
   FolderClosed,
   LucideIcon,
+  FolderPlus,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { IconType } from "react-icons";
@@ -20,6 +21,7 @@ import { cn, getFileIcon } from "@/lib/utils";
 import { useDeleteModal } from "./hooks/use-delete-file-modal";
 import { useDownloadModal } from "./hooks/use-download-modal";
 import { useRenameModal } from "./hooks/use-rename-modal";
+import { useAddFolderModal } from "./hooks/use-add-folder-modal";
 import { useMoveModal } from "./hooks/use-move-modal";
 import { useMediaQuery } from "usehooks-ts";
 import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
@@ -106,6 +108,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
+  const addFolderModal = useAddFolderModal();
   const foldersStore = useFolderStore();
   const pathname = usePathname();
   const router = useRouter();
@@ -153,6 +156,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       action: () => {
         moveModal.onOpen(customNodeData);
       },
+    },
+    {
+      label: "Add a subfolder",
+      icon: FolderPlus,
+      action: () => addFolderModal.onOpen(customNodeData, false),
     },
     {
       label: "Export",
@@ -403,6 +411,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                       if (item.label === "Move" && !node.data.parentId) {
                         return null;
                       }
+                      if (item.label === "Add a subfolder" && node.data.isFile) {
+                        return null;
+                      }
 
                       // If the condition is not met, render the DropdownMenuItem as usual
                       return (
@@ -434,6 +445,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               {menuItems.map((item, index) => {
                 // Check the condition - if it's true, return null (nothing will be rendered)
                 if (item.label === "Move" && !node.data.parentId) {
+                  return null;
+                }
+                if (item.label === "Add a subfolder" && node.data.isFile) {
                   return null;
                 }
 

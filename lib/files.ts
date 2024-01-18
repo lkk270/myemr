@@ -223,3 +223,64 @@ export const addRootNode = async (
     throw new Error("Failed to create folder");
   }
 };
+
+export const addSubFolder = async (
+  folderName: string,
+  parentId: string,
+  addedByUserId: string,
+  patientUserId: string,
+  patientProfileId: string,
+  addedByName: string,
+) => {
+  let folder: Folder | undefined;
+
+  const parentFolder = await prismadb.folder.findUnique({
+    where: {
+      id: parentId,
+    },
+  });
+
+  if (!parentFolder) {
+    throw new Error("Failed to create folder");
+  }
+
+  await prismadb.$transaction(
+    async (prisma) => {
+      folder = await prisma.folder.create({
+        data: {
+          name: folderName,
+          parentId: parentId,
+          namePath: `${parentFolder.namePath}/${folderName}`,
+          path: `${parentFolder.path}${parentFolder.id}/`,
+          addedByUserId: addedByUserId,
+          addedByName: addedByName,
+          userId: patientUserId,
+          patientProfileId: patientProfileId,
+          ...(addedByUserId && {
+            recordViewActivity: {
+              create: [
+                {
+                  userId: addedByUserId,
+                },
+              ],
+            },
+          }),
+        },
+      });
+    },
+    { timeout: 20000 }, // Set your desired timeout in milliseconds
+  );
+
+  if (folder) {
+    return {
+      id: folder.id,
+      name: folder.name,
+      parentId: folder.parentId,
+      path: folder.path,
+      namePath: folder.namePath,
+    };
+  } else {
+    // Handle the case where the folder creation failed or the transaction was rolled back
+    throw new Error("Failed to create folder");
+  }
+};

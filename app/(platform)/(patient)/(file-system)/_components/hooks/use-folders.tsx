@@ -16,6 +16,15 @@ interface FolderStore {
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
   deleteNode: (nodeId: string) => void;
   addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => void;
+  addSubFolder: (
+    folderId: string,
+    folderName: string,
+    parentId: string,
+    path: string,
+    namePath: string,
+    userId: string | null,
+    userName: string,
+  ) => void;
 }
 
 const getAllChildrenIds = (node: any, allNodes: any[]): Set<string> => {
@@ -381,6 +390,61 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         ...state,
         folders: updatedFolders,
         singleLayerNodes: updatedSingleLayerNodes,
+      };
+    });
+  },
+  addSubFolder: (
+    folderId: string,
+    folderName: string,
+    parentId: string,
+    path: string,
+    namePath: string,
+    userId: string | null,
+    userName: string,
+  ) => {
+    set((state) => {
+      const newSubFolder = {
+        id: folderId,
+        name: folderName,
+        path: path,
+        namePath: namePath,
+        isFile: false,
+        isRoot: false,
+        addedByUserId: userId,
+        addedByName: userName,
+        parentId: parentId,
+        children: [],
+        recordViewActivity: [{ lastViewedAt: new Date() }],
+      };
+
+      const insertSubFolder = (folders: any[], parentId: string, subFolder: any): any => {
+        return folders.map((folder) => {
+          if (folder.id === parentId) {
+            return { ...folder, children: [...folder.children, subFolder] };
+          } else if (folder.children) {
+            return { ...folder, children: insertSubFolder(folder.children, parentId, subFolder) };
+          } else {
+            return folder;
+          }
+        });
+      };
+
+      const newSingleLayerNode = {
+        ...newSubFolder,
+        children: undefined,
+        lastViewedAt: new Date(),
+      };
+      const updatedSingleLayerNodes = [newSingleLayerNode, ...state.singleLayerNodes];
+
+      const updatedFolders = insertSubFolder(state.folders, parentId, newSubFolder);
+
+      // The singleLayerNodes array should be updated as well if necessary
+      // You might need to adapt this part based on your application's logic
+
+      return {
+        ...state,
+        singleLayerNodes: updatedSingleLayerNodes,
+        folders: updatedFolders,
       };
     });
   },

@@ -8,6 +8,7 @@ const validUpdateTypes = [
   "addNode",
   "deleteNode",
   "addRootNode",
+  "addSubFolder",
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
@@ -21,12 +22,15 @@ const patientConditionals: any = {
     requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],
   },
+  addSubFolder: {
+    requiredFields: ["parentId", "folderName", "addedByUserId", "patientUserId", "addedByName"],
+    optionalFields: ["patientProfileId"],
+  },
 };
 
 export const patientUpdateVerification = (body: any) => {
   // Basic checks
   if (!body || typeof body !== "object" || Object.keys(body).length === 0) {
-    console.log("FAIL");
     return false;
   }
 

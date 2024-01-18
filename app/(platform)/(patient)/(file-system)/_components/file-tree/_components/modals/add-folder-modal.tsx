@@ -12,74 +12,75 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useRenameModal } from "../hooks/use-rename-modal";
+import { useAddFolderModal } from "../hooks/use-add-folder-modal";
 import { useFolderStore } from "../../../hooks/use-folders";
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
-export const RenameModal = () => {
+export const AddFolderModal = () => {
+  const user = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const renameModal = useRenameModal();
+  const addFolderModal = useAddFolderModal();
   const folderStore = useFolderStore();
-  const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
-    if (renameModal.isOpen && inputRef.current) {
-      setName(renameModal.nodeData.name);
-      setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 200);
-    }
-  }, [renameModal.isOpen]);
+  }, []);
 
-  if (!isMounted || !renameModal || !renameModal.nodeData) {
+  if (!isMounted || !addFolderModal || !addFolderModal.nodeData) {
     return null;
   }
 
   const handleSave = () => {
     setIsLoading(true);
-    const nodeData = renameModal.nodeData;
-    const newName = name.trim();
-    if (newName === nodeData.name) {
-      toast("No changes were made");
-      setIsLoading(false);
-      renameModal.onClose();
+    const nodeData = addFolderModal.nodeData;
+    const folderName = name.trim();
+    const userId = user?.id;
+    const email = user?.email;
+    const parentId = nodeData.id;
+    if (!email || !userId) {
+      toast.error("Something went wrong");
       return;
     }
-    if (!isValidNodeName(newName)) {
+    if (!isValidNodeName(folderName)) {
       toast.error("New name is invalid");
       setIsLoading(false);
-      // renameModal.onClose();
+      //   addFolderModal.onClose();
       return;
     }
     const promise = axios
       .post("/api/patient-update", {
-        nodeId: nodeData.id,
-        isFile: nodeData.isFile ? true : false,
-        newName: newName,
-        updateType: "renameNode",
+        parentId: parentId,
+        folderName: folderName,
+        addedByUserId: userId,
+        patientUserId: userId,
+        addedByName: email,
+        updateType: "addSubFolder",
       })
       .then(({ data }) => {
-        folderStore.updateNodeName(nodeData.id, name);
+        console.log(data);
+        const folder = data.folder;
+        console.log(folder);
+        folderStore.addSubFolder(folder.id, folder.name, folder.parentId, folder.path, folder.namePath, userId, email);
         setIsLoading(false);
-        renameModal.onClose();
+        addFolderModal.onClose();
       })
       .catch((error) => {
-        console.log(error?.response?.data);
-        // error = error?.response?.data || "Something went wrong";
-        // console.log(error);
+        error = error?.response?.data;
+        if (error && error !== "Internal Error") {
+          toast.error(error);
+        }
         throw error;
       })
       .finally(() => {
         setIsLoading(false);
-        // renameModal.onClose();
+        // addFolderModal.onClose();
         //no need for set loading to false
         // Toggle edit mode off after operation
       });
@@ -92,24 +93,23 @@ export const RenameModal = () => {
   };
 
   return (
-    <AlertDialog open={renameModal.isOpen}>
+    <AlertDialog open={addFolderModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
           <AlertDialogTitle className="whitespace-normal break-all">
-            Rename <span className="italic">{renameModal.nodeData.name}</span>?
+            Add a folder to <span className="italic">{addFolderModal.nodeData.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-primary pt-2">
             <Input
-              ref={inputRef}
-              defaultValue={renameModal.nodeData.name}
-              onChange={(newName) => {
-                setName(newName.target.value);
+              placeholder="Subfolder Name"
+              onChange={(folderName) => {
+                setName(folderName.target.value);
               }}
             />
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading} onClick={renameModal.onClose} className="w-20 h-8 text-sm">
+          <AlertDialogCancel disabled={isLoading} onClick={addFolderModal.onClose} className="w-20 h-8 text-sm">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
@@ -119,7 +119,7 @@ export const RenameModal = () => {
             }}
             className="w-20 h-8 text-sm"
           >
-            Rename
+            Create
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

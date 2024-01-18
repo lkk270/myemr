@@ -319,7 +319,7 @@ const Arborist = ({ width }: ArboristProps) => {
           </div>
         )}
       </div>
-      <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}>
+      <div className="overflow-y-hidden" style={{ height: `calc(100vh)` }}>
         <DragContext.Provider
           value={{
             hoveredNode,

@@ -16,7 +16,14 @@ import {
   patientUpdateVerification,
   isValidNodeName,
 } from "@/lib/utils";
-import { updateDescendantsForRename, updateRecordViewActivity, moveNodes, deleteNode, addRootNode } from "@/lib/files";
+import {
+  updateDescendantsForRename,
+  updateRecordViewActivity,
+  moveNodes,
+  deleteNode,
+  addRootNode,
+  addSubFolder,
+} from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
@@ -221,6 +228,16 @@ export async function POST(req: Request) {
         body.addedByName,
       );
       return NextResponse.json({ folderId: folderId }, { status: 200 });
+    } else if (updateType === "addSubFolder") {
+      const folder = await addSubFolder(
+        body.folderName,
+        body.parentId,
+        body.addedByUserId,
+        body.patientUserId,
+        patient.id,
+        body.addedByName,
+      );
+      return NextResponse.json({ folder: folder }, { status: 200 });
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {

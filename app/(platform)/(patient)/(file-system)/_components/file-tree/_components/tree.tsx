@@ -217,7 +217,7 @@ const Arborist = ({ width }: ArboristProps) => {
   };
 
   const customDragPreviewWithTree = (props: any) => {
-    if (!treeRef.current) {
+    if (!treeRef || !treeRef.current) {
       console.warn("Tree instance not available");
       return null;
     }

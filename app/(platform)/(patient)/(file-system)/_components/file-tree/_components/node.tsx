@@ -13,6 +13,7 @@ import {
   FolderClosed,
   LucideIcon,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
@@ -104,6 +105,13 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
   const foldersStore = useFolderStore();
+  const pathname = usePathname();
+  let nodeIdFromPath = "";
+  if (pathname.includes("/files/")) {
+    nodeIdFromPath = pathname.split("/files/")[1];
+  } else if (pathname.includes("/file/")) {
+    nodeIdFromPath = pathname.split("/file/")[1];
+  }
 
   const completeNodePath = node.data.isFile ? node.data.path : `${node.data.path}${node.data.id}/`;
 
@@ -158,8 +166,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   useEffect(() => {
     setIsMounted(true);
-    if (tree && node && node.data.lastOpened === true) {
-      node.open();
+    if (tree) {
+      tree.openParents(nodeIdFromPath);
+      if (!tree.get(nodeIdFromPath).data.isFile) {
+        tree.open(nodeIdFromPath);
+      }
     }
   }, [tree, node]); // Add dependencies here
 
@@ -313,6 +324,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               //   node.id !== draggedNode.id &&
               //   node.id !== draggedNode.parentId &&
               //   "bg-blue-300",
+
+              nodeIdFromPath === node.id && "border-[1px] border-[#4f5eff]",
             )}
             style={style}
             // style={{ ...style, paddingRight: "20px" }}

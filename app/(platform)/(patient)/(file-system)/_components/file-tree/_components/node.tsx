@@ -24,6 +24,7 @@ import { useMoveModal } from "./hooks/use-move-modal";
 import { useMediaQuery } from "usehooks-ts";
 import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
 import { useFolderStore } from "../../hooks/use-folders";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -97,6 +98,7 @@ const iconClassName = "w-3 h-3 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [openStateSet, setOpenStateSet] = useState(false);
   const [contextEditClicked, setContextEditClicked] = useState(false);
   const isMobile = useMediaQuery("(max-width: 450px)");
   const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
@@ -106,6 +108,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const moveModal = useMoveModal();
   const foldersStore = useFolderStore();
   const pathname = usePathname();
+  const router = useRouter();
   let nodeIdFromPath = "";
   if (pathname.includes("/files/")) {
     nodeIdFromPath = pathname.split("/files/")[1];
@@ -166,11 +169,12 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   useEffect(() => {
     setIsMounted(true);
-    if (tree) {
+    if (tree && !openStateSet) {
       tree.openParents(nodeIdFromPath);
-      if (!tree.get(nodeIdFromPath).data.isFile) {
+      if (!tree.get(nodeIdFromPath)?.data.isFile) {
         tree.open(nodeIdFromPath);
       }
+      setOpenStateSet(true);
     }
   }, [tree, node]); // Add dependencies here
 
@@ -291,6 +295,17 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     setHoveredNode({ id: null, parentId: null, path: null, namePath: null, isFile: null });
   };
 
+  const onNodeClick = () => {
+    const nodeId = node.id;
+    if (node.data.isFile) {
+      router.push("/file/" + nodeId);
+    } else {
+      router.push("/files/" + nodeId);
+      tree.open(nodeId);
+    }
+    tree.openParents(nodeId);
+  };
+
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
@@ -343,7 +358,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 `min-w-[${(tree.width - 100).toString()}px]`,
                 "truncate flex items-center cursor-pointer flex-grow",
               )}
-              onClick={() => node.isInternal && node.toggle()}
             >
               {node.data.isFile ? (
                 <>
@@ -354,7 +368,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 </>
               ) : (
                 <>
-                  <span className="mr-2 flex-shrink-0">
+                  <span className="mr-2 flex-shrink-0" onClick={() => node.isInternal && node.toggle()}>
                     {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
                   <span className="mr-[6px] flex-shrink-0">
@@ -368,37 +382,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               )}
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
-              <span className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}>
-                {node.isEditing ? (
-                  <input
-                    // className="border-black border"
-                    type="text"
-                    defaultValue={node.data.name}
-                    onFocus={(e) => e.currentTarget.select()}
-                    onBlur={(e) => {
-                      if (!contextEditClicked || Date.now() - contextEditClickedTime > 400) {
-                        e.currentTarget.blur();
-                        node.deselect();
-                        node.reset();
-                      } else {
-                        e.currentTarget.select();
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") {
-                        setContextEditClicked(false);
-                        node.reset();
-                      }
-                      if (e.key === "Enter") {
-                        setContextEditClicked(false);
-                        node.submit(e.currentTarget.value);
-                      }
-                    }}
-                    autoFocus
-                  />
-                ) : (
-                  <span>{node.data.name}</span>
-                )}
+              <span
+                onClick={onNodeClick}
+                className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}
+              >
+                <span>{node.data.name}</span>
               </span>
               <div className={cn(isMobile ? "" : "action-button")}>
                 <DropdownMenu>

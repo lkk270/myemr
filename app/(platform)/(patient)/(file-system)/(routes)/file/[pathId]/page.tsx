@@ -37,11 +37,7 @@ const FileSystem = async () => {
   //   return <div>something went wrong</div>;
   // }
 
-  return (
-    <div className="pt-16 px-6">
-      <CustomDataTable data={[]} />
-    </div>
-  );
+  return <div className="pt-16 px-6">FILE HERE</div>;
 };
 
 export default FileSystem;

@@ -41,7 +41,6 @@ export const SearchCommand = () => {
     return () => document.removeEventListener("keydown", down);
   }, [toggle]);
 
-
   if (!isMounted) {
     return null;
   }
@@ -81,7 +80,7 @@ export const SearchCommand = () => {
         <CommandGroup heading="Recent Records">
           {singleLayerNodes.length === 0 && <div className="text-primary/70 ml-2 text-sm">No records :(</div>}
           {singleLayerNodes?.map((node, index) => (
-            <Link key={index} href={`/files/${node.id}`} onClick={onClose}>
+            <Link key={index} href={node.isFile ? `/file/${node.id}` : `/files/${node.id}`} onClick={onClose}>
               <CommandItem key={node.id} value={`${node.name}`} title={node.name} className="text-primary/70">
                 {(() => {
                   const CustomIcon = node.isFile ? getFileIcon(node.name) : Folder;

@@ -332,7 +332,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               )}
               onClick={() => node.isInternal && node.toggle()}
             >
-              {node.isLeaf ? (
+              {node.data.isFile ? (
                 <>
                   <span className="w-5 flex-shrink-0 mr-1"></span>
                   <span className="mr-2 flex items-center flex-shrink-0">

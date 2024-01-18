@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { File, FolderPlus, Upload, ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import axios from "axios";
+
 import { useFolderStore } from "../hooks/use-folders";
 import {
   CommandDialog,
@@ -15,6 +16,8 @@ import {
 import { useNewRootFolder } from "../hooks/use-new-root-folder";
 import { rootFolderCategories } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
+import { toast } from "sonner";
 
 interface CommandItemComponentProps {
   obj: { label: string; value: string };
@@ -22,11 +25,12 @@ interface CommandItemComponentProps {
   alreadyUsed: boolean;
 }
 export const NewRootFolder = () => {
+  const user = useCurrentUser();
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const alreadyUsedRootNames = singleLayerNodes.filter((item) => item.isRoot).map((item) => item.name);
-  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const isOpen = useNewRootFolder((store) => store.isOpen);
   const onClose = useNewRootFolder((store) => store.onClose);
@@ -35,9 +39,46 @@ export const NewRootFolder = () => {
     setIsMounted(true);
   }, []);
 
-  const onSelect = (id: string) => {
-    router.push(`/files/${id}`);
-    onClose();
+  const onSelect = (label: string) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    const userId = user?.id;
+    const email = user?.email;
+    if (!email || !userId) {
+      toast.error("Something went wrong");
+      return;
+    }
+    if (user && user.email) {
+      const promise = axios
+        .post("/api/patient-update", {
+          folderName: label,
+          addedByUserId: userId,
+          patientUserId: userId,
+          addedByName: email,
+          updateType: "addRootNode",
+        })
+        .then(({ data }) => {
+          foldersStore.addRootNode(label, data.folderId, userId, email);
+          setIsLoading(false);
+          onClose();
+        })
+        .catch((error) => {
+          error = error?.response?.data;
+          if (error && error !== "Internal Error") {
+            toast.error(error);
+          }
+          throw error;
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+      toast.promise(promise, {
+        loading: "Adding root node...",
+        success: "Changes saved successfully",
+        error: "Something went wrong",
+        duration: 1250,
+      });
+    }
   };
 
   if (!isMounted) {
@@ -74,7 +115,7 @@ export const NewRootFolder = () => {
       return (
         <CommandItem
           {...commonProps}
-          // onSelect={() => onSelect(node.id)}
+          onSelect={() => onSelect(obj.label)}
           className="text-md text-primary/70 hover:text-primary"
         >
           <div className="flex gap-x-4 items-center justify-center">

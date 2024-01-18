@@ -7,6 +7,7 @@ const validUpdateTypes = [
   "moveNode",
   "addNode",
   "deleteNode",
+  "addRootNode",
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
@@ -16,7 +17,10 @@ const patientConditionals: any = {
   renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
   moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
   deleteNode: { requiredFields: ["nodeId", "isFile"], optionalFields: [] },
-
+  addRootNode: {
+    requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
+    optionalFields: ["patientProfileId"],
+  },
 };
 
 export const patientUpdateVerification = (body: any) => {

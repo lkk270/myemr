@@ -41,10 +41,6 @@ export const SearchCommand = () => {
     return () => document.removeEventListener("keydown", down);
   }, [toggle]);
 
-  const onSelect = (id: string) => {
-    router.push(`/files/${id}`);
-    onClose();
-  };
 
   if (!isMounted) {
     return null;

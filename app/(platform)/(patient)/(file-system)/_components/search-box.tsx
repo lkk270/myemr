@@ -3,13 +3,20 @@
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import { useMediaQuery } from "usehooks-ts";
 import { cn } from "@/lib/utils";
 import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
 
 export const SearchBox = () => {
   const search = useSearch();
-  return (
+  const isMobile = useMediaQuery("(max-width: 450px)");
+  return isMobile ? (
+    <div>
+      <div onClick={search.onOpen} role="button" className="h-full rounded-sm mr-1">
+        <Search className="h-5 w-5 shrink-0 text-muted-foreground/50" />
+      </div>
+    </div>
+  ) : (
     <div
       onClick={search.onOpen}
       role="button"

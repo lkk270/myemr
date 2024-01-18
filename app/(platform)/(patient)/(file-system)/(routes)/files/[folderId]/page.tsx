@@ -3,6 +3,7 @@ import { CustomDataTable } from "../../../_components/file-table/custom-data-tab
 import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
+import { FolderHeader } from "../../../_components/folder-header";
 
 interface FolderPagePageProps {
   params: {
@@ -47,6 +48,7 @@ const FolderPage = async ({ params }: FolderPagePageProps) => {
   return (
     <div className="pt-16 px-6">
       <div>{folderId}</div>
+      <FolderHeader />
       <CustomDataTable data={[]} />
     </div>
   );

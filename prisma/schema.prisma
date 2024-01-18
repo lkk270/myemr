@@ -197,6 +197,7 @@ model Folder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, namePath])
   @@index([parentId])
   @@index([patientProfileId])
 }

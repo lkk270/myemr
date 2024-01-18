@@ -179,3 +179,47 @@ async function deleteSubFolders(prisma: any, parentId: string) {
     await prisma.folder.delete({ where: { id: subFolder.id } });
   }
 }
+
+export const addRootNode = async (
+  folderName: string,
+  addedByUserId: string,
+  patientUserId: string,
+  patientProfileId: string,
+  addedByName: string,
+) => {
+  let folder: Folder | undefined;
+
+  await prismadb.$transaction(
+    async (prisma) => {
+      folder = await prisma.folder.create({
+        data: {
+          name: folderName,
+          namePath: `/${folderName}`,
+          path: "/",
+          addedByUserId: addedByUserId,
+          addedByName: addedByName,
+          isRoot: true,
+          userId: patientUserId,
+          patientProfileId: patientProfileId,
+          ...(addedByUserId && {
+            recordViewActivity: {
+              create: [
+                {
+                  userId: addedByUserId,
+                },
+              ],
+            },
+          }),
+        },
+      });
+    },
+    { timeout: 20000 }, // Set your desired timeout in milliseconds
+  );
+
+  if (folder) {
+    return folder.id;
+  } else {
+    // Handle the case where the folder creation failed or the transaction was rolled back
+    throw new Error("Failed to create folder");
+  }
+};

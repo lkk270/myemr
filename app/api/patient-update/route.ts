@@ -16,7 +16,7 @@ import {
   patientUpdateVerification,
   isValidNodeName,
 } from "@/lib/utils";
-import { updateDescendantsForRename, updateRecordViewActivity, moveNodes, deleteNode } from "@/lib/files";
+import { updateDescendantsForRename, updateRecordViewActivity, moveNodes, deleteNode, addRootNode } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
@@ -212,10 +212,22 @@ export async function POST(req: Request) {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       await deleteNode(nodeId, isFile);
+    } else if (updateType === "addRootNode") {
+      const folderId = await addRootNode(
+        body.folderName,
+        body.addedByUserId,
+        body.patientUserId,
+        patient.id,
+        body.addedByName,
+      );
+      return NextResponse.json({ folderId: folderId }, { status: 200 });
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
-    console.log(error);
+    const errorString = error.toString().toLowerCase();
+    if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
+      return new NextResponse("Folder already exists in this path!", { status: 500 });
+    }
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

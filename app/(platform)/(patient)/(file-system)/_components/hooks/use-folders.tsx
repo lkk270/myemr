@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { SimpleNodeType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { sortFolderChildren, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 import _ from "lodash";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 interface FolderStore {
   folders: any[];
@@ -14,6 +15,7 @@ interface FolderStore {
   updateNodeName: (nodeId: string, newName: string) => void;
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
   deleteNode: (nodeId: string) => void;
+  addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => void;
 }
 
 const getAllChildrenIds = (node: any, allNodes: any[]): Set<string> => {
@@ -344,6 +346,42 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       const updatedSingleLayerNodes = addLastViewedAtAndSort(allNodesArray);
 
       return { ...state, folders: newFolders, singleLayerNodes: updatedSingleLayerNodes };
+    });
+  },
+  addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => {
+    const id = Date.now().toString();
+    set((state) => {
+      const newNode = {
+        id: folderId,
+        name: folderName,
+        path: "/",
+        namePath: `/${folderName}`,
+        isFile: false,
+        isRoot: true,
+        addedByUserId: userId,
+        addedByName: userName,
+        parentId: null,
+        children: [],
+        recordViewActivity: [{ lastViewedAt: new Date() }],
+      };
+
+      const newSingleLayerNode = {
+        ...newNode,
+        children: undefined,
+        lastViewedAt: new Date(),
+      };
+
+      // Update folders state
+      const updatedFolders = [...state.folders, newNode];
+
+      // Update singleLayerNodes state
+      const updatedSingleLayerNodes = [newSingleLayerNode, ...state.singleLayerNodes];
+      console.log(newNode);
+      return {
+        ...state,
+        folders: updatedFolders,
+        singleLayerNodes: updatedSingleLayerNodes,
+      };
     });
   },
 }));

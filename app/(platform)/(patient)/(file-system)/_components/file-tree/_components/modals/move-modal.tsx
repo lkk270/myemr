@@ -119,7 +119,15 @@ export const MoveModal = () => {
                 <div className="bg-primary/10 rounded-md p-2">
                   <Folder className="w-6 h-6" />
                 </div>
-                {parentFolder.name}
+                <div className="flex flex-col">
+                  <span className="break-all whitespace-normal">{parentFolder.name}</span>
+                  <span
+                    style={{ fontSize: "10px", lineHeight: "13.3px" }}
+                    className="text-primary/40 break-all whitespace-normal"
+                  >
+                    {parentFolder.namePath}
+                  </span>
+                </div>
               </div>
               <Badge className="border-primary/10 border-[1px] flex justify-end text-primary/30" variant="outline">
                 CURRENT
@@ -141,7 +149,15 @@ export const MoveModal = () => {
                     <div className="bg-primary/10 rounded-md p-2">
                       <Folder className="flex w-6 h-6" />
                     </div>
-                    {node.name}
+                    <div className="flex flex-col">
+                      <span className="break-all whitespace-normal">{node.name}</span>
+                      <span
+                        style={{ fontSize: "10px", lineHeight: "13.3px" }}
+                        className="text-primary/40 break-all whitespace-normal"
+                      >
+                        {node.namePath}
+                      </span>
+                    </div>
                   </div>
                 </CommandItem>
               ),

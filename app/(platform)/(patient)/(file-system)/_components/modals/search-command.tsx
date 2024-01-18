@@ -91,7 +91,15 @@ export const SearchCommand = () => {
                   const CustomIcon = node.isFile ? getFileIcon(node.name) : Folder;
                   return <CustomIcon className="mr-2 h-4 w-4" />;
                 })()}
-                <span>{node.name}</span>
+                <div className="flex flex-col">
+                  <span className="break-all whitespace-normal">{node.name}</span>
+                  <span
+                    style={{ fontSize: "10px", lineHeight: "13.3px" }}
+                    className="text-primary/40 break-all whitespace-normal"
+                  >
+                    {node.namePath}
+                  </span>
+                </div>
               </CommandItem>
             </Link>
           ))}

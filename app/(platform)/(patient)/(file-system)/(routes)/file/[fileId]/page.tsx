@@ -4,7 +4,15 @@ import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 
-const FileSystem = async () => {
+interface FilePagePageProps {
+  params: {
+    fileId: string;
+  };
+}
+
+const FilePagePage = async ({ params }: FilePagePageProps) => {
+  const fileId = params.fileId;
+
   // const { userId } = auth();
 
   // if (!userId) {
@@ -37,11 +45,7 @@ const FileSystem = async () => {
   //   return <div>something went wrong</div>;
   // }
 
-  return (
-    <div className="pt-16 px-6">
-      <CustomDataTable data={[]} />
-    </div>
-  );
+  return <div className="pt-16 px-6">FILE HERE {fileId}</div>;
 };
 
-export default FileSystem;
+export default FilePagePage;

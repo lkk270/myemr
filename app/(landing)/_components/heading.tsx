@@ -26,7 +26,7 @@ export const Heading = () => {
       <div className="max-w-3xl space-y-4">
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
           All your medical records in one place. Welcome to{" "}
-          <span className="bg-gradient-to-r from-violet-400 to-[#4f5eff] bg-clip-text text-transparent">Emridoc</span>
+          <span className="bg-gradient-to-r from-violet-400 to-[#4f5eff] bg-clip-text text-transparent">MyEMR</span>
         </h1>
         <h3 className="text-base sm:text-md md:text-xl font-medium">
           We make it easy to securely store and access your records, while also being able to share them with care
@@ -42,7 +42,7 @@ export const Heading = () => {
         {session.status === "authenticated" && user && (
           <Button asChild>
             <Link href={`/${user.userType.toLowerCase()}-home`}>
-              Enter Emridoc
+              Enter MyEMR
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>
@@ -52,7 +52,7 @@ export const Heading = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="default">
-              Join Emridoc
+              Join MyEMR
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>

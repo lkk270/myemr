@@ -31,7 +31,7 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-transparent px-0">
+          <NavigationMenuTrigger className="bg-transparent px-2 mr-0">
             <MenuIcon className="hover:opacity-50 transition-opacity duration-300 p-0" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>

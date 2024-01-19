@@ -1,42 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import {
-  ChevronRight,
-  ChevronDown,
-  MoreHorizontal,
-  Pencil,
-  FolderInput,
-  FileInput,
-  Download,
-  Trash,
-  File,
-  FolderClosed,
-  LucideIcon,
-  FolderPlus,
-} from "lucide-react";
+import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
-import { useDeleteModal } from "./hooks/use-delete-file-modal";
-import { useDownloadModal } from "./hooks/use-download-modal";
-import { useRenameModal } from "./hooks/use-rename-modal";
-import { useAddFolderModal } from "./hooks/use-add-folder-modal";
-import { useMoveModal } from "./hooks/use-move-modal";
 import { useMediaQuery } from "usehooks-ts";
-import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
-import { useFolderStore } from "../../hooks/use-folders";
 import { useRouter } from "next/navigation";
-
+import { MenuHeader } from "./menu-header";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
+import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ActionDropdown } from "./action-dropdown";
+import { useMenuItems } from "./hooks";
 // Assuming a Node type is defined somewhere
 // If not, you'll need to define it accordingly
 import {
@@ -48,49 +23,12 @@ import {
 } from "@/components/ui/context-menu";
 import { NodeDataType } from "@/app/types/file-types";
 
-interface NodeData {
-  id: string;
-  name: string;
-  icon?: IconType;
-  iconColor?: string;
-  children?: NodeData[];
-}
-
 type NodeProps = {
   node: any;
   style: React.CSSProperties;
   dragHandle: any; // Replace 'any' with the appropriate type
   tree: any; // Replace 'any' with the appropriate type
 };
-
-interface MenuItemData {
-  label: string;
-  icon: LucideIcon;
-  action: () => void;
-  differentClassName?: string;
-  isFile?: boolean;
-}
-
-interface MenuHeaderProps {
-  title: string;
-  icon: IconType;
-}
-
-interface HandleMenuItemClickParams {
-  node: any; // Replace 'any' with the specific type of your node
-  setContextEditClicked: (value: boolean) => void;
-  action: () => void;
-}
-
-// Reusable menu item component
-const MenuHeader = ({ title, icon: Icon }: MenuHeaderProps) => (
-  <div className="flex justify-center py-1 overflow-hidden">
-    <div className="flex items-center text-sm text-muted-foreground max-w-full">
-      <Icon size={iconSize} color={folderColor} className="w-4 h-4 mr-2 flex-shrink-0" />
-      <div className="truncate flex-1">{title}</div>
-    </div>
-  </div>
-);
 
 // Common function for handling menu item clicks
 
@@ -101,17 +39,10 @@ const iconClassName = "w-3 h-3 mr-2";
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [openStateSet, setOpenStateSet] = useState(false);
-  const [contextEditClicked, setContextEditClicked] = useState(false);
   const isMobile = useMediaQuery("(max-width: 450px)");
-  const [contextEditClickedTime, setContextEditClickedTime] = useState(0);
-  const deleteModal = useDeleteModal();
-  const downloadModal = useDownloadModal();
-  const renameModal = useRenameModal();
-  const moveModal = useMoveModal();
-  const addFolderModal = useAddFolderModal();
-  const foldersStore = useFolderStore();
   const pathname = usePathname();
   const router = useRouter();
+
   let nodeIdFromPath = "";
   if (pathname.includes("/files/")) {
     nodeIdFromPath = pathname.split("/files/")[1];
@@ -135,6 +66,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     isFile: nodeData.isFile,
   };
 
+  const menuItems = useMenuItems(customNodeData);
+
   // useEffect(() => {
   //   setIsMounted(true);
   // }, []);
@@ -142,38 +75,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // if (!isMounted) {
   //   return null;
   // }
-
-  const menuItems: MenuItemData[] = [
-    {
-      label: "Rename",
-      icon: Pencil,
-      action: () => renameModal.onOpen(customNodeData),
-    },
-    {
-      label: "Move",
-      icon: FileInput,
-      isFile: true,
-      action: () => {
-        moveModal.onOpen(customNodeData);
-      },
-    },
-    {
-      label: "Add a subfolder",
-      icon: FolderPlus,
-      action: () => addFolderModal.onOpen(customNodeData, false),
-    },
-    {
-      label: "Export",
-      icon: Download,
-      action: () => downloadModal.onOpen(customNodeData),
-    },
-    {
-      label: "Delete",
-      icon: Trash,
-      action: () => deleteModal.onOpen(customNodeData),
-      differentClassName: "font-normal text-red-400 focus:text-red-500",
-    },
-  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -397,47 +298,19 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 <span>{node.data.name}</span>
               </span>
               <div className={cn(isMobile ? "" : "action-button")}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="none" className="flex h-4 w-4 p-0 bg-transparent">
-                      <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px] flex flex-col">
-                    <MenuHeader title={node.data.name} icon={CustomIcon} />
-                    {menuItems.map((item, index) => {
-                      // Check the condition - if it's true, return null (nothing will be rendered)
-                      if (item.label === "Move" && !node.data.parentId) {
-                        return null;
-                      }
-                      if (item.label === "Add a subfolder" && node.data.isFile) {
-                        return null;
-                      }
-
-                      // If the condition is not met, render the DropdownMenuItem as usual
-                      return (
-                        <DropdownMenuItem
-                          key={index}
-                          className={cn(
-                            item.differentClassName ? item.differentClassName : "font-normal text-primary/90",
-                          )}
-                          onClick={() => {
-                            node.toggle();
-                            item.action();
-                          }}
-                        >
-                          {item.label === "Move" && !node.data.isFile ? (
-                            <FolderInput className={iconClassName} />
-                          ) : (
-                            <item.icon className={iconClassName} />
-                          )}
-                          {item.label}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <ActionDropdown
+                  nodeData={node.data}
+                  DropdownTriggerComponent={DropdownMenuTrigger}
+                  dropdownTriggerProps={{
+                    asChild: true,
+                    children: (
+                      <Button variant="none" className="flex h-4 w-4 p-0 bg-transparent">
+                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    ),
+                  }}
+                />
               </div>
             </div>
             <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">

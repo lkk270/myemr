@@ -47,8 +47,7 @@ const FolderPage = async ({ params }: FolderPagePageProps) => {
 
   return (
     <div className="pt-16 px-6">
-      <div>{folderId}</div>
-      <FolderHeader />
+      <FolderHeader folderId={folderId} />
       <CustomDataTable data={[]} />
     </div>
   );

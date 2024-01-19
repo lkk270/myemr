@@ -85,7 +85,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            { isLoading ? (
+            {isLoading ? (
               // When rows are undefined, assume data is loading
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
@@ -121,9 +121,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="pb-10">
-        <DataTablePagination table={table} />
-      </div>
+      <div className="pb-10">{!isLoading && <DataTablePagination table={table} />}</div>
     </div>
   );
 }

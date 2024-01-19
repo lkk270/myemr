@@ -1,87 +1,32 @@
 "use client";
-import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+// import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "./mobile-sidebar";
-import {
-  Pill,
-  Contact,
-  Stethoscope,
-  ScrollText,
-  FolderClosed,
-  Home,
-  Settings,
-  ChevronsLeft,
-  MenuIcon,
-  LayoutGrid,
-  Menu,
-} from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { navRoutes } from "@/lib/constants";
+
+import { usePathname } from "next/navigation";
+import { UserButton } from "@/auth/components/auth/user-button";
+import Link from "next/link";
 // import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {}
 
 export const Navbar = ({}: NavbarProps) => {
-  const router = useRouter();
   const pathname = usePathname();
 
-  const onNavigate = (url: string) => {
-    return router.push(url);
-  };
-
-  const routes = [
-    {
-      icon: Home,
-      href: "/patient-home",
-      label: "Home",
-    },
-    {
-      icon: FolderClosed,
-      href: "/files",
-      label: "Files",
-    },
-    {
-      icon: Pill,
-      href: "/medications",
-      label: "Meds",
-    },
-    {
-      icon: Contact,
-      href: "/demographics",
-      label: "About",
-    },
-    {
-      icon: ScrollText,
-      href: "/notes",
-      label: "Notes",
-    },
-    {
-      icon: Stethoscope,
-      href: "/providers",
-      label: "Providers",
-    },
-    {
-      icon: Settings,
-      href: "/settings",
-      label: "Settings",
-    },
-  ];
-
   return (
-    <div className="dark:bg-[#14161a] bg-[#fcfdfd] fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
+    <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
       <div className="flex items-center">
         <MobileSidebar />
         <Logo />
       </div>
       <div className="items-center sm:flex hidden">
         <div className="flex items-center sm:flex gap-x-1 lg:gap-x-4">
-          {routes.map((route, index) => (
-            <div key={route.href}>
+          {navRoutes.map((route, index) => (
+            <Link key={index} href={route.href}>
               <div
-                onClick={() => onNavigate(route.href)}
                 className={cn(
                   "text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
                   pathname === route.href && "bg-primary/10 text-primary",
@@ -92,7 +37,7 @@ export const Navbar = ({}: NavbarProps) => {
                   {route.label}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -102,7 +47,8 @@ export const Navbar = ({}: NavbarProps) => {
 						<Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
 					)} */}
           <ModeToggle />
-          <UserButton afterSignOutUrl="/" />
+          {/* <UserButton afterSignOutUrl="/" /> */}
+          <UserButton />
         </div>
       </div>
     </div>

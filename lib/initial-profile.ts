@@ -1,77 +1,74 @@
-import { currentUser, redirectToSignIn } from "@clerk/nextjs";
+// // import { currentUser, redirectToSignIn } from "@clerk/nextjs";
+// // import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
-import prismadb from "@/lib/prismadb";
+// import { redirect } from "next/navigation";
+// import prismadb from "@/lib/prismadb";
 
-import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "./encryption";
+// import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "./encryption";
 
-export const initialPatientProfile = async () => {
-  const user = await currentUser();
+// export const createInitialPatientProfile = async (userId: string) => {
+//   // const user = await currentUser();
+//   // const user = useCurrentUser();
 
-  if (!user || !user.firstName || !user.lastName) {
-    return redirectToSignIn();
-  }
+//   // if (!user || !user.email || !user.firstName || !user.lastName) {
+//   //   return redirect("/auth/login");
+//   // }
 
-  if (Date.now() - new Date(user.createdAt).getTime() > 5 * 60 * 1000) {
-    return;
-  }
+//   // if (Date.now() - new Date(user.createdAt).getTime() > 5 * 60 * 1000) {
+//   //   return;
+//   // }
 
-  const profile = await prismadb.patientProfile.findUnique({
-    where: {
-      userId: user.id,
-    },
-  });
+//   // const profile = await prismadb.patientProfile.findUnique({
+//   //   where: {
+//   //     userId: userId,
+//   //   },
+//   // });
 
-  if (profile) {
-    return;
-  }
+//   // if (profile) {
+//   //   return;
+//   // }
 
-  const { publicKey, privateKey } = generateAsymmetricKeyPairs();
-  const symmetricKey = generateSymmetricKey();
+//   const { publicKey, privateKey } = generateAsymmetricKeyPairs();
+//   const symmetricKey = generateSymmetricKey();
 
-  await prismadb.patientProfile.create({
-    data: {
-      userId: user.id,
-      firstName: encryptPatientRecord(user.firstName, symmetricKey),
-      lastName: encryptPatientRecord(user.lastName, symmetricKey),
-      imageUrl: encryptPatientRecord(user.imageUrl, symmetricKey),
-      email: encryptPatientRecord(user.emailAddresses[0].emailAddress, symmetricKey),
-      publicKey: encryptKey(publicKey, "patientPublicKey"),
-      privateKey: encryptKey(privateKey, "patientPrivateKey"),
-      symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
-    },
-  });
+//   await prismadb.patientProfile.create({
+//     data: {
+      
+//       userId: userId,
+//       publicKey: encryptKey(publicKey, "patientPublicKey"),
+//       privateKey: encryptKey(privateKey, "patientPrivateKey"),
+//       symmetricKey: encryptKey(symmetricKey, "patientSymmetricKey"),
+//     },
+//   });
 
-  return;
-};
+//   return;
+// };
 
-export const initialProviderProfile = async () => {
-  const user = await currentUser();
+// export const createInitialProviderProfile = async (userId: string) => {
+//   // const user = useCurrentUser();
 
-  if (!user || !user.firstName || !user.lastName) {
-    return redirectToSignIn();
-  }
+//   // if (!user || !user.email || !user.firstName || !user.lastName) {
+//   //   return redirect("/auth/login");
+//   // }
 
-  const profile = await prismadb.providerProfile.findUnique({
-    where: {
-      userId: user.id,
-    },
-  });
+//   // const profile = await prismadb.providerProfile.findUnique({
+//   //   where: {
+//   //     userId: userId,
+//   //   },
+//   // });
 
-  if (profile) {
-    return;
-  }
+//   // if (profile) {
+//   //   return;
+//   // }
 
-  const { publicKey, privateKey } = generateAsymmetricKeyPairs();
+//   const { publicKey, privateKey } = generateAsymmetricKeyPairs();
 
-  await prismadb.providerProfile.create({
-    data: {
-      userId: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      imageUrl: user.imageUrl,
-      email: user.emailAddresses[0].emailAddress,
-      publicKey: encryptKey(publicKey, "providerPublicKey"),
-      privateKey: encryptKey(privateKey, "providerPrivateKey"),
-    },
-  });
-  return;
-};
+//   await prismadb.providerProfile.create({
+//     data: {
+//       userId: userId,
+//       publicKey: encryptKey(publicKey, "providerPublicKey"),
+//       privateKey: encryptKey(privateKey, "providerPrivateKey"),
+//     },
+//   });
+//   return;
+// };

@@ -31,10 +31,10 @@ export const GenericCombobox = ({
   placeholder = "Select item...",
   searchPlaceholder = "Search item...",
   noItemsMessage = "No item found.",
-  width = "w-[240px]",
+  width = "w-[220px] md:w-full",
   valueParam,
   handleChange,
-  className = "dark:bg-slate-800",
+  className = "bg-secondary",
   disabled = false,
   allowOther = false,
 }: GenericComboboxProps) => {
@@ -62,7 +62,7 @@ export const GenericCombobox = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn(width, "justify-between", className)}
+            className={cn(width, "justify-between", className, "font-normal")}
           >
             {valueParam ? newItems.find((item) => item.value === valueParam)?.label || valueParam : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

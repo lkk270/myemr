@@ -1,5 +1,5 @@
-import { BasicNavbar } from '@/components/headers/basic-navbar';
-import { SignUp } from '@clerk/nextjs';
+import { BasicNavbar } from "@/components/headers/basic-navbar";
+import { SignUp } from "@clerk/nextjs";
 
 export default function Page() {
   return (

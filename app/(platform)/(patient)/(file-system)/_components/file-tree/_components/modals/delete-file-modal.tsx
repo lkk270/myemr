@@ -12,7 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 // import { Button } from "@/components/ui/button";
-import { useDeleteModal } from "../hooks/use-delete-file-modal";
+import { useDeleteModal } from "../hooks/use-delete-node-modal";
 import { useState, useEffect } from "react";
 import { useFolderStore } from "../../../hooks/use-folders";
 import _ from "lodash";

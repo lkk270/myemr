@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react";
+
 export type SimpleNodeType = {
   id: string | null;
   parentId: string | null;
@@ -48,4 +50,12 @@ export type SingleLayerNodesType2 = {
   parentId?: string | null;
   lastViewedAt?: Date;
   isRoot?: boolean;
+};
+
+export type MenuItemData = {
+  label: string;
+  icon: LucideIcon;
+  action: () => void;
+  differentClassName?: string;
+  isFile?: boolean;
 };

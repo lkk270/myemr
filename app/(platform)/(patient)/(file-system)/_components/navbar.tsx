@@ -23,25 +23,26 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
     <>
       <nav className="justify-between px-3 py-2 w-full flex items-center gap-x-4">
         {isCollapsed && (
-          <div className="flex items-center gap-x-3">
+          <div className="flex items-center gap-x-4 xs:gap-x-6">
             <Logo showText={false} />
             <Folders role="button" onClick={onResetWidth} className="w-6 h-6" />
-            <SearchBox />
+            {isMobile && <SearchBox />}
           </div>
         )}
-        {!isCollapsed && (
+        {/* {!isCollapsed && (
           <div className="flex items-center px-3">
+            <SearchBox />
+          </div>
+        )} */}
+
+        {!isMobile && (
+          <div className="flex items-center">
             <SearchBox />
           </div>
         )}
 
-        {/* {!isMobile && (
-          <div className="flex items-center">
-            <SearchBox />
-          </div>
-        )} */}
         {/* <div className="flex-grow"></div> */}
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center">
           <GenericNavigationMenu navRoutes={navRoutes} />
           <ModeToggle />
           <UserButton />

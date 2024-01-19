@@ -21,7 +21,7 @@ export const SearchBox = () => {
       onClick={search.onOpen}
       role="button"
       className={cn(
-        "hover:bg-primary/10 rounded-md px-2 min-w-[125px] xs:min-w-[200px] sm:xs:min-w-[300px] group cursor-pointer min-h-[40px] text-sm py-1 pr-3 w-full bg-primary/5 flex items-center text-muted-foreground font-medium",
+        "hover:bg-primary/10 rounded-md px-2 w-[150px] sm:xs:min-w-[300px] group cursor-pointer min-h-[40px] text-sm py-1 pr-3 bg-primary/5 flex items-center text-muted-foreground font-medium",
       )}
     >
       <div role="button" className="h-full rounded-sm  mr-1">

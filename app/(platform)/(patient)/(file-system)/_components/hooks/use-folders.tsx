@@ -10,6 +10,7 @@ interface FolderStore {
   singleLayerNodes: SingleLayerNodesType2[];
   singleLayerNodesSet: boolean;
   foldersSet: boolean;
+  getNode: (nodeId: string) => SingleLayerNodesType2 | undefined;
   setSingleLayerNodes: (nodes: SingleLayerNodesType2[]) => void;
   setFolders: (folders: any[]) => void;
   updateNodeName: (nodeId: string, newName: string) => void;
@@ -179,6 +180,11 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   singleLayerNodes: [],
   singleLayerNodesSet: false,
   foldersSet: false,
+  getNode(nodeId) {
+    const state = get(); // Access the current state using get()
+    return state.singleLayerNodes.find((node) => node.id === nodeId);
+  },
+
   setSingleLayerNodes: (singleLayerNodes) => set({ singleLayerNodes, singleLayerNodesSet: true }),
   setFolders: (folders) => set({ folders, foldersSet: true }),
 
@@ -200,7 +206,8 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       };
       findSelectedNodes(state.folders, new Set(selectedIds));
 
-      const targetNode = findNodeInFolders(state.folders, targetNodeId);
+      // const targetNode = findNodeInFolders(state.folders, targetNodeId);
+      const targetNode = state.getNode(targetNodeId);
       if (!targetNode) {
         toast.error(`Target node with id ${targetNodeId} not found`);
         return { ...state };

@@ -7,12 +7,14 @@ import { useFolderStore } from "./hooks/use-folders";
 import Link from "next/link"; // Assuming you are using Next.js for routing
 import { ActionDropdown } from "./file-tree/_components/action-dropdown";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
+import { useAddFolderModal } from "./file-tree/_components/hooks";
+import { NodeDataType } from "@/app/types/file-types";
 interface FolderHeaderProps {
   folderId: string;
 }
 
 export const FolderHeader = ({ folderId }: FolderHeaderProps) => {
+  const addFolderModal = useAddFolderModal();
   const folderStore = useFolderStore();
   const node = folderStore.getNode(folderId);
   const namePath = node?.namePath;
@@ -40,7 +42,7 @@ export const FolderHeader = ({ folderId }: FolderHeaderProps) => {
         >
           <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
             <FolderPlus className="w-5 h-5" />
-            <div>Add subfolder</div>
+            <div onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}>Add subfolder</div>
           </div>
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import { Unit, Address, DosageHistory } from "@prisma/client";
+import { Unit, PatientAddress, DosageHistory } from "@prisma/client";
 
 export type PatientDemographicsType = {
   imageUrl: string;
@@ -17,7 +17,14 @@ export type PatientDemographicsType = {
   insuranceProvider?: string | null;
   policyNumber?: string | null;
   groupNumber?: string | null;
-  addresses: Address[] | any;
+  addresses: PatientAddress[] | any;
+};
+
+export type PatientDemographicsContactType = {
+  mobilePhone?: string | null;
+  homePhone?: string | null;
+  email: string;
+  addresses: PatientAddress[] | any;
 };
 
 export type MedicationType = {

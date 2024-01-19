@@ -4,8 +4,24 @@ import { Unit } from "@prisma/client";
 import { NewMedicationType } from "@/app/types";
 import { genders, martialStatuses, races, heightsImperial, heightsMetric, states, dosageFrequency } from "./constants";
 export * from "./encryption";
-export * from "./initial-profile";
+// export * from "./initial-profile";
 export * from "./request-validation";
+
+import { FaRegFilePowerpoint } from "react-icons/fa";
+import { BiMoviePlay } from "react-icons/bi";
+import {
+  BsFiletypePng,
+  BsFiletypeJpg,
+  BsFiletypeCsv,
+  BsFiletypeMp4,
+  BsFiletypeMp3,
+  BsFiletypeTxt,
+  BsFiletypeDocx,
+  BsFileEarmarkExcel,
+  BsFiletypePdf,
+  BsFileEarmark,
+} from "react-icons/bs";
+import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -182,8 +198,11 @@ export function checkForInvalidNewMedication(data: NewMedicationType | null) {
   if (typeof data.prescribedById === "string" && (!data.prescribedById || !data.prescribedByName)) {
     return "Invalid prescriber";
   }
-  if (isNaN(parseFloat(data.dosage))) {
-    return "Invalid dosage";
+  if (typeof data.dosage === "string") {
+    const dosageNum = parseFloat(data.dosage);
+    if (isNaN(dosageNum) || dosageNum <= 0) {
+      return "Invalid dosage";
+    }
   }
   if (!isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
     return "Invalid dosage frequency";
@@ -215,8 +234,12 @@ export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>
   if (data.status && data.status !== "active" && data.status !== "inactive") {
     return "Invalid status";
   }
-  if (data.dosage && isNaN(parseFloat(data.dosage))) {
-    return "Invalid dosage";
+
+  if (typeof data.dosage === "string") {
+    const dosageNum = parseFloat(data.dosage);
+    if (isNaN(dosageNum) || dosageNum <= 0) {
+      return "Invalid dosage";
+    }
   }
   if (data.frequency && !isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
     return "Invalid dosage frequency";
@@ -225,4 +248,119 @@ export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>
     return "Invalid prescriber";
   }
   return checkForExtraneousFields(Object.keys(data), Object.keys(allowedFields));
+}
+
+export function capitalizeFirstLetter(str: string) {
+  if (!str) return str; // Return the original string if it's empty
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function getFileIcon(filename: string) {
+  // Provide a fallback ('') for pop() in case the array is empty
+  const extension = filename.split(".").pop()?.toLowerCase() || "";
+
+  switch (extension) {
+    case "doc":
+    case "docx":
+      return BsFiletypeDocx;
+    case "xls":
+    case "xlsx":
+      return BsFileEarmarkExcel;
+    case "ppt":
+    case "pptx":
+    case "pptm":
+      return FaRegFilePowerpoint;
+    case "pdf":
+      return BsFiletypePdf;
+    case "mov":
+      return BiMoviePlay;
+    case "png":
+      return BsFiletypePng;
+    case "jpg":
+    case "jpeg":
+      return BsFiletypeJpg;
+    case "csv":
+      return BsFiletypeCsv;
+    case "mp4":
+      return BsFiletypeMp4;
+    case "mp3":
+      return BsFiletypeMp3;
+    case "txt":
+      return BsFiletypeTxt;
+    default:
+      return BsFileEarmark;
+  }
+}
+
+export function isValidNodeName(fileName: string): boolean {
+  // Check if the file name is empty
+  if (!fileName || fileName.trim().length === 0) {
+    return false;
+  }
+  const invalidChars = /[\/\\?%*:|"<>&]/g;
+  return !invalidChars.test(fileName);
+}
+
+// Utility function to sort nodes: folders first (alphabetically), then files (alphabetically).
+const sortNodes = (nodes: any[]): any[] => {
+  return nodes.sort((a, b) => {
+    // Sort folders before files
+    if (a.isFile !== b.isFile) {
+      return a.isFile ? 1 : -1;
+    }
+    // Then sort alphabetically by name
+    return a.name.localeCompare(b.name);
+  });
+};
+
+// Recursive function to apply sorting to each folder's children
+export const sortFolderChildren = (folder: any): any => {
+  let sortedFolder = { ...folder };
+
+  if (folder.children && folder.children.length > 0) {
+    sortedFolder.children = sortNodes(folder.children.map((child: any) => sortFolderChildren(child)));
+  }
+
+  return sortedFolder;
+};
+
+export const extractNodes = (folders: any[]) => {
+  let rawAllNodes: any[] = [];
+
+  const extract = (folders: any[]) => {
+    folders.forEach((folder) => {
+      rawAllNodes.push({ ...folder, children: undefined }); // Assuming you want to remove 'children' from each node
+      if (folder.children) {
+        extract(folder.children);
+      }
+    });
+  };
+
+  extract(folders);
+  return rawAllNodes;
+};
+
+export function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLayerNodesType2[] {
+  // Extract lastViewedAt and remove recordViewActivity
+  const updatedArray = array.map((item) => {
+    const lastViewedAt = item.recordViewActivity.length > 0 ? item.recordViewActivity[0].lastViewedAt : undefined;
+
+    const { recordViewActivity, ...rest } = item;
+    return { ...rest, lastViewedAt };
+  });
+
+  // Separate items with and without a lastViewedAt
+  const itemsWithDate = updatedArray.filter((item) => item.lastViewedAt != null);
+  const itemsWithoutDate = updatedArray.filter((item) => item.lastViewedAt == null);
+
+  // Sort items with a lastViewedAt and then concatenate the rest
+  const sortedItems = itemsWithDate
+    .sort((a, b) => {
+      const dateA = a.lastViewedAt as Date;
+      const dateB = b.lastViewedAt as Date;
+      return dateB.getTime() - dateA.getTime();
+    })
+    .concat(itemsWithoutDate);
+
+  return sortedItems;
 }

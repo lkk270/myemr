@@ -1,3 +1,43 @@
+import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings } from "lucide-react";
+
+export const navRoutes = [
+  {
+    icon: Home,
+    href: "/patient-home",
+    label: "Home",
+  },
+  {
+    icon: FolderClosed,
+    href: "/files",
+    label: "Files",
+  },
+  {
+    icon: Pill,
+    href: "/medications",
+    label: "Meds",
+  },
+  {
+    icon: Contact,
+    href: "/about",
+    label: "About",
+  },
+  {
+    icon: ScrollText,
+    href: "/notes",
+    label: "Notes",
+  },
+  {
+    icon: Stethoscope,
+    href: "/providers",
+    label: "Providers",
+  },
+  {
+    icon: Settings,
+    href: "/settings",
+    label: "Settings",
+  },
+];
+
 export interface SelectItemType {
   value: string;
   value2?: string;
@@ -500,6 +540,27 @@ export const states = [
 ];
 
 export const medicationCategories = [
+  { value: "Allergy", label: "Allergy" },
+  { value: "Cardiology", label: "Cardiology" },
+  { value: "Dermatology", label: "Dermatology" },
+  { value: "Endocrinology", label: "Endocrinology" },
+  { value: "Gastroenterology", label: "Gastroenterology" },
+  { value: "Hematology", label: "Hematology" },
+  { value: "Immunology", label: "Immunology" },
+  { value: "Infectious Diseases", label: "Infectious Diseases" },
+  { value: "Nephrology", label: "Nephrology" },
+  { value: "Neurology", label: "Neurology" },
+  { value: "Oncology", label: "Oncology" },
+  { value: "Ophthalmology", label: "Ophthalmology" },
+  { value: "Orthopedics", label: "Orthopedics" },
+  { value: "Pediatrics", label: "Pediatrics" },
+  { value: "Psychiatry", label: "Psychiatry" },
+  { value: "Pulmonology", label: "Pulmonology" },
+  { value: "Rheumatology", label: "Rheumatology" },
+  { value: "Urology", label: "Urology" },
+];
+
+export const rootFolderCategories = [
   { value: "Allergy", label: "Allergy" },
   { value: "Cardiology", label: "Cardiology" },
   { value: "Dermatology", label: "Dermatology" },

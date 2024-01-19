@@ -83,6 +83,9 @@ export const ActionDropdown = ({
           if (item.label === "Move" && !nodeData.parentId) {
             return null;
           }
+          if (item.label === "Rename" && nodeData.isRoot) {
+            return null;
+          }
           if (item.label === "Add a subfolder" && nodeData.isFile) {
             return null;
           }

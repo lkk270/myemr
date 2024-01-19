@@ -24,7 +24,7 @@ export const Logo = ({ textColor, showText = true }: LogoProps) => {
         <Image priority={true} src="/logo.svg" height="40" width="40" alt="Logo" draggable={false} />
         {showText && (
           <p className={cn("font-semibold text-sm sm:flex sm:text-lg", font.className, textColor && `text-primary/70`)}>
-            Emridoc
+            MyEMR
           </p>
         )}
       </div>

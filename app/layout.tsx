@@ -18,7 +18,7 @@ import TopLoader from "@/components/top-loader";
 const font = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Emridoc",
+  title: "MyEMR",
   description: "A patient focused EMR",
 };
 
@@ -46,7 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
-            storageKey="emridoc-theme"
+            storageKey="myemr-theme"
           >
             <NewMedicationModal />
             <ViewMedicationModal />

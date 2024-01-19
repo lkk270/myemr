@@ -7,7 +7,7 @@ export const BasicNavbar = () => {
     <nav className="flex items-center justify-between pl-4 bg-transparent text-indigo-500">
       <Link href="/" className="text-2xl font-semibold">
         {/* <Image fill alt="Logo" src="images/logo2.svg" /> */}
-        emridoc
+        MyEMR
       </Link>
       <div className="flex items-center gap-x-2"></div>
     </nav>

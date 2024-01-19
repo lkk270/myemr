@@ -71,7 +71,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
         {isSignedIn && isLoaded && (
           <>
             <Button variant="ghost" size="sm" asChild>
-              <Link href={`/${user.unsafeMetadata.userType}-home`}>Enter Emridoc</Link>
+              <Link href={`/${user.unsafeMetadata.userType}-home`}>Enter MyEMR</Link>
             </Button>
             {redirect(`/${user.unsafeMetadata.userType}-home`)}
             <UserButton afterSignOutUrl="/" />

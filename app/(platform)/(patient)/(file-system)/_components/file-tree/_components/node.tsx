@@ -323,6 +323,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 if (item.label === "Add a subfolder" && node.data.isFile) {
                   return null;
                 }
+                if (item.label === "Rename" && nodeData.isRoot) {
+                  return null;
+                }
 
                 // If the condition is not met, render the DropdownMenuItem as usual
                 return (

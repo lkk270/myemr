@@ -3,6 +3,7 @@ import { CustomDataTable } from "../../../_components/file-table/custom-data-tab
 import prismadb from "@/lib/prismadb";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
+import { NodePageHeader } from "../../../_components/node-page-header";
 
 interface FilePagePageProps {
   params: {
@@ -45,7 +46,11 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   //   return <div>something went wrong</div>;
   // }
 
-  return <div className="pt-16 px-6">FILE HERE {fileId}</div>;
+  return (
+    <div className="pt-16 px-6">
+      <NodePageHeader nodeId={fileId} isFile={true} />
+    </div>
+  );
 };
 
 export default FilePagePage;

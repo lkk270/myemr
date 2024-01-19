@@ -213,7 +213,7 @@ export const addRootNode = async (
         },
       });
     },
-    { timeout: 20000 }, // Set your desired timeout in milliseconds
+    { timeout: 20000 },
   );
 
   if (folder) {

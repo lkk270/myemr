@@ -443,15 +443,16 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       };
       const updatedSingleLayerNodes = [newSingleLayerNode, ...state.singleLayerNodes];
 
-      const updatedFolders = insertSubFolder(state.folders, parentId, newSubFolder);
+      const updatedFolders = insertSubFolder(state.folders, parentId, newSubFolder) as any[];
 
       // The singleLayerNodes array should be updated as well if necessary
       // You might need to adapt this part based on your application's logic
+      const sortedFolders = updatedFolders.map((folder) => sortFolderChildren(folder));
 
       return {
         ...state,
         singleLayerNodes: updatedSingleLayerNodes,
-        folders: updatedFolders,
+        folders: sortedFolders,
       };
     });
   },

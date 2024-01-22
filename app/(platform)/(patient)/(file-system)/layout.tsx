@@ -3,6 +3,7 @@ import { DownloadModal } from "./_components/file-tree/_components/modals/downlo
 import { RenameModal } from "./_components/file-tree/_components/modals/rename-modal";
 import { MoveModal } from "./_components/file-tree/_components/modals/move-modal";
 import { AddFolderModal } from "./_components/file-tree/_components/modals/add-folder-modal";
+import { UploadFilesModal } from "./_components/file-tree/_components/modals/upload-files-modal";
 import { Sidebar } from "./_components/sidebar";
 
 import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
@@ -159,6 +160,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       <RenameModal />
       <MoveModal />
       <AddFolderModal />
+      <UploadFilesModal />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />

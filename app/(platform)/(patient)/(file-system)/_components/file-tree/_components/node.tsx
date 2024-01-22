@@ -22,6 +22,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { NodeDataType } from "@/app/types/file-types";
+import Link from "next/link";
 
 type NodeProps = {
   node: any;
@@ -78,14 +79,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   useEffect(() => {
     setIsMounted(true);
-    if (tree && !openStateSet) {
+    if (tree) {
       tree.openParents(nodeIdFromPath);
       if (!tree.get(nodeIdFromPath)?.data.isFile) {
         tree.open(nodeIdFromPath);
       }
       setOpenStateSet(true);
     }
-  }, [tree, node]); // Add dependencies here
+  }, [pathname]);
 
   const CustomIcon = node.data.isFile ? getFileIcon(node.data.name) : FaFolder;
 
@@ -204,17 +205,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     setHoveredNode({ id: null, parentId: null, path: null, namePath: null, isFile: null });
   };
 
-  const onNodeClick = () => {
-    const nodeId = node.id;
-    if (node.data.isFile) {
-      router.push("/file/" + nodeId);
-    } else {
-      router.push("/files/" + nodeId);
-      tree.open(nodeId);
-    }
-    tree.openParents(nodeId);
-  };
-
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
@@ -291,12 +281,12 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               )}
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
-              <span
-                onClick={onNodeClick}
+              <Link
+                href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                 className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}
               >
-                <span>{node.data.name}</span>
-              </span>
+                {node.data.name}
+              </Link>
               <div className={cn(isMobile ? "" : "action-button")}>
                 <ActionDropdown
                   nodeData={node.data}

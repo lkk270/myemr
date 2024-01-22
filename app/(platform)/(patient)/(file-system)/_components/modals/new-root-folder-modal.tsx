@@ -136,7 +136,12 @@ export const NewRootFolder = () => {
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Root Categories">
           {rootFolderCategories?.map((obj, index) => (
-            <CommandItemComponent obj={obj} index={index} alreadyUsed={alreadyUsedRootNames.includes(obj.label)} />
+            <CommandItemComponent
+              key={index}
+              obj={obj}
+              index={index}
+              alreadyUsed={alreadyUsedRootNames.includes(obj.label)}
+            />
           ))}
         </CommandGroup>
       </CommandList>

@@ -103,42 +103,51 @@ export const UploadFilesModal = () => {
 
   const createBeforeUploadHandler = () => {
     let toastShown = false;
+    const disallowedTypes = new Set(["application/zip", "application/x-diskcopy", "application/x-msdownload"]); // Add other disallowed types here
 
     return (a: any, beforeFileList: any[]) => {
       console.log(beforeFileList);
       const startingFilesLength = fileList.length;
-      const totalFilesCount = startingFilesLength + beforeFileList.length;
+      const validFileList = beforeFileList.filter((file) => !disallowedTypes.has(file.type));
+
+      if (validFileList.length !== beforeFileList.length && !toastShown) {
+        toast.error("Disallowed file types (e.g., zip, dmg, exe) have been excluded.", {
+          duration: 3000,
+        });
+        toastShown = true; // Prevent multiple toast messages for disallowed types
+      }
+
+      const totalFilesCount = startingFilesLength + validFileList.length;
+
       if (startingFilesLength === 10 && !toastShown) {
         toast.error("You have already selected 10 files - only 10 files can be uploaded at a time!", {
           duration: 3000,
         });
         toastShown = true;
       }
+
       if (totalFilesCount > 10) {
         if (!toastShown) {
+          const filesToAdd = validFileList.slice(0, 10 - startingFilesLength);
+
           if (startingFilesLength === 0) {
             toast.error(`Can only upload 10 files at a time. Only taking the first 10 selected files`, {
               duration: 3000,
             });
-            toastShown = true;
           } else {
             const availableSlots = 10 - startingFilesLength;
             toast.error(
               `Can only upload 10 files at a time. Only taking the first ${availableSlots} additional files.`,
-              {
-                duration: 3000,
-              },
+              { duration: 3000 },
             );
-            toastShown = true;
           }
+          toastShown = true;
+          setFileList([...fileList, ...filesToAdd]);
+          return false;
         }
-
-        const filesToAdd = beforeFileList.slice(0, 10 - fileList.length);
-        setFileList([...fileList, ...filesToAdd]);
-        return false;
       }
 
-      setFileList([...fileList, ...beforeFileList]);
+      setFileList([...fileList, ...validFileList]);
       return false;
     };
   };
@@ -212,7 +221,7 @@ export const UploadFilesModal = () => {
                 <InboxOutlined />
               </p>
               <p className="text-sm text-primary">
-                Click or drag file to this area to upload. 10 files can be uploaded at a time.
+                Click or drag file(s) to this area to upload. 10 files can be uploaded at a time.
               </p>
             </Dragger>
           </div>

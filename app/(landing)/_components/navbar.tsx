@@ -27,8 +27,9 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   return (
     <div
       className={cn(
-        "h-16 bg-background dark:bg-[#1F1F1F] z-100 fixed top-0 flex items-center w-full p-2 sm:p-6",
-        scrolled && "border-b shadow-sm",
+        "h-16 z-100 fixed top-0 flex items-center w-full p-2 sm:p-6",
+        scrolled &&
+          "dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F]  bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
       )}
     >
       <Logo />

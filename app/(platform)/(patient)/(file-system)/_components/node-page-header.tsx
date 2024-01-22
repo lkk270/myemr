@@ -39,12 +39,13 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             </div>
           </Button>
           <Button
+            onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
             className="border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8"
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <FolderPlus className="w-5 h-5" />
-              <div onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}>Add subfolder</div>
+              <div>Add subfolder</div>
             </div>
           </Button>
         </div>

@@ -8,6 +8,7 @@ import Link from "next/link"; // Assuming you are using Next.js for routing
 import { ActionDropdown } from "./file-tree/_components/action-dropdown";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAddFolderModal } from "./file-tree/_components/hooks";
+import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
 import { NodeDataType } from "@/app/types/file-types";
 interface NodePageHeaderProps {
   nodeId: string;
@@ -16,6 +17,7 @@ interface NodePageHeaderProps {
 
 export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
   const addFolderModal = useAddFolderModal();
+  const uploadFilesModal = useUploadFilesModal();
   const folderStore = useFolderStore();
   const node = folderStore.getNode(nodeId);
   const namePath = node?.namePath;
@@ -30,6 +32,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
       {!isFile && (
         <div className="flex gap-x-2">
           <Button
+            onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
             className="border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8"
           >

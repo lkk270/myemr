@@ -11,11 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { useUploadFilesModal } from "../hooks/use-upload-files-modal";
 import { useFolderStore } from "../../../hooks/use-folders";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
@@ -181,33 +179,55 @@ export const UploadFilesModal = () => {
     fileList,
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    setIsLoading(true);
     const formData = new FormData();
-    const tempFileList = _.defaultsDeep(fileList);
-    console.log(tempFileList);
-    fileList.forEach((file, index) => {
+    if (fileList.length === 0) {
+      toast.error("No files were selected");
+      return;
+    }
+
+    const tempFileList = [...fileList] as any[]; // clone the fileList
+    for (let index = 0; index < tempFileList.length; index++) {
+      const file = tempFileList[index];
       formData.append("files[]", file as FileType);
       tempFileList[index].status = "uploading";
-    });
-    console.log(tempFileList);
-    setUploading(true);
-    // You can use any AJAX library you like
-    fetch("https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then(() => {
-        setFileList(tempFileList);
-        message.success("upload successfully.");
-      })
-      .catch(() => {
-        message.error("upload failed.");
-      })
-      .finally(() => {
-        setUploading(false);
+      setFileList([...tempFileList]); // update the fileList for each file
+
+      const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/api/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
       });
+
+      if (response.ok) {
+        const { url, fields } = await response.json();
+        const formData = new FormData();
+        Object.entries(fields).forEach(([key, value]) => {
+          formData.append(key, value as string);
+        });
+        formData.append("file", file as any);
+
+        const uploadResponse = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (uploadResponse.ok) {
+          tempFileList[index].status = "success";
+        } else {
+          tempFileList[index].status = "error";
+        }
+      } else {
+        tempFileList[index].status = "error";
+      }
+      setFileList([...tempFileList]); // update the fileList after each upload
+    }
+    setIsLoading(false);
   };
+
   return (
     <AlertDialog open={uploadFilesModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px] max-h-[100vh] overflow-y-scroll">
@@ -231,7 +251,7 @@ export const UploadFilesModal = () => {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isLoading}
+            disabled={isLoading || fileList.length === 0}
             onClick={() => {
               handleUpload();
             }}
@@ -244,3 +264,123 @@ export const UploadFilesModal = () => {
     </AlertDialog>
   );
 };
+
+// "use client";
+
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+//   AlertDialogTrigger,
+// } from "@/components/ui/alert-dialog";
+// import { useUploadFilesModal } from "../hooks/use-upload-files-modal";
+// import { useFolderStore } from "../../../hooks/use-folders";
+// import { useState, useEffect } from "react";
+// import { toast } from "sonner";
+// import axios from "axios";
+// import { isValidNodeName } from "@/lib/utils";
+// import { useCurrentUser } from "@/auth/hooks/use-current-user";
+
+// export const UploadFilesModal = () => {
+//   const [isMounted, setIsMounted] = useState(false);
+//   const uploadFilesModal = useUploadFilesModal();
+//   const [file, setFile] = useState<File | null>(null); // Moved up
+//   const [uploading, setUploading] = useState(false); //
+
+//   useEffect(() => {
+//     setIsMounted(true);
+//   }, []);
+
+//   if (!isMounted || !uploadFilesModal || !uploadFilesModal.nodeData) {
+//     return null;
+//   }
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+
+//     if (!file) {
+//       alert("Please select a file to upload.");
+//       return;
+//     }
+
+//     setUploading(true);
+
+//     const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/api/upload", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ filename: file.name, contentType: file.type }),
+//     });
+
+//     if (response.ok) {
+//       const { url, fields } = await response.json();
+
+//       const formData = new FormData();
+//       Object.entries(fields).forEach(([key, value]) => {
+//         formData.append(key, value as string);
+//       });
+//       formData.append("file", file);
+
+//       const uploadResponse = await fetch(url, {
+//         method: "POST",
+//         body: formData,
+//       });
+
+//       if (uploadResponse.ok) {
+//         alert("Upload successful!");
+//       } else {
+//         console.error("S3 Upload Error:", uploadResponse);
+//         alert("Upload failed.");
+//       }
+//     } else {
+//       alert("Failed to get pre-signed URL.");
+//     }
+
+//     setUploading(false);
+//   };
+
+//   return (
+//     <AlertDialog open={uploadFilesModal.isOpen}>
+//       <AlertDialogContent className="flex flex-col xs:max-w-[400px] max-h-[100vh] overflow-y-scroll">
+//         <AlertDialogHeader>
+//           <AlertDialogTitle className="whitespace-normal break-all">
+//             Upload files to <span className="italic">{uploadFilesModal.nodeData.name}</span>? //{" "}
+//           </AlertDialogTitle>
+//           <div className="text-primary pt-2 overflow-y-scroll">
+//             <form onSubmit={handleSubmit}>
+//               <input
+//                 id="file"
+//                 type="file"
+//                 onChange={(e) => {
+//                   const files = e.target.files;
+//                   if (files) {
+//                     setFile(files[0]);
+//                   }
+//                 }}
+//                 accept="image/png, image/jpeg"
+//               />
+//               <button type="submit" disabled={uploading}>
+//                 Upload
+//               </button>
+//             </form>
+//           </div>
+//         </AlertDialogHeader>
+//         <AlertDialogFooter>
+//           <AlertDialogCancel disabled={false} onClick={uploadFilesModal.onClose} className="w-20 h-8 text-sm">
+//             Cancel
+//           </AlertDialogCancel>
+
+//           <AlertDialogAction type="submit" className="w-20 h-8 text-sm">
+//             Upload
+//           </AlertDialogAction>
+//         </AlertDialogFooter>
+//       </AlertDialogContent>
+//     </AlertDialog>
+//   );
+// };

@@ -62,6 +62,6 @@ export type MenuItemData = {
 
 export type FileWithStatus = {
   file: File;
-  status?: "waiting" | "uploading" | "uploaded" | "error";
+  status?: "waiting" | "uploading" | "uploaded" | "error" | null;
   isRetrying?: boolean;
 };

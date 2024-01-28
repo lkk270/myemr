@@ -221,7 +221,7 @@ export const UploadFilesModal = () => {
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading} onClick={uploadFilesModal.onClose} className="w-20 h-8 text-sm">
-            Cancel
+            {files.length > 0 && files.some((file) => file.status) ? "Done" : "Cancel"}
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={isLoading || !files.some((file) => !file.status)}

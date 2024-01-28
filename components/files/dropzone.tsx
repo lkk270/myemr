@@ -3,10 +3,13 @@
 import React, { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Inbox } from "lucide-react";
+import { FileWithStatus } from "@/app/types/file-types";
+import { cn } from "@/lib/utils";
 
 // Define the props expected by the Dropzone component
 interface DropzoneProps {
-  onChange: React.Dispatch<React.SetStateAction<string[]>>;
+  onChange: React.Dispatch<React.SetStateAction<FileWithStatus[]>>;
   className?: string;
   fileExtension?: string;
 }
@@ -14,14 +17,22 @@ interface DropzoneProps {
 // Create the Dropzone component receiving props
 export function Dropzone({ onChange, className, fileExtension, ...props }: DropzoneProps) {
   // Initialize state variables using the useState hook
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to file input element
-  const [fileInfo, setFileInfo] = useState<string | null>(null); // Information about the uploaded file
-  const [error, setError] = useState<string | null>(null); // Error message state
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isOverArea, setIsOverArea] = useState(false);
+  const [fileInfo, setFileInfo] = useState<File[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Function to handle drag over event
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsOverArea(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOverArea(false);
   };
 
   // Function to handle drop event
@@ -30,6 +41,7 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
     e.stopPropagation();
     const { files } = e.dataTransfer;
     handleFiles(files);
+    setIsOverArea(false);
   };
 
   // Function to handle file input change event
@@ -41,23 +53,18 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
   };
 
   // Function to handle processing of uploaded files
+  // Function to handle processing of uploaded files
   const handleFiles = (files: FileList) => {
-    const uploadedFile = files[0];
-
-    // Check file extension
-    if (fileExtension && !uploadedFile.name.endsWith(`.${fileExtension}`)) {
-      setError(`Invalid file type. Expected: .${fileExtension}`);
-      return;
+    let newFiles: FileWithStatus[] = []; // Define as array of FileWithStatus
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      // Convert each File into a FileWithStatus object
+      newFiles.push({ file: file });
     }
 
-    const fileSizeInKB = Math.round(uploadedFile.size / 1024); // Convert to KB
-
-    const fileList = Array.from(files).map((file) => URL.createObjectURL(file));
-    onChange((prevFiles) => [...prevFiles, ...fileList]);
-
-    // Display file information
-    setFileInfo(`Uploaded file: ${uploadedFile.name} (${fileSizeInKB} KB)`);
-    setError(null); // Reset error state
+    setFileInfo((prevFiles) => [...newFiles.map((fws) => fws.file), ...prevFiles]);
+    onChange((prevFiles) => [...newFiles, ...prevFiles]);
+    setError(null);
   };
 
   // Function to simulate a click on the file input element
@@ -68,37 +75,58 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
   };
 
   return (
-    <Card
-      className={`border-2 border-dashed bg-muted hover:cursor-pointer hover:border-muted-foreground/50 ${className}`}
-      {...props}
-    >
-      <CardContent
-        className="flex flex-col items-center justify-center space-y-2 px-2 py-4 text-xs"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+    <>
+      <Card
+        onClick={handleButtonClick}
+        className={cn(
+          "border-2 border-dashed bg-muted hover:cursor-pointer hover:border-muted-foreground/50",
+          isOverArea && "border-muted-foreground/50",
+          className,
+        )}
+        {...props}
       >
-        <div className="flex items-center justify-center text-muted-foreground">
-          <span className="font-medium">Drag Files to Upload or</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto flex h-8 space-x-2 px-0 pl-1 text-xs"
-            onClick={handleButtonClick}
-          >
-            Click Here
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={`.${fileExtension}`} // Set accepted file type
-            onChange={handleFileInputChange}
-            className="hidden"
-            multiple
-          />
-        </div>
-        {fileInfo && <p className="text-muted-foreground">{fileInfo}</p>}
-        {error && <span className="text-red-500">{error}</span>}
-      </CardContent>
-    </Card>
+        <CardContent
+          className="flex flex-col items-center justify-center space-y-2 px-2 py-4 text-xs"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="flex flex-col items-center justify-center text-muted-foreground">
+            <Inbox color={"#4f5eff"} className="w-8 h-8 mb-2" />
+            <span className="font-medium text-sm">
+              Click or drag file(s) to this area to upload. 10 files can be uploaded at a time.
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={`
+              image/*,audio/*,video/*,
+              .heic,.webp,.ipynb,
+              .pdf,.doc,.docx,.txt,.csv,.xls,.xlsx,.ppt,.pptx,
+              .html,.css,.js,.ts,.tsx,jsx,.md
+              .xml,.json,
+              .tif,.tiff,.bmp,.dcm,
+              .rtf,.odt,.ods,.odp,
+              .psd,.ai,
+              application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+              application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+              application/vnd.openxmlformats-officedocument.presentationml.presentation,
+              application/vnd.ms-excel,
+              application/msword,
+              application/rtf,
+              application/vnd.oasis.opendocument.text,
+              application/vnd.oasis.opendocument.spreadsheet,
+              application/vnd.oasis.opendocument.presentation,
+              application/x-dicom
+            `}
+              onChange={handleFileInputChange}
+              className="hidden"
+              multiple
+            />
+          </div>
+          {/* {error && <span className="text-red-500">{error}</span>} */}
+        </CardContent>
+      </Card>
+    </>
   );
 }

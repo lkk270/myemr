@@ -22,7 +22,7 @@ import { Dropzone } from "@/components/files/dropzone";
 import _ from "lodash";
 import { FileWithStatus } from "@/app/types/file-types";
 import { Spinner } from "@/components/spinner";
-import { cn } from "@/lib/utils";
+import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
 export const UploadFilesModal = () => {
@@ -141,11 +141,11 @@ export const UploadFilesModal = () => {
                   <div className="flex-shrink-0 pr-2">
                     {fileObj.status === "uploading" && <Spinner size="default" defaultLoader={false} />}
                   </div>
-                  <div className={cn("flex flex-grow min-w-0", fileObj.status === "uploaded" && "text-[#1cd760]")}>
+                  <div className={cn("flex flex-grow min-w-0", fileObj.status === "uploaded" && "text-green-600")}>
                     <p className={`text-sm truncate flex-grow ${fileObj.status === "error" ? "text-red-500" : ""}`}>
                       {fileObj.file.name}
                     </p>
-                    <span className="text-sm flex-shrink-0 pl-2">({Math.round(fileObj.file.size / 1024)} KB)</span>
+                    <span className="text-sm flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
                   </div>
                   {!fileObj.status && (
                     <div role="button" className="flex-shrink-0 pl-2" onClick={() => handleRemoveFile(fileObj.file)}>

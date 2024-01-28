@@ -61,7 +61,7 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
       // Convert each File into a FileWithStatus object
       newFiles.push({ file: file });
     }
-
+    console.log(newFiles);
     setFileInfo((prevFiles) => [...newFiles.map((fws) => fws.file), ...prevFiles]);
     onChange((prevFiles) => [...newFiles, ...prevFiles]);
     setError(null);

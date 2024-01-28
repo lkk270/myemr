@@ -27,8 +27,6 @@ import { Separator } from "@/components/ui/separator";
 
 export const UploadFilesModal = () => {
   const user = useCurrentUser();
-  const [showSeparator, setShowSeparator] = useState(false);
-
   const [files, setFiles] = useState<FileWithStatus[]>([]);
 
   const [isMounted, setIsMounted] = useState(false);
@@ -45,7 +43,6 @@ export const UploadFilesModal = () => {
 
   const handleUpload = async () => {
     setIsLoading(true);
-    setShowSeparator(true);
     const formData = new FormData();
     setFiles((prevFiles) =>
       prevFiles.map((fileObj) => ({
@@ -164,7 +161,7 @@ export const UploadFilesModal = () => {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isLoading}
+            disabled={isLoading || !files.some((file) => !file.status)}
             onClick={() => {
               handleUpload();
             }}

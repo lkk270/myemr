@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useUploadFilesModal } from "../hooks/use-upload-files-modal";
 import { useFolderStore } from "../../../hooks/use-folders";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
@@ -28,7 +28,6 @@ import { Separator } from "@/components/ui/separator";
 export const UploadFilesModal = () => {
   const user = useCurrentUser();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
-
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const uploadFilesModal = useUploadFilesModal();
@@ -41,28 +40,39 @@ export const UploadFilesModal = () => {
     return null;
   }
 
-  const handleUpload = async () => {
+  const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
+    console.log(files);
     setIsLoading(true);
-    const formData = new FormData();
-    setFiles((prevFiles) =>
-      prevFiles.map((fileObj) => ({
-        ...fileObj,
-        status: fileObj.status == null ? "uploading" : fileObj.status,
-      })),
-    );
-    const tempFileList = [...files] as any[]; // clone the fileList
+    // const formData = new FormData();
+    if (singleFileObj) {
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.file === singleFileObj.file ? { ...file, status: "uploading", isRetrying: true } : file,
+        ),
+      );
+    } else {
+      setFiles((prevFiles) =>
+        prevFiles.map((fileObj) => ({
+          ...fileObj,
+          status: fileObj.status == null ? "uploading" : fileObj.status,
+        })),
+      );
+    }
+    const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     for (let index = 0; index < tempFileList.length; index++) {
       const tempFile = tempFileList[index];
       console.log(tempFile);
-      if (!!tempFile.status) {
+      if (!!tempFile.status && !isForRetry) {
+        console.log("666");
         continue;
       }
+
       const file = tempFile.file;
 
       console.log(file);
-      formData.append("files[]", file as any);
+      // formData.append("files[]", file as any);
 
-      const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/api/upload", {
+      const response = await fetch("/api/upload", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,18 +95,39 @@ export const UploadFilesModal = () => {
         console.log(uploadResponse);
 
         if (uploadResponse.ok) {
-          setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "uploaded" } : f)));
-
-          toast.success("267 success");
+          if (singleFileObj) {
+            setFiles((prevFiles) =>
+              prevFiles.map((file) =>
+                file.file === singleFileObj.file ? { ...file, status: "uploaded", isRetrying: false } : file,
+              ),
+            );
+          } else {
+            setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "uploaded" } : f)));
+          }
+          // toast.success("267 success");
         } else {
-          setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "error" } : f)));
-
-          toast.error("269");
+          if (singleFileObj) {
+            setFiles((prevFiles) =>
+              prevFiles.map((file) =>
+                file.file === singleFileObj.file ? { ...file, status: "error", isRetrying: false } : file,
+              ),
+            );
+          } else {
+            setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "error" } : f)));
+          }
+          // toast.error("269");
         }
       } else {
-        setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "error" } : f)));
-
-        toast.error("272");
+        if (singleFileObj) {
+          setFiles((prevFiles) =>
+            prevFiles.map((file) =>
+              file.file === singleFileObj.file ? { ...file, status: "error", isRetrying: false } : file,
+            ),
+          );
+        } else {
+          setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "error" } : f)));
+        }
+        // toast.error("272");
       }
     }
     setIsLoading(false);
@@ -106,9 +137,14 @@ export const UploadFilesModal = () => {
     setFiles((prevFiles) => prevFiles.filter((file) => file.file !== fileToRemove));
   };
 
+  const handleCheckClick = () => {
+    console.log(files.length);
+    console.log(files);
+  };
+
   return (
     <AlertDialog open={uploadFilesModal.isOpen}>
-      <AlertDialogContent className="flex flex-col xs:max-w-[400px] md:max-w-[500px]">
+      <AlertDialogContent className="flex flex-col xs:max-w-[400px] md:max-w-[500px]" onClick={handleCheckClick}>
         <AlertDialogHeader>
           <AlertDialogTitle className="whitespace-normal break-all">
             Upload files to <span className="italic">{uploadFilesModal.nodeData.name}</span>?
@@ -119,30 +155,47 @@ export const UploadFilesModal = () => {
         {/* Scrollable File List */}
         <div className="overflow-y-scroll max-h-[45vh] gap-y-2 flex flex-col">
           {files.map((fileObj, index) => {
+            console.log(fileObj);
             const isPreviousBatch =
               index > 0 &&
               !!files[index - 1].status &&
               files[index - 1].status !== "uploading" &&
+              !fileObj.isRetrying &&
               (!fileObj.status || fileObj.status === "uploading");
 
             const isEndOfUndefinedBatch =
               !fileObj.status &&
               index < files.length - 1 &&
               !!files[index + 1].status &&
-              files[index + 1].status !== "uploading";
+              (files[index + 1].status !== "uploading" ||
+                (files[index + 1].status === "uploading" && files[index + 1].isRetrying));
 
             return (
               <div key={index} className="px-4">
                 {isPreviousBatch && <Separator />}
                 <div className="flex items-center text-muted-foreground overflow-hidden">
-                  <div className="flex-shrink-0 pr-2">
-                    {fileObj.status === "uploading" && <Spinner size="default" defaultLoader={false} />}
-                  </div>
-                  <div className={cn("flex flex-grow min-w-0", fileObj.status === "uploaded" && "text-green-600")}>
-                    <p className={`text-sm truncate flex-grow ${fileObj.status === "error" ? "text-red-500" : ""}`}>
+                  {fileObj.status === "uploading" && (
+                    <div className="flex-shrink-0 pr-2">
+                      <Spinner size="default" defaultLoader={false} />
+                    </div>
+                  )}
+                  {fileObj.status === "error" && (
+                    <div
+                      title="retry"
+                      role="button"
+                      className="flex-shrink-0 pr-2"
+                      onClick={() => handleUpload(fileObj, true)}
+                    >
+                      <RefreshCw className="w-4 h-4 text-[#4f5eff]" />
+                    </div>
+                  )}
+                  <div
+                    className={cn("text-sm flex flex-grow min-w-0", fileObj.status === "uploaded" && "text-green-600")}
+                  >
+                    <p className={cn("truncate flex-grow", fileObj.status === "error" && "text-red-500")}>
                       {fileObj.file.name}
                     </p>
-                    <span className="text-sm flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
+                    <span className="flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
                   </div>
                   {!fileObj.status && (
                     <div role="button" className="flex-shrink-0 pl-2" onClick={() => handleRemoveFile(fileObj.file)}>

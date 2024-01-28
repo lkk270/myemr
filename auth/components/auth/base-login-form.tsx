@@ -22,8 +22,13 @@ import { capitalizeFirstLetter } from "@/lib/utils";
 export const BaseLoginForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
+  console.log(searchParams.get("error"));
   const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked" ? "Email is already being used through Google Sign in!" : "";
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email is already being used through Google Sign in!"
+      : searchParams.get("error") === "AuthorizedCallbackError"
+      ? "Email is already being used through email & password sign in!"
+      : "";
 
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [error, setError] = useState<string | undefined>("");

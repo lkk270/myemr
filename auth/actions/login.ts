@@ -15,6 +15,7 @@ import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirm
 import { AccountType, UserType } from "@prisma/client";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
+  console.log(" INE HERE");
   const validatedFields = LoginSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -31,6 +32,11 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
 
   if (password && existingUser && !existingUser.password && existingUser.accountType === AccountType.OAUTH) {
     return { error: "Email is already being used through Google Sign in!" };
+  }
+
+  if (!password && existingUser && existingUser.password && existingUser.accountType === AccountType.CREDENTIALS) {
+    console.log("IN HERE BITCH");
+    return { error: "Email is already being used through email & password sign in!" };
   }
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email, userType);

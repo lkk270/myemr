@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useUploadFilesModal } from "../hooks/use-upload-files-modal";
 import { useFolderStore } from "../../../hooks/use-folders";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
@@ -32,6 +32,8 @@ export const UploadFilesModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const uploadFilesModal = useUploadFilesModal();
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -41,7 +43,9 @@ export const UploadFilesModal = () => {
   }
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
-    console.log(files);
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     setIsLoading(true);
     // const formData = new FormData();
     if (singleFileObj) {
@@ -61,15 +65,11 @@ export const UploadFilesModal = () => {
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     for (let index = 0; index < tempFileList.length; index++) {
       const tempFile = tempFileList[index];
-      console.log(tempFile);
       if (!!tempFile.status && !isForRetry) {
-        console.log("666");
         continue;
       }
 
       const file = tempFile.file;
-
-      console.log(file);
       // formData.append("files[]", file as any);
 
       const response = await fetch("/api/upload", {
@@ -78,6 +78,7 @@ export const UploadFilesModal = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ filename: file.name, contentType: file.type, folderPath: "myfolder" }),
+        signal,
       });
 
       if (response.ok) {
@@ -91,8 +92,8 @@ export const UploadFilesModal = () => {
         const uploadResponse = await fetch(url, {
           method: "POST",
           body: formData,
+          signal,
         });
-        console.log(uploadResponse);
 
         if (uploadResponse.ok) {
           if (singleFileObj) {
@@ -137,14 +138,24 @@ export const UploadFilesModal = () => {
     setFiles((prevFiles) => prevFiles.filter((file) => file.file !== fileToRemove));
   };
 
-  const handleCheckClick = () => {
-    console.log(files.length);
-    console.log(files);
+  const cancelUpload = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort(); // Abort ongoing requests
+    }
+
+    setFiles((prevFiles) =>
+      prevFiles.map((fileObj) => ({
+        ...fileObj,
+        status: fileObj.status == "uploading" ? null : fileObj.status,
+      })),
+    );
+    setIsLoading(false);
+    // Additional clean-up if necessary
   };
 
   return (
     <AlertDialog open={uploadFilesModal.isOpen}>
-      <AlertDialogContent className="flex flex-col xs:max-w-[400px] md:max-w-[500px]" onClick={handleCheckClick}>
+      <AlertDialogContent className="flex flex-col xs:max-w-[400px] md:max-w-[500px]">
         <AlertDialogHeader>
           <AlertDialogTitle className="whitespace-normal break-all">
             Upload files to <span className="italic">{uploadFilesModal.nodeData.name}</span>?
@@ -155,7 +166,6 @@ export const UploadFilesModal = () => {
         {/* Scrollable File List */}
         <div className="overflow-y-scroll max-h-[45vh] gap-y-2 flex flex-col">
           {files.map((fileObj, index) => {
-            console.log(fileObj);
             const isPreviousBatch =
               index > 0 &&
               !!files[index - 1].status &&
@@ -222,6 +232,14 @@ export const UploadFilesModal = () => {
           >
             Upload
           </AlertDialogAction>
+          {isLoading && (
+            <AlertDialogAction
+              onClick={cancelUpload}
+              className="w-30 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+            >
+              Cancel Upload
+            </AlertDialogAction>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

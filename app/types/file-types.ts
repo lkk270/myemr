@@ -59,3 +59,8 @@ export type MenuItemData = {
   differentClassName?: string;
   isFile?: boolean;
 };
+
+export type FileWithStatus = {
+  file: File;
+  status?: "waiting" | "uploading" | "uploaded" | "error";
+};

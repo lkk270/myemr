@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-
+import { File } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: Request) {
@@ -41,20 +41,37 @@ export async function POST(request: Request) {
       return new NextResponse("Patient not found", { status: 401 });
     }
 
-    const file = await prismadb.file.create({
-      data: {
-        name: fileName,
-        parentId: parentId,
-        namePath: `${parentNamePath}/${fileName}`,
-        path: `${parentPath}${parentId}/`,
-        uploadedByUserId: userId,
-        uploadedByName: `${patient.firstName} ${patient.lastName}`,
-        type: contentType,
-        size: size,
-        userId: userId,
-        patientProfileId: patient.id,
+    let file: File | undefined;
+    await prismadb.$transaction(
+      async (prisma) => {
+        file = await prisma.file.create({
+          data: {
+            name: fileName,
+            parentId: parentId,
+            namePath: `${parentNamePath}/${fileName}`,
+            path: `${parentPath}${parentId}/`,
+            uploadedByUserId: userId,
+            uploadedByName: `${patient.firstName} ${patient.lastName}`,
+            type: contentType,
+            size: size,
+            userId: userId,
+            patientProfileId: patient.id,
+            recordViewActivity: {
+              create: [
+                {
+                  userId: userId,
+                },
+              ],
+            },
+          },
+        });
       },
-    });
+      { timeout: 20000 },
+    );
+
+    if (!file) {
+      return new NextResponse("Issue creating db file", { status: 500 });
+    }
 
     const client = new S3Client({ region: process.env.AWS_REGION });
     const key = `${patient.id}/${file.id}`;

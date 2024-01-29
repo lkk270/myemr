@@ -24,7 +24,7 @@ import { FileWithStatus } from "@/app/types/file-types";
 import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-
+import { updateStatus } from "../../../../actions/update-status";
 export const UploadFilesModal = () => {
   const user = useCurrentUser();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
@@ -39,6 +39,10 @@ export const UploadFilesModal = () => {
   }, []);
 
   useEffect(() => {
+    console.log(files);
+  }, [files]);
+
+  useEffect(() => {
     setFiles([]);
   }, [uploadFilesModal.nodeData?.id]);
 
@@ -46,10 +50,22 @@ export const UploadFilesModal = () => {
     return null;
   }
 
+  const updateFileStatus = (singleFileObj: FileWithStatus | null, status: "uploaded" | "error", index: number) => {
+    if (singleFileObj) {
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.file === singleFileObj.file ? { ...file, status: status, isRetrying: false } : file,
+        ),
+      );
+    } else {
+      setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: status } : f)));
+    }
+  };
+
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
-
+    const parentNodeData = uploadFilesModal.nodeData;
     setIsLoading(true);
     // const formData = new FormData();
     if (singleFileObj) {
@@ -81,12 +97,23 @@ export const UploadFilesModal = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ filename: file.name, contentType: file.type, folderPath: "myfolder" }),
+        body: JSON.stringify({
+          updateType: "uploadFiles",
+          fileName: file.name,
+          contentType: file.type,
+          folderPath: "myfolder",
+          size: file.size,
+          parentId: parentNodeData.id,
+          parentNamePath: parentNodeData.namePath,
+          parentPath: parentNodeData.path,
+        }),
         signal,
       });
 
       if (response.ok) {
-        const { url, fields } = await response.json();
+        const responseObj = await response.json();
+        const { url, fields } = responseObj;
+        console.log(responseObj);
         const formData = new FormData();
         Object.entries(fields).forEach(([key, value]) => {
           formData.append(key, value as string);
@@ -100,39 +127,25 @@ export const UploadFilesModal = () => {
         });
 
         if (uploadResponse.ok) {
-          if (singleFileObj) {
-            setFiles((prevFiles) =>
-              prevFiles.map((file) =>
-                file.file === singleFileObj.file ? { ...file, status: "uploaded", isRetrying: false } : file,
-              ),
-            );
-          } else {
-            setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "uploaded" } : f)));
-          }
-          // toast.success("267 success");
+          updateStatus(fields.key.split("/")[1])
+            .then((data) => {
+              if (data.error) {
+                updateFileStatus(singleFileObj, "error", index);
+              }
+
+              if (data.success) {
+                updateFileStatus(singleFileObj, "uploaded", index);
+              }
+            })
+            .catch(() => {
+              updateFileStatus(singleFileObj, "error", index);
+            });
+
         } else {
-          if (singleFileObj) {
-            setFiles((prevFiles) =>
-              prevFiles.map((file) =>
-                file.file === singleFileObj.file ? { ...file, status: "error", isRetrying: false } : file,
-              ),
-            );
-          } else {
-            setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "error" } : f)));
-          }
-          // toast.error("269");
+          updateFileStatus(singleFileObj, "error", index);
         }
       } else {
-        if (singleFileObj) {
-          setFiles((prevFiles) =>
-            prevFiles.map((file) =>
-              file.file === singleFileObj.file ? { ...file, status: "error", isRetrying: false } : file,
-            ),
-          );
-        } else {
-          setFiles((prevFiles) => prevFiles.map((f, i) => (i === index ? { ...f, status: "error" } : f)));
-        }
-        // toast.error("272");
+        updateFileStatus(singleFileObj, "error", index);
       }
     }
     setIsLoading(false);

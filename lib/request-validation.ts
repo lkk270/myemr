@@ -9,6 +9,7 @@ const validUpdateTypes = [
   "deleteNode",
   "addRootNode",
   "addSubFolder",
+  "uploadFiles",
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
@@ -25,6 +26,10 @@ const patientConditionals: any = {
   addSubFolder: {
     requiredFields: ["parentId", "folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],
+  },
+  uploadFiles: {
+    requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
+    optionalFields: ['folderPath'],
   },
 };
 

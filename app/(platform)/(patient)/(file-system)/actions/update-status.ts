@@ -11,7 +11,7 @@ export const updateStatus = async (fileId: string) => {
     return { error: "Unauthorized" };
   }
 
-  await prismadb.file.update({
+  const file = await prismadb.file.update({
     where: {
       id: fileId,
     },
@@ -20,5 +20,5 @@ export const updateStatus = async (fileId: string) => {
     },
   });
 
-  return { success: "Settings Updated!" };
+  return { success: "Settings Updated!", file: file };
 };

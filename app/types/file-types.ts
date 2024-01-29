@@ -25,6 +25,7 @@ export type NodeData2Type = {
   namePath: string;
   isFile: boolean;
   isRoot?: boolean;
+  type?: string;
 };
 
 export type SingleLayerNodesType = {
@@ -36,6 +37,7 @@ export type SingleLayerNodesType = {
   lastViewedAt?: Date;
   parentId?: string | null;
   isRoot?: boolean;
+  type?: string;
   recordViewActivity: {
     lastViewedAt: Date;
   }[];
@@ -49,6 +51,7 @@ export type SingleLayerNodesType2 = {
   isFile: boolean;
   parentId?: string | null;
   lastViewedAt?: Date;
+  type?: string;
   isRoot?: boolean;
 };
 

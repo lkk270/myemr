@@ -10,16 +10,21 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAddFolderModal } from "./file-tree/_components/hooks";
 import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
 import { NodeDataType } from "@/app/types/file-types";
+import { useRouter } from "next/navigation";
 interface NodePageHeaderProps {
   nodeId: string;
   isFile?: boolean;
 }
 
 export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
+  const router = useRouter();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
   const folderStore = useFolderStore();
   const node = folderStore.getNode(nodeId);
+  if (!node) {
+    router.push("/files");
+  }
   const namePath = node?.namePath;
   const path = node?.path;
   const paths = path?.split("/").slice(1);

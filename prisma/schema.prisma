@@ -59,6 +59,7 @@ enum AccountType {
 enum FileUploadStatus {
   NOT_UPLOADED
   SUCCESS
+  TRASHED
 }
 
 model PatientAddress {

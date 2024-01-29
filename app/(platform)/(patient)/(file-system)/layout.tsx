@@ -16,7 +16,8 @@ import { redirect } from "next/navigation";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
-import { FileUploadStatus } from "@prisma/client";
+import { allotedPatientStorage } from "@/lib/constants";
+import { FileUploadStatus, PatientPlan } from "@prisma/client";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -98,6 +99,10 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
 
   const allFolders = await fetchAllFoldersForPatient(null);
   const sortedFolders = allFolders.map((folder) => sortFolderChildren(folder));
+  const patient = await prismadb.patientProfile.findUnique({
+    where: { userId: user.id },
+    select: { usedFileStorage: true, plan: true },
+  });
 
   // const singleLayerFolders = await prismadb.folder.findMany({
   //   where: {
@@ -152,13 +157,20 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
   // console.log(singleLayerNodes);
 
-  if (!sortedFolders || !singleLayerNodes) {
+  if (!sortedFolders || !singleLayerNodes || !patient) {
     return <div>something went wrong</div>;
   }
 
+  const usedFileStorageInGb = patient.usedFileStorage / 1000000000;
+  const allotedStorageInGb = allotedPatientStorage[patient.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar data={sortedFolders} singleLayerNodes={singleLayerNodes} />
+      <Sidebar
+        usedFileStorageInGb={usedFileStorageInGb}
+        allotedStorageInGb={allotedStorageInGb}
+        data={sortedFolders}
+        singleLayerNodes={singleLayerNodes}
+      />
       <DeleteModal />
       <DownloadModal />
       <RenameModal />

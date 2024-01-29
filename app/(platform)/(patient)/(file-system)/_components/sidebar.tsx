@@ -1,26 +1,26 @@
 "use client";
-import { ChevronsLeft, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { ChevronsLeft } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
-// import { FoldersTree } from "./folders-tree";
 import { NodeData2Type } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
-// import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-// import { CitiesTree } from "../(test)/cities-tree";
 import Arborist from "./file-tree/_components/tree";
-import { Item } from "./item";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
   data: any[];
   singleLayerNodes: NodeData2Type[];
+  usedFileStorageInGb: number;
+  allotedStorageInGb: number;
 }
-export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, usedFileStorageInGb, allotedStorageInGb }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
@@ -31,12 +31,15 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
+  const usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
   useEffect(() => {
     console.log(" IN HERE");
     setIsMounted(true);
     console.log(data);
     console.log(singleLayerNodes);
+    console.log(usedFileStoragePercentage);
+
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
   }, []);
@@ -146,9 +149,16 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
           <Arborist width={sidebarWidth} />
           {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           {/* </div> */}
-          <div className="py-4 px-6">
+
+          <div className="flex flex-col py-4 px-6 gap-y-3">
             <NewRootFolderBox />
-            {/* <Item onClick={handleCreate} label="New Root Folder" icon={PlusCircle} /> */}
+            <Separator />
+            <div role="button" className="flex flex-col gap-y-1">
+              <span className="text-sm font-light italic">{`${(usedFileStorageInGb * 1000).toFixed(
+                2,
+              )} Gb / ${allotedStorageInGb} Gb`}</span>
+              <Progress className="h-2" value={usedFileStoragePercentage * 1000} />
+            </div>
           </div>
           <div
             onMouseDown={handleMouseDown}

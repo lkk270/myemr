@@ -150,6 +150,7 @@ export const UploadFilesModal = () => {
                   createdFile.type || "",
                   createdFile.size,
                 );
+                foldersStore.setUsedFileStorage(foldersStore.usedFileStorage + file.size);
               }
             })
             .catch(() => {

@@ -270,20 +270,23 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   <span className="mr-2 flex-shrink-0" onClick={() => node.isInternal && node.toggle()}>
                     {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
-                  <span className="mr-[6px] flex-shrink-0">
+                  <Link
+                    href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
+                    className="mr-[6px] flex-shrink-0"
+                  >
                     {node.isOpen ? (
                       <FaFolderOpen size={iconSize} color={folderColor} />
                     ) : (
                       <FaFolder size={iconSize} color={folderColor} />
                     )}
-                  </span>
+                  </Link>
                 </>
               )}
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
               <Link
                 href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
-                className={cn("truncate flex-grow", !node.data.parentId ? "cursor-default" : "cursor-grab")}
+                className={cn("truncate flex-grow", !node.data.parentId ? "cursor-pointer" : "cursor-grab")}
               >
                 {node.data.name}
               </Link>

@@ -23,18 +23,18 @@ export const updateStatus = async (fileId: string, size: number) => {
         },
       });
 
-      if (file) {
-        await prisma.patientProfile.update({
-          where: {
-            userId: file.userId,
-          },
-          data: {
-            usedFileStorage: { increment: size },
-          },
-        });
-      } else {
-        return { error: "No file created!" };
-      }
+      //   if (file) {
+      //     await prisma.patientProfile.update({
+      //       where: {
+      //         userId: file.userId,
+      //       },
+      //       data: {
+      //         usedFileStorage: { increment: size },
+      //       },
+      //     });
+      //   } else {
+      //     return { error: "No file created!" };
+      //   }
     },
     { timeout: 20000 },
   );

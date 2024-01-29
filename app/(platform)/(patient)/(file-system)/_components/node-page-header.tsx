@@ -11,6 +11,8 @@ import { useAddFolderModal } from "./file-tree/_components/hooks";
 import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
 import { NodeDataType } from "@/app/types/file-types";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
 interface NodePageHeaderProps {
   nodeId: string;
   isFile?: boolean;
@@ -21,10 +23,21 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
   const folderStore = useFolderStore();
-  const node = folderStore.getNode(nodeId);
-  if (!node) {
-    router.push("/files");
+  const [isMounted, setIsMounted] = useState(false);
+  let node = folderStore.getNode(nodeId);
+
+  useEffect(() => {
+    node = folderStore.getNode(nodeId);
+    setIsMounted(true);
+    if (!node) {
+      router.push("/files");
+    }
+  }, []);
+
+  if (!isMounted || !node) {
+    return null;
   }
+
   const namePath = node?.namePath;
   const path = node?.path;
   const paths = path?.split("/").slice(1);

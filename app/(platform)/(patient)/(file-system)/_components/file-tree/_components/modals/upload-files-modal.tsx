@@ -111,12 +111,11 @@ export const UploadFilesModal = () => {
         }),
         signal,
       });
-
+      console.log(response);
+      const responseObj = await response.json();
+      // console.log(responseObj);
       if (response.ok) {
-        const responseObj = await response.json();
         const { url, fields } = responseObj;
-        console.log(responseObj);
-        console.log(fields);
         const formData = new FormData();
         Object.entries(fields).forEach(([key, value]) => {
           formData.append(key, value as string);
@@ -162,6 +161,9 @@ export const UploadFilesModal = () => {
         }
       } else {
         updateFileStatus(singleFileObj, "error", index);
+        if (responseObj.message) {
+          toast.error(responseObj.message);
+        }
       }
     }
     setIsLoading(false);

@@ -6,7 +6,7 @@ import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
-import { v4 as uuidv4 } from "uuid";
+import { allotedPatientStorage } from "@/lib/constants";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -21,13 +21,35 @@ export async function POST(request: Request) {
     const userId = user?.id;
 
     if (!userId || !user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     if (!patientUpdateVerification(body)) {
-      return new NextResponse("Invalid body", { status: 400 });
+      return NextResponse.json({ message: "Invalid body" }, { status: 400 });
     }
 
-    const patient = await prismadb.patientProfile.update({
+    const patient = await prismadb.patientProfile.findUnique({
+      where: {
+        userId: userId,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        usedFileStorage: true,
+        plan: true,
+      },
+    });
+
+    if (!patient) {
+      return NextResponse.json({ message: "Patient not found" }, { status: 400 });
+    }
+
+    const usedFileStorageInBytes = patient.usedFileStorage;
+    const allotedStorageInBytes = allotedPatientStorage[patient.plan] * 1000000000;
+    if (usedFileStorageInBytes + size > allotedStorageInBytes) {
+      return NextResponse.json({ message: "Out of storage! Please upgrade your plan" }, { status: 400 });
+    }
+    await prismadb.patientProfile.update({
       where: {
         userId: userId,
       },
@@ -35,10 +57,6 @@ export async function POST(request: Request) {
         usedFileStorage: { increment: size },
       },
     });
-
-    if (patient.usedFileStorage) {
-      return new NextResponse("Patient not found", { status: 401 });
-    }
 
     let file: File | undefined;
     await prismadb.$transaction(
@@ -77,7 +95,7 @@ export async function POST(request: Request) {
           usedFileStorage: { decrement: size },
         },
       });
-      return new NextResponse("Issue creating db file", { status: 500 });
+      return NextResponse.json({ message: "Issue creating db file" }, { status: 500 });
     }
 
     const client = new S3Client({ region: process.env.AWS_REGION });

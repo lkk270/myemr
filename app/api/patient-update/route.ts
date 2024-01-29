@@ -28,7 +28,7 @@ import {
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
 const discreteTables = ["addresses", "member"];
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
+const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
 function buildUpdatePayload(data: any, symmetricKey: string) {
   const payload: any = {};
   for (const key in data) {

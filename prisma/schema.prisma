@@ -62,6 +62,18 @@ enum FileUploadStatus {
   TRASHED
 }
 
+enum PatientPlan {
+  FREE
+  PREMIUM_1
+  PREMIUM_2
+}
+
+enum DoctorPlan {
+  FREE
+  PREMIUM_1
+  PREMIUM_2
+}
+
 model PatientAddress {
   id       String  @id @default(uuid())
   address  String
@@ -315,11 +327,11 @@ model User {
 }
 
 model PatientProfile {
-  id                String  @id @default(cuid())
-  userId            String  @unique
+  id                String      @id @default(cuid())
+  userId            String      @unique
   firstName         String
   lastName          String
-  email             String  @unique
+  email             String      @unique
   imageUrl          String?
   gender            String?
   dateOfBirth       String?
@@ -328,16 +340,19 @@ model PatientProfile {
   height            String?
   weight            String?
   allergies         String?
-  unit              Unit    @default(IMPERIAL)
+  unit              Unit        @default(IMPERIAL)
   mobilePhone       String?
   homePhone         String?
   insuranceProvider String?
   policyNumber      String?
   groupNumber       String?
-  publicKey         String  @db.Text
-  privateKey        String  @db.Text
-  symmetricKey      String  @db.Text
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publicKey         String      @db.Text
+  privateKey        String      @db.Text
+  symmetricKey      String      @db.Text
+  plan              PatientPlan @default(FREE)
+  usedFileStorage   Int         @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -359,6 +374,7 @@ model ProviderProfile {
   imageUrl      String?
   publicKey     String            @db.Text
   privateKey    String            @db.Text
+  plan          DoctorPlan        @default(FREE)
   organizations Organization[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt

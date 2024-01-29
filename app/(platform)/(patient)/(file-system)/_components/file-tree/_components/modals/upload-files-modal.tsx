@@ -116,6 +116,7 @@ export const UploadFilesModal = () => {
         const responseObj = await response.json();
         const { url, fields } = responseObj;
         console.log(responseObj);
+        console.log(fields);
         const formData = new FormData();
         Object.entries(fields).forEach(([key, value]) => {
           formData.append(key, value as string);
@@ -130,13 +131,13 @@ export const UploadFilesModal = () => {
 
         if (uploadResponse.ok) {
           const fileId = fields.key.split("/")[1];
-          updateStatus(fileId)
+          updateStatus(fileId, file.size)
             .then((data) => {
               if (data.error) {
                 updateFileStatus(singleFileObj, "error", index);
               }
 
-              if (data.success) {
+              if (data.success && data.file) {
                 updateFileStatus(singleFileObj, "uploaded", index);
                 const createdFile = data.file;
                 foldersStore.addFile(

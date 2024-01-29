@@ -271,6 +271,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
                   <Link
+                    onDragStart={(e) => {
+                      if (node.data.isRoot) e.preventDefault();
+                    }}
+                    title={node.data.namePath}
                     href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                     className="mr-[6px] flex-shrink-0"
                   >
@@ -285,6 +289,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
               <Link
+                onDragStart={(e) => {
+                  if (node.data.isRoot) e.preventDefault();
+                }}
+                title={node.data.namePath}
                 href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                 className={cn("truncate flex-grow", !node.data.parentId ? "cursor-pointer" : "cursor-grab")}
               >

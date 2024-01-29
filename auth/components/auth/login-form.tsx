@@ -121,7 +121,9 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
                         <Input {...field} disabled={isPending} placeholder="******" type="password" />
                       </FormControl>
                       <Button size="sm" variant="link" asChild className="px-0 font-normal">
-                        <Link href={`/auth/${userType.toLowerCase()}-reset`}>Forgot password?</Link>
+                        <Link href={`/auth/${userType.toLowerCase()}-reset`} onDragStart={(e) => e.preventDefault()}>
+                          Forgot password?
+                        </Link>
                       </Button>
                       <FormMessage />
                     </FormItem>

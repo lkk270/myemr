@@ -25,7 +25,7 @@ export const Navbar = ({}: NavbarProps) => {
       <div className="items-center sm:flex hidden">
         <div className="flex items-center sm:flex gap-x-1 lg:gap-x-4">
           {navRoutes.map((route, index) => (
-            <Link key={index} href={route.href}>
+            <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>
               <div
                 className={cn(
                   "text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",

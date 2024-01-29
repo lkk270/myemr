@@ -37,7 +37,7 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 grid-cols-2 w-[215px]">
               {navRoutes.map((route, index) => (
-                <Link key={index} href={route.href}>
+                <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>
                   <div
                     className={cn(
                       "text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",

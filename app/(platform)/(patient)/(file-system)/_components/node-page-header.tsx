@@ -79,7 +79,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             const id = node ? node.id : null;
             return (
               <span key={index} style={{ marginRight: "5px" }}>
-                <Link href={id ? `/files/${id}` : "/files"}>
+                <Link href={id ? `/files/${id}` : "/files"} onDragStart={(e) => e.preventDefault()}>
                   <span className="hover:underline cursor-pointer">{folder}</span>
                 </Link>
                 {" / "}
@@ -88,7 +88,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
           })
         ) : (
           <span key={0} style={{ marginRight: "5px" }}>
-            <Link href={"/files"}>
+            <Link href={"/files"} onDragStart={(e) => e.preventDefault()}>
               <span className="hover:underline cursor-pointer">/</span>
             </Link>
           </span>

@@ -17,10 +17,10 @@ import { NewRootFolderBox } from "./new-root-folder-box";
 interface SidebarProps {
   data: any[];
   singleLayerNodes: NodeData2Type[];
-  usedFileStorageInGb: number;
+  usedFileStorage: number;
   allotedStorageInGb: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, usedFileStorageInGb, allotedStorageInGb }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorageInGb }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
@@ -31,7 +31,8 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorageInGb, allotedSt
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
-  const usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
+  const usedFileStorageInGb = usedFileStorage / 1000000000;
+  let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
   useEffect(() => {
     console.log(" IN HERE");
@@ -39,9 +40,9 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorageInGb, allotedSt
     console.log(data);
     console.log(singleLayerNodes);
     console.log(usedFileStoragePercentage);
-
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
+    folderStore.setUsedFileStorage(usedFileStorage);
   }, []);
 
   useEffect(() => {
@@ -154,10 +155,14 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorageInGb, allotedSt
             <NewRootFolderBox />
             <Separator />
             <div role="button" className="flex flex-col gap-y-1">
-              <span className="text-sm font-light italic">{`${(usedFileStorageInGb * 1000).toFixed(
-                2,
-              )} Gb / ${allotedStorageInGb} Gb`}</span>
-              <Progress className="h-2" value={usedFileStoragePercentage * 1000} />
+              <span className="text-sm font-light italic">{`${(
+                (1000 * folderStore.usedFileStorage) /
+                1000000000
+              ).toFixed(2)} Gb / ${allotedStorageInGb} Gb`}</span>
+              <Progress
+                className="h-2"
+                value={(1000 * folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)}
+              />
             </div>
           </div>
           <div

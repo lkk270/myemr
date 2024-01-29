@@ -161,12 +161,12 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     return <div>something went wrong</div>;
   }
 
-  const usedFileStorageInGb = patient.usedFileStorage / 1000000000;
+  const usedFileStorage = patient.usedFileStorage;
   const allotedStorageInGb = allotedPatientStorage[patient.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
       <Sidebar
-        usedFileStorageInGb={usedFileStorageInGb}
+        usedFileStorage={usedFileStorage}
         allotedStorageInGb={allotedStorageInGb}
         data={sortedFolders}
         singleLayerNodes={singleLayerNodes}

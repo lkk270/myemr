@@ -27,17 +27,16 @@ export async function POST(request: Request) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 
-    const patient = await prismadb.patientProfile.findUnique({
+    const patient = await prismadb.patientProfile.update({
       where: {
         userId: userId,
       },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
+      data: {
+        usedFileStorage: { increment: size },
       },
     });
-    if (!patient) {
+
+    if (patient.usedFileStorage) {
       return new NextResponse("Patient not found", { status: 401 });
     }
 
@@ -70,6 +69,14 @@ export async function POST(request: Request) {
     );
 
     if (!file) {
+      await prismadb.patientProfile.update({
+        where: {
+          userId: userId,
+        },
+        data: {
+          usedFileStorage: { decrement: size },
+        },
+      });
       return new NextResponse("Issue creating db file", { status: 500 });
     }
 

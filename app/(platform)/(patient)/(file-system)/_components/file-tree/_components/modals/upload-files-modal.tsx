@@ -25,8 +25,10 @@ import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { updateStatus } from "../../../../actions/update-status";
+
 export const UploadFilesModal = () => {
   const user = useCurrentUser();
+  const foldersStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +129,8 @@ export const UploadFilesModal = () => {
         });
 
         if (uploadResponse.ok) {
-          updateStatus(fields.key.split("/")[1])
+          const fileId = fields.key.split("/")[1];
+          updateStatus(fileId)
             .then((data) => {
               if (data.error) {
                 updateFileStatus(singleFileObj, "error", index);
@@ -135,12 +138,24 @@ export const UploadFilesModal = () => {
 
               if (data.success) {
                 updateFileStatus(singleFileObj, "uploaded", index);
+                const createdFile = data.file;
+                foldersStore.addFile(
+                  createdFile.id,
+                  createdFile.name,
+                  createdFile.parentId,
+                  createdFile.path,
+                  createdFile.namePath,
+                  createdFile.userId,
+                  createdFile.uploadedByUserId,
+                  createdFile.uploadedByName,
+                  createdFile.type || "",
+                  createdFile.size,
+                );
               }
             })
             .catch(() => {
               updateFileStatus(singleFileObj, "error", index);
             });
-
         } else {
           updateFileStatus(singleFileObj, "error", index);
         }

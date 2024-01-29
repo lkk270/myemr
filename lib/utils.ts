@@ -20,6 +20,7 @@ import {
   BsFileEarmarkExcel,
   BsFiletypePdf,
   BsFileEarmark,
+  BsFileEarmarkImage,
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 
@@ -255,7 +256,7 @@ export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export function getFileIcon(filename: string) {
+export function getFileIcon(filename: string, fileType?: string) {
   // Provide a fallback ('') for pop() in case the array is empty
   const extension = filename.split(".").pop()?.toLowerCase() || "";
 
@@ -288,7 +289,11 @@ export function getFileIcon(filename: string) {
     case "txt":
       return BsFiletypeTxt;
     default:
-      return BsFileEarmark;
+      if (fileType?.includes("image")) {
+        return BsFileEarmarkImage;
+      } else {
+        return BsFileEarmark;
+      }
   }
 }
 

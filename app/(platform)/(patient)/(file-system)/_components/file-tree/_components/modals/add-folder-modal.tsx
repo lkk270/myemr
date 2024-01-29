@@ -67,7 +67,16 @@ export const AddFolderModal = () => {
         console.log(data);
         const folder = data.folder;
         console.log(folder);
-        folderStore.addSubFolder(folder.id, folder.name, folder.parentId, folder.path, folder.namePath, userId, email);
+        folderStore.addSubFolder(
+          folder.id,
+          folder.name,
+          folder.parentId,
+          folder.path,
+          folder.namePath,
+          userId,
+          userId,
+          email,
+        );
         setIsLoading(false);
         addFolderModal.onClose();
       })

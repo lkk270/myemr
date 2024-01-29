@@ -35,7 +35,7 @@ type NodeProps = {
 
 const iconSize = "17px";
 const folderColor = "#4f5eff";
-const iconClassName = "w-3 h-3 mr-2";
+const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -313,7 +313,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 if (item.label === "Move" && !node.data.parentId) {
                   return null;
                 }
-                if (item.label === "Add a subfolder" && node.data.isFile) {
+                if (node.data.isFile && (item.label === "Upload files" || item.label === "Add a subfolder")) {
                   return null;
                 }
                 if (item.label === "Rename" && nodeData.isRoot) {

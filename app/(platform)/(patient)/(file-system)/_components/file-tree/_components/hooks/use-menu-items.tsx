@@ -1,7 +1,14 @@
-import { Pencil, FolderInput, FileInput, Download, Trash, FolderPlus } from "lucide-react";
+import { Pencil, Upload, FileInput, Download, Trash, FolderPlus } from "lucide-react";
 import { MenuItemData } from "@/app/types/file-types";
 
-import { useDeleteModal, useDownloadModal, useRenameModal, useAddFolderModal, useMoveModal } from ".";
+import {
+  useDeleteModal,
+  useDownloadModal,
+  useRenameModal,
+  useAddFolderModal,
+  useMoveModal,
+  useUploadFilesModal,
+} from ".";
 
 export const useMenuItems = (nodeData: any) => {
   const deleteModal = useDeleteModal();
@@ -9,6 +16,7 @@ export const useMenuItems = (nodeData: any) => {
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
   const addFolderModal = useAddFolderModal();
+  const uploadFilesModal = useUploadFilesModal();
 
   const menuItems: MenuItemData[] = [
     {
@@ -28,6 +36,11 @@ export const useMenuItems = (nodeData: any) => {
       label: "Add a subfolder",
       icon: FolderPlus,
       action: () => addFolderModal.onOpen(nodeData, false),
+    },
+    {
+      label: "Upload files",
+      icon: Upload,
+      action: () => uploadFilesModal.onOpen(nodeData, false),
     },
     {
       label: "Export",

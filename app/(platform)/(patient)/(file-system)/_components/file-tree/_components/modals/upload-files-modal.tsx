@@ -111,7 +111,6 @@ export const UploadFilesModal = () => {
         }),
         signal,
       });
-      console.log(response);
       const responseObj = await response.json();
       // console.log(responseObj);
       if (response.ok) {

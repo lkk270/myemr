@@ -19,7 +19,7 @@ interface LogoProps {
 
 export const Logo = ({ textColor, showText = true }: LogoProps) => {
   return (
-    <Link href="/" className={cn(showText ? "sm:w-32" : "")}>
+    <Link href="/" className={cn(showText ? "sm:w-32" : "")} onDragStart={(e) => e.preventDefault()}>
       <div className="flex items-center gap-x-2">
         <Image priority={true} src="/logo.svg" height="40" width="40" alt="Logo" draggable={false} />
         {showText && (

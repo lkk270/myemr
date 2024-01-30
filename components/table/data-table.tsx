@@ -111,10 +111,13 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   className="hover:cursor-pointer"
                   onClick={() => {
+                    if (onOpen) {
+                      onOpen(row.original, true);
+                    }
+                  }}
+                  onDoubleClick={() => {
                     if (isLink) {
                       router.push(getHref(row.original));
-                    } else if (onOpen) {
-                      onOpen(row.original, true);
                     }
                   }}
                   key={row.id}

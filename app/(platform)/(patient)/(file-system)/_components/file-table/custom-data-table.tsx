@@ -22,7 +22,6 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
     // Then, within each group, sort by createdAt descending
     return b.createdAt.getTime() - a.createdAt.getTime();
   });
-  console.log(data);
   return (
     <DataTable
       // filters={filters}

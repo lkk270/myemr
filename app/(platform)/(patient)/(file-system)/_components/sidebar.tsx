@@ -31,15 +31,13 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
-  const usedFileStorageInGb = usedFileStorage / BigInt(1000000000);
-  let usedFileStoragePercentage = (BigInt(100) * usedFileStorageInGb) / BigInt(allotedStorageInGb);
+  // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
+  // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
   useEffect(() => {
     console.log(" IN HERE");
     setIsMounted(true);
     console.log(data);
-    console.log(singleLayerNodes);
-    console.log(usedFileStoragePercentage);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
     folderStore.setUsedFileStorage(usedFileStorage);
@@ -155,15 +153,10 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
             <NewRootFolderBox />
             <Separator />
             <div role="button" className="flex flex-col gap-y-1">
-              <span className="text-sm font-light italic">{`${Number(
-                (BigInt(1000) * folderStore.usedFileStorage) / BigInt(1000000000),
+              <span className="text-sm font-light italic">{`${(
+                Number(folderStore.usedFileStorage) / 1000000000
               ).toFixed(2)} Gb / ${allotedStorageInGb} Gb`}</span>
-              <Progress
-                className="h-2"
-                value={Number(
-                  (BigInt(1000) * folderStore.usedFileStorage) / (BigInt(10000000) * BigInt(allotedStorageInGb)),
-                )}
-              />
+              <Progress className="h-2" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
             </div>
           </div>
           <div

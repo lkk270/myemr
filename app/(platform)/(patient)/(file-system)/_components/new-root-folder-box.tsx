@@ -13,7 +13,7 @@ export const NewRootFolderBox = () => {
       onClick={search.onOpen}
       role="button"
       className={cn(
-        "hover:bg-primary/10 hover:text-primary/80 rounded-md px-2 py-3 group cursor-pointer text-sm bg-primary/5 flex items-center text-muted-foreground font-medium",
+        "hover:bg-primary/10 hover:text-primary/80 rounded-md px-2 py-2 group cursor-pointer text-sm bg-primary/5 flex items-center text-muted-foreground font-medium",
       )}
     >
       <div role="button" className="h-full rounded-sm mr-2">

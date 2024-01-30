@@ -13,7 +13,15 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
   const foldersStore = useFolderStore();
 
   const data = foldersStore.singleLayerNodes.filter((item) => item.parentId === nodeId);
-  data.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  data.sort((a, b) => {
+    // First, sort by isFile status
+    if (a.isFile !== b.isFile) {
+      return a.isFile ? 1 : -1;
+    }
+
+    // Then, within each group, sort by createdAt descending
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
   console.log(data);
   return (
     <DataTable

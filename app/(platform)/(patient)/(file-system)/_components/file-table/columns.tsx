@@ -38,7 +38,7 @@ export const columns: ColumnDef<any>[] = [
       const name = row.original.name;
       const type = row.original.type;
       const isFile = row.original.isFile;
-      const CustomIcon = isFiles ? getFileIcon(name, type) : FaFolder;
+      const CustomIcon = isFile ? getFileIcon(name, type) : FaFolder;
       return (
         <div className="flex items-center space-x-2">
           <CustomIcon size={"20px"} color={!isFile && "#4f5eff"} />

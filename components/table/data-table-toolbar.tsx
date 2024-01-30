@@ -60,7 +60,6 @@ export function DataTableToolbar<TData>({ table, newOnOpen, filters = [] }: Data
           </Button>
         )}
       </div>
-
       <div className="flex gap-x-2">
         {newOnOpen && (
           <Button variant="outline" size="sm" className="ml-auto h-8" onClick={newOnOpen}>

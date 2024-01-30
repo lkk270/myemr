@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -29,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   hiddenColumns?: Record<string, boolean>;
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
   isLoading?: boolean;
+  className?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -39,6 +41,7 @@ export function DataTable<TData, TValue>({
   hiddenColumns = {},
   filters,
   isLoading = false,
+  className = "",
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(hiddenColumns);
@@ -69,7 +72,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
-      <div className="rounded-md border">
+      <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -121,7 +124,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="pb-10">{!isLoading && <DataTablePagination table={table} />}</div>
+      <div className="pb-2">{!isLoading && <DataTablePagination table={table} />}</div>
     </div>
   );
 }

@@ -21,6 +21,7 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
       // newOnOpen={newOnOpen}
       // onOpen={onOpen}
       // hiddenColumns={hiddenColumns}
+      isLink={true}
       className={"max-h-[calc(100vh-350px)] overflow-y-scroll"}
       data={data}
       isLoading={false}

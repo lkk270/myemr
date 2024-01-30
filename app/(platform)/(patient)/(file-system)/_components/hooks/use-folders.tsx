@@ -70,8 +70,6 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   setUsedFileStorage: (usedFileStorage) => set({ usedFileStorage: usedFileStorage }),
 
   moveNodes: (selectedIds: string[], targetNodeId: string) => {
-    console.log(selectedIds);
-    console.log(targetNodeId);
     set((state) => {
       // Retrieve the complete node information from the folders array
       const selectedNodesInfo: any[] = []; // Replace 'any' with your node type if defined

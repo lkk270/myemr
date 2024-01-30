@@ -350,7 +350,7 @@ model PatientProfile {
   privateKey        String      @db.Text
   symmetricKey      String      @db.Text
   plan              PatientPlan @default(FREE)
-  usedFileStorage   Int         @default(0)
+  usedFileStorage   BigInt      @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

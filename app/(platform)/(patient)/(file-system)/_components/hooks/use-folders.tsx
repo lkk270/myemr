@@ -9,8 +9,8 @@ interface FolderStore {
   singleLayerNodes: SingleLayerNodesType2[];
   singleLayerNodesSet: boolean;
   foldersSet: boolean;
-  usedFileStorage: number;
-  setUsedFileStorage: (newUsedFileStorage: number) => void;
+  usedFileStorage: bigint;
+  setUsedFileStorage: (newUsedFileStorage: bigint) => void;
   getNode: (nodeId: string) => SingleLayerNodesType2 | undefined;
   setSingleLayerNodes: (nodes: SingleLayerNodesType2[]) => void;
   setFolders: (folders: any[]) => void;
@@ -57,7 +57,7 @@ const insertNewNode = (folders: any[], parentId: string, newNode: any): any => {
 export const useFolderStore = create<FolderStore>((set, get) => ({
   folders: [],
   singleLayerNodes: [],
-  usedFileStorage: 0,
+  usedFileStorage: BigInt(0),
   singleLayerNodesSet: false,
   foldersSet: false,
   getNode(nodeId) {

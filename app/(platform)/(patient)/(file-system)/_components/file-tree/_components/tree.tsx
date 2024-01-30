@@ -319,7 +319,10 @@ const Arborist = ({ width }: ArboristProps) => {
           </div>
         )}
       </div>
-      <div className="overflow-y-hidden" style={{ height: `calc(100vh)` }}>
+      <div
+        className="overflow-y-hidden"
+        //style={{ height: `calc(100vh)` }}
+      >
         <DragContext.Provider
           value={{
             hoveredNode,
@@ -356,7 +359,7 @@ const Arborist = ({ width }: ArboristProps) => {
               data={folderStore.folders}
               // initialData={folderStore.folders}
               width={width - 8}
-              height={screenHeight - 200}
+              height={screenHeight - 270}
               // rowClassName={"max-w-[200px] w-full"}
               indent={15}
               rowHeight={31}

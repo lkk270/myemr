@@ -149,10 +149,11 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
           {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           {/* </div> */}
 
-          <div className="flex flex-col py-4 px-6 gap-y-3">
+          <div className="flex flex-col py-2 px-6 gap-y-3 border-t border-primary/10">
+            {/* <Separator /> */}
             <NewRootFolderBox />
             <Separator />
-            <div role="button" className="flex flex-col gap-y-1">
+            <div role="button" className="flex flex-col gap-y-1 pt-3">
               <span className="text-sm font-light italic">{`${(
                 Number(folderStore.usedFileStorage) / 1000000000
               ).toFixed(2)} Gb / ${allotedStorageInGb} Gb`}</span>

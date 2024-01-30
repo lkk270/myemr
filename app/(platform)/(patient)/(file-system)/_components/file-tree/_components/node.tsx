@@ -1,26 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { IconType } from "react-icons";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
-import { useRouter } from "next/navigation";
 import { MenuHeader } from "./menu-header";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ActionDropdown } from "./action-dropdown";
 import { useMenuItems } from "./hooks";
-// Assuming a Node type is defined somewhere
-// If not, you'll need to define it accordingly
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuShortcut,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { NodeDataType } from "@/app/types/file-types";
 import Link from "next/link";
 
@@ -39,11 +29,10 @@ const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [openStateSet, setOpenStateSet] = useState(false);
   const isMobile = useMediaQuery("(max-width: 450px)");
   const pathname = usePathname();
-  const router = useRouter();
-
+  const hasMountedRef = useRef<boolean>(false);
+  const prevPathnameRef = useRef<string | null>(pathname);
   let nodeIdFromPath = "";
   if (pathname.includes("/files/")) {
     nodeIdFromPath = pathname.split("/files/")[1];
@@ -69,22 +58,36 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   const menuItems = useMenuItems(customNodeData);
 
-  // useEffect(() => {
-  //   setIsMounted(true);
-  // }, []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // if (!isMounted) {
   //   return null;
   // }
 
+  // useEffect(() => {
+  //   if (tree && !isMounted) {
+  //     setIsMounted(true);
+  //     console.log(isMounted);
+  //     console.log("IN 83");
+  //     tree.openParents(nodeIdFromPath);
+  //     if (!tree.get(nodeIdFromPath)?.data.isFile) {
+  //       tree.open(nodeIdFromPath);
+  //     }
+  //   }
+  // }, []);
+
   useEffect(() => {
-    setIsMounted(true);
-    if (tree) {
-      tree.openParents(nodeIdFromPath);
-      if (!tree.get(nodeIdFromPath)?.data.isFile) {
-        tree.open(nodeIdFromPath);
+    if (prevPathnameRef.current !== pathname || !hasMountedRef.current) {
+      if (tree) {
+        tree.openParents(nodeIdFromPath);
+        if (!tree.get(nodeIdFromPath)?.data.isFile) {
+          tree.open(nodeIdFromPath);
+        }
       }
-      setOpenStateSet(true);
+      hasMountedRef.current = true;
+      prevPathnameRef.current = pathname;
     }
   }, [pathname]);
 
@@ -161,9 +164,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   };
 
   const handleDragEnd = () => {
-    console.log("DONE");
-    console.log(hoveredNode);
-    console.log(tree.selectedIds);
     // if (hoveredNode.id) {
     //   const selectedNodes = Array.from(tree.selectedIds).map((id) => tree.get(id).data);
     //   console.log(selectedNodes);
@@ -267,7 +267,12 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 </>
               ) : (
                 <>
-                  <span className="mr-2 flex-shrink-0" onClick={() => node.isInternal && node.toggle()}>
+                  <span
+                    className="mr-2 flex-shrink-0"
+                    onClick={() => {
+                      node.isInternal && node.toggle();
+                    }}
+                  >
                     {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
                   <Link

@@ -46,7 +46,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const currentFolder = folders.pop();
   const foldersLength = folders.length;
   return (
-    <div className="py-4 gap-y-2 flex flex-col">
+    <div className="pb-4 gap-y-2 flex flex-col">
       {!isFile && (
         <div className="flex gap-x-2">
           <Button

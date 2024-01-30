@@ -357,6 +357,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         addedByName: userName,
         parentId: null,
         children: [],
+        createdAt: new Date(),
         recordViewActivity: [{ lastViewedAt: new Date() }],
       };
 
@@ -402,6 +403,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         parentId: parentId,
         children: [],
         userId: userId,
+        createdAt: new Date(),
         recordViewActivity: [{ lastViewedAt: new Date() }],
       };
 
@@ -452,6 +454,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         type: type,
         size: size,
         children: null,
+        createdAt: new Date(),
         recordViewActivity: [{ lastViewedAt: new Date() }],
       };
 

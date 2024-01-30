@@ -82,6 +82,11 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
+      {isLink && (
+        <span style={{ fontSize: "10px" }} className="text-muted-foreground">
+          Double click on a row to open it
+        </span>
+      )}
       <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>

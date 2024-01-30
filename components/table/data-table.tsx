@@ -18,6 +18,8 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
   isLoading?: boolean;
   className?: string;
+  isLink?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -42,7 +45,9 @@ export function DataTable<TData, TValue>({
   filters,
   isLoading = false,
   className = "",
+  isLink = false,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(hiddenColumns);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -68,6 +73,11 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  const getHref = (row: any) => {
+    const rowId = row.id;
+    return row.isFile ? `/file/${rowId}` : `/files/${rowId}`;
+  };
 
   return (
     <div className="space-y-4">
@@ -101,15 +111,19 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   className="hover:cursor-pointer"
                   onClick={() => {
-                    if (onOpen) {
+                    if (isLink) {
+                      router.push(getHref(row.original));
+                    } else if (onOpen) {
                       onOpen(row.original, true);
                     }
                   }}
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() ? "selected" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell className="max-w-[325px]" key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))

@@ -13,7 +13,8 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
   const foldersStore = useFolderStore();
 
   const data = foldersStore.singleLayerNodes.filter((item) => item.parentId === nodeId);
-
+  data.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  console.log(data);
   return (
     <DataTable
       // filters={filters}

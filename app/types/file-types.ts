@@ -26,6 +26,8 @@ export type NodeData2Type = {
   isFile: boolean;
   isRoot?: boolean;
   type?: string;
+  size?: number;
+  createdAt: Date;
 };
 
 export type SingleLayerNodesType = {
@@ -38,6 +40,8 @@ export type SingleLayerNodesType = {
   parentId?: string | null;
   isRoot?: boolean;
   type?: string;
+  size?: number;
+  createdAt: Date;
   recordViewActivity: {
     lastViewedAt: Date;
   }[];
@@ -52,7 +56,9 @@ export type SingleLayerNodesType2 = {
   parentId?: string | null;
   lastViewedAt?: Date;
   type?: string;
+  size?: number;
   isRoot?: boolean;
+  createdAt: Date;
 };
 
 export type MenuItemData = {

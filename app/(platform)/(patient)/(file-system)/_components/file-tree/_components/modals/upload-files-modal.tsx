@@ -5,17 +5,14 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useUploadFilesModal } from "../hooks/use-upload-files-modal";
 import { useFolderStore } from "../../../hooks/use-folders";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import axios from "axios";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { Trash, RefreshCw } from "lucide-react";
 import { Dropzone } from "@/components/files/dropzone";
@@ -150,10 +147,11 @@ export const UploadFilesModal = () => {
                   createdFile.type || "",
                   createdFile.size,
                 );
-                foldersStore.setUsedFileStorage(foldersStore.usedFileStorage + BigInt(file.size));
+                const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) + BigInt(file.size);
+                foldersStore.setUsedFileStorage(newUsedFileStorage);
               }
             })
-            .catch(() => {
+            .catch((error) => {
               updateFileStatus(singleFileObj, "error", index);
             });
         } else {
@@ -181,7 +179,8 @@ export const UploadFilesModal = () => {
     setFiles((prevFiles) =>
       prevFiles.map((fileObj) => ({
         ...fileObj,
-        status: fileObj.status == "uploading" ? null : fileObj.status,
+        status:
+          !fileObj.isRetrying && fileObj.status == "uploading" ? null : fileObj.isRetrying ? "error" : fileObj.status,
       })),
     );
     setIsLoading(false);

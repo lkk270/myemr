@@ -16,6 +16,7 @@ export type NodeDataType = {
   namePath: string;
   isFile: boolean;
   isRoot?: boolean;
+  size?: number;
 };
 
 export type NodeData2Type = {

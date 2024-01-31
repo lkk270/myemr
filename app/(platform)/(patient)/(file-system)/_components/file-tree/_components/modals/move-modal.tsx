@@ -22,7 +22,8 @@ import { toast } from "sonner";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
-  const moveNode = moveModal.nodeData;
+  const moveNodes = moveModal.nodeDatas;
+  const firstMoveNode = moveNodes ? moveNodes[0] : null;
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -34,45 +35,47 @@ export const MoveModal = () => {
   }, []);
 
   const onSelect = (id: string) => {
-    if (moveNode) {
+    if (moveNodes) {
       setIsLoading(true);
-      const originalFolders = _.cloneDeep(foldersStore.folders);
-      foldersStore.moveNodes([moveNode.id], id);
-      const promise = axios
-        .post("/api/patient-update", {
-          selectedIds: [moveNode.id],
-          targetId: id,
-          updateType: "moveNode",
-        })
-        .then(({ data }) => {
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          foldersStore.setFolders(originalFolders);
-          // error = error?.response?.data || "Something went wrong";
-          // console.log(error);
-          throw error;
-        })
-        .finally(() => {
-          setIsLoading(false);
-          // renameModal.onClose();
-          //no need for set loading to false
-          // Toggle edit mode off after operation
+      for (let moveNode of moveNodes) {
+        const originalFolders = _.cloneDeep(foldersStore.folders);
+        foldersStore.moveNodes([moveNode.id], id);
+        const promise = axios
+          .post("/api/patient-update", {
+            selectedIds: [moveNode.id],
+            targetId: id,
+            updateType: "moveNode",
+          })
+          .then(({ data }) => {
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            foldersStore.setFolders(originalFolders);
+            // error = error?.response?.data || "Something went wrong";
+            // console.log(error);
+            throw error;
+          })
+          .finally(() => {
+            setIsLoading(false);
+            // renameModal.onClose();
+            //no need for set loading to false
+            // Toggle edit mode off after operation
+          });
+        toast.promise(promise, {
+          loading: "Moving node",
+          success: "Changes saved successfully",
+          error: "Something went wrong",
+          duration: 1250,
         });
-      toast.promise(promise, {
-        loading: "Moving node",
-        success: "Changes saved successfully",
-        error: "Something went wrong",
-        duration: 1250,
-      });
+      }
     }
     moveModal.onClose();
   };
 
-  if (!isMounted || !moveNode) {
+  if (!isMounted || !moveNodes || !firstMoveNode) {
     return null;
   }
-  const parentFolder = singleLayerNodes.find((element) => element.id === moveNode.parentId);
+  const parentFolder = singleLayerNodes.find((element) => element.id === firstMoveNode.parentId);
 
   if (!parentFolder) {
     return null;
@@ -80,29 +83,40 @@ export const MoveModal = () => {
 
   const isValidReceivingFolder = (node: SingleLayerNodesType2) => {
     const completeNodePath = `${node.path}${node.id}/`;
-    if (
-      !node.isFile &&
-      !moveNode.isFile &&
-      moveNode.parentId &&
-      node.id !== moveNode.parentId &&
-      !completeNodePath.includes(moveNode.path)
-    ) {
-      return true;
+    let ret = true;
+    for (let moveNode of moveNodes) {
+      if (
+        !node.isFile &&
+        !moveNode.isFile &&
+        moveNode.parentId &&
+        node.id !== moveNode.parentId &&
+        !completeNodePath.includes(moveNode.path)
+      ) {
+        continue;
+      }
+      if (!node.isFile && moveNode.isFile && moveNode.parentId && node.id !== moveNode.parentId) {
+        continue;
+      } else {
+        return false;
+      }
     }
-    if (!node.isFile && moveNode.isFile && moveNode.parentId && node.id !== moveNode.parentId) {
-      return true;
-    }
-    return false;
+    return ret;
   };
   return (
     <CommandDialog open={moveModal.isOpen} onOpenChange={moveModal.onClose}>
-      {isMobile ? (
-        <div>
-          <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${moveNode.name})`}</span>
-          <CommandInput placeholder={`Move ${moveNode.isFile ? "file" : "folder"} to...`} />
-        </div>
+      {moveNodes.length === 1 ? (
+        isMobile ? (
+          <div>
+            <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${firstMoveNode.name})`}</span>
+            <CommandInput placeholder={`Move ${firstMoveNode.isFile ? "file" : "folder"} to...`} />
+          </div>
+        ) : (
+          <CommandInput
+            placeholder={`Move the ${firstMoveNode.isFile ? "file" : "folder"} "${firstMoveNode.name}" to...`}
+          />
+        )
       ) : (
-        <CommandInput placeholder={`Move the ${moveNode.isFile ? "file" : "folder"} "${moveNode.name}" to...`} />
+        <CommandInput placeholder={`Move to...`} />
       )}
 
       <CommandList>

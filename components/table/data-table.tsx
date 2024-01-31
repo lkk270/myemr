@@ -23,6 +23,7 @@ import Link from "next/link";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { cn } from "@/lib/utils";
+import { SelectedFilesToolbar } from "../../app/(platform)/(patient)/(file-system)/_components/file-table/selected-files-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -80,73 +81,78 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="space-y-4">
-      <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
-      {isLink && (
-        <span style={{ fontSize: "10px" }} className="text-muted-foreground">
-          Double click on a row to open it
-        </span>
-      )}
-      <div className={cn("rounded-md border", className)}>
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              // When rows are undefined, assume data is loading
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : data.length > 0 ? (
-              // When there are rows, render them
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  className="hover:cursor-pointer"
-                  onClick={() => {
-                    if (onOpen) {
-                      onOpen(row.original, true);
-                    }
-                  }}
-                  onDoubleClick={() => {
-                    if (isLink) {
-                      router.push(getHref(row.original));
-                    }
-                  }}
-                  key={row.id}
-                  data-state={row.getIsSelected() ? "selected" : undefined}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell className="max-w-[325px]" key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+    <>
+      <div className="space-y-4">
+        <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
+        {isLink && (
+          <span style={{ fontSize: "10px" }} className="text-muted-foreground">
+            Double click on a row to open it
+          </span>
+        )}
+        <div className={cn("rounded-md border", className)}>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              // When rows are empty, display "No results."
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                // When rows are undefined, assume data is loading
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : data.length > 0 ? (
+                // When there are rows, render them
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    className="hover:cursor-pointer"
+                    onClick={() => {
+                      if (onOpen) {
+                        onOpen(row.original, true);
+                      }
+                    }}
+                    onDoubleClick={() => {
+                      if (isLink) {
+                        router.push(getHref(row.original));
+                      }
+                    }}
+                    key={row.id}
+                    data-state={row.getIsSelected() ? "selected" : undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell className="max-w-[325px]" key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                // When rows are empty, display "No results."
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="pb-2">{!isLoading && <DataTablePagination table={table} />}</div>
       </div>
-      <div className="pb-2">{!isLoading && <DataTablePagination table={table} />}</div>
-    </div>
+      <div className="flex justify-center">
+        <SelectedFilesToolbar table={table} />
+      </div>
+    </>
   );
 }

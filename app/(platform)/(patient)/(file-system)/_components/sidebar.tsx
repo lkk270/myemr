@@ -9,10 +9,11 @@ import { cn } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
 import { NodeData2Type } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
-import Arborist from "./file-tree/_components/tree";
+import FileTree from "./file-tree/_components/tree";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
+import { Button } from "@/components/ui/button";
 // import { TrashBox } from "./trash-box";
 interface SidebarProps {
   data: any[];
@@ -145,7 +146,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
           </div> */}
           {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
           {/* <CitiesTree width={sidebarWidth} /> */}
-          <Arborist width={sidebarWidth} />
+          <FileTree width={sidebarWidth} />
           {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
           {/* </div> */}
 
@@ -154,10 +155,13 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
             <NewRootFolderBox />
             <Separator />
             <div role="button" className="flex flex-col gap-y-1">
-              <span className="text-sm font-light italic">{`${(
-                Number(folderStore.usedFileStorage) / 1000000000
-              ).toFixed(2)} Gb / ${allotedStorageInGb} Gb`}</span>
-              <Progress className="h-2" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
+              <Progress className="h-1" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
+              <div className="flex flex-row justify-between text-xs font-light ">
+                <span className="italic">{`${(Number(folderStore.usedFileStorage) / 1000000000).toFixed(
+                  2,
+                )} Gb / ${allotedStorageInGb} Gb`}</span>
+                <span role="button">Upgrade</span>
+              </div>
             </div>
           </div>
           <div

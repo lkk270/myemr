@@ -1,20 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Tree } from "react-arborist";
-// import { data } from "../_data/data";
 import Node from "./node";
 import { TbFolderPlus } from "react-icons/tb";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
-import { File, FolderClosed, Search, X } from "lucide-react";
+import { File, FolderClosed, X } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { cn } from "@/lib/utils";
-import { FillFlexParent } from "./fill-flex-parent";
-import { Item } from "../../item";
 import { Input } from "@/components/ui/input";
 import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
-import { usePathname } from "next/navigation";
 
 interface ArboristProps {
   width: number;
@@ -153,8 +148,6 @@ const customDragPreview = (
 
 const Arborist = ({ width }: ArboristProps) => {
   const folderStore = useFolderStore();
-  const pathname = usePathname();
-
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
   // console.log(folderStore.folders);
@@ -195,16 +188,6 @@ const Arborist = ({ width }: ArboristProps) => {
   });
 
   useEffect(() => {
-    let nodeIdFromPath = "";
-    if (pathname.includes("/files/")) {
-      nodeIdFromPath = pathname.split("/files/")[1];
-    } else if (pathname.includes("/file/")) {
-      nodeIdFromPath = pathname.split("/file/")[1];
-    }
-    if (nodeIdFromPath) {
-      console.log("IN HERE");
-      treeRef.current.select(nodeIdFromPath);
-    }
     // Set the screen height after the component mounts
     setScreenHeight(window.innerHeight);
 

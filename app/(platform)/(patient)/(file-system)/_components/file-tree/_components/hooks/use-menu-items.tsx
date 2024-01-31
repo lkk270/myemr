@@ -45,7 +45,7 @@ export const useMenuItems = (nodeData: any) => {
     {
       label: "Export",
       icon: Download,
-      action: () => downloadModal.onOpen(nodeData),
+      action: () => downloadModal.onOpen([nodeData]),
     },
     {
       label: "Delete",

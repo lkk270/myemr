@@ -1,9 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { Table } from "@tanstack/react-table";
 import { formatFileSize } from "@/lib/utils";
-import { useMenuItems } from "@/app/(platform)/(patient)/(file-system)/_components/file-tree/_components/hooks";
-import { Pencil, Upload, FileInput, FolderInput, Download, Trash, FolderPlus } from "lucide-react";
+import { Pencil, FileInput, FolderInput, Download, Trash, FolderPlus } from "lucide-react";
 import {
   useDeleteModal,
   useDownloadModal,
@@ -23,6 +20,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   const renameModal = useRenameModal();
   const addFolderModal = useAddFolderModal();
   const deleteModal = useDeleteModal();
+  const downloadModal = useDownloadModal();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows as any;
   const cleanedRows: NodeDataType[] = selectedRows.map((obj: any) => ({
@@ -36,9 +34,9 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
     size: obj.original.size,
   }));
   const numRowsSelected = cleanedRows.length;
-  const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
-  const allAreFiles = cleanedRows.every((obj: any) => obj.isFile === true);
-  const allAreFolders = cleanedRows.every((obj: any) => !obj.isFile);
+  // const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
+  // const allAreFiles = cleanedRows.every((obj: any) => obj.isFile === true);
+  // const allAreFolders = cleanedRows.every((obj: any) => !obj.isFile);
 
   let totalSize = cleanedRows.reduce((acc, obj) => {
     return acc + (obj.size || 0);
@@ -47,139 +45,90 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   if (numRowsSelected === 0) {
     return null;
   }
+
+  const moveButton = (
+    <div
+      title="Move"
+      onClick={() => moveModal.onOpen(cleanedRows)}
+      role="button"
+      className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
+    >
+      {numRowsSelected === 1 && cleanedRows[0].isFile ? (
+        <FileInput className="w-4 h-4" />
+      ) : (
+        <FolderInput className="w-4 h-4" />
+      )}
+    </div>
+  );
+
+  const renameButton = (
+    <div
+      title="Rename"
+      onClick={() => renameModal.onOpen(cleanedRows[0])}
+      role="button"
+      className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
+    >
+      <Pencil className="w-4 h-4" />
+    </div>
+  );
+
+  const exportButton = (
+    <div
+      title="Export"
+      onClick={() => downloadModal.onOpen(cleanedRows)}
+      role="button"
+      className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
+    >
+      <Download className="w-4 h-4" />
+    </div>
+  );
+
+  const deleteButton = (
+    <div
+      title="Delete"
+      onClick={() => deleteModal.onOpen(cleanedRows)}
+      role="button"
+      className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
+    >
+      <Trash className="w-4 h-4 text-red-400 hover:text-red-500" />
+    </div>
+  );
+
+  const addSubfolderButton = (
+    <div
+      title="Add subfolder"
+      onClick={() => addFolderModal.onOpen(cleanedRows[0], false)}
+      role="button"
+      className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
+    >
+      <FolderPlus className="w-4 h-4" />
+    </div>
+  );
+
   return (
     <div className="px-1 flex items-center z-[999999] h-10 p-0.5 fixed bottom-10 rounded-lg shadow-lg dark:bg-[#303030] bg-[#292929] text-[#f6f6f6] text-sm">
       <div className="flex flex-row px-1 gap-x-2 border-r border-[#434343] pr-2">
         <span>{numRowsSelected} selected</span>
         {totalSize > 0 && <span className="text-[#9d9d9d]">{formatFileSize(totalSize)}</span>}
       </div>
-      {/* 1 file selected */}
-      {numRowsSelected === 1 && cleanedRows[0].isFile && (
+      {/* 1 file or 1 folder selected */}
+
+      {numRowsSelected === 1 && (
         <div className="flex flex-row">
-          <div
-            title="Move"
-            onClick={() => moveModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <FileInput className="w-4 h-4" />
-          </div>
-          <div
-            title="Rename"
-            onClick={() => renameModal.onOpen(cleanedRows[0])}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Pencil className="w-4 h-4" />
-          </div>
-          <div
-            title="Delete"
-            onClick={() => deleteModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Trash className="w-4 h-4 text-red-400 focus:text-red-500" />
-          </div>
+          {moveButton}
+          {renameButton}
+          {!cleanedRows[0].isFile && addSubfolderButton}
+          {exportButton}
+          {deleteButton}
         </div>
       )}
-      {/* 1 folder selected */}
-      {numRowsSelected === 1 && !cleanedRows[0].isFile && (
+
+      {/* more than one row selected*/}
+      {numRowsSelected > 1 && (
         <div className="flex flex-row">
-          <div
-            title="Move"
-            onClick={() => moveModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <FolderInput className="w-4 h-4" />
-          </div>
-          <div
-            title="Rename"
-            onClick={() => renameModal.onOpen(cleanedRows[0])}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Pencil className="w-4 h-4" />
-          </div>
-          <div
-            title="Add subfolder"
-            onClick={() => addFolderModal.onOpen(cleanedRows[0], false)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <FolderPlus className="w-4 h-4" />
-          </div>
-          <div
-            title="Delete"
-            onClick={() => deleteModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Trash className="w-4 h-4 text-red-400 hover:text-red-500" />
-          </div>
-        </div>
-      )}
-      {/* Only files selected */}
-      {numRowsSelected > 1 && allAreFiles && (
-        <div className="flex flex-row">
-          <div
-            title="Move"
-            onClick={() => moveModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <FileInput className="w-4 h-4" />
-          </div>
-          <div
-            title="Delete"
-            onClick={() => deleteModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Trash className="w-4 h-4 text-red-400 hover:text-red-500" />
-          </div>
-        </div>
-      )}
-      {/* Only folders selected */}
-      {numRowsSelected > 1 && allAreFolders && (
-        <div className="flex flex-row">
-          <div
-            title="Move"
-            onClick={() => moveModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <FolderInput className="w-4 h-4" />
-          </div>
-          <div
-            title="Delete"
-            onClick={() => deleteModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Trash className="w-4 h-4 text-red-400 hover:text-red-500" />
-          </div>
-        </div>
-      )}
-      {/* A combination of files & folders selected */}
-      {numRowsSelected > 1 && hasFile && !allAreFiles && (
-        <div className="flex flex-row">
-          <div
-            title="Move"
-            onClick={() => moveModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <FolderInput className="w-4 h-4" />
-          </div>
-          <div
-            title="Delete"
-            onClick={() => deleteModal.onOpen(cleanedRows)}
-            role="button"
-            className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
-          >
-            <Trash className="w-4 h-4 text-red-400 hover:text-red-500" />
-          </div>
+          {moveButton}
+          {exportButton}
+          {deleteButton}
         </div>
       )}
     </div>

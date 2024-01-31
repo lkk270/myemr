@@ -15,15 +15,18 @@ import {
 import { useDownloadModal } from "../hooks/use-download-modal";
 
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 export const DownloadModal = () => {
   const [isMounted, setIsMounted] = useState(false);
   const downloadModal = useDownloadModal();
+  const downloadNodes = downloadModal.nodeDatas;
+  const firstDownloadNode = downloadNodes ? downloadNodes[0] : null;
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !downloadModal || !downloadModal.nodeData) {
+  if (!isMounted || !downloadModal || !downloadNodes || !firstDownloadNode) {
     return null;
   }
   return (
@@ -31,10 +34,14 @@ export const DownloadModal = () => {
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
           <AlertDialogTitle className="whitespace-normal break-all">
-            Export <span className="italic">{downloadModal.nodeData.name}</span>?
+            Export{" "}
+            <span className={cn(downloadNodes.length === 1 && "italic")}>
+              {downloadNodes.length === 1 ? firstDownloadNode.name : "selected items"}
+            </span>{" "}
+            ?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {downloadModal.nodeData.isFile
+            {firstDownloadNode.isFile && downloadNodes.length === 1
               ? "This will download the file to your device."
               : "This will download a zip file to your device."}
           </AlertDialogDescription>

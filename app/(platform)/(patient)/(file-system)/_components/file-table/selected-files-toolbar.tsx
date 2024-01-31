@@ -57,7 +57,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       {numRowsSelected === 1 && cleanedRows[0].isFile && (
         <div className="flex flex-row">
           <div
-            title="move"
+            title="Move"
             onClick={() => moveModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -65,6 +65,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <FileInput className="w-4 h-4" />
           </div>
           <div
+            title="Rename"
             onClick={() => renameModal.onOpen(cleanedRows[0])}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -72,6 +73,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <Pencil className="w-4 h-4" />
           </div>
           <div
+            title="Delete"
             onClick={() => deleteModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -84,7 +86,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       {numRowsSelected === 1 && !cleanedRows[0].isFile && (
         <div className="flex flex-row">
           <div
-            title="move"
+            title="Move"
             onClick={() => moveModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -92,6 +94,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <FolderInput className="w-4 h-4" />
           </div>
           <div
+            title="Rename"
             onClick={() => renameModal.onOpen(cleanedRows[0])}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -99,6 +102,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <Pencil className="w-4 h-4" />
           </div>
           <div
+            title="Add subfolder"
             onClick={() => addFolderModal.onOpen(cleanedRows[0], false)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -106,6 +110,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <FolderPlus className="w-4 h-4" />
           </div>
           <div
+            title="Delete"
             onClick={() => deleteModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -118,7 +123,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       {numRowsSelected > 1 && allAreFiles && (
         <div className="flex flex-row">
           <div
-            title="move"
+            title="Move"
             onClick={() => moveModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -126,6 +131,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <FileInput className="w-4 h-4" />
           </div>
           <div
+            title="Delete"
             onClick={() => deleteModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -138,7 +144,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       {numRowsSelected > 1 && allAreFolders && (
         <div className="flex flex-row">
           <div
-            title="move"
+            title="Move"
             onClick={() => moveModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -146,6 +152,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <FolderInput className="w-4 h-4" />
           </div>
           <div
+            title="Delete"
             onClick={() => deleteModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -158,7 +165,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       {numRowsSelected > 1 && hasFile && !allAreFiles && (
         <div className="flex flex-row">
           <div
-            title="move"
+            title="Move"
             onClick={() => moveModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"
@@ -166,6 +173,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             <FolderInput className="w-4 h-4" />
           </div>
           <div
+            title="Delete"
             onClick={() => deleteModal.onOpen(cleanedRows)}
             role="button"
             className="hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2"

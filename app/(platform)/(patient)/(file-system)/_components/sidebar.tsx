@@ -124,7 +124,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
             isMobile && "w-0",
           )}
         >
-          <div className="pl-4 pt-4 w-20">
+          <div className="pl-4 pt-2 w-20">
             <Logo showText={false} />
             <div
               onClick={collapse}

@@ -350,7 +350,8 @@ const Arborist = ({ width }: ArboristProps) => {
           {(dimens) => ( */}
             <Tree
               // {...dimens}
-              className="custom-scrollbar overflow-y-hidden h-[calc(100vh-100px)]"
+              //h-[calc(100vh-100px)]
+              className="custom-scrollbar overflow-y-hidden pb-4"
               renderCursor={CustomCursor}
               renderDragPreview={customDragPreviewWithTree}
               ref={treeRef}
@@ -359,7 +360,7 @@ const Arborist = ({ width }: ArboristProps) => {
               data={folderStore.folders}
               // initialData={folderStore.folders}
               width={width - 8}
-              height={screenHeight - 270}
+              height={screenHeight - 230}
               // rowClassName={"max-w-[200px] w-full"}
               indent={15}
               rowHeight={31}

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
 
-interface ArboristProps {
+interface FileTreeProps {
   width: number;
 }
 
@@ -146,7 +146,7 @@ const customDragPreview = (
   return <div>{stackedItems}</div>;
 };
 
-const Arborist = ({ width }: ArboristProps) => {
+const FileTree = ({ width }: FileTreeProps) => {
   const folderStore = useFolderStore();
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
@@ -378,4 +378,4 @@ const Arborist = ({ width }: ArboristProps) => {
   );
 };
 
-export default Arborist;
+export default FileTree;

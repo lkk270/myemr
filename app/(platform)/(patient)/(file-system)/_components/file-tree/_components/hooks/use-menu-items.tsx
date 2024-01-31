@@ -29,7 +29,7 @@ export const useMenuItems = (nodeData: any) => {
       icon: FileInput,
       isFile: true,
       action: () => {
-        moveModal.onOpen(nodeData);
+        moveModal.onOpen([nodeData]);
       },
     },
     {

@@ -34,12 +34,10 @@ export const MoveModal = () => {
     setIsMounted(true);
   }, []);
 
-  const onSelect = (id: string) => {
+  const onSelect = async (id: string) => {
     if (moveNodes) {
       setIsLoading(true);
-      for (let moveNode of moveNodes) {
-        const originalFolders = _.cloneDeep(foldersStore.folders);
-        foldersStore.moveNodes([moveNode.id], id);
+      for (const moveNode of moveNodes) {
         const promise = axios
           .post("/api/patient-update", {
             selectedIds: [moveNode.id],
@@ -47,29 +45,30 @@ export const MoveModal = () => {
             updateType: "moveNode",
           })
           .then(({ data }) => {
-            setIsLoading(false);
+            foldersStore.moveNodes([moveNode.id], id);
+            // Success handling
           })
           .catch((error) => {
-            foldersStore.setFolders(originalFolders);
-            // error = error?.response?.data || "Something went wrong";
-            // console.log(error);
-            throw error;
-          })
-          .finally(() => {
-            setIsLoading(false);
-            // renameModal.onClose();
-            //no need for set loading to false
-            // Toggle edit mode off after operation
+            // Error handling
+            throw error; // Rethrow to allow the toast to catch it
           });
+
         toast.promise(promise, {
           loading: "Moving node",
           success: "Changes saved successfully",
           error: "Something went wrong",
           duration: 1250,
         });
+
+        try {
+          await promise; // Wait for the current promise to resolve or reject
+        } catch (error) {
+          // Error handling if needed
+        }
       }
+      setIsLoading(false);
+      moveModal.onClose();
     }
-    moveModal.onClose();
   };
 
   if (!isMounted || !moveNodes || !firstMoveNode) {

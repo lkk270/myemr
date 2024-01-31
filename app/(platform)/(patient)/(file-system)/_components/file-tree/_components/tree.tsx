@@ -14,6 +14,8 @@ import { Item } from "../../item";
 import { Input } from "@/components/ui/input";
 import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
+import { usePathname } from "next/navigation";
+
 interface ArboristProps {
   width: number;
 }
@@ -151,6 +153,8 @@ const customDragPreview = (
 
 const Arborist = ({ width }: ArboristProps) => {
   const folderStore = useFolderStore();
+  const pathname = usePathname();
+
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
   // console.log(folderStore.folders);
@@ -191,6 +195,16 @@ const Arborist = ({ width }: ArboristProps) => {
   });
 
   useEffect(() => {
+    let nodeIdFromPath = "";
+    if (pathname.includes("/files/")) {
+      nodeIdFromPath = pathname.split("/files/")[1];
+    } else if (pathname.includes("/file/")) {
+      nodeIdFromPath = pathname.split("/file/")[1];
+    }
+    if (nodeIdFromPath) {
+      console.log("IN HERE");
+      treeRef.current.select(nodeIdFromPath);
+    }
     // Set the screen height after the component mounts
     setScreenHeight(window.innerHeight);
 

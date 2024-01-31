@@ -50,7 +50,7 @@ export const useMenuItems = (nodeData: any) => {
     {
       label: "Delete",
       icon: Trash,
-      action: () => deleteModal.onOpen(nodeData),
+      action: () => deleteModal.onOpen([nodeData]),
       differentClassName: "font-normal text-red-400 focus:text-red-500",
     },
   ];

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput } from "lucide-react";
+import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput, GripVertical } from "lucide-react";
 import { usePathname } from "next/navigation";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
@@ -29,10 +29,12 @@ const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
+  // const [is]
   const isMobile = useMediaQuery("(max-width: 450px)");
   const pathname = usePathname();
   const hasMountedRef = useRef<boolean>(false);
   const prevPathnameRef = useRef<string | null>(pathname);
+
   let nodeIdFromPath = "";
   if (pathname.includes("/files/")) {
     nodeIdFromPath = pathname.split("/files/")[1];
@@ -90,6 +92,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       prevPathnameRef.current = pathname;
     }
   }, [pathname]);
+
+  // useEffect(() => {
+  //   setIsMounted(true);
+  // }, []);
 
   const CustomIcon = node.data.isFile ? getFileIcon(node.data.name, nodeData.type) : FaFolder;
 
@@ -205,6 +211,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     setHoveredNode({ id: null, parentId: null, path: null, namePath: null, isFile: null });
   };
 
+  const handleNodeClick = (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) {
+      e.preventDefault();
+    }
+  };
+  console.log(tree.hasSingleSelection);
+  console.log(tree.hasMultipleSelections);
+  console.log(tree.selectedIds.size);
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
@@ -255,11 +269,15 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               style={{ lineHeight: "18px", fontSize: "13px" }}
               className={cn(
                 `min-w-[${(tree.width - 100).toString()}px]`,
-                "truncate flex items-center cursor-pointer flex-grow",
+                "truncate flex items-center flex-grow cursor-pointer",
+                // !node.data.parentId ? "cursor-pointer" : "cursor-grab",
               )}
             >
               {node.data.isFile ? (
                 <>
+                  <GripVertical
+                    className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
+                  />
                   <span className="w-5 flex-shrink-0 mr-1"></span>
                   <span className="mr-2 flex items-center flex-shrink-0">
                     <CustomIcon size={iconSize} />
@@ -267,6 +285,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 </>
               ) : (
                 <>
+                  {!node.data.isRoot && (
+                    <GripVertical
+                      className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
+                    />
+                  )}
                   <span
                     className="mr-2 flex-shrink-0"
                     onClick={() => {
@@ -276,30 +299,40 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
                   <Link
-                    onDragStart={(e) => {
-                      if (node.data.isRoot) e.preventDefault();
+                    style={{
+                      pointerEvents: tree.hasMultipleSelections > 1 ? "none" : "auto",
                     }}
-                    title={node.data.namePath}
                     href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                     className="mr-[6px] flex-shrink-0"
                   >
-                    {node.isOpen ? (
-                      <FaFolderOpen size={iconSize} color={folderColor} />
-                    ) : (
-                      <FaFolder size={iconSize} color={folderColor} />
-                    )}
+                    <div
+                      onDragStart={(e) => {
+                        if (node.data.isRoot) e.preventDefault();
+                      }}
+                      title={node.data.namePath}
+                    >
+                      {node.isOpen ? (
+                        <FaFolderOpen size={iconSize} color={folderColor} />
+                      ) : (
+                        <FaFolder size={iconSize} color={folderColor} />
+                      )}
+                    </div>
                   </Link>
                 </>
               )}
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
               <Link
+                style={{
+                  pointerEvents: tree.hasMultipleSelections ? "none" : "auto",
+                }}
                 onDragStart={(e) => {
                   if (node.data.isRoot) e.preventDefault();
                 }}
                 title={node.data.namePath}
                 href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
-                className={cn("truncate flex-grow", !node.data.parentId ? "cursor-pointer" : "cursor-grab")}
+                //!node.data.parentId ? "cursor-pointer" : "cursor-grab"
+                className={cn("truncate flex-grow cursor-pointer")}
               >
                 {node.data.name}
               </Link>

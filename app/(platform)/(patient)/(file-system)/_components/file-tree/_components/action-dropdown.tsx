@@ -8,7 +8,6 @@ import {
 import { MoreHorizontal, Pencil, FolderInput, FileInput, Download, Trash, FolderPlus } from "lucide-react";
 
 import { cn, getFileIcon } from "@/lib/utils";
-import { useDeleteModal, useDownloadModal, useRenameModal, useAddFolderModal, useMoveModal } from "./hooks";
 import { FaFolder } from "react-icons/fa";
 import { MenuItemData } from "@/app/types/file-types";
 import { MenuHeader } from "./menu-header";

@@ -1,9 +1,9 @@
 "use client";
+
 import { ChevronsLeft } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
@@ -13,8 +13,7 @@ import FileTree from "./file-tree/_components/tree";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
-import { Button } from "@/components/ui/button";
-// import { TrashBox } from "./trash-box";
+
 interface SidebarProps {
   data: any[];
   singleLayerNodes: NodeData2Type[];
@@ -101,18 +100,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
       setTimeout(() => setIsResetting(false), 300);
     }
   };
-  const handleCreate = () => {
-    // const promise = create({ title: "Untitled" }).then((documentId) => router.push(`/documents/${documentId}`));
-    // toast.promise(promise, {
-    //   loading: "Creating a new note...",
-    //   success: "New note created!",
-    //   error: "Failed to create a new note.",
-    // });
-  };
-  const onDragEnd = (result: any) => {
-    // Logic to handle drag end event
-    // This is where you would reorder folders/files based on the drag result
-  };
+
   return (
     isMounted && (
       <>
@@ -138,20 +126,9 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
               <ChevronsLeft className="h-6 w-6" />
             </div>
           </div>
-          {/* <div className="pt-4">
-            <div>
-              <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-              <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
-            </div>
-          </div> */}
-          {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
-          {/* <CitiesTree width={sidebarWidth} /> */}
+         
           <FileTree width={sidebarWidth} />
-          {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
-          {/* </div> */}
-
           <div className="flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10">
-            {/* <Separator /> */}
             <NewRootFolderBox />
             <Separator />
             <div role="button" className="flex flex-col gap-y-1">
@@ -171,7 +148,6 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
             className="hover:w-[6px] transition cursor-ew-resize absolute h-full w-[1px] bg-primary/10 right-0 top-0"
           />
         </aside>
-        {/* </DragDropContext> */}
         <div
           ref={navbarRef}
           className={cn(

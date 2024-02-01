@@ -82,11 +82,11 @@ export const NewMedicationForm = () => {
         console.log(error?.response?.data);
         error = error?.response?.data || "Something went wrong";
         console.log(error);
-        setIsLoading(false);
 
         throw error;
       })
       .finally(() => {
+        setIsLoading(false);
         //no need for set loading to false
         // Toggle edit mode off after operation
       });

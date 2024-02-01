@@ -284,9 +284,7 @@ const FileTree = ({ width }: FileTreeProps) => {
         targetId: parentId,
         updateType: "moveNode",
       })
-      .then(({ data }) => {
-        setIsLoading(false);
-      })
+      .then(({ data }) => {})
       .catch((error) => {
         folderStore.setFolders(originalFolders);
         console.log(error?.response?.data);

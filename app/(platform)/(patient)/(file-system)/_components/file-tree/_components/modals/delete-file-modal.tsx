@@ -79,7 +79,8 @@ export const DeleteModal = () => {
             Send{" "}
             <span className={cn(deleteNodes.length === 1 && "italic")}>
               {deleteNodes.length === 1 ? firstDeleteNode.name : "selected items"}
-            </span>{" "}
+            </span>
+            {"  "}
             to trash?
           </AlertDialogTitle>
           <AlertDialogDescription>

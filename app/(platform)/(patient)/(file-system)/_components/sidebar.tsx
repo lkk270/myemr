@@ -35,7 +35,6 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
   useEffect(() => {
-    console.log(" IN HERE");
     setIsMounted(true);
     console.log(data);
     // console.log(singleLayerNodes);

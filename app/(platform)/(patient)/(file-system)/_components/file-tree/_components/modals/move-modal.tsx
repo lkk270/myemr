@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Folder } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useFolderStore } from "../../../hooks/use-folders";
 import {
   CommandDialog,
@@ -81,6 +80,7 @@ export const MoveModal = () => {
   }
 
   const isValidReceivingFolder = (node: SingleLayerNodesType2) => {
+    if (node.namePath === "/Trash") return false;
     const completeNodePath = `${node.path}${node.id}/`;
     let ret = true;
     for (let moveNode of moveNodes) {

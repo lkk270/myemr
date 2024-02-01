@@ -12,6 +12,7 @@ import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-fi
 import { NodeDataType } from "@/app/types/file-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 interface NodePageHeaderProps {
   nodeId: string;
@@ -24,6 +25,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const uploadFilesModal = useUploadFilesModal();
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
+  const { isLoading } = useIsLoading();
   let node = folderStore.getNode(nodeId);
 
   useEffect(() => {
@@ -50,9 +52,13 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
       {!isFile && !node.namePath.startsWith("/Trash") && (
         <div className="flex gap-x-2">
           <Button
+            disabled={isLoading}
             onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
-            className="border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8"
+            className={cn(
+              isLoading && "cursor-not-allowed",
+              "border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8",
+            )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <Upload className="w-5 h-5" />
@@ -60,9 +66,13 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             </div>
           </Button>
           <Button
+            disabled={isLoading}
             onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
-            className="border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8"
+            className={cn(
+              isLoading && "cursor-not-allowed",
+              "border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8",
+            )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <FolderPlus className="w-5 h-5" />

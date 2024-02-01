@@ -19,6 +19,7 @@ import _ from "lodash";
 import axios from "axios";
 import { toast } from "sonner";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { cn } from "@/lib/utils";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
@@ -35,6 +36,7 @@ export const MoveModal = () => {
   }, []);
 
   const onSelect = async (id: string) => {
+    if (isLoading) return;
     if (moveNodes) {
       setIsLoading(true);
       for (const moveNode of moveNodes) {
@@ -127,6 +129,7 @@ export const MoveModal = () => {
             key={parentFolder.id}
             value={`${parentFolder.name}`}
             title={parentFolder.name}
+            disabled
           >
             <div className="flex justify-between items-center w-full">
               <div className="flex gap-x-4 items-center">
@@ -154,10 +157,16 @@ export const MoveModal = () => {
               isValidReceivingFolder(node) && (
                 <CommandItem
                   onSelect={() => onSelect(node.id)}
-                  className="text-md text-primary/70"
+                  className={cn(
+                    "text-md",
+                    isLoading
+                      ? "text-primary/20 cursor-not-allowed aria-selected:bg-secondary aria-selected:text-primary/20"
+                      : "text-primary/70",
+                  )}
                   key={node.id}
                   value={`${node.name}`}
                   title={node.name}
+                  disabled={isLoading}
                 >
                   <div className="flex gap-x-4 items-center justify-center">
                     <div className="bg-primary/10 rounded-md p-2">

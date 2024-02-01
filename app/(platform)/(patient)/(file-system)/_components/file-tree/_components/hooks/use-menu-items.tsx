@@ -1,6 +1,6 @@
 import { Pencil, Upload, FileInput, Download, Trash, FolderPlus } from "lucide-react";
 import { MenuItemData } from "@/app/types/file-types";
-
+import { useIsLoading } from "@/hooks/use-is-loading";
 import {
   useTrashModal,
   useDownloadModal,
@@ -17,40 +17,71 @@ export const useMenuItems = (nodeData: any) => {
   const moveModal = useMoveModal();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
+  const { isLoading } = useIsLoading();
 
   const menuItems: MenuItemData[] = [
     {
       label: "Rename",
       icon: Pencil,
-      action: () => renameModal.onOpen(nodeData),
+      action: () => {
+        if (isLoading) {
+          return;
+        }
+        renameModal.onOpen(nodeData);
+      },
     },
     {
       label: "Move",
       icon: FileInput,
       isFile: true,
       action: () => {
-        moveModal.onOpen([nodeData]);
+        {
+          if (isLoading) {
+            return;
+          }
+          moveModal.onOpen([nodeData]);
+        }
       },
     },
     {
       label: "Add a subfolder",
       icon: FolderPlus,
-      action: () => addFolderModal.onOpen(nodeData, false),
+      action: () => {
+        if (isLoading) {
+          return;
+        }
+        addFolderModal.onOpen(nodeData, false);
+      },
     },
     {
       label: "Upload files",
       icon: Upload,
-      action: () => uploadFilesModal.onOpen(nodeData, false),
+      action: () => {
+        if (isLoading) {
+          return;
+        }
+        uploadFilesModal.onOpen(nodeData, false);
+      },
     },
     {
       label: "Export",
       icon: Download,
-      action: () => downloadModal.onOpen([nodeData]),
+      action: () => {
+        if (isLoading) {
+          return;
+        }
+        downloadModal.onOpen([nodeData]);
+      },
     },
     {
       label: "Trash",
       icon: Trash,
-      action: () => trashModal.onOpen([nodeData]),
+      action: () => {
+        if (isLoading) {
+          return;
+        }
+        trashModal.onOpen([nodeData]);
+      },
       differentClassName: "font-normal text-red-400 focus:text-red-500",
     },
   ];

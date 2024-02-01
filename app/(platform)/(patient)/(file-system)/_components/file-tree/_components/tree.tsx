@@ -35,10 +35,10 @@ const customDragPreview = (
   // if ((selectedIds.length === 0 && !id) || (selectedIds.length > 0 && !id)) {
   //   return null;
   // }
-  if (!isDragging || !mouse || !tree) {
-    setAllSelectedHaveSameParent(true);
-    return null;
-  }
+  // if (!isDragging || !mouse || !tree) {
+  //   setAllSelectedHaveSameParent(true);
+  //   return null;
+  // }
   if (!allSelectedHaveSameParent) {
     return null;
   }
@@ -211,11 +211,6 @@ const FileTree = ({ width }: FileTreeProps) => {
   // Now, this is just a reference to the tree component
 
   // Update the ref callback
-  useEffect(() => {
-    if (trashNodeId) {
-      treeRef.current.close(trashNodeId);
-    }
-  }, [folderStore.folders]);
 
   const clearInput = () => {
     setTerm("");
@@ -225,8 +220,9 @@ const FileTree = ({ width }: FileTreeProps) => {
     if (!treeRef || !treeRef.current) {
       console.warn("Tree instance not available");
       return null;
+    } else {
+      return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
     }
-    return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
   };
 
   const disableDrag = () => {
@@ -248,6 +244,7 @@ const FileTree = ({ width }: FileTreeProps) => {
     );
     // Disable drop if either of the conditions are met
     return (
+      isLoading ||
       isDroppingFileIntoFolder ||
       isReorderingInSameFolder ||
       !hoveredNode.id ||

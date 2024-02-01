@@ -23,6 +23,7 @@ import { CardHeaderComponent } from "./card-header";
 import { toast } from "sonner";
 import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 import _ from "lodash";
 const inputClassName = "bg-secondary border-primary/10";
@@ -48,7 +49,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 

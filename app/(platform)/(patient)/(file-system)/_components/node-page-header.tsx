@@ -47,7 +47,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const foldersLength = folders.length;
   return (
     <div className="pb-4 gap-y-2 flex flex-col">
-      {!isFile && (
+      {!isFile && !node.namePath.startsWith("/Trash") && (
         <div className="flex gap-x-2">
           <Button
             onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}

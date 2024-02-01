@@ -33,9 +33,9 @@ export const DownloadModal = () => {
     <AlertDialog open={downloadModal.isOpen} onOpenChange={downloadModal.onClose}>
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="whitespace-normal break-all">
+          <AlertDialogTitle>
             Export{" "}
-            <span className={cn(downloadNodes.length === 1 && "italic")}>
+            <span className={cn("whitespace-normal break-all", downloadNodes.length === 1 && "italic")}>
               {downloadNodes.length === 1 ? firstDownloadNode.name : "selected items"}
             </span>{" "}
             ?

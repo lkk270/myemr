@@ -18,6 +18,7 @@ import { rootFolderCategories } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { toast } from "sonner";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 interface CommandItemComponentProps {
   obj: { label: string; value: string };
@@ -28,9 +29,11 @@ export const NewRootFolder = () => {
   const user = useCurrentUser();
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
-  const alreadyUsedRootNames = singleLayerNodes.filter((item) => item.isRoot).map((item) => item.name);
+  const alreadyUsedRootNames = singleLayerNodes
+    .filter((item) => item.isRoot && !item.namePath.startsWith("/Trash"))
+    .map((item) => item.name);
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   const isOpen = useNewRootFolder((store) => store.isOpen);
   const onClose = useNewRootFolder((store) => store.onClose);

@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 
 import { NewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
 import { ViewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
+import { DeleteMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/delete-medication-modal";
 import TopLoader from "@/components/top-loader";
 
 const font = Inter({ subsets: ["latin"] });
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             <NewMedicationModal />
             <ViewMedicationModal />
+            <DeleteMedicationModal />
             <Toaster closeButton position="bottom-right" richColors theme="system" />
 
             {children}

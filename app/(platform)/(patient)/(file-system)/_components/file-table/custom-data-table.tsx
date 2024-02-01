@@ -18,8 +18,8 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
     if (a.isFile !== b.isFile) {
       return a.isFile ? 1 : -1;
     }
-
     // Then, within each group, sort by createdAt descending
+    if (!b.createdAt || !a.createdAt) return 0;
     return b.createdAt.getTime() - a.createdAt.getTime();
   });
   return (

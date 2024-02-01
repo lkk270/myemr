@@ -20,6 +20,7 @@ import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } f
 import { DosageHistoryPopover } from "./dosage-history-popover";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 const inputClassName = "bg-secondary border-primary/10";
 
@@ -34,7 +35,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   const [initialMedication, setInitialMedication] = useState<MedicationType | null>(medicationParam);
   const [medication, setMedication] = useState<MedicationType | null>(medicationParam);
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   const getChangedFields = (newObj: any, originalObj: any): any => {
     // Directly compare non-object and non-array values

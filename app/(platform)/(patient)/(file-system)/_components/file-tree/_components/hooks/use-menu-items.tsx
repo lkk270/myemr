@@ -2,7 +2,7 @@ import { Pencil, Upload, FileInput, Download, Trash, FolderPlus } from "lucide-r
 import { MenuItemData } from "@/app/types/file-types";
 
 import {
-  useDeleteModal,
+  useTrashModal,
   useDownloadModal,
   useRenameModal,
   useAddFolderModal,
@@ -11,7 +11,7 @@ import {
 } from ".";
 
 export const useMenuItems = (nodeData: any) => {
-  const deleteModal = useDeleteModal();
+  const trashModal = useTrashModal();
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
@@ -48,9 +48,9 @@ export const useMenuItems = (nodeData: any) => {
       action: () => downloadModal.onOpen([nodeData]),
     },
     {
-      label: "Delete",
+      label: "Trash",
       icon: Trash,
-      action: () => deleteModal.onOpen([nodeData]),
+      action: () => trashModal.onOpen([nodeData]),
       differentClassName: "font-normal text-red-400 focus:text-red-500",
     },
   ];

@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
     const usedFileStorageInBytes = patient.usedFileStorage;
     const allotedStorageInBytes = allotedPatientStorage[patient.plan] * 1000000000;
-    if (usedFileStorageInBytes + size > allotedStorageInBytes) {
+    if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
       return NextResponse.json({ message: "Out of storage! Please upgrade your plan" }, { status: 400 });
     }
     await prismadb.patientProfile.update({

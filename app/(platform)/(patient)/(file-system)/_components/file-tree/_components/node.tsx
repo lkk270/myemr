@@ -24,7 +24,6 @@ type NodeProps = {
 // Common function for handling menu item clicks
 
 const iconSize = "17px";
-const folderColor = "#4f5eff";
 const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
@@ -36,6 +35,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const prevPathnameRef = useRef<string | null>(pathname);
 
   const isTrashNode = node.data.namePath === "/Trash";
+  if (isTrashNode) {
+    node.close();
+  }
+
+  const folderColor = node.data.isRoot ? "#8d4fff" : "#4f5eff";
 
   let nodeIdFromPath = "";
   if (pathname.includes("/files/")) {
@@ -66,8 +70,10 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     setIsMounted(true);
   }, []);
 
-  // if (!isMounted) {
-  //   return null;
+  // if (isMounted) {
+  //   if (node.data.namePath !== "/Trash" && node.data.namePath.startsWith("/Trash")) {
+  //     return null;
+  //   }
   // }
 
   // useEffect(() => {
@@ -84,7 +90,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   useEffect(() => {
     if (prevPathnameRef.current !== pathname || !hasMountedRef.current) {
-      if (tree) {
+      if (tree && !isTrashNode) {
         tree.openParents(nodeIdFromPath);
         if (!tree.get(nodeIdFromPath)?.data.isFile) {
           tree.open(nodeIdFromPath);
@@ -216,8 +222,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   };
 
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
+  // if (node.data.namePath !== "/Trash" && node.data.namePath.startsWith("/Trash")) {
+  //   return null;
+  // }
   return (
-    <div className={cn("px-2", isTrashNode && "pt-6")}>
+    <div className={cn("px-2", isTrashNode && "pt-2")}>
       {isMounted && (
         <ContextMenu>
           <ContextMenuTrigger

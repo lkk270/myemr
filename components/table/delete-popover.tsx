@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState } from "react";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 interface DeletePopoverProps {
   onConfirmFunc: () => void;
@@ -8,7 +9,7 @@ interface DeletePopoverProps {
 
 export const DeletePopover = ({ onConfirmFunc }: DeletePopoverProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   const togglePopover = (e: any) => {
     preventDefaultBehavior(e);

@@ -15,6 +15,7 @@ interface FolderStore {
   setSingleLayerNodes: (nodes: SingleLayerNodesType2[]) => void;
   setFolders: (folders: any[]) => void;
   updateNodeName: (nodeId: string, newName: string) => void;
+  restoreRootNode: (selectedIds: string[]) => void;
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
   deleteNode: (nodeId: string) => void;
   addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => void;
@@ -68,6 +69,103 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   setSingleLayerNodes: (singleLayerNodes) => set({ singleLayerNodes, singleLayerNodesSet: true }),
   setFolders: (folders) => set({ folders, foldersSet: true }),
   setUsedFileStorage: (usedFileStorage) => set({ usedFileStorage: usedFileStorage }),
+
+  restoreRootNode: (selectedIds: string[]) => {
+    set((state) => {
+      // Retrieve the complete node information from the folders array
+      const selectedNodesInfo: any[] = []; // Replace 'any' with your node type if defined
+      const findSelectedNodes = (folders: any[], ids: Set<string>) => {
+        folders.forEach((folder) => {
+          if (ids.has(folder.id)) {
+            selectedNodesInfo.push(_.cloneDeep(folder));
+          }
+          if (folder.children) {
+            findSelectedNodes(folder.children, ids);
+          }
+        });
+      };
+
+      const updateNodePathsForRoot = (node: any) => {
+        // Update the node to have a root level path
+        let updatedNode = { ...node, parentId: null, path: "/", namePath: `/${node.name}` };
+        // Recursively update paths for children if it's a folder
+        if (!node.isFile && node.children) {
+          updatedNode.children = node.children.map((childNode: any) => {
+            // Compute the new paths for the child based on the updated node
+            const childNewPath = `/${node.name}/${childNode.name}`;
+            // Directly use the updated node's path since the children are now at the root level too
+            return updateNodePathsForRoot({ ...childNode, path: childNewPath, namePath: childNewPath });
+          });
+        }
+        return updatedNode;
+      };
+
+      const insertNodeAtRoot = (node: any) => {
+        // Directly insert the node at root level by updating its path and parent ID
+        return updateNodePathsForRoot(node);
+      };
+
+      findSelectedNodes(state.folders, new Set(selectedIds));
+
+      // Prepare selected nodes for restoration
+      let updatedFolders = [...state.folders];
+      const selectedNodeMap = new Map(selectedNodesInfo.map((node) => [node.id, node]));
+
+      // Remove the nodes from their current location
+      const removeSelectedNodes = (folders: any[], ids: Set<string>): any => {
+        return folders
+          .filter((folder) => !ids.has(folder.id)) // Remove the node if it's selected
+          .map((folder) => ({
+            ...folder,
+            children: folder.children ? removeSelectedNodes(folder.children, ids) : [],
+          }));
+      };
+
+      updatedFolders = removeSelectedNodes(updatedFolders, new Set(selectedIds));
+
+      // Insert the nodes into the root level
+      selectedNodeMap.forEach((node, nodeId) => {
+        const updatedNode = insertNodeAtRoot(node);
+        updatedFolders.push(updatedNode);
+      });
+
+      // Extract all nodes from the updated folders array
+      let allUpdatedNodes: any[] = extractNodes(updatedFolders);
+
+      // Create a map for quick lookup
+      // console.log(allUpdatedNodes);
+      const updatedNodeMap = new Map(allUpdatedNodes.map((node) => [node.id, { ...node, children: undefined }]));
+
+      // console.log(updatedNodeMap);
+      // Update the singleLayerNodes array
+      const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
+        if (updatedNodeMap.has(node.id)) {
+          return updatedNodeMap.get(node.id);
+        }
+        return node;
+      });
+
+      // console.log(updatedSingleLayerNodes);
+
+      const selectedNodes = updatedSingleLayerNodes.filter((node) => selectedIds.includes(node.id));
+
+      // Filter out the non-selected nodes
+      const nonSelectedNodes = updatedSingleLayerNodes.filter((node) => !selectedIds.includes(node.id));
+
+      // Concatenate the selected nodes at the beginning and the non-selected nodes
+      const finalUpdatedSingleLayerNodes = selectedNodes.concat(nonSelectedNodes);
+
+      // console.log(allUpdatedNodes);
+      // console.log(finalUpdatedSingleLayerNodes);
+      const sortedFolders = sortRootNodes(updatedFolders);
+      console.log(sortedFolders);
+      return {
+        ...state,
+        singleLayerNodes: finalUpdatedSingleLayerNodes,
+        folders: sortedFolders,
+      };
+    });
+  },
 
   moveNodes: (selectedIds: string[], targetNodeId: string) => {
     set((state) => {
@@ -178,6 +276,16 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
       // Update folders by removing original references of moved nodes and updating paths
       let updatedFolders = state.folders.map((folder) => updateFolderAndChildren(folder, targetNode, selectedNodeMap));
+      const removeSelectedNodes = (folders: any[], ids: Set<string>): any => {
+        return folders
+          .filter((folder) => !ids.has(folder.id)) // Remove the node if it's selected
+          .map((folder) => ({
+            ...folder,
+            children: folder.children ? removeSelectedNodes(folder.children, ids) : [],
+          }));
+      };
+
+      updatedFolders = removeSelectedNodes(updatedFolders, new Set(selectedIds));
 
       // Insert the nodes into the new location and update their paths
       selectedNodeMap.forEach((node, nodeId) => {
@@ -216,8 +324,9 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
       console.log(allUpdatedNodes);
       console.log(finalUpdatedSingleLayerNodes);
-      const sortedFolders = updatedFolders.map((folder) => sortFolderChildren(folder));
-
+      const sortedFoldersTemp = updatedFolders.map((folder) => sortFolderChildren(folder));
+      const sortedFolders = sortRootNodes(sortedFoldersTemp);
+      console.log(sortedFolders);
       return {
         ...state,
         singleLayerNodes: finalUpdatedSingleLayerNodes,

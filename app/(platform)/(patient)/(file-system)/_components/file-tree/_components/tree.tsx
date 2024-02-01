@@ -10,6 +10,8 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 
 interface FileTreeProps {
   width: number;
@@ -155,8 +157,8 @@ const FileTree = ({ width }: FileTreeProps) => {
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { isLoading, setIsLoading } = useIsLoading();
+  const [trashNodeId, setTrashNodeId] = useState<string | null>(null);
   const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
   const [contextDisableDrop, setContextDisableDrop] = useState(false);
   const [screenHeight, setScreenHeight] = useState(0);
@@ -188,6 +190,10 @@ const FileTree = ({ width }: FileTreeProps) => {
   });
 
   useEffect(() => {
+    const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
+    if (trashNode) {
+      setTrashNodeId(trashNode.id);
+    }
     // Set the screen height after the component mounts
     setScreenHeight(window.innerHeight);
 
@@ -204,10 +210,12 @@ const FileTree = ({ width }: FileTreeProps) => {
 
   // Now, this is just a reference to the tree component
 
-  // // Update the ref callback
-  // useEffect(() => {
-  //   setTreeInstance(treeRef.current);
-  // }, []);
+  // Update the ref callback
+  useEffect(() => {
+    if (trashNodeId) {
+      treeRef.current.close(trashNodeId);
+    }
+  }, [folderStore.folders]);
 
   const clearInput = () => {
     setTerm("");

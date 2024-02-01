@@ -23,6 +23,7 @@ import {
   deleteNode,
   addRootNode,
   addSubFolder,
+  restoreRootFolder,
 } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
@@ -215,6 +216,13 @@ export async function POST(req: Request) {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
       await moveNodes(selectedIds, targetId, userId);
+    } else if (updateType === "trashNode") {
+      const selectedIds = body.selectedIds;
+      const targetId = body.targetId;
+      await moveNodes(selectedIds, targetId, userId, true);
+    } else if (updateType === "restoreRootFolder") {
+      const selectedId = body.selectedId;
+      await restoreRootFolder(selectedId, userId);
     } else if (updateType === "deleteNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;

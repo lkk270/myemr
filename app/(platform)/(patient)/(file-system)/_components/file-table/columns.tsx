@@ -7,6 +7,7 @@ import { CustomDataTableRowActions } from "./custom-data-table-row-actions";
 import { getFileIcon } from "@/lib/utils";
 import { FaFolder } from "react-icons/fa";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -35,14 +36,22 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
     cell: ({ row }) => {
-      const name = row.original.name;
-      const type = row.original.type;
-      const isFile = row.original.isFile;
+      const or = row.original;
+      const name = or.name;
+      const type = or.type;
+      const isFile = or.isFile;
+      const folderColor = or.isRoot ? "#8d4fff" : "#4f5eff";
+
       const CustomIcon = isFile ? getFileIcon(name, type) : FaFolder;
       return (
         <div className="flex items-center space-x-2">
-          <CustomIcon size={"20px"} color={!isFile && "#4f5eff"} />
+          <CustomIcon size={"20px"} color={!isFile ? folderColor : ""} />
           <span className="truncate font-medium">{name}</span>
+          {or.isRoot && (
+            <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+              Root
+            </Badge>
+          )}
         </div>
       );
     },

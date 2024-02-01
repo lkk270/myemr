@@ -1,7 +1,8 @@
-import { DeleteModal } from "./_components/file-tree/_components/modals/delete-file-modal";
+import { DeleteModal } from "./_components/file-tree/_components/modals/delete-node-modal";
 import { DownloadModal } from "./_components/file-tree/_components/modals/download-modal";
 import { RenameModal } from "./_components/file-tree/_components/modals/rename-modal";
 import { MoveModal } from "./_components/file-tree/_components/modals/move-modal";
+import { TrashModal } from "./_components/file-tree/_components/modals/trash-node-modal";
 import { AddFolderModal } from "./_components/file-tree/_components/modals/add-folder-modal";
 import { UploadFilesModal } from "./_components/file-tree/_components/modals/upload-files-modal";
 import { Sidebar } from "./_components/sidebar";
@@ -157,9 +158,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // console.log(singleLayerNodesOld);
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
   // console.log(singleLayerNodes);
-  const trashExists = singleLayerNodes.some(
-    (obj: SingleLayerNodesType2) => obj.name === "Trash" && !obj.isFile && obj.isRoot === true,
-  );
+  const trashExists = singleLayerNodes.some((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
   if (singleLayerNodes && !trashExists && singleLayerNodes.length > 0) {
     const trashFolder = await prismadb.folder.create({
       data: {
@@ -191,6 +190,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
         singleLayerNodes={singleLayerNodes}
       />
       <DeleteModal />
+      <TrashModal />
       <DownloadModal />
       <RenameModal />
       <MoveModal />

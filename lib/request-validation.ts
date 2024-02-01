@@ -5,7 +5,8 @@ const validUpdateTypes = [
   "deleteMedication",
   "renameNode",
   "moveNode",
-  "addNode",
+  "trashNode",
+  "restoreRootFolder",
   "deleteNode",
   "addRootNode",
   "addSubFolder",
@@ -18,6 +19,8 @@ const patientConditionals: any = {
   deleteMedication: { requiredFields: ["medicationId"], optionalFields: [] },
   renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
   moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
+  trashNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
+  restoreRootFolder: { requiredFields: ["selectedId"], optionalFields: [] },
   deleteNode: { requiredFields: ["nodeId", "isFile"], optionalFields: [] },
   addRootNode: {
     requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
@@ -29,7 +32,7 @@ const patientConditionals: any = {
   },
   uploadFiles: {
     requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
-    optionalFields: ['folderPath'],
+    optionalFields: ["folderPath"],
   },
 };
 

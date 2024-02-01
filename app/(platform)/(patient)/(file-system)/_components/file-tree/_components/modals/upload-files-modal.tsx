@@ -22,13 +22,14 @@ import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { updateStatus } from "../../../../actions/update-status";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 export const UploadFilesModal = () => {
   const user = useCurrentUser();
   const foldersStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
   const uploadFilesModal = useUploadFilesModal();
 
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -109,7 +110,7 @@ export const UploadFilesModal = () => {
         signal,
       });
       const responseObj = await response.json();
-      // console.log(responseObj);
+      console.log(responseObj);
       if (response.ok) {
         const { url, fields } = responseObj;
         const formData = new FormData();
@@ -191,8 +192,9 @@ export const UploadFilesModal = () => {
     <AlertDialog open={uploadFilesModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px] md:max-w-[500px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="whitespace-normal break-all">
-            Upload files to <span className="italic">{uploadFilesModal.nodeData.name}</span>?
+          <AlertDialogTitle>
+            Upload files to <span className="italic whitespace-normal break-all">{uploadFilesModal.nodeData.name}</span>
+            ?
           </AlertDialogTitle>
           <Dropzone onChange={setFiles} className="w-full" fileExtension="pdf" />
         </AlertDialogHeader>

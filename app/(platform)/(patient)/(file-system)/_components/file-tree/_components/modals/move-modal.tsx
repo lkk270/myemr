@@ -18,6 +18,7 @@ import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import _ from "lodash";
 import axios from "axios";
 import { toast } from "sonner";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
@@ -27,7 +28,7 @@ export const MoveModal = () => {
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   useEffect(() => {
     setIsMounted(true);

@@ -20,11 +20,12 @@ import { toast } from "sonner";
 import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 export const AddFolderModal = () => {
   const user = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
   const addFolderModal = useAddFolderModal();
   const folderStore = useFolderStore();
   const [name, setName] = useState("");
@@ -105,8 +106,8 @@ export const AddFolderModal = () => {
     <AlertDialog open={addFolderModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="whitespace-normal break-all">
-            Add a folder to <span className="italic">{addFolderModal.nodeData.name}</span>?
+          <AlertDialogTitle>
+            Add a folder to <span className="italic whitespace-normal break-all">{addFolderModal.nodeData.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-primary pt-2">
             <Input

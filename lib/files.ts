@@ -64,10 +64,35 @@ export async function updateRecordViewActivity(userId: string, nodeId: string, i
   }
 }
 
-export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string) {
+export async function restoreRootFolder(nodeId: string, userId: string) {
+  return await prismadb.$transaction(
+    async (prisma) => {
+      // First, determine if the node is a file or a folder
+      let isFile = false;
+      let node: Folder = (await prisma.folder.findUnique({ where: { id: nodeId } })) as Folder;
+
+      const newPath = `/`;
+      const newNamePath = `/${node.name}`;
+
+      // Update the folder
+      await prisma.folder.update({
+        where: { id: nodeId },
+        data: { parentId: null, path: newPath, namePath: newNamePath },
+      });
+
+      // If the node is a folder, recursively update its descendants
+      await updateDescendantsForMove(prisma, nodeId, newPath, newNamePath);
+
+      await updateRecordViewActivity(userId, nodeId, isFile);
+    },
+    { timeout: 60000 },
+  );
+}
+
+export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
-  if (targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
+  if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
   return await prismadb.$transaction(
     async (prisma) => {
       for (const nodeId of selectedIds) {

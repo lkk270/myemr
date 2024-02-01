@@ -31,23 +31,30 @@ export type NodeData2Type = {
   createdAt: Date;
 };
 
-export type SingleLayerNodesType = {
+type SingleLayerNodeBaseType = {
   id: string;
   name: string;
   path: string;
   namePath: string;
   isFile: boolean;
-  lastViewedAt?: Date;
   parentId?: string | null;
-  isRoot?: boolean;
   type?: string;
   size?: number;
+  isRoot?: boolean;
   createdAt: Date;
+  addedByUserId?: string | null;
+  addedByName: string;
+  userId: string;
+  patientProfileId: string;
+  updatedAt: Date;
+  children?: undefined;
+};
+
+export type SingleLayerNodesType = SingleLayerNodeBaseType & {
   recordViewActivity: {
     lastViewedAt: Date;
   }[];
 };
-
 export type SingleLayerNodesType2 = {
   id: string;
   name: string;
@@ -59,7 +66,13 @@ export type SingleLayerNodesType2 = {
   type?: string;
   size?: number;
   isRoot?: boolean;
-  createdAt: Date;
+  createdAt?: Date;
+  addedByUserId?: string | null;
+  addedByName: string;
+  userId: string;
+  patientProfileId: string;
+  updatedAt?: Date;
+  children?: undefined | any[];
 };
 
 export type MenuItemData = {

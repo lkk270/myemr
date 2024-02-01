@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
-import { sortFolderChildren, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
+import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 import _ from "lodash";
 
 interface FolderStore {
@@ -353,6 +353,8 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         isRoot: true,
         addedByUserId: userId,
         addedByName: userName,
+        userId: "",
+        patientProfileId: "",
         parentId: null,
         children: [],
         createdAt: new Date(),
@@ -367,13 +369,13 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
       // Update folders state
       const updatedFolders = [...state.folders, newNode];
+      const sortedFolders = sortRootNodes(updatedFolders);
 
       // Update singleLayerNodes state
       const updatedSingleLayerNodes = [newSingleLayerNode, ...state.singleLayerNodes];
-      console.log(newNode);
       return {
         ...state,
-        folders: updatedFolders,
+        folders: sortedFolders,
         singleLayerNodes: updatedSingleLayerNodes,
       };
     });
@@ -399,6 +401,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         addedByUserId: addedByUserId,
         addedByName: addedByName,
         parentId: parentId,
+        patientProfileId: "",
         children: [],
         userId: userId,
         createdAt: new Date(),
@@ -448,6 +451,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         addedByUserId: uploadedByUserId,
         addedByName: uploadedByName,
         parentId: parentId,
+        patientProfileId: "",
         userId: userId,
         type: type,
         size: size,

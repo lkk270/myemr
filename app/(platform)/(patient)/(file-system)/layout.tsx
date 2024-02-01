@@ -13,9 +13,9 @@ import { NewRootFolder } from "./_components/modals/new-root-folder-modal";
 // import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
-import { sortFolderChildren, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
+import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 import { allotedPatientStorage } from "@/lib/constants";
 import { FileUploadStatus, PatientPlan } from "@prisma/client";
 
@@ -98,7 +98,8 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   const allFolders = await fetchAllFoldersForPatient(null);
-  const sortedFolders = allFolders.map((folder) => sortFolderChildren(folder));
+  const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
+  const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({
     where: { userId: user.id },
     select: { usedFileStorage: true, plan: true },
@@ -156,6 +157,24 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // console.log(singleLayerNodesOld);
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
   // console.log(singleLayerNodes);
+  const trashExists = singleLayerNodes.some(
+    (obj: SingleLayerNodesType2) => obj.name === "Trash" && !obj.isFile && obj.isRoot === true,
+  );
+  if (singleLayerNodes && !trashExists && singleLayerNodes.length > 0) {
+    const trashFolder = await prismadb.folder.create({
+      data: {
+        name: "Trash",
+        namePath: "/Trash",
+        isRoot: true,
+        addedByUserId: user.id,
+        addedByName: `${user.name}`,
+        userId: user.id,
+        patientProfileId: singleLayerNodes[0].patientProfileId,
+      },
+    });
+    singleLayerNodes.push(trashFolder);
+    sortedFolders.push(trashFolder);
+  }
 
   if (!sortedFolders || !singleLayerNodes || !patient) {
     return <div>something went wrong</div>;

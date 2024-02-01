@@ -308,7 +308,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   >
                     <div title={node.data.namePath}>
                       {isTrashNode ? (
-                        <div className="pl-7">
+                        <div className="pl-1">
                           <Trash size={"15px"} />
                         </div>
                       ) : node.isOpen ? (

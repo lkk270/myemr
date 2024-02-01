@@ -299,18 +299,16 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                   </span>
                   <Link
+                    onDragStart={(e) => {
+                      if (node.data.isRoot) e.preventDefault();
+                    }}
                     style={{
                       pointerEvents: tree.hasMultipleSelections > 1 ? "none" : "auto",
                     }}
                     href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                     className="mr-[6px] flex-shrink-0"
                   >
-                    <div
-                      onDragStart={(e) => {
-                        if (node.data.isRoot) e.preventDefault();
-                      }}
-                      title={node.data.namePath}
-                    >
+                    <div title={node.data.namePath}>
                       {node.isOpen ? (
                         <FaFolderOpen size={iconSize} color={folderColor} />
                       ) : (

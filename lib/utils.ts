@@ -329,6 +329,20 @@ export const sortFolderChildren = (folder: any): any => {
   return sortedFolder;
 };
 
+export const sortRootNodes = (array: any[]) => {
+  return array.sort((a, b) => {
+    // Check for special 'Trash' condition
+    const isATrash = a.name === "Trash" && !a.isFile && a.isRoot === true;
+    const isBTrash = b.name === "Trash" && !b.isFile && b.isRoot === true;
+
+    if (isATrash) return 1; // Always sort 'Trash' to the end
+    if (isBTrash) return -1;
+
+    // Standard alphabetical sorting
+    return a.name.localeCompare(b.name);
+  });
+};
+
 export const extractNodes = (folders: any[]) => {
   let rawAllNodes: any[] = [];
 

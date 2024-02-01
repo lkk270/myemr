@@ -7,7 +7,7 @@ import { useMediaQuery } from "usehooks-ts";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
-import { NodeData2Type } from "@/app/types/file-types";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
 import FileTree from "./file-tree/_components/tree";
 import { Progress } from "@/components/ui/progress";
@@ -16,7 +16,7 @@ import { NewRootFolderBox } from "./new-root-folder-box";
 
 interface SidebarProps {
   data: any[];
-  singleLayerNodes: NodeData2Type[];
+  singleLayerNodes: SingleLayerNodesType2[];
   usedFileStorage: bigint;
   allotedStorageInGb: number;
 }
@@ -38,6 +38,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
     console.log(" IN HERE");
     setIsMounted(true);
     console.log(data);
+    // console.log(singleLayerNodes);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
     folderStore.setUsedFileStorage(usedFileStorage);
@@ -126,7 +127,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
               <ChevronsLeft className="h-6 w-6" />
             </div>
           </div>
-         
+
           <FileTree width={sidebarWidth} />
           <div className="flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10">
             <NewRootFolderBox />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput, GripVertical } from "lucide-react";
+import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput, GripVertical, Trash } from "lucide-react";
 import { usePathname } from "next/navigation";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
@@ -34,6 +34,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const pathname = usePathname();
   const hasMountedRef = useRef<boolean>(false);
   const prevPathnameRef = useRef<string | null>(pathname);
+
+  const isTrashNode = node.data.namePath === "/Trash";
 
   let nodeIdFromPath = "";
   if (pathname.includes("/files/")) {
@@ -104,7 +106,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     draggedNode.id &&
     draggedNode.isFile &&
     completeNodePath.includes(hoveredNode.path) &&
-    hoveredNode.path !== draggedNode.path
+    hoveredNode.path !== draggedNode.path &&
+    hoveredNode.namePath !== "/Trash"
     // completeNodePath !== draggedNode.path
   ) {
     isBackgroundChanged4 = true;
@@ -117,7 +120,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     // completeNodePath !== draggedNode.path &&
     // !completeNodePath.includes(draggedNode.path) &&
     // completeNodePath !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
-    hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/"
+    hoveredNode.path !== draggedNode.path?.split("/" + draggedNode.id)[0] + "/" &&
+    hoveredNode.namePath !== "/Trash"
   ) {
     isBackgroundChanged4 = true;
   }
@@ -147,7 +151,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         path: completeNodePath,
         isFile: node.data.isFile,
       });
-    } else if (!node.data.isFile) {
+    } else if (!node.data.isFile && !isTrashNode) {
       // If it's a folder
       setHoveredNode({
         id: node.data.id,
@@ -211,14 +215,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     setHoveredNode({ id: null, parentId: null, path: null, namePath: null, isFile: null });
   };
 
-  const handleNodeClick = (e: React.MouseEvent) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey) {
-      e.preventDefault();
-    }
-  };
-  console.log(tree.hasSingleSelection);
-  console.log(tree.hasMultipleSelections);
-  console.log(tree.selectedIds.size);
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
     <div className="px-2">
@@ -290,14 +286,16 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                       className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
                     />
                   )}
-                  <span
-                    className="mr-2 flex-shrink-0"
-                    onClick={() => {
-                      node.isInternal && node.toggle();
-                    }}
-                  >
-                    {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
-                  </span>
+                  {!isTrashNode && (
+                    <span
+                      className="mr-2 flex-shrink-0"
+                      onClick={() => {
+                        node.isInternal && node.toggle();
+                      }}
+                    >
+                      {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
+                    </span>
+                  )}
                   <Link
                     onDragStart={(e) => {
                       if (node.data.isRoot) e.preventDefault();
@@ -309,7 +307,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     className="mr-[6px] flex-shrink-0"
                   >
                     <div title={node.data.namePath}>
-                      {node.isOpen ? (
+                      {isTrashNode ? (
+                        <div className="pl-6">
+                          <Trash size={"15px"} />
+                        </div>
+                      ) : node.isOpen ? (
                         <FaFolderOpen size={iconSize} color={folderColor} />
                       ) : (
                         <FaFolder size={iconSize} color={folderColor} />
@@ -334,54 +336,58 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               >
                 {node.data.name}
               </Link>
-              <div className={cn(isMobile ? "" : "action-button")}>
-                <ActionDropdown
-                  nodeData={node.data}
-                  DropdownTriggerComponent={DropdownMenuTrigger}
-                  dropdownTriggerProps={{
-                    asChild: true,
-                    children: (
-                      <Button variant="none" className="flex h-4 w-4 p-0 bg-transparent">
-                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    ),
-                  }}
-                />
-              </div>
+              {!isTrashNode && (
+                <div className={cn(isMobile ? "" : "action-button")}>
+                  <ActionDropdown
+                    nodeData={node.data}
+                    DropdownTriggerComponent={DropdownMenuTrigger}
+                    dropdownTriggerProps={{
+                      asChild: true,
+                      children: (
+                        <Button variant="none" className="flex h-4 w-4 p-0 bg-transparent">
+                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      ),
+                    }}
+                  />
+                </div>
+              )}
             </div>
-            <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
-              <MenuHeader title={node.data.name} icon={CustomIcon} />
-              {menuItems.map((item, index) => {
-                // Check the condition - if it's true, return null (nothing will be rendered)
-                if (item.label === "Move" && !node.data.parentId) {
-                  return null;
-                }
-                if (node.data.isFile && (item.label === "Upload files" || item.label === "Add a subfolder")) {
-                  return null;
-                }
-                if (item.label === "Rename" && nodeData.isRoot) {
-                  return null;
-                }
+            {!isTrashNode && (
+              <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
+                <MenuHeader title={node.data.name} icon={CustomIcon} />
+                {menuItems.map((item, index) => {
+                  // Check the condition - if it's true, return null (nothing will be rendered)
+                  if (item.label === "Move" && !node.data.parentId) {
+                    return null;
+                  }
+                  if (node.data.isFile && (item.label === "Upload files" || item.label === "Add a subfolder")) {
+                    return null;
+                  }
+                  if (item.label === "Rename" && nodeData.isRoot) {
+                    return null;
+                  }
 
-                // If the condition is not met, render the DropdownMenuItem as usual
-                return (
-                  <ContextMenuItem
-                    key={index}
-                    className={cn(item.differentClassName ? item.differentClassName : "font-normal text-primary/90")}
-                    onClick={item.action}
-                  >
-                    {item.label === "Move" && !node.data.isFile ? (
-                      <FolderInput className={iconClassName} />
-                    ) : (
-                      <item.icon className={iconClassName} />
-                    )}
-                    {item.label}
-                  </ContextMenuItem>
-                );
-              })}
-              {/* {onConfirmFunc && <DeletePopover onConfirmFunc={onConfirmFunc} />} */}
-            </ContextMenuContent>
+                  // If the condition is not met, render the DropdownMenuItem as usual
+                  return (
+                    <ContextMenuItem
+                      key={index}
+                      className={cn(item.differentClassName ? item.differentClassName : "font-normal text-primary/90")}
+                      onClick={item.action}
+                    >
+                      {item.label === "Move" && !node.data.isFile ? (
+                        <FolderInput className={iconClassName} />
+                      ) : (
+                        <item.icon className={iconClassName} />
+                      )}
+                      {item.label}
+                    </ContextMenuItem>
+                  );
+                })}
+                {/* {onConfirmFunc && <DeletePopover onConfirmFunc={onConfirmFunc} />} */}
+              </ContextMenuContent>
+            )}
           </ContextMenuTrigger>
         </ContextMenu>
       )}

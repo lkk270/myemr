@@ -140,8 +140,8 @@ export function DataTable<TData, TValue>({
               ) : (
                 // When rows are empty, display "No results."
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
+                  <TableCell colSpan={columns.length} className="h-24 text-center text-xl font-semibold">
+                    🫀 Empty 🫀
                   </TableCell>
                 </TableRow>
               )}

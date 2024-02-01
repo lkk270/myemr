@@ -239,7 +239,13 @@ const FileTree = ({ width }: FileTreeProps) => {
       isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id || !allSelectedHaveSameParent,
     );
     // Disable drop if either of the conditions are met
-    return isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id || !allSelectedHaveSameParent;
+    return (
+      isDroppingFileIntoFolder ||
+      isReorderingInSameFolder ||
+      !hoveredNode.id ||
+      !allSelectedHaveSameParent ||
+      hoveredNode.namePath === "/Trash"
+    );
   };
 
   const createFileFolder = (
@@ -262,6 +268,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   );
 
   const onMove = ({ dragIds, parentId, index }: any) => {
+    console.log(parentId);
     setIsLoading(true);
     const originalFolders = _.cloneDeep(folderStore.folders);
     folderStore.moveNodes(dragIds, parentId);

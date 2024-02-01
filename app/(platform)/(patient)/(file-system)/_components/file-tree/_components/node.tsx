@@ -217,7 +217,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   // console.log(`w-[${(tree.width - 100).toString()}px]`);
   return (
-    <div className="px-2">
+    <div className={cn("px-2", isTrashNode && "pt-6")}>
       {isMounted && (
         <ContextMenu>
           <ContextMenuTrigger
@@ -308,7 +308,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   >
                     <div title={node.data.namePath}>
                       {isTrashNode ? (
-                        <div className="pl-6">
+                        <div className="pl-7">
                           <Trash size={"15px"} />
                         </div>
                       ) : node.isOpen ? (

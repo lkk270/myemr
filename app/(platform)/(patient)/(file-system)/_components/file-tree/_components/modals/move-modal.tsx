@@ -80,7 +80,7 @@ export const MoveModal = () => {
   }
 
   const isValidReceivingFolder = (node: SingleLayerNodesType2) => {
-    if (node.namePath === "/Trash") return false;
+    if (node.namePath.startsWith("/Trash")) return false;
     const completeNodePath = `${node.path}${node.id}/`;
     let ret = true;
     for (let moveNode of moveNodes) {

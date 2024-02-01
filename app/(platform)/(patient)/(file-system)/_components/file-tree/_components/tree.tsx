@@ -319,7 +319,7 @@ const FileTree = ({ width }: FileTreeProps) => {
         />
         {term && (
           <div role="button" onClick={clearInput}>
-            <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-20 right-6" />
+            <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-16 right-6" />
           </div>
         )}
       </div>

@@ -67,7 +67,7 @@ export async function updateRecordViewActivity(userId: string, nodeId: string, i
 export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string) {
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
-  if (targetNode.namePath === "/Trash") throw Error("Unauthorized");
+  if (targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
   return await prismadb.$transaction(
     async (prisma) => {
       for (const nodeId of selectedIds) {

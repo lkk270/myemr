@@ -11,8 +11,9 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ActionDropdown } from "./action-dropdown";
 import { useMenuItems } from "./hooks";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NodeDataType } from "@/app/types/file-types";
+import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import Link from "next/link";
+import { useFolderStore } from "../../hooks/use-folders";
 
 type NodeProps = {
   node: any;
@@ -28,16 +29,13 @@ const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
-  // const [is]
+  const folderStore = useFolderStore();
   const isMobile = useMediaQuery("(max-width: 450px)");
   const pathname = usePathname();
   const hasMountedRef = useRef<boolean>(false);
   const prevPathnameRef = useRef<string | null>(pathname);
 
   const isTrashNode = node.data.namePath === "/Trash";
-  if (isTrashNode) {
-    node.close();
-  }
 
   const folderColor = node.data.isRoot ? "#8d4fff" : "#4f5eff";
 
@@ -68,7 +66,16 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   useEffect(() => {
     setIsMounted(true);
+    // if (isTrashNode) {
+    //   node.close();
+    // }
   }, []);
+
+  useEffect(() => {
+    if (isTrashNode) {
+      node.close();
+    }
+  }, [folderStore.folders]);
 
   // if (isMounted) {
   //   if (node.data.namePath !== "/Trash" && node.data.namePath.startsWith("/Trash")) {
@@ -89,8 +96,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }, []);
 
   useEffect(() => {
+    const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
     if (prevPathnameRef.current !== pathname || !hasMountedRef.current) {
-      if (tree && !isTrashNode) {
+      if (tree && nodeIdFromPath !== trashNode?.id) {
         tree.openParents(nodeIdFromPath);
         if (!tree.get(nodeIdFromPath)?.data.isFile) {
           tree.open(nodeIdFromPath);

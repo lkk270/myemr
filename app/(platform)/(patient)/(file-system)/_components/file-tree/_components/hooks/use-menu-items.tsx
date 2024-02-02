@@ -28,12 +28,34 @@ export const useMenuItems = (nodeData: any) => {
 
   const inTrash = nodeData.namePath.startsWith("/Trash");
   const isTrashNode = nodeData.namePath === "/Trash";
-  const trashHasContents = isTrashNode
-    ? foldersStore.singleLayerNodes.some((node) => node.namePath.startsWith("/Trash") && !node.isRoot)
-    : undefined;
+  // const trashHasContents = isTrashNode
+  //   ? foldersStore.singleLayerNodes.some((node) => node.namePath.startsWith("/Trash") && !node.isRoot)
+  //   : undefined;
   const trashNodeImmediateChildren = isTrashNode
     ? foldersStore.singleLayerNodes.filter((node) => node.parentId === nodeData.id)
     : [];
+
+  // const folderHasContentsNonRoot =
+  //   !nodeData.isFile && !nodeData.isRoot
+  //     ? foldersStore.singleLayerNodes.find((node) => node.path.includes(nodeData.path) && node.id !== nodeData.id)
+  //     : undefined;
+  const folderHasContents = !nodeData.isFile
+    ? foldersStore.singleLayerNodes.find(
+        (node) => node.namePath.startsWith(nodeData.namePath) && node.id !== nodeData.id,
+      )
+    : undefined;
+  // const folderHasContents = folderHasContentsNonRoot || folderHasContentsRoot;
+
+  const folderHasFileDescendants = !nodeData.isFile
+    ? foldersStore.singleLayerNodes.find((node) => node.namePath.startsWith(nodeData.namePath) && node.isFile)
+    : undefined;
+
+  if (isTrashNode) {
+    console.log(nodeData);
+    console.log(trashNodeImmediateChildren);
+    console.log(folderHasContents);
+    console.log(folderHasFileDescendants);
+  }
 
   const menuItemsConfig: MenuItemData[] = [
     {
@@ -157,7 +179,10 @@ export const useMenuItems = (nodeData: any) => {
     if ((!inTrash || !nodeData.isRoot || isTrashNode) && item.label === "Restore Root") {
       return false;
     }
-    if (isTrashNode && item.label === "Empty Trash" && !trashHasContents) {
+    if (isTrashNode && item.label === "Empty Trash" && !folderHasContents) {
+      return false;
+    }
+    if (item.label === "Export" && (!folderHasContents || !folderHasFileDescendants)) {
       return false;
     }
     return true; // Include the item if none of the conditions above match

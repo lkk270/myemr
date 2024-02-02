@@ -29,7 +29,7 @@ export const ActionDropdown = ({
 }: ActionDropdownProps) => {
   const CustomIcon = nodeData.isFile ? getFileIcon(nodeData.name, nodeData.type) : FaFolder;
   const menuItems = useMenuItems(nodeData);
-
+  if (menuItems.length === 0) return null;
   return (
     <DropdownMenu>
       {/* <DropdownMenuTrigger asChild>

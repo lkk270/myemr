@@ -21,7 +21,7 @@ const patientConditionals: any = {
   moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
   trashNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
   restoreRootFolder: { requiredFields: ["selectedId"], optionalFields: [] },
-  deleteNode: { requiredFields: ["nodeId", "isFile"], optionalFields: [] },
+  deleteNode: { requiredFields: ["nodeId", "isFile", "forEmptyTrash"], optionalFields: [] },
   addRootNode: {
     requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],

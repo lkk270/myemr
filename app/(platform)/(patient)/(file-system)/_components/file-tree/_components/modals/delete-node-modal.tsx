@@ -44,10 +44,11 @@ export const DeleteModal = () => {
         .post("/api/patient-update", {
           nodeId: deleteNode.id,
           isFile: deleteNode.isFile ? true : false,
+          forEmptyTrash: deleteModal.forEmptyTrash,
           updateType: "deleteNode",
         })
         .then(({ data }) => {
-          foldersStore.deleteNode(deleteNode.id);
+          foldersStore.deleteNode(deleteNode.id, deleteModal.forEmptyTrash);
         })
         .catch((error) => {
           // console.log(error?.response?.data);
@@ -57,7 +58,7 @@ export const DeleteModal = () => {
         });
 
       toast.promise(promise, {
-        loading: "Deleting node...",
+        loading: deleteModal.forEmptyTrash ? "Emptying trash..." : "Deleting node...",
         success: "Node deleted successfully!",
         error: "Something went wrong",
         duration: 1250,

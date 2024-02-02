@@ -24,6 +24,7 @@ import {
   addRootNode,
   addSubFolder,
   restoreRootFolder,
+  getAllObjectsToDelete,
 } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
@@ -226,7 +227,13 @@ export async function POST(req: Request) {
     } else if (updateType === "deleteNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
-      await deleteNode(nodeId, isFile);
+      const forEmptyTrash = body.forEmptyTrash;
+      const fileObjectsToDelete = await getAllObjectsToDelete(nodeId);
+      console.log(fileObjectsToDelete);
+      if (!fileObjectsToDelete || fileObjectsToDelete.length === 0) {
+        return new NextResponse("fileObjectsToDelete not found", { status: 500 });
+      }
+      await deleteNode(nodeId, isFile, forEmptyTrash);
     } else if (updateType === "addRootNode") {
       const folderId = await addRootNode(
         body.folderName,
@@ -249,6 +256,7 @@ export async function POST(req: Request) {
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
+    console.log(error);
     const errorString = error.toString().toLowerCase();
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });

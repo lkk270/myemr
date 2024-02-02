@@ -311,9 +311,7 @@ const FileTree = ({ width }: FileTreeProps) => {
 
   return (
     <>
-      <div className="p-4">
-        {/* <Item label="Search" icon={Search} isSearch onClick={search.onOpen} /> */}
-        {/* <Item onClick={handleCreate} label="New page" icon={PlusCircle} /> */}
+      {/* <div className="p-4">
         <Input
           className="pr-8 bg-secondary border-primary/10 text-muted-foreground font-medium"
           placeholder="Filter"
@@ -325,9 +323,9 @@ const FileTree = ({ width }: FileTreeProps) => {
             <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-16 right-6" />
           </div>
         )}
-      </div>
+      </div> */}
       <div
-        className="overflow-y-hidden"
+        className="overflow-y-hidden pt-8"
         //style={{ height: `calc(100vh)` }}
       >
         <DragContext.Provider
@@ -358,7 +356,7 @@ const FileTree = ({ width }: FileTreeProps) => {
             <Tree
               // {...dimens}
               //h-[calc(100vh-100px)]
-              className="custom-scrollbar overflow-y-hidden pb-4"
+              className="custom-scrollbar overflow-y-hidden pb-10"
               renderCursor={CustomCursor}
               renderDragPreview={customDragPreviewWithTree}
               ref={treeRef}
@@ -367,7 +365,7 @@ const FileTree = ({ width }: FileTreeProps) => {
               data={folderStore.folders}
               // initialData={folderStore.folders}
               width={width - 8}
-              height={screenHeight - 230}
+              height={screenHeight - 180}
               // rowClassName={"max-w-[200px] w-full"}
               indent={15}
               rowHeight={31}
@@ -375,7 +373,7 @@ const FileTree = ({ width }: FileTreeProps) => {
               disableDrop={disableDrop}
               disableDrag={disableDrag}
               onMove={onMove}
-              searchMatch={(node, term) => node.data.namePath.toLowerCase().includes(term.toLowerCase())}
+              // searchMatch={(node, term) => node.data.namePath.toLowerCase().includes(term.toLowerCase())}
             >
               {Node as any}
             </Tree>

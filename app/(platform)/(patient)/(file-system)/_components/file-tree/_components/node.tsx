@@ -32,8 +32,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const folderStore = useFolderStore();
   const isMobile = useMediaQuery("(max-width: 450px)");
   const pathname = usePathname();
-  const hasMountedRef = useRef<boolean>(false);
-  const prevPathnameRef = useRef<string | null>(pathname);
+  // const hasMountedRef = useRef<boolean | null>(null);
+  // const prevPathnameRef = useRef<string | null>(pathname);
 
   const isTrashNode = node.data.namePath === "/Trash";
 
@@ -95,19 +95,29 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   //   }
   // }, []);
 
-  useEffect(() => {
-    // const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
-    if (prevPathnameRef.current !== pathname || !hasMountedRef.current) {
-      if (tree && tree.get(nodeIdFromPath) && !tree.get(nodeIdFromPath).data.namePath.startsWith("/Trash")) {
-        tree.openParents(nodeIdFromPath);
-        if (!tree.get(nodeIdFromPath)?.data.isFile) {
-          tree.open(nodeIdFromPath);
-        }
-      }
-      hasMountedRef.current = true;
-      prevPathnameRef.current = pathname;
-    }
-  }, [pathname]);
+  // useEffect(() => {
+  //   // const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
+  //   if (prevPathnameRef.current !== pathname || hasMountedRef.current === null) {
+  //     console.log(prevPathnameRef.current);
+  //     console.log(pathname);
+  //     console.log(pathname === prevPathnameRef.current);
+  //     console.log(hasMountedRef.current);
+  //     console.log(nodeIdFromPath);
+  //     if (tree) console.log("IN HERE");
+  //     const treeNode = tree.get(nodeIdFromPath);
+  //     console.log(!!treeNode);
+  //     // tree.openParents(nodeIdFromPath);
+  //     if (tree && !!treeNode && !treeNode.data.namePath.startsWith("/Trash")) {
+  //       console.log("IN HERE");
+  //       tree.openParents(nodeIdFromPath);
+  //       if (!tree.get(nodeIdFromPath)?.data.isFile) {
+  //         tree.open(nodeIdFromPath);
+  //       }
+  //     }
+  //     hasMountedRef.current = true;
+  //     prevPathnameRef.current = pathname;
+  //   }
+  // }, [pathname]);
 
   // useEffect(() => {
   //   setIsMounted(true);

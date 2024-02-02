@@ -17,7 +17,7 @@ interface FolderStore {
   updateNodeName: (nodeId: string, newName: string) => void;
   restoreRootNode: (selectedIds: string[]) => void;
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
-  deleteNode: (nodeId: string) => void;
+  deleteNode: (nodeId: string, forEmptyTrash: boolean) => void;
   addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => void;
   addSubFolder: (
     folderId: string,
@@ -422,17 +422,23 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       return { ...state, folders: sortedFolders, singleLayerNodes: updatedSingleLayerNodes };
     });
   },
-  deleteNode: (nodeId) => {
+  deleteNode: (nodeId, forEmptyTrash) => {
     set((state) => {
-      const recursivelyDelete = (nodeId: string, nodes: any[]) => {
+      const recursivelyDelete = (nodeId: string, nodes: any[], isRoot = true) => {
         return nodes.reduce((acc, node) => {
           if (node.id === nodeId) {
-            // Skip the node to delete, and if it's a folder, also delete its children
+            // If forEmptyTrash is true, keep the node but remove its children
+            if (forEmptyTrash && isRoot) {
+              const { children, ...rest } = node; // Destructure to separate children from the rest
+              acc.push(rest); // Push the node without children
+              return acc;
+            }
+            // If forEmptyTrash is false or it's not the root, skip the node
             return acc;
           } else {
             // Keep the node, but check its children recursively
             if (node.children) {
-              node.children = recursivelyDelete(nodeId, node.children);
+              node.children = recursivelyDelete(nodeId, node.children, false);
             }
             acc.push(node);
             return acc;
@@ -440,16 +446,19 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         }, []);
       };
 
-      const newFolders = recursivelyDelete(nodeId, state.folders);
+      const newFolders = recursivelyDelete(nodeId, state.folders, true);
       let rawAllNodes = extractNodes(newFolders);
       const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
       const allNodesArray = Array.from(allNodesMap.values());
 
       const updatedSingleLayerNodes = addLastViewedAtAndSort(allNodesArray);
+      console.log(newFolders);
+      console.log(updatedSingleLayerNodes);
 
       return { ...state, folders: newFolders, singleLayerNodes: updatedSingleLayerNodes };
     });
   },
+
   addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => {
     const id = Date.now().toString();
     set((state) => {

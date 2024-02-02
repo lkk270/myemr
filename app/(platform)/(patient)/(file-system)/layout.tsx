@@ -18,7 +18,7 @@ import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 import { allotedPatientStorage } from "@/lib/constants";
-import { FileUploadStatus, PatientPlan } from "@prisma/client";
+import { FileStatus, PatientPlan } from "@prisma/client";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -37,7 +37,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       include: {
         files: {
           where: {
-            status: FileUploadStatus.SUCCESS,
+            status: FileStatus.SUCCESS,
           },
           include: {
             recordViewActivity: {

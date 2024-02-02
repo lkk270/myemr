@@ -1,6 +1,7 @@
 import { Folder, File } from "@prisma/client";
 import prismadb from "./prismadb";
 import { PrismaClient } from "@prisma/client";
+import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
 export async function updateDescendantsForRename(
   prisma: any,
@@ -166,7 +167,7 @@ async function updateDescendantsForMove(prisma: any, parentId: string, parentPat
   }
 }
 
-export async function deleteNode(nodeId: string, isFile: boolean) {
+export async function deleteNode(nodeId: string, isFile: boolean, forEmptyTrash = false) {
   return await prismadb.$transaction(
     async (prisma) => {
       if (isFile) {
@@ -180,11 +181,14 @@ export async function deleteNode(nodeId: string, isFile: boolean) {
         // Delete all files in the current folder
         await prisma.file.deleteMany({ where: { parentId: nodeId } });
 
-        // Delete the folder's associated RecordViewActivity
-        await prisma.recordViewActivity.deleteMany({ where: { folderId: nodeId } });
+        if (!forEmptyTrash) {
+          // Delete the folder's associated RecordViewActivity
 
-        // Finally, delete the folder itself
-        await prisma.folder.delete({ where: { id: nodeId } });
+          await prisma.recordViewActivity.deleteMany({ where: { folderId: nodeId } });
+
+          // Finally, delete the folder itself
+          await prisma.folder.delete({ where: { id: nodeId } });
+        }
       }
     },
     { timeout: 60000 },
@@ -202,6 +206,46 @@ async function deleteSubFolders(prisma: any, parentId: string) {
 
     // Then delete the subfolder itself
     await prisma.folder.delete({ where: { id: subFolder.id } });
+  }
+}
+
+export async function getAllObjectsToDelete(nodeId: string) {
+  const allFilesToDelete = await prismadb.file.findMany({
+    where: {
+      path: { contains: nodeId },
+    },
+    select: {
+      id: true,
+      userId: true,
+    },
+  });
+  const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${obj.userId}/${obj.id}` }));
+  return convertedObjects;
+}
+
+export async function deleteS3Objects(objects: { Key: string }[]) {
+  const client = new S3Client({ region: process.env.AWS_REGION });
+  const command = new DeleteObjectsCommand({
+    Bucket: process.env.AWS_BUCKET_NAME as string,
+    Delete: {
+      Objects: objects,
+    },
+  });
+
+  try {
+    const { Deleted } = await client.send(command);
+    console.log("=============");
+    console.log(Deleted);
+    console.log("=============");
+    if (Deleted) {
+      console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`);
+      console.log(Deleted.map((d) => ` • ${d.Key}`).join("\n"));
+    } else {
+      console.error("ERROR");
+    }
+  } catch (err) {
+    console.error(err);
+    console.log("=============");
   }
 }
 

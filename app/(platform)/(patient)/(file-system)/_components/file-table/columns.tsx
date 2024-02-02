@@ -85,10 +85,11 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "createdAt",
     //className="justify-end"
-    header: ({ column }) => <DataTableColumnHeader className="justify-end" column={column} title="Added" />,
+    header: ({ column }) => <DataTableColumnHeader className="justify-end" column={column} title="First Added" />,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2 justify-end pr-[18px]">
+          {/* <span className="text-transparent hidden">{row.original.createdAt.getTime()}</span> */}
           <span className="truncate font-medium">{(row.original.createdAt as Date).toISOString().split("T")[0]}</span>
         </div>
       );

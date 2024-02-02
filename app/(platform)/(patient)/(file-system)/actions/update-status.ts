@@ -2,7 +2,7 @@
 
 import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
-import { FileUploadStatus } from "@prisma/client";
+import { FileStatus } from "@prisma/client";
 import { File } from "@prisma/client";
 export const updateStatus = async (fileId: string, size: number) => {
   const user = await currentUser();
@@ -19,7 +19,7 @@ export const updateStatus = async (fileId: string, size: number) => {
           id: fileId,
         },
         data: {
-          status: FileUploadStatus.SUCCESS,
+          status: FileStatus.SUCCESS,
         },
       });
 

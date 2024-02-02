@@ -31,9 +31,9 @@ export const useMenuItems = (nodeData: any) => {
   // const trashHasContents = isTrashNode
   //   ? foldersStore.singleLayerNodes.some((node) => node.namePath.startsWith("/Trash") && !node.isRoot)
   //   : undefined;
-  const trashNodeImmediateChildren = isTrashNode
-    ? foldersStore.singleLayerNodes.filter((node) => node.parentId === nodeData.id)
-    : [];
+  // const trashNodeImmediateChildren = isTrashNode
+  //   ? foldersStore.singleLayerNodes.filter((node) => node.parentId === nodeData.id)
+  //   : [];
 
   // const folderHasContentsNonRoot =
   //   !nodeData.isFile && !nodeData.isRoot
@@ -50,12 +50,12 @@ export const useMenuItems = (nodeData: any) => {
     ? foldersStore.singleLayerNodes.find((node) => node.namePath.startsWith(nodeData.namePath) && node.isFile)
     : undefined;
 
-  if (isTrashNode) {
-    console.log(nodeData);
-    console.log(trashNodeImmediateChildren);
-    console.log(folderHasContents);
-    console.log(folderHasFileDescendants);
-  }
+  // if (isTrashNode) {
+  //   console.log(nodeData);
+  //   console.log(trashNodeImmediateChildren);
+  //   console.log(folderHasContents);
+  //   console.log(folderHasFileDescendants);
+  // }
 
   const menuItemsConfig: MenuItemData[] = [
     {
@@ -154,7 +154,7 @@ export const useMenuItems = (nodeData: any) => {
           return;
         }
         isTrashNode
-          ? deleteModal.onOpen(trashNodeImmediateChildren as NodeDataType[], true)
+          ? deleteModal.onOpen([nodeData], true)
           : inTrash
           ? deleteModal.onOpen([nodeData], false)
           : trashModal.onOpen([nodeData]);

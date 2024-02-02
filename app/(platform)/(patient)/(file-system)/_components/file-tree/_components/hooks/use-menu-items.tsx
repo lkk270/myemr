@@ -1,6 +1,9 @@
-import { Pencil, Upload, FileInput, Download, Trash, FolderPlus } from "lucide-react";
+import { Pencil, Upload, FileInput, FolderInput, Undo2, Download, Trash, FolderPlus } from "lucide-react";
 import { MenuItemData } from "@/app/types/file-types";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import axios from "axios";
+import { toast } from "sonner";
+import { useFolderStore } from "../../../hooks/use-folders";
 import {
   useTrashModal,
   useDownloadModal,
@@ -8,18 +11,24 @@ import {
   useAddFolderModal,
   useMoveModal,
   useUploadFilesModal,
+  useDeleteModal,
 } from ".";
 
 export const useMenuItems = (nodeData: any) => {
   const trashModal = useTrashModal();
+  const deleteModal = useDeleteModal();
   const downloadModal = useDownloadModal();
   const renameModal = useRenameModal();
   const moveModal = useMoveModal();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
+  const foldersStore = useFolderStore();
+
   const { isLoading } = useIsLoading();
 
-  const menuItems: MenuItemData[] = [
+  const inTrash = nodeData.namePath.startsWith("/Trash");
+  const isTrashNode = nodeData.namePath === "/Trash";
+  const menuItemsConfig: MenuItemData[] = [
     {
       label: "Rename",
       icon: Pencil,
@@ -31,8 +40,8 @@ export const useMenuItems = (nodeData: any) => {
       },
     },
     {
-      label: "Move",
-      icon: FileInput,
+      label: inTrash ? "Restore" : "Move",
+      icon: inTrash ? Undo2 : nodeData.isFile ? FileInput : FolderInput,
       isFile: true,
       action: () => {
         {
@@ -40,6 +49,41 @@ export const useMenuItems = (nodeData: any) => {
             return;
           }
           moveModal.onOpen([nodeData]);
+        }
+      },
+    },
+    {
+      label: "Restore Root",
+      icon: Undo2,
+      action: async () => {
+        if (isLoading) {
+          return;
+        }
+        const promise = axios
+          .post("/api/patient-update", {
+            selectedId: nodeData.id,
+            updateType: "restoreRootFolder",
+          })
+          .then(({ data }) => {
+            foldersStore.restoreRootNode([nodeData.id]);
+            // Success handling
+          })
+          .catch((error) => {
+            // Error handling
+            throw error; // Rethrow to allow the toast to catch it
+          });
+
+        toast.promise(promise, {
+          loading: "Restoring node",
+          success: "Changes saved successfully",
+          error: "Something went wrong",
+          duration: 1250,
+        });
+
+        try {
+          await promise; // Wait for the current promise to resolve or reject
+        } catch (error) {
+          // Error handling if needed
         }
       },
     },
@@ -74,17 +118,36 @@ export const useMenuItems = (nodeData: any) => {
       },
     },
     {
-      label: "Trash",
+      label: isTrashNode ? "Empty Trash" : inTrash ? "Delete" : "Trash",
       icon: Trash,
       action: () => {
         if (isLoading) {
           return;
         }
-        trashModal.onOpen([nodeData]);
+        inTrash ? deleteModal.onOpen([nodeData]) : trashModal.onOpen([nodeData]);
       },
       differentClassName: "font-normal text-red-400 focus:text-red-500",
     },
   ];
+
+  const menuItems = menuItemsConfig.filter((item) => {
+    if ((!nodeData.parentId || (inTrash && nodeData.isRoot)) && (item.label === "Move" || item.label === "Restore")) {
+      return false;
+    }
+    if (item.label === "Rename" && nodeData.isRoot) {
+      return false;
+    }
+    if ((nodeData.isFile || inTrash) && (item.label === "Upload files" || item.label === "Add a subfolder")) {
+      return false;
+    }
+    if (isTrashNode && item.label === "Delete") {
+      return false;
+    }
+    if ((!inTrash || !nodeData.isRoot || isTrashNode) && item.label === "Restore Root") {
+      return false;
+    }
+    return true; // Include the item if none of the conditions above match
+  });
 
   return menuItems;
 };

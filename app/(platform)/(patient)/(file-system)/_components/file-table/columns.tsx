@@ -85,7 +85,7 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "createdAt",
     //className="justify-end"
-    header: ({ column }) => <DataTableColumnHeader className="justify-end" column={column} title="Uploaded" />,
+    header: ({ column }) => <DataTableColumnHeader className="justify-end" column={column} title="Added" />,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2 justify-end pr-[18px]">

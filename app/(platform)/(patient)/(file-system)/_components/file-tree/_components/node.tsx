@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
-import { ChevronRight, ChevronDown, MoreHorizontal, FolderInput, GripVertical, Trash } from "lucide-react";
+import { ChevronRight, ChevronDown, MoreHorizontal, GripVertical, Trash } from "lucide-react";
 import { usePathname } from "next/navigation";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
@@ -11,7 +11,7 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ActionDropdown } from "./action-dropdown";
 import { useMenuItems } from "./hooks";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { NodeDataType } from "@/app/types/file-types";
 import Link from "next/link";
 import { useFolderStore } from "../../hooks/use-folders";
 
@@ -96,7 +96,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }, []);
 
   useEffect(() => {
-    const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
+    // const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
     if (prevPathnameRef.current !== pathname || !hasMountedRef.current) {
       if (tree && tree.get(nodeIdFromPath) && !tree.get(nodeIdFromPath).data.namePath.startsWith("/Trash")) {
         tree.openParents(nodeIdFromPath);
@@ -375,17 +375,6 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
                 <MenuHeader title={node.data.name} icon={CustomIcon} />
                 {menuItems.map((item, index) => {
-                  // Check the condition - if it's true, return null (nothing will be rendered)
-                  if (item.label === "Move" && !node.data.parentId) {
-                    return null;
-                  }
-                  if (node.data.isFile && (item.label === "Upload files" || item.label === "Add a subfolder")) {
-                    return null;
-                  }
-                  if (item.label === "Rename" && nodeData.isRoot) {
-                    return null;
-                  }
-
                   // If the condition is not met, render the DropdownMenuItem as usual
                   return (
                     <ContextMenuItem
@@ -393,11 +382,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                       className={cn(item.differentClassName ? item.differentClassName : "font-normal text-primary/90")}
                       onClick={item.action}
                     >
-                      {item.label === "Move" && !node.data.isFile ? (
-                        <FolderInput className={iconClassName} />
-                      ) : (
-                        <item.icon className={iconClassName} />
-                      )}
+                      <item.icon className={iconClassName} />
                       {item.label}
                     </ContextMenuItem>
                   );

@@ -134,7 +134,7 @@ export const useMenuItems = (nodeData: any) => {
     if ((!nodeData.parentId || (inTrash && nodeData.isRoot)) && (item.label === "Move" || item.label === "Restore")) {
       return false;
     }
-    if (item.label === "Rename" && nodeData.isRoot) {
+    if (item.label === "Rename" && (nodeData.isRoot || inTrash)) {
       return false;
     }
     if ((nodeData.isFile || inTrash) && (item.label === "Upload files" || item.label === "Add a subfolder")) {

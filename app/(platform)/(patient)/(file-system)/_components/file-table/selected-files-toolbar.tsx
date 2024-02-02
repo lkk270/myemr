@@ -196,7 +196,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
 
       {numRowsSelected === 1 && (
         <div className="flex flex-row">
-          {!allAreRootNodes && renameButton}
+          {!allAreRootNodes && !inTrash && renameButton}
           {allAreRootNodes ? restoreRootFolder : moveButton}
           {!cleanedRows[0].isFile && !inTrash && addSubfolderButton}
           {exportButton}

@@ -1,5 +1,5 @@
 import { Pencil, Upload, FileInput, FolderInput, Undo2, Download, Trash, FolderPlus } from "lucide-react";
-import { MenuItemData } from "@/app/types/file-types";
+import { MenuItemData, NodeDataType } from "@/app/types/file-types";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import axios from "axios";
 import { toast } from "sonner";
@@ -28,6 +28,13 @@ export const useMenuItems = (nodeData: any) => {
 
   const inTrash = nodeData.namePath.startsWith("/Trash");
   const isTrashNode = nodeData.namePath === "/Trash";
+  const trashHasContents = isTrashNode
+    ? foldersStore.singleLayerNodes.some((node) => node.namePath.startsWith("/Trash") && !node.isRoot)
+    : undefined;
+  const trashNodeImmediateChildren = isTrashNode
+    ? foldersStore.singleLayerNodes.filter((node) => node.parentId === nodeData.id)
+    : [];
+
   const menuItemsConfig: MenuItemData[] = [
     {
       label: "Rename",
@@ -124,7 +131,11 @@ export const useMenuItems = (nodeData: any) => {
         if (isLoading) {
           return;
         }
-        inTrash ? deleteModal.onOpen([nodeData]) : trashModal.onOpen([nodeData]);
+        isTrashNode
+          ? deleteModal.onOpen(trashNodeImmediateChildren as NodeDataType[], true)
+          : inTrash
+          ? deleteModal.onOpen([nodeData], false)
+          : trashModal.onOpen([nodeData]);
       },
       differentClassName: "font-normal text-red-400 focus:text-red-500",
     },
@@ -144,6 +155,9 @@ export const useMenuItems = (nodeData: any) => {
       return false;
     }
     if ((!inTrash || !nodeData.isRoot || isTrashNode) && item.label === "Restore Root") {
+      return false;
+    }
+    if (isTrashNode && item.label === "Empty Trash" && !trashHasContents) {
       return false;
     }
     return true; // Include the item if none of the conditions above match

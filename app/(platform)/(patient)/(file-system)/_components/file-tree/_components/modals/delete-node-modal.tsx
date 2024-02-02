@@ -78,10 +78,10 @@ export const DeleteModal = () => {
         <AlertDialogHeader>
           <AlertDialogTitle>
             Permanently delete{" "}
-            <span className={cn("whitespace-normal break-all", deleteNodes.length === 1 && "italic")}>
+            <span className={cn(deleteNodes.length === 1 && "italic whitespace-normal break-all")}>
               {deleteNodes.length === 1 ? firstDeleteNode.name : "selected items"}
             </span>
-            {"  "}?
+            {"?"}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {deleteNodes.length === 1

@@ -9,10 +9,9 @@ import { MoreHorizontal, Pencil, FolderInput, FileInput, Download, Trash, Folder
 
 import { cn, getFileIcon } from "@/lib/utils";
 import { FaFolder } from "react-icons/fa";
-import { MenuItemData } from "@/app/types/file-types";
 import { MenuHeader } from "./menu-header";
 import { useMenuItems } from "./hooks";
-import { useLoading } from "@/hooks/use-loading";
+
 interface ActionDropdownProps {
   nodeData: any; // Define the type for nodeData
   iconClassName?: string;
@@ -43,17 +42,6 @@ export const ActionDropdown = ({
       <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px] flex flex-col">
         {showMenuHeader && <MenuHeader title={nodeData.name} icon={CustomIcon} />}
         {menuItems.map((item, index) => {
-          // Check the condition - if it's true, return null (nothing will be rendered)
-          if (item.label === "Move" && !nodeData.parentId) {
-            return null;
-          }
-          if (item.label === "Rename" && nodeData.isRoot) {
-            return null;
-          }
-          if (nodeData.isFile && (item.label === "Upload files" || item.label === "Add a subfolder")) {
-            return null;
-          }
-
           // If the condition is not met, render the DropdownMenuItem as usual
           return (
             <DropdownMenuItem
@@ -63,11 +51,8 @@ export const ActionDropdown = ({
                 item.action();
               }}
             >
-              {item.label === "Move" && !nodeData.isFile ? (
-                <FolderInput className={iconClassName} />
-              ) : (
-                <item.icon className={iconClassName} />
-              )}
+              <item.icon className={iconClassName} />
+
               {item.label}
             </DropdownMenuItem>
           );

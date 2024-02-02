@@ -1,6 +1,6 @@
 import { Table } from "@tanstack/react-table";
 import { cn, formatFileSize } from "@/lib/utils";
-import { Pencil, FileInput, FolderInput, Download, Trash, FolderPlus, ArchiveRestore } from "lucide-react";
+import { Pencil, Download, Trash, FolderPlus, Undo2 } from "lucide-react";
 import {
   useTrashModal,
   useDeleteModal,
@@ -60,7 +60,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
 
   const moveButton = (
     <div
-      title="Move"
+      title="Restore"
       onClick={() => {
         if (isLoading) {
           return;
@@ -70,11 +70,12 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
     >
-      {numRowsSelected === 1 && cleanedRows[0].isFile ? (
+      <Undo2 className="w-4 h-4" />
+      {/* {numRowsSelected === 1 && cleanedRows[0].isFile ? (
         <FileInput className="w-4 h-4" />
       ) : (
         <FolderInput className="w-4 h-4" />
-      )}
+      )} */}
     </div>
   );
 
@@ -181,7 +182,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
     >
-      <ArchiveRestore className="w-4 h-4" />
+      <Undo2 className="w-4 h-4" />
     </div>
   );
 
@@ -195,8 +196,8 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
 
       {numRowsSelected === 1 && (
         <div className="flex flex-row">
-          {allAreRootNodes ? restoreRootFolder : moveButton}
           {!allAreRootNodes && renameButton}
+          {allAreRootNodes ? restoreRootFolder : moveButton}
           {!cleanedRows[0].isFile && !inTrash && addSubfolderButton}
           {exportButton}
           {trashButton}

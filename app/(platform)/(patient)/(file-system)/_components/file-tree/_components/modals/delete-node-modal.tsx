@@ -77,14 +77,22 @@ export const DeleteModal = () => {
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Permanently delete{" "}
-            <span className={cn(deleteNodes.length === 1 && "italic whitespace-normal break-all")}>
-              {deleteNodes.length === 1 ? firstDeleteNode.name : "selected items"}
-            </span>
-            {"?"}
+            {deleteModal.forEmptyTrash ? (
+              "Empty trash?"
+            ) : (
+              <>
+                {"Permanently delete "}
+                <span className={cn({ "italic whitespace-normal break-all": deleteNodes.length === 1 })}>
+                  {deleteNodes.length === 1 ? firstDeleteNode.name : "selected items"}
+                </span>
+                {"?"}
+              </>
+            )}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {deleteNodes.length === 1
+            {deleteModal.forEmptyTrash
+              ? "The contents in trash will be deleted forever. This action cannot be undone."
+              : deleteNodes.length === 1
               ? firstDeleteNode.isFile
                 ? "This file will be permanently deleted. This action cannot be undone."
                 : "This folder and all its children will be permanently deleted. This action cannot be undone."
@@ -102,7 +110,7 @@ export const DeleteModal = () => {
             }}
             className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
           >
-            Delete
+            {deleteModal.forEmptyTrash ? "Empty" : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

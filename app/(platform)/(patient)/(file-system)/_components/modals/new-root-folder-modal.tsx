@@ -24,13 +24,14 @@ interface CommandItemComponentProps {
   obj: { label: string; value: string };
   index: number;
   alreadyUsed: boolean;
+  isInTrash: boolean;
 }
 export const NewRootFolder = () => {
   const user = useCurrentUser();
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const alreadyUsedRootNames = singleLayerNodes
-    .filter((item) => item.isRoot && !item.namePath.startsWith("/Trash"))
+    .filter((item) => item.isRoot && item.namePath !== "/Trash")
     .map((item) => item.name);
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
@@ -88,7 +89,7 @@ export const NewRootFolder = () => {
     return null;
   }
 
-  const CommandItemComponent = ({ obj, index, alreadyUsed }: CommandItemComponentProps) => {
+  const CommandItemComponent = ({ obj, index, alreadyUsed, isInTrash }: CommandItemComponentProps) => {
     const commonProps = {
       key: index,
       value: obj.label,
@@ -98,7 +99,9 @@ export const NewRootFolder = () => {
     if (alreadyUsed) {
       return (
         <CommandItem
-          {...commonProps}
+          key={commonProps.key}
+          value={commonProps.value}
+          title={commonProps.title}
           className="text-md text-primary/20 cursor-not-allowed aria-selected:bg-secondary aria-selected:text-primary/20"
         >
           <div className="flex justify-between items-center w-full">
@@ -109,7 +112,7 @@ export const NewRootFolder = () => {
               {obj.label}
             </div>
             <Badge className="border-primary/10 border-[1px] flex justify-end text-primary/30" variant="outline">
-              Already exists
+              {isInTrash ? "Already exists (in trash)" : "Already exists"}
             </Badge>
           </div>
         </CommandItem>
@@ -117,7 +120,9 @@ export const NewRootFolder = () => {
     } else {
       return (
         <CommandItem
-          {...commonProps}
+          key={commonProps.key}
+          value={commonProps.value}
+          title={commonProps.title}
           onSelect={() => onSelect(obj.label)}
           className="text-md text-primary/70 hover:text-primary"
         >
@@ -144,6 +149,7 @@ export const NewRootFolder = () => {
               obj={obj}
               index={index}
               alreadyUsed={alreadyUsedRootNames.includes(obj.label)}
+              isInTrash={singleLayerNodes.some((node) => node.name === obj.label && node.namePath.startsWith("/Trash"))}
             />
           ))}
         </CommandGroup>

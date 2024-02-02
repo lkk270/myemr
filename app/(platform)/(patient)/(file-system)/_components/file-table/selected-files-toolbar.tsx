@@ -118,7 +118,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
         if (isLoading) {
           return;
         }
-        inTrash ? deleteModal.onOpen(cleanedRows) : trashModal.onOpen(cleanedRows);
+        inTrash ? deleteModal.onOpen(cleanedRows, false) : trashModal.onOpen(cleanedRows);
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}

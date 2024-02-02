@@ -98,7 +98,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   useEffect(() => {
     const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
     if (prevPathnameRef.current !== pathname || !hasMountedRef.current) {
-      if (tree && nodeIdFromPath !== trashNode?.id) {
+      if (tree && tree.get(nodeIdFromPath) && !tree.get(nodeIdFromPath).data.namePath.startsWith("/Trash")) {
         tree.openParents(nodeIdFromPath);
         if (!tree.get(nodeIdFromPath)?.data.isFile) {
           tree.open(nodeIdFromPath);

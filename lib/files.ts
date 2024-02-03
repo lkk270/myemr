@@ -250,7 +250,6 @@ export async function deleteS3Objects(
   prismaFileObjects: PrismaDeleteFileObject[],
   patientProfileId: string,
 ) {
-  console.log(objects);
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectsCommand({
     Bucket: process.env.AWS_BUCKET_NAME as string,

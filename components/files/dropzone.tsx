@@ -93,9 +93,7 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
         >
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Inbox color={"#4f5eff"} className="w-8 h-8 mb-2" />
-            <span className="font-medium text-sm">
-              Click or drag file(s) to this area to upload. 10 files can be uploaded at a time.
-            </span>
+            <span className="font-medium text-sm">Click or drag file(s) to this area to upload.</span>
             <input
               ref={fileInputRef}
               type="file"

@@ -21,8 +21,11 @@ import {
   BsFiletypePdf,
   BsFileEarmark,
   BsFileEarmarkImage,
+  BsFiletypeTiff,
+  BsFileZip,
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { LuFileVideo } from "react-icons/lu";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -256,40 +259,84 @@ export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export function getFileIcon(filename: string, fileType?: string) {
-  // Provide a fallback ('') for pop() in case the array is empty
-  const extension = filename.split(".").pop()?.toLowerCase() || "";
+// export function getFileIcon(filename: string, fileType?: string) {
+//   // Provide a fallback ('') for pop() in case the array is empty
+//   const extension = filename.split(".").pop()?.toLowerCase() || "";
 
-  switch (extension) {
-    case "doc":
-    case "docx":
+//   switch (extension) {
+//     case "doc":
+//     case "docx":
+//       return BsFiletypeDocx;
+//     case "xls":
+//     case "xlsx":
+//       return BsFileEarmarkExcel;
+//     case "ppt":
+//     case "pptx":
+//     case "pptm":
+//       return FaRegFilePowerpoint;
+//     case "pdf":
+//       return BsFiletypePdf;
+//     case "mov":
+//       return BiMoviePlay;
+//     case "png":
+//       return BsFiletypePng;
+//     case "jpg":
+//     case "jpeg":
+//       return BsFiletypeJpg;
+//     case "csv":
+//       return BsFiletypeCsv;
+//     case "mp4":
+//       return BsFiletypeMp4;
+//     case "mp3":
+//       return BsFiletypeMp3;
+//     case "txt":
+//       return BsFiletypeTxt;
+//     default:
+//       if (fileType?.includes("image")) {
+//         return BsFileEarmarkImage;
+//       } else {
+//         return BsFileEarmark;
+//       }
+//   }
+// }
+
+export function getFileIcon(fileType: string) {
+  switch (fileType) {
+    case "application/msword":
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
       return BsFiletypeDocx;
-    case "xls":
-    case "xlsx":
+    case "application/vnd.ms-excel":
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
       return BsFileEarmarkExcel;
-    case "ppt":
-    case "pptx":
-    case "pptm":
-      return FaRegFilePowerpoint;
-    case "pdf":
-      return BsFiletypePdf;
-    case "mov":
-      return BiMoviePlay;
-    case "png":
-      return BsFiletypePng;
-    case "jpg":
-    case "jpeg":
-      return BsFiletypeJpg;
-    case "csv":
+    case "text/csv":
       return BsFiletypeCsv;
-    case "mp4":
+    case "application/vnd.ms-powerpoint":
+    case "application/vnd.ms-powerpoint.presentation.macroenabled.12":
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      return FaRegFilePowerpoint;
+    case "application/pdf":
+      return BsFiletypePdf;
+    case "video/quicktime":
+      return BiMoviePlay;
+    case "image/png":
+      return BsFiletypePng;
+    case "image/jpeg":
+      return BsFiletypeJpg;
+    case "image/tiff":
+      return BsFiletypeTiff;
+    case "audio/mp4":
       return BsFiletypeMp4;
-    case "mp3":
+    case "audio/mpeg":
       return BsFiletypeMp3;
-    case "txt":
+    case "text/plain":
       return BsFiletypeTxt;
+    case "application/zip":
+      return BsFileZip;
     default:
-      if (fileType?.includes("image")) {
+      if (fileType.includes("video")) {
+        return LuFileVideo;
+      }
+      if (fileType.includes("image")) {
         return BsFileEarmarkImage;
       } else {
         return BsFileEarmark;

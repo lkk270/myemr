@@ -25,6 +25,7 @@ import {
   addSubFolder,
   restoreRootFolder,
   getAllObjectsToDelete,
+  deleteS3Objects,
 } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
@@ -228,12 +229,16 @@ export async function POST(req: Request) {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const forEmptyTrash = body.forEmptyTrash;
-      const fileObjectsToDelete = await getAllObjectsToDelete(nodeId);
-      console.log(fileObjectsToDelete);
-      if (!fileObjectsToDelete || fileObjectsToDelete.length === 0) {
-        return new NextResponse("fileObjectsToDelete not found", { status: 500 });
+      const fileObjectsToDeleteObj = await getAllObjectsToDelete(nodeId, isFile, patient.id);
+      const fileObjectsToDelete = fileObjectsToDeleteObj.convertedObjects;
+      const totalSize = fileObjectsToDeleteObj.totalSize;
+
+      if (fileObjectsToDelete.length === 0 && isFile) {
+        return new NextResponse("file not found", { status: 500 });
       }
-      await deleteNode(nodeId, isFile, forEmptyTrash);
+      await deleteNode(nodeId, isFile, forEmptyTrash, totalSize, patient.id);
+      await deleteS3Objects(fileObjectsToDelete);
+      return new NextResponse(JSON.stringify({ totalSize: totalSize}));
     } else if (updateType === "addRootNode") {
       const folderId = await addRootNode(
         body.folderName,

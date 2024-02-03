@@ -3,6 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const prismadb = new PrismaClient();
 
 async function main() {
+  // await prismadb.file.deleteMany({})
   const files = await prismadb.file.findMany({});
   const folders = await prismadb.folder.findMany({});
   console.log(files);

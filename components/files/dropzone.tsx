@@ -46,7 +46,6 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
 
   // Function to handle file input change event
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("IN HERE3");
     const { files } = e.target;
     if (files) {
       handleFiles(files);
@@ -56,12 +55,11 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
 
   // Function to handle processing of uploaded files
   const handleFiles = (files: FileList) => {
-    console.log(files);
     let newFiles: FileWithStatus[] = []; // Define as array of FileWithStatus
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       // Convert each File into a FileWithStatus object
-      newFiles.push({ file: file });
+      newFiles.push({ file: file, controller: new AbortController() });
     }
     console.log(newFiles);
     setFileInfo((prevFiles) => [...newFiles.map((fws) => fws.file), ...prevFiles]);

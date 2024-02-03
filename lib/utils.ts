@@ -385,9 +385,9 @@ export function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLay
 }
 
 export function formatFileSize(bytes: number) {
-  if (bytes < 1024) return bytes + " Bytes";
-  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-  else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB";
-  else if (bytes < 1099511627776) return (bytes / 1073741824).toFixed(2) + " GB";
-  return (bytes / 1099511627776).toFixed(2) + " TB";
+  if (bytes < 1000) return bytes + " Bytes";
+  else if (bytes < 1000000) return (bytes / 1000).toFixed(1) + " KB";
+  else if (bytes < 1000000000) return (bytes / 1000000).toFixed(1) + " MB";
+  else if (bytes < 1000000000000) return (bytes / 1000000000).toFixed(2) + " GB";
+  return (bytes / 1000000000000).toFixed(2) + " TB";
 }

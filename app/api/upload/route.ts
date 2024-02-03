@@ -49,18 +49,18 @@ export async function POST(request: Request) {
     if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
       return NextResponse.json({ message: "Out of storage! Please upgrade your plan" }, { status: 400 });
     }
-    await prismadb.patientProfile.update({
-      where: {
-        userId: userId,
-      },
-      data: {
-        usedFileStorage: { increment: size },
-      },
-    });
-
     let file: File | undefined;
     await prismadb.$transaction(
       async (prisma) => {
+        await prisma.patientProfile.update({
+          where: {
+            userId: userId,
+          },
+          data: {
+            usedFileStorage: { increment: size },
+          },
+        });
+
         file = await prisma.file.create({
           data: {
             name: fileName,
@@ -86,36 +86,38 @@ export async function POST(request: Request) {
       { timeout: 20000 },
     );
 
-    if (!file) {
-      await prismadb.patientProfile.update({
-        where: {
-          userId: userId,
-        },
-        data: {
-          usedFileStorage: { decrement: size },
-        },
-      });
-      return NextResponse.json({ message: "Issue creating db file" }, { status: 500 });
+    try {
+      if (file) {
+        const client = new S3Client({ region: process.env.AWS_REGION });
+        const key = `${patient.id}/${file.id}`;
+        const { url, fields } = await createPresignedPost(client, {
+          Bucket: process.env.AWS_BUCKET_NAME as string,
+          Key: key,
+          Conditions: [
+            ["content-length-range", 0, 10485760], // up to 10 MB
+            ["starts-with", "$Content-Type", contentType],
+          ],
+          Fields: {
+            "Content-Type": contentType,
+          },
+          Expires: 600, // Seconds before the presigned post expires. 3600 by default.
+        });
+        return Response.json({ url, fields });
+      } else {
+        return Response.json({ error: "No file made" });
+      }
+    } catch (error) {
+      await prismadb.patientProfile
+        .update({
+          where: { userId: userId },
+          data: { usedFileStorage: { decrement: size } },
+        })
+        .catch((decrementError) => console.error("Failed to decrement storage", decrementError));
+      throw error;
     }
-
-    const client = new S3Client({ region: process.env.AWS_REGION });
-    const key = `${patient.id}/${file.id}`;
-    const { url, fields } = await createPresignedPost(client, {
-      Bucket: process.env.AWS_BUCKET_NAME as string,
-      Key: key,
-      Conditions: [
-        ["content-length-range", 0, 10485760], // up to 10 MB
-        ["starts-with", "$Content-Type", contentType],
-      ],
-      Fields: {
-        "Content-Type": contentType,
-      },
-      Expires: 600, // Seconds before the presigned post expires. 3600 by default.
-    });
-
-    return Response.json({ url, fields });
   } catch (error) {
     console.log(error);
+
     return Response.json({ error: error });
   }
 }

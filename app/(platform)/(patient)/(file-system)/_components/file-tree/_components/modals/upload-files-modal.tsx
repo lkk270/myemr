@@ -14,14 +14,14 @@ import { useFolderStore } from "../../../hooks/use-folders";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
-import { Trash, RefreshCw } from "lucide-react";
+import { Trash, RefreshCw, XCircle } from "lucide-react";
 import { Dropzone } from "@/components/files/dropzone";
 import _ from "lodash";
 import { FileWithStatus } from "@/app/types/file-types";
 import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { updateStatus } from "../../../../actions/update-status";
+import { updateStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 
 export const UploadFilesModal = () => {
@@ -50,7 +50,11 @@ export const UploadFilesModal = () => {
     return null;
   }
 
-  const updateFileStatus = (singleFileObj: FileWithStatus | null, status: "uploaded" | "error", index: number) => {
+  const updateFileStatus = (
+    singleFileObj: FileWithStatus | null,
+    status: "uploaded" | "error" | "canceled",
+    index: number,
+  ) => {
     if (singleFileObj) {
       setFiles((prevFiles) =>
         prevFiles.map((file) =>
@@ -63,11 +67,12 @@ export const UploadFilesModal = () => {
   };
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
+    if (singleFileObj && singleFileObj.status === "canceled") {
+      singleFileObj.controller = new AbortController();
+    }
     const parentNodeData = uploadFilesModal.nodeData;
     setIsLoading(true);
-    // const formData = new FormData();
+
     if (singleFileObj) {
       setFiles((prevFiles) =>
         prevFiles.map((file) =>
@@ -82,89 +87,113 @@ export const UploadFilesModal = () => {
         })),
       );
     }
+
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
-    for (let index = 0; index < tempFileList.length; index++) {
-      const tempFile = tempFileList[index];
-      if (!!tempFile.status && !isForRetry) {
-        continue;
-      }
+    console.log(tempFileList);
+    const uploadPromises = tempFileList
+      .filter((fileObj) => !fileObj.status || isForRetry)
+      .map(async (tempFile, index) => {
+        let fileId = null;
+        let goodPsuResponse = false;
+        try {
+          console.log("IN HERE 96");
+          const file = tempFile.file;
 
-      const file = tempFile.file;
-      // formData.append("files[]", file as any);
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              updateType: "uploadFiles",
+              fileName: file.name,
+              contentType: file.type,
+              folderPath: "myfolder",
+              size: file.size,
+              parentId: parentNodeData.id,
+              parentNamePath: parentNodeData.namePath,
+              parentPath: parentNodeData.path,
+            }),
+          });
+          const responseObj = await response.json();
+          const { url, fields } = responseObj;
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          updateType: "uploadFiles",
-          fileName: file.name,
-          contentType: file.type,
-          folderPath: "myfolder",
-          size: file.size,
-          parentId: parentNodeData.id,
-          parentNamePath: parentNodeData.namePath,
-          parentPath: parentNodeData.path,
-        }),
-        signal,
+          if (fields.key) {
+            fileId = fields.key.split("/")[1];
+          }
+          if (response.ok) {
+            console.log("GOOOD 124");
+            goodPsuResponse = true;
+          } else {
+            console.log("BADD 129");
+            throw new Error(responseObj.message || "Upload failed");
+          }
+
+          const formData = new FormData();
+          Object.entries(fields).forEach(([key, value]) => {
+            formData.append(key, value as string);
+          });
+          formData.append("file", file as any);
+
+          const uploadResponse = await fetch(url, {
+            method: "POST",
+            body: formData,
+            signal: tempFile.controller.signal,
+          });
+
+          if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
+
+          updateFileStatus(singleFileObj, "uploaded", index);
+
+          const data = await updateStatus(fileId);
+
+          if (!data.success) throw new Error(data.error || "Status update failed");
+
+          const createdFile = data.file; // Assuming this is the file information returned from updateStatus
+          if (createdFile) {
+            foldersStore.addFile(
+              createdFile.id,
+              createdFile.name,
+              createdFile.parentId,
+              createdFile.path,
+              createdFile.namePath,
+              createdFile.userId,
+              createdFile.uploadedByUserId,
+              createdFile.uploadedByName,
+              createdFile.type || "",
+              createdFile.size,
+            );
+          }
+          return BigInt(file.size); // Return the file size on successful upload
+        } catch (error) {
+          console.error("Upload or status update failed for file", index, error);
+          const errorMessage = error as any;
+          const errorMessageStr = errorMessage.toString();
+          if (goodPsuResponse) {
+            decrementUsedFileStorage(fileId);
+          }
+          if (errorMessageStr.includes("signal is aborted") || errorMessageStr.includes("The user aborted a request")) {
+            updateFileStatus(singleFileObj, "canceled", index);
+          } else {
+            updateFileStatus(singleFileObj, "error", index);
+          }
+
+          return BigInt(0); // Return 0 for failed uploads, ensuring the promise always resolves
+        }
       });
-      const responseObj = await response.json();
-      console.log(responseObj);
-      if (response.ok) {
-        const { url, fields } = responseObj;
-        const formData = new FormData();
-        Object.entries(fields).forEach(([key, value]) => {
-          formData.append(key, value as string);
-        });
-        formData.append("file", file as any);
 
-        const uploadResponse = await fetch(url, {
-          method: "POST",
-          body: formData,
-          signal,
-        });
+    try {
+      const sizes = await Promise.all(uploadPromises);
+      const totalUploadedSize = sizes.reduce((acc, size) => acc + size, BigInt(0));
 
-        if (uploadResponse.ok) {
-          const fileId = fields.key.split("/")[1];
-          updateStatus(fileId, file.size)
-            .then((data) => {
-              if (data.error) {
-                updateFileStatus(singleFileObj, "error", index);
-              }
-
-              if (data.success && data.file) {
-                updateFileStatus(singleFileObj, "uploaded", index);
-                const createdFile = data.file;
-                foldersStore.addFile(
-                  createdFile.id,
-                  createdFile.name,
-                  createdFile.parentId,
-                  createdFile.path,
-                  createdFile.namePath,
-                  createdFile.userId,
-                  createdFile.uploadedByUserId,
-                  createdFile.uploadedByName,
-                  createdFile.type || "",
-                  createdFile.size,
-                );
-                const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) + BigInt(file.size);
-                foldersStore.setUsedFileStorage(newUsedFileStorage);
-              }
-            })
-            .catch((error) => {
-              updateFileStatus(singleFileObj, "error", index);
-            });
-        } else {
-          updateFileStatus(singleFileObj, "error", index);
-        }
-      } else {
-        updateFileStatus(singleFileObj, "error", index);
-        if (responseObj.message) {
-          toast.error(responseObj.message);
-        }
+      if (totalUploadedSize > 0) {
+        const currentUsedUploadedSize = BigInt(foldersStore.usedFileStorage);
+        foldersStore.setUsedFileStorage(currentUsedUploadedSize + totalUploadedSize);
       }
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
     }
+
     setIsLoading(false);
   };
 
@@ -172,20 +201,11 @@ export const UploadFilesModal = () => {
     setFiles((prevFiles) => prevFiles.filter((file) => file.file !== fileToRemove));
   };
 
-  const cancelUpload = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort(); // Abort ongoing requests
-    }
-
-    setFiles((prevFiles) =>
-      prevFiles.map((fileObj) => ({
-        ...fileObj,
-        status:
-          !fileObj.isRetrying && fileObj.status == "uploading" ? null : fileObj.isRetrying ? "error" : fileObj.status,
-      })),
-    );
-    setIsLoading(false);
-    // Additional clean-up if necessary
+  const cancelUpload = (fileObj: FileWithStatus) => {
+    fileObj.controller.abort(); // Abort the request for this specific file
+    // Update the file's status to reflect the cancellation, if necessary
+    console.log("IN HERE");
+    // updateFileStatus(fileObj, "canceled", -1);
   };
 
   return (
@@ -218,14 +238,14 @@ export const UploadFilesModal = () => {
 
             return (
               <div key={index} className="px-4">
-                {isPreviousBatch && <Separator />}
+                {/* {isPreviousBatch && <Separator />} */}
                 <div className="flex items-center text-muted-foreground overflow-hidden">
                   {fileObj.status === "uploading" && (
                     <div className="flex-shrink-0 pr-2">
                       <Spinner size="default" defaultLoader={false} />
                     </div>
                   )}
-                  {fileObj.status === "error" && (
+                  {(fileObj.status === "error" || fileObj.status === "canceled") && (
                     <div
                       title="retry"
                       role="button"
@@ -238,7 +258,13 @@ export const UploadFilesModal = () => {
                   <div
                     className={cn("text-sm flex flex-grow min-w-0", fileObj.status === "uploaded" && "text-green-600")}
                   >
-                    <p className={cn("truncate flex-grow", fileObj.status === "error" && "text-red-500")}>
+                    <p
+                      className={cn(
+                        "truncate flex-grow",
+                        fileObj.status === "error" && "text-red-500",
+                        fileObj.status === "canceled" && "text-amber-500",
+                      )}
+                    >
                       {fileObj.file.name}
                     </p>
                     <span className="flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
@@ -246,6 +272,11 @@ export const UploadFilesModal = () => {
                   {!fileObj.status && (
                     <div role="button" className="flex-shrink-0 pl-2" onClick={() => handleRemoveFile(fileObj.file)}>
                       <Trash className="w-3 h-3 text-red-400" />
+                    </div>
+                  )}
+                  {fileObj.status === "uploading" && (
+                    <div role="button" className="flex-shrink-0 pl-2" onClick={() => cancelUpload(fileObj)}>
+                      <XCircle className="w-3 h-3 text-red-400" />
                     </div>
                   )}
                 </div>
@@ -268,14 +299,14 @@ export const UploadFilesModal = () => {
           >
             Upload
           </AlertDialogAction>
-          {isLoading && (
+          {/* {isLoading && (
             <AlertDialogAction
               onClick={cancelUpload}
               className="w-30 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
             >
               Cancel Upload
             </AlertDialogAction>
-          )}
+          )} */}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

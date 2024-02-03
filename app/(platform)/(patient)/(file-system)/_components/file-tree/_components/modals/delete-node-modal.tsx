@@ -49,6 +49,10 @@ export const DeleteModal = () => {
         })
         .then(({ data }) => {
           foldersStore.deleteNode(deleteNode.id, deleteModal.forEmptyTrash);
+          console.log(BigInt(foldersStore.usedFileStorage));
+          console.log(BigInt(data.totalSize));
+          const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(data.totalSize);
+          foldersStore.setUsedFileStorage(newUsedFileStorage);
         })
         .catch((error) => {
           // console.log(error?.response?.data);

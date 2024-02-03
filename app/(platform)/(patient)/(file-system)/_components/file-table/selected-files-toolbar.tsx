@@ -32,6 +32,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   const foldersStore = useFolderStore();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows as any;
+
   const cleanedRows: NodeDataType[] = selectedRows.map((obj: any) => ({
     id: obj.original.id,
     name: obj.original.name,
@@ -60,12 +61,13 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
 
   const moveButton = (
     <div
-      title="Restore"
+      title={inTrash ? `Restore` : "Move"}
       onClick={() => {
         if (isLoading) {
           return;
         }
         moveModal.onOpen(cleanedRows);
+        table.resetRowSelection(true);
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
@@ -125,6 +127,9 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           return;
         }
         inTrash ? deleteModal.onOpen(cleanedRows, false) : trashModal.onOpen(cleanedRows);
+        if (!inTrash) {
+          table.resetRowSelection(true);
+        }
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
@@ -164,6 +169,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             })
             .then(({ data }) => {
               foldersStore.restoreRootNode([restoreNode.id]);
+              table.resetRowSelection(true);
               // Success handling
             })
             .catch((error) => {

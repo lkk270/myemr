@@ -167,7 +167,13 @@ async function updateDescendantsForMove(prisma: any, parentId: string, parentPat
   }
 }
 
-export async function deleteNode(nodeId: string, isFile: boolean, forEmptyTrash = false) {
+export async function deleteNode(
+  nodeId: string,
+  isFile: boolean,
+  forEmptyTrash = false,
+  totalSize: number,
+  patientProfileId: string,
+) {
   return await prismadb.$transaction(
     async (prisma) => {
       if (isFile) {
@@ -190,6 +196,14 @@ export async function deleteNode(nodeId: string, isFile: boolean, forEmptyTrash 
           await prisma.folder.delete({ where: { id: nodeId } });
         }
       }
+      await prisma.patientProfile.update({
+        where: {
+          id: patientProfileId,
+        },
+        data: {
+          usedFileStorage: { decrement: totalSize },
+        },
+      });
     },
     { timeout: 60000 },
   );
@@ -209,21 +223,24 @@ async function deleteSubFolders(prisma: any, parentId: string) {
   }
 }
 
-export async function getAllObjectsToDelete(nodeId: string) {
+export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, patientProfileId: string) {
   const allFilesToDelete = await prismadb.file.findMany({
-    where: {
-      path: { contains: nodeId },
-    },
+    where: isFile ? { id: nodeId } : { path: { contains: nodeId } },
     select: {
       id: true,
+      size: true,
       userId: true,
     },
   });
-  const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${obj.userId}/${obj.id}` }));
-  return convertedObjects;
+
+  const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
+  const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
+
+  return { convertedObjects: convertedObjects, totalSize: totalSize };
 }
 
 export async function deleteS3Objects(objects: { Key: string }[]) {
+  console.log(objects);
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectsCommand({
     Bucket: process.env.AWS_BUCKET_NAME as string,

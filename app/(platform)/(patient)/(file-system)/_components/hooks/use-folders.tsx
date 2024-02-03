@@ -452,8 +452,6 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       const allNodesArray = Array.from(allNodesMap.values());
 
       const updatedSingleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-      console.log(newFolders);
-      console.log(updatedSingleLayerNodes);
 
       return { ...state, folders: newFolders, singleLayerNodes: updatedSingleLayerNodes };
     });

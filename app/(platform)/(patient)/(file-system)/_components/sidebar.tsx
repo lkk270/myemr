@@ -101,6 +101,11 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
     }
   };
 
+  const formatStorageValue = (value: bigint) => {
+    const formattedValue = (Number(value) / 1000000000).toFixed(4);
+    return formattedValue === "-0.0000" ? "0.0000" : formattedValue;
+  };
+
   return (
     isMounted && (
       <>
@@ -134,9 +139,10 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
             <div role="button" className="flex flex-col gap-y-1">
               <Progress className="h-1" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
               <div className="flex flex-row justify-between text-xs font-light ">
-                <span className="italic">{`${(Number(folderStore.usedFileStorage) / 1000000000).toFixed(
-                  2,
+                <span className="italic">{`${formatStorageValue(
+                  folderStore.usedFileStorage,
                 )} Gb / ${allotedStorageInGb} Gb`}</span>
+
                 <span role="button">Upgrade</span>
               </div>
             </div>

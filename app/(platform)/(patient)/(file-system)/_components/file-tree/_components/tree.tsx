@@ -218,7 +218,7 @@ const FileTree = ({ width }: FileTreeProps) => {
 
   const customDragPreviewWithTree = (props: any) => {
     if (!treeRef || !treeRef.current) {
-      console.warn("Tree instance not available");
+      // console.warn("Tree instance not available");
       return null;
     } else {
       return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);

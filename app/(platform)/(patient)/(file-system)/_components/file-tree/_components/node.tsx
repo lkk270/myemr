@@ -57,7 +57,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     id: nodeData.id,
     name: nodeData.name,
     parentId: nodeData.parentId,
-    path: completeNodePath,
+    path: nodeData.path,
     namePath: nodeData.namePath,
     isFile: nodeData.isFile,
   };

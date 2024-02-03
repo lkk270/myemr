@@ -4,7 +4,8 @@ import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { FileStatus } from "@prisma/client";
 import { File } from "@prisma/client";
-export const updateStatus = async (fileId: string, size: number) => {
+
+export const updateStatus = async (fileId: string) => {
   const user = await currentUser();
 
   if (!user) {
@@ -40,4 +41,23 @@ export const updateStatus = async (fileId: string, size: number) => {
   );
 
   return { success: "Settings Updated!", file: file };
+};
+
+export const decrementUsedFileStorage = async (fileId: string) => {
+  const user = await currentUser();
+
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
+  const file = await prismadb.file.findUnique({
+    where: {
+      id: fileId,
+    },
+  });
+  if (file) {
+    await prismadb.patientProfile.update({
+      where: { userId: user.id },
+      data: { usedFileStorage: { decrement: file.size } },
+    });
+  }
 };

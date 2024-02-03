@@ -19,6 +19,7 @@ import _ from "lodash";
 import axios from "axios";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useRouter, usePathname } from "next/navigation";
 import { useIsLoading } from "@/hooks/use-is-loading";
 
 export const DeleteModal = () => {
@@ -26,6 +27,10 @@ export const DeleteModal = () => {
   const { isLoading, setIsLoading } = useIsLoading();
   const foldersStore = useFolderStore();
   const deleteModal = useDeleteModal();
+  const router = useRouter();
+  const pathname = usePathname();
+  const trashNode = foldersStore.singleLayerNodes.find((node) => node.namePath === "/Trash");
+  const trashNodeId = trashNode?.id;
   const deleteNodes = deleteModal.nodeDatas;
   const firstDeleteNode = deleteNodes ? deleteNodes[0] : null;
 
@@ -33,7 +38,7 @@ export const DeleteModal = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !deleteModal || !deleteNodes || !firstDeleteNode) {
+  if (!isMounted || !deleteModal || !deleteNodes || !firstDeleteNode || !trashNode) {
     return null;
   }
 
@@ -53,6 +58,9 @@ export const DeleteModal = () => {
           console.log(BigInt(data.totalSize));
           const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(data.totalSize);
           foldersStore.setUsedFileStorage(newUsedFileStorage);
+          if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {
+            router.push(`/files/${trashNodeId}`);
+          }
         })
         .catch((error) => {
           // console.log(error?.response?.data);

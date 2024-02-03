@@ -42,7 +42,7 @@ export const columns: ColumnDef<any>[] = [
       const isFile = or.isFile;
       const folderColor = or.isRoot ? "#8d4fff" : "#4f5eff";
 
-      const CustomIcon = isFile ? getFileIcon(name, type) : FaFolder;
+      const CustomIcon = isFile ? getFileIcon(type) : FaFolder;
       return (
         <div className="flex items-center space-x-2">
           <CustomIcon size={"20px"} color={!isFile ? folderColor : ""} />

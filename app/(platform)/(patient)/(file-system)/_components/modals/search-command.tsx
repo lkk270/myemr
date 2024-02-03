@@ -88,7 +88,7 @@ export const SearchCommand = () => {
             >
               <CommandItem key={node.id} value={`${node.name}`} title={node.name} className="text-primary/70">
                 {(() => {
-                  const CustomIcon = node.isFile ? getFileIcon(node.name, node.type) : Folder;
+                  const CustomIcon = node.isFile ? getFileIcon(node.type || "") : Folder;
                   return <CustomIcon className="mr-2 h-4 w-4" />;
                 })()}
                 <div className="flex flex-col">

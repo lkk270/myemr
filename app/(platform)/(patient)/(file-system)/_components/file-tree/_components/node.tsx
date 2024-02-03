@@ -123,7 +123,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   //   setIsMounted(true);
   // }, []);
 
-  const CustomIcon = node.data.isFile ? getFileIcon(node.data.name, nodeData.type) : FaFolder;
+  const CustomIcon = node.data.isFile ? getFileIcon(nodeData.type) : FaFolder;
 
   let isBackgroundChanged4 = false;
   if (

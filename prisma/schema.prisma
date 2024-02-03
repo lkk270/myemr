@@ -247,6 +247,14 @@ model File {
   @@index([patientProfileId])
 }
 
+model DeadFile {
+  id               String @id @default(cuid())
+  awsKey           String
+  userId           String
+  patientProfileId String
+  size             Int
+}
+
 // model ProviderProfile {
 //   id            String         @id @default(uuid())
 //   userId        String         @unique

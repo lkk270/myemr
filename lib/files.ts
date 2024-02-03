@@ -1,7 +1,13 @@
-import { Folder, File } from "@prisma/client";
+import { Folder, File, FileStatus } from "@prisma/client";
 import prismadb from "./prismadb";
 import { PrismaClient } from "@prisma/client";
 import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+
+type PrismaDeleteFileObject = {
+  id: string;
+  size: number;
+  userId: string;
+};
 
 export async function updateDescendantsForRename(
   prisma: any,
@@ -236,10 +242,14 @@ export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, pat
   const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
   const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
 
-  return { convertedObjects: convertedObjects, totalSize: totalSize };
+  return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
 }
 
-export async function deleteS3Objects(objects: { Key: string }[]) {
+export async function deleteS3Objects(
+  objects: { Key: string }[],
+  prismaFileObjects: PrismaDeleteFileObject[],
+  patientProfileId: string,
+) {
   console.log(objects);
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectsCommand({
@@ -251,20 +261,34 @@ export async function deleteS3Objects(objects: { Key: string }[]) {
 
   try {
     const { Deleted } = await client.send(command);
-    console.log("=============");
-    console.log(Deleted);
-    console.log("=============");
+    // console.log("=============");
+    // console.log(Deleted);
+    // console.log("=============");
     if (Deleted) {
-      console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`);
-      console.log(Deleted.map((d) => ` • ${d.Key}`).join("\n"));
+      // console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`);
+      // console.log(Deleted.map((d) => ` • ${d.Key}`).join("\n"));
     } else {
-      console.error("ERROR");
+      await createDeadFiles(prismaFileObjects, patientProfileId);
     }
   } catch (err) {
-    console.error(err);
-    console.log("=============");
+    await createDeadFiles(prismaFileObjects, patientProfileId);
   }
 }
+
+const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], patientProfileId: string) => {
+  try {
+    console.log(prismaFileObjects);
+    const updatedArray = prismaFileObjects.map((file) => ({
+      awsKey: `${patientProfileId}/${file.id}`,
+      userId: file.userId,
+      patientProfileId: patientProfileId,
+      size: file.size,
+    }));
+    await prismadb.deadFile.createMany({ data: updatedArray });
+  } catch (err) {
+    console.log("OH NO");
+  }
+};
 
 export const addRootNode = async (
   folderName: string,

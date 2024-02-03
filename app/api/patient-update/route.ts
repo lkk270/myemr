@@ -229,16 +229,15 @@ export async function POST(req: Request) {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const forEmptyTrash = body.forEmptyTrash;
-      const fileObjectsToDeleteObj = await getAllObjectsToDelete(nodeId, isFile, patient.id);
-      const fileObjectsToDelete = fileObjectsToDeleteObj.convertedObjects;
-      const totalSize = fileObjectsToDeleteObj.totalSize;
+      const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(nodeId, isFile, patient.id);
 
-      if (fileObjectsToDelete.length === 0 && isFile) {
+      if (convertedObjects.length === 0 && isFile) {
         return new NextResponse("file not found", { status: 500 });
       }
       await deleteNode(nodeId, isFile, forEmptyTrash, totalSize, patient.id);
-      await deleteS3Objects(fileObjectsToDelete);
-      return new NextResponse(JSON.stringify({ totalSize: totalSize}));
+      console.log(rawObjects);
+      await deleteS3Objects(convertedObjects, rawObjects, patient.id);
+      return new NextResponse(JSON.stringify({ totalSize: totalSize }));
     } else if (updateType === "addRootNode") {
       const folderId = await addRootNode(
         body.folderName,

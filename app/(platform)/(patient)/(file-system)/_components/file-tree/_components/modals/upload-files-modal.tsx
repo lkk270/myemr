@@ -17,36 +17,43 @@ import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { Trash, RefreshCw, XCircle } from "lucide-react";
 import { Dropzone } from "@/components/files/dropzone";
 import _ from "lodash";
-import { FileWithStatus } from "@/app/types/file-types";
+import { FileWithStatus, NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { updateStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { GenericCombobox } from "@/components/generic-combobox";
 
 export const UploadFilesModal = () => {
-  const user = useCurrentUser();
-  const foldersStore = useFolderStore();
+  const folderStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const uploadFilesModal = useUploadFilesModal();
+  const [parentNode, setParentNode] = useState<NodeDataType | SingleLayerNodesType2 | null>(null);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    if (uploadFilesModal.nodeData && !uploadFilesModal.showDropdown) {
+      setParentNode(uploadFilesModal.nodeData);
+    }
+  }, [uploadFilesModal.nodeData, uploadFilesModal.showDropdown]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    console.log(files);
-  }, [files]);
+  useEffect(() => {}, [files]);
 
   useEffect(() => {
     setFiles([]);
   }, [uploadFilesModal.nodeData?.id]);
 
-  if (!isMounted || !uploadFilesModal || !uploadFilesModal.nodeData) {
+  if (
+    !isMounted ||
+    !uploadFilesModal ||
+    ((!uploadFilesModal.nodeData || !parentNode) && !uploadFilesModal.showDropdown)
+  ) {
     return null;
   }
 
@@ -70,7 +77,6 @@ export const UploadFilesModal = () => {
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
-    const parentNodeData = uploadFilesModal.nodeData || foldersStore.singleLayerNodes[0];
     setIsLoading(true);
 
     if (singleFileObj) {
@@ -110,9 +116,9 @@ export const UploadFilesModal = () => {
               contentType: file.type,
               folderPath: "myfolder",
               size: file.size,
-              parentId: parentNodeData.id,
-              parentNamePath: parentNodeData.namePath,
-              parentPath: parentNodeData.path,
+              parentId: parentNode?.id,
+              parentNamePath: parentNode?.namePath,
+              parentPath: parentNode?.path,
             }),
           });
           const responseObj = await response.json();
@@ -151,7 +157,7 @@ export const UploadFilesModal = () => {
 
           const createdFile = data.file; // Assuming this is the file information returned from updateStatus
           if (createdFile) {
-            foldersStore.addFile(
+            folderStore.addFile(
               createdFile.id,
               createdFile.name,
               createdFile.parentId,
@@ -187,8 +193,8 @@ export const UploadFilesModal = () => {
       const totalUploadedSize = sizes.reduce((acc, size) => acc + size, BigInt(0));
 
       if (totalUploadedSize > 0) {
-        const currentUsedUploadedSize = BigInt(foldersStore.usedFileStorage);
-        foldersStore.setUsedFileStorage(currentUsedUploadedSize + totalUploadedSize);
+        const currentUsedUploadedSize = BigInt(folderStore.usedFileStorage);
+        folderStore.setUsedFileStorage(currentUsedUploadedSize + totalUploadedSize);
       }
     } catch (error) {
       console.error("An unexpected error occurred:", error);
@@ -208,14 +214,40 @@ export const UploadFilesModal = () => {
     // updateFileStatus(fileObj, "canceled", -1);
   };
 
+  const handleFolderChange = (value: string) => {
+    const newParentNode = folderStore.singleLayerNodes.find((node) => node.id === value);
+    if (!!newParentNode) {
+      setParentNode(newParentNode);
+    }
+  };
+
   return (
     <AlertDialog open={uploadFilesModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px] md:max-w-[500px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Upload files to <span className="italic whitespace-normal break-all">{uploadFilesModal.nodeData.name}</span>
-            ?
-          </AlertDialogTitle>
+          {uploadFilesModal.showDropdown ? (
+            <AlertDialogTitle>
+              <div>
+                {/* <Label htmlFor="height">Height</Label> */}
+                <GenericCombobox
+                  valueParam={parentNode?.id}
+                  handleChange={(value) => handleFolderChange(value)}
+                  disabled={isLoading}
+                  forFileSystem={true}
+                  className={cn("xs:min-w-[350px] xs:max-w-[350px]")}
+                  placeholder="Select parent folder"
+                  searchPlaceholder="Search..."
+                  noItemsMessage="No results"
+                  items={folderStore.getDropdownFolders()}
+                />
+              </div>
+            </AlertDialogTitle>
+          ) : (
+            <AlertDialogTitle>
+              Upload files to <span className="italic whitespace-normal break-all">{parentNode?.name}</span>?
+            </AlertDialogTitle>
+          )}
+
           <Dropzone onChange={setFiles} className="w-full" fileExtension="pdf" />
         </AlertDialogHeader>
 
@@ -291,7 +323,7 @@ export const UploadFilesModal = () => {
             {files.length > 0 && files.some((file) => file.status) ? "Done" : "Cancel"}
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isLoading || !files.some((file) => !file.status)}
+            disabled={isLoading || !files.some((file) => !file.status) || !parentNode?.id}
             onClick={() => {
               handleUpload();
             }}

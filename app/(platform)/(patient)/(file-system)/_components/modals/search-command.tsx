@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { File, Folder, FolderPlus, Upload } from "lucide-react";
+import { Folder, FolderPlus, Upload } from "lucide-react";
 import { useFolderStore } from "../hooks/use-folders";
 import {
   CommandDialog,
@@ -15,10 +15,12 @@ import { useSearch } from "../hooks/use-search";
 import Link from "next/link";
 import { getFileIcon } from "@/lib/utils";
 import { useAddFolderModal } from "../file-tree/_components/hooks";
-
+import { useUploadFilesModal } from "../file-tree/_components/hooks";
 export const SearchCommand = () => {
   const foldersStore = useFolderStore();
   const addFolderModal = useAddFolderModal();
+  const uploadFilesModal = useUploadFilesModal();
+
   const singleLayerNodes = foldersStore.singleLayerNodes;
 
   const [isMounted, setIsMounted] = useState(false);
@@ -60,7 +62,7 @@ export const SearchCommand = () => {
       label: "Upload records",
       icon: Upload,
       action: () => {
-        // addFolderModal.onOpen(null, true);
+        uploadFilesModal.onOpen(null, true);
         onClose();
       },
     },

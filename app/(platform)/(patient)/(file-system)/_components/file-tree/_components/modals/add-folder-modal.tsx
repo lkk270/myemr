@@ -23,7 +23,6 @@ import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { GenericCombobox } from "@/components/generic-combobox";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export const AddFolderModal = () => {
@@ -111,24 +110,9 @@ export const AddFolderModal = () => {
 
   const handleFolderChange = (value: string) => {
     const newParentNode = folderStore.singleLayerNodes.find((node) => node.id === value);
-    console.log(newParentNode);
     if (!!newParentNode) {
       setParentNode(newParentNode);
     }
-  };
-
-  const getFolders = () => {
-    const folders = folderStore.singleLayerNodes.filter((node) => !node.isFile && node.namePath !== "/Trash");
-    folders.sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    });
-    const items = folders.map((obj) => ({
-      label: obj.name,
-      value: obj.id,
-      namePath: obj.namePath,
-    }));
-    console.log(items);
-    return items;
   };
 
   return (
@@ -148,7 +132,7 @@ export const AddFolderModal = () => {
                   placeholder="Select parent folder"
                   searchPlaceholder="Search..."
                   noItemsMessage="No results"
-                  items={getFolders()}
+                  items={folderStore.getDropdownFolders()}
                 />
               </div>
             </AlertDialogTitle>

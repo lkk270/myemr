@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { File, Folder, FolderPlus, Upload, ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { File, Folder, FolderPlus, Upload } from "lucide-react";
 import { useFolderStore } from "../hooks/use-folders";
 import {
   CommandDialog,
@@ -15,10 +14,13 @@ import {
 import { useSearch } from "../hooks/use-search";
 import Link from "next/link";
 import { getFileIcon } from "@/lib/utils";
+import { useAddFolderModal } from "../file-tree/_components/hooks";
+
 export const SearchCommand = () => {
   const foldersStore = useFolderStore();
+  const addFolderModal = useAddFolderModal();
   const singleLayerNodes = foldersStore.singleLayerNodes;
-  const router = useRouter();
+
   const [isMounted, setIsMounted] = useState(false);
 
   const toggle = useSearch((store) => store.toggle);
@@ -49,9 +51,19 @@ export const SearchCommand = () => {
     {
       label: "Create a new Folder",
       icon: FolderPlus,
-      action: () => onClose(),
+      action: () => {
+        addFolderModal.onOpen(null, true);
+        onClose();
+      },
     },
-    { label: "Upload records", icon: Upload, action: onClose },
+    {
+      label: "Upload records",
+      icon: Upload,
+      action: () => {
+        // addFolderModal.onOpen(null, true);
+        onClose();
+      },
+    },
     // { label: "Back", icon: ChevronLeft, action: onClose },
   ];
 

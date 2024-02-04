@@ -37,12 +37,12 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
         {(!user || session.status === "unauthenticated") && (
           <>
             <LoginButton mode="modal" asChild userType="PATIENT">
-              <Button variant="ghost" size="sm">
+              <Button variant="gooeyLeftGhost" size="sm">
                 Patient
               </Button>
             </LoginButton>
             <LoginButton mode="modal" asChild userType="PROVIDER">
-              <Button variant="ghost" size="sm">
+              <Button variant="gooeyLeftGhost" size="sm">
                 Provider
               </Button>
             </LoginButton>

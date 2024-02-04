@@ -51,7 +51,7 @@ export const Heading = () => {
       {!user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="default">
+            <Button variant="gooeyLeft">
               Join MyEMR
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

@@ -21,6 +21,7 @@ import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
 
 export const AddFolderModal = () => {
   const user = useCurrentUser();
@@ -29,23 +30,30 @@ export const AddFolderModal = () => {
   const addFolderModal = useAddFolderModal();
   const folderStore = useFolderStore();
   const [name, setName] = useState("");
+  const [parentNode, setParentNode] = useState<NodeDataType | SingleLayerNodesType2 | null>(null);
+
+  useEffect(() => {
+    if (addFolderModal.nodeData && !addFolderModal.showDropdown) {
+      setParentNode(addFolderModal.nodeData);
+    } else if (addFolderModal.showDropdown) {
+      setParentNode(folderStore.singleLayerNodes[0]);
+    }
+  }, [addFolderModal.nodeData, addFolderModal.showDropdown]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !addFolderModal || !addFolderModal.nodeData) {
+  if (!isMounted || !addFolderModal || (!addFolderModal.nodeData && !addFolderModal.showDropdown) || !parentNode) {
     return null;
   }
-
   const handleSave = () => {
     setIsLoading(true);
-    const nodeData = addFolderModal.nodeData;
     const folderName = name.trim();
     const userId = user?.id;
     const email = user?.email;
-    const parentId = nodeData.id;
-    if (!email || !userId) {
+    const parentId = parentNode?.id;
+    if (!email || !userId || !parentId) {
       toast.error("Something went wrong");
       return;
     }
@@ -65,9 +73,7 @@ export const AddFolderModal = () => {
         updateType: "addSubFolder",
       })
       .then(({ data }) => {
-        console.log(data);
         const folder = data.folder;
-        console.log(folder);
         folderStore.addSubFolder(
           folder.id,
           folder.name,
@@ -107,7 +113,7 @@ export const AddFolderModal = () => {
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Add a folder to <span className="italic whitespace-normal break-all">{addFolderModal.nodeData.name}</span>?
+            Add a folder to <span className="italic whitespace-normal break-all">{parentNode.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-primary pt-2">
             <Input

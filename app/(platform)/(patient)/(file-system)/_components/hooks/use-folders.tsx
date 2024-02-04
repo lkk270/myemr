@@ -70,7 +70,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
     });
     const items = folders.map((obj) => ({
       label: obj.name,
-      value: obj.id,
+      value: obj.namePath,
       namePath: obj.namePath,
     }));
     return items;

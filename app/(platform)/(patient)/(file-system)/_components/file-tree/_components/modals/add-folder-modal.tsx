@@ -22,6 +22,9 @@ import { isValidNodeName } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { GenericCombobox } from "@/components/generic-combobox";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export const AddFolderModal = () => {
   const user = useCurrentUser();
@@ -35,8 +38,6 @@ export const AddFolderModal = () => {
   useEffect(() => {
     if (addFolderModal.nodeData && !addFolderModal.showDropdown) {
       setParentNode(addFolderModal.nodeData);
-    } else if (addFolderModal.showDropdown) {
-      setParentNode(folderStore.singleLayerNodes[0]);
     }
   }, [addFolderModal.nodeData, addFolderModal.showDropdown]);
 
@@ -44,7 +45,7 @@ export const AddFolderModal = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !addFolderModal || (!addFolderModal.nodeData && !addFolderModal.showDropdown) || !parentNode) {
+  if (!isMounted || !addFolderModal || ((!addFolderModal.nodeData || !parentNode) && !addFolderModal.showDropdown)) {
     return null;
   }
   const handleSave = () => {
@@ -108,13 +109,55 @@ export const AddFolderModal = () => {
     });
   };
 
+  const handleFolderChange = (value: string) => {
+    const newParentNode = folderStore.singleLayerNodes.find((node) => node.id === value);
+    console.log(newParentNode);
+    if (!!newParentNode) {
+      setParentNode(newParentNode);
+    }
+  };
+
+  const getFolders = () => {
+    const folders = folderStore.singleLayerNodes.filter((node) => !node.isFile && node.namePath !== "/Trash");
+    folders.sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+    const items = folders.map((obj) => ({
+      label: obj.name,
+      value: obj.id,
+      namePath: obj.namePath,
+    }));
+    console.log(items);
+    return items;
+  };
+
   return (
     <AlertDialog open={addFolderModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Add a folder to <span className="italic whitespace-normal break-all">{parentNode.name}</span>?
-          </AlertDialogTitle>
+          {addFolderModal.showDropdown ? (
+            <AlertDialogTitle>
+              <div>
+                {/* <Label htmlFor="height">Height</Label> */}
+                <GenericCombobox
+                  valueParam={parentNode?.id}
+                  handleChange={(value) => handleFolderChange(value)}
+                  disabled={isLoading}
+                  forFileSystem={true}
+                  className={cn("xs:min-w-[350px] xs:max-w-[350px]")}
+                  placeholder="Select parent folder"
+                  searchPlaceholder="Search..."
+                  noItemsMessage="No results"
+                  items={getFolders()}
+                />
+              </div>
+            </AlertDialogTitle>
+          ) : (
+            <AlertDialogTitle>
+              Add a folder to <span className="italic whitespace-normal break-all">{parentNode?.name}</span>?
+            </AlertDialogTitle>
+          )}
+
           <AlertDialogDescription className="text-primary pt-2">
             <Input
               placeholder="Subfolder Name"
@@ -129,7 +172,7 @@ export const AddFolderModal = () => {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isLoading}
+            disabled={isLoading || !parentNode?.id || !name}
             onClick={() => {
               handleSave();
             }}

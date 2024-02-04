@@ -50,7 +50,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   return (
     <div className="pb-4 gap-y-2 flex flex-col">
       {!isFile && !node.namePath.startsWith("/Trash") && (
-        <div className="flex gap-x-2">
+        <div className="flex flex-col xs:flex-row gap-x-2 gap-y-2">
           <Button
             disabled={isLoading}
             onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
@@ -99,7 +99,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
         ) : (
           <span key={0} style={{ marginRight: "5px" }}>
             <Link href={"/files"} onDragStart={(e) => e.preventDefault()}>
-              <span className="hover:underline cursor-pointer">/</span>
+              <span className="hover:underline cursor-pointer whitespace-normal break-all">/</span>
             </Link>
           </span>
         )}
@@ -107,7 +107,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
 
       {currentFolder && (
         <div className={cn("flex items-center")}>
-          <div className="text-lg font-bold">{currentFolder}</div>
+          <div className="text-lg font-bold truncate">{currentFolder}</div>
           <ActionDropdown
             showMenuHeader={false}
             nodeData={node}

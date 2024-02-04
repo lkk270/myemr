@@ -70,7 +70,7 @@ export const UploadFilesModal = () => {
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
-    const parentNodeData = uploadFilesModal.nodeData;
+    const parentNodeData = uploadFilesModal.nodeData || foldersStore.singleLayerNodes[0];
     setIsLoading(true);
 
     if (singleFileObj) {

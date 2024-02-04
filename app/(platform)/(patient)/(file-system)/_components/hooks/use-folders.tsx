@@ -11,6 +11,7 @@ interface FolderStore {
   foldersSet: boolean;
   usedFileStorage: bigint;
   setUsedFileStorage: (newUsedFileStorage: bigint) => void;
+  getDropdownFolders: () => { label: string; value: string; namePath: string }[];
   getNode: (nodeId: string) => SingleLayerNodesType2 | undefined;
   setSingleLayerNodes: (nodes: SingleLayerNodesType2[]) => void;
   setFolders: (folders: any[]) => void;
@@ -61,6 +62,19 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   usedFileStorage: BigInt(0),
   singleLayerNodesSet: false,
   foldersSet: false,
+  getDropdownFolders() {
+    const state = get();
+    const folders = state.singleLayerNodes.filter((node) => !node.isFile && node.namePath !== "/Trash");
+    folders.sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+    const items = folders.map((obj) => ({
+      label: obj.name,
+      value: obj.id,
+      namePath: obj.namePath,
+    }));
+    return items;
+  },
   getNode(nodeId) {
     const state = get(); // Access the current state using get()
     return state.singleLayerNodes.find((node) => node.id === nodeId);

@@ -7,6 +7,7 @@ import { useAddFolderModal } from "./file-tree/_components/hooks";
 import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useNewRootFolder } from "./hooks/use-new-root-folder";
+import { RecentRecordsGrid } from "./recent-records-grid";
 
 interface NodePageHeaderProps {}
 
@@ -62,6 +63,7 @@ export const RootNodePageHeader = ({}: NodePageHeaderProps) => {
           </div>
         </Button>
       </div>
+      <RecentRecordsGrid />
     </div>
   );
 };

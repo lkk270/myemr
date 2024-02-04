@@ -215,7 +215,7 @@ export const UploadFilesModal = () => {
   };
 
   const handleFolderChange = (value: string) => {
-    const newParentNode = folderStore.singleLayerNodes.find((node) => node.id === value);
+    const newParentNode = folderStore.singleLayerNodes.find((node) => node.namePath === value);
     if (!!newParentNode) {
       setParentNode(newParentNode);
     }
@@ -230,7 +230,7 @@ export const UploadFilesModal = () => {
               <div>
                 {/* <Label htmlFor="height">Height</Label> */}
                 <GenericCombobox
-                  valueParam={parentNode?.id}
+                  valueParam={parentNode?.namePath}
                   handleChange={(value) => handleFolderChange(value)}
                   disabled={isLoading}
                   forFileSystem={true}

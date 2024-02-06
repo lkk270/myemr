@@ -1,10 +1,12 @@
-// import { auth, redirectToSignIn } from "@clerk/nextjs";
-import { CustomDataTable } from "../../../_components/file-table/custom-data-table";
-import prismadb from "@/lib/prismadb";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { NodePageHeader } from "../../../_components/node-page-header";
-
+import prismadb from "@/lib/prismadb";
+import { Viewer } from "../../../_components/file-viewers/file-viewer";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getPresignedUrl } from "../../../actions/get-file-psu";
 interface FilePagePageProps {
   params: {
     fileId: string;
@@ -13,42 +15,37 @@ interface FilePagePageProps {
 
 const FilePagePage = async ({ params }: FilePagePageProps) => {
   const fileId = params.fileId;
+  const session = await auth();
 
-  // const { userId } = auth();
+  if (!session) {
+    return redirect("/");
+  }
+  const user = session?.user;
+  const userId = user?.id;
 
-  // if (!userId) {
-  //   return redirectToSignIn;
+  if (!user || !userId) {
+    return redirect("/");
+  }
+
+  // if (!file || !file.type) {
+  //   return redirect("/");
   // }
-  // const patientMedications = await prismadb.patientProfile.findUnique({
-  //   where: {
-  //     userId: userId,
-  //   },
-  //   select: {
-  //     medications: {
-  //       include: {
-  //         dosageHistory: true,
-  //       },
-  //     },
-  //     symmetricKey: true,
-  //   },
+
+  // const s3Client = new S3Client({ region: process.env.AWS_REGION });
+  // const command = new GetObjectCommand({
+  //   Bucket: process.env.AWS_BUCKET_NAME,
+  //   Key: `${file.patientProfileId}/${file.id}`,
+  //   ResponseContentDisposition: `filename="${file.name}"`, // Sets the filename for the download
   // });
-
-  // if (!patientMedications) {
-  //   return <div>something went wrong</div>;
-  // }
-  // let decryptedPatientMedications;
-
-  // try {
-  //   const decryptedSymmetricKey = decryptKey(patientMedications.symmetricKey, "patientSymmetricKey");
-  //   decryptedPatientMedications = decryptMultiplePatientFields(patientMedications.medications, decryptedSymmetricKey);
-  // } catch (e) {
-  //   console.log(e);
-  //   return <div>something went wrong</div>;
-  // }
-
+  // const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
+  const response = await getPresignedUrl(fileId);
+  if (!response.presignedUrl || !response.type) {
+    return <div>Something went wrong</div>;
+  }
   return (
     <div className="pt-16 px-6">
       <NodePageHeader nodeId={fileId} isFile={true} />
+      <Viewer fileId={fileId} fileType={response.type} fileSrc={response.presignedUrl} />
     </div>
   );
 };

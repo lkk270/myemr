@@ -3,20 +3,28 @@
 import { hiddenColumns, filters } from "./_data/data";
 import { columns } from "./columns";
 import { DataTable } from "@/components/table/data-table";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFolderStore } from "../hooks/use-folders";
 interface DataTableProps {
   nodeId: string;
 }
 
 export function CustomDataTable({ nodeId }: DataTableProps) {
-  const foldersStore = useFolderStore();
+  const { singleLayerNodes, updateLastViewedAt } = useFolderStore();
+
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    foldersStore.updateLastViewedAt(nodeId);
-  }, [nodeId]);
+    if (isMounted) {
+      updateLastViewedAt(nodeId);
+    }
+  }, [nodeId, isMounted]);
 
-  const data = foldersStore.singleLayerNodes.filter((item) => item.parentId === nodeId);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const data = singleLayerNodes.filter((item) => item.parentId === nodeId);
   data.sort((a, b) => {
     // First, sort by isFile status
     if (a.isFile !== b.isFile) {

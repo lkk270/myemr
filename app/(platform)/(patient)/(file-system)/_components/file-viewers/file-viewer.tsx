@@ -7,24 +7,71 @@ import Image from "next/image";
 import { ImageViewer } from "./image-viewer";
 import { Spinner } from "@/components/spinner";
 import { useFolderStore } from "../hooks/use-folders";
+import { isLinkExpired } from "@/lib/utils";
+import { getPresignedUrl } from "../../actions/get-file-psu";
 // import FileViewer from "react-file-viewer";
 // import WebViewer from "@pdftron/webviewer";
 interface FileViewerProps {
   fileId: string;
-  fileSrc: string;
+  initialFileSrc: string;
   fileName: string;
   fileType: string;
 }
 
-export const Viewer = ({ fileName, fileId, fileSrc, fileType }: FileViewerProps) => {
+//
+export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewerProps) => {
+  const [fileSrc, setFileSrc] = useState(initialFileSrc);
   const { updateLastViewedAt } = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading } = useIsLoading();
-  const [visible, setVisible] = useState(true);
+  const [linkSet, setLinkSet] = useState(false);
+  const [attemptedRefresh, setAttemptedRefresh] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    updateLastViewedAt(fileId);
-  }, [fileId]);
+    const checkAndRefreshLink = async () => {
+      if (isLinkExpired(fileSrc) && !attemptedRefresh && isMounted) {
+        setAttemptedRefresh(true); // Mark that an attempt was made
+        try {
+          const response = await getPresignedUrl(fileId);
+          const newSrc = response?.presignedUrl;
+          if (!newSrc) {
+            setErrorMessage("Something went wrong");
+          } else if (isLinkExpired(newSrc)) {
+            console.log("IN 43");
+            setErrorMessage("The link has expired. Please try accessing the document again.");
+          } else {
+            console.log("46");
+            setFileSrc(newSrc);
+          }
+        } catch (error) {
+          console.error(error);
+          setErrorMessage("Something went wrong");
+        }
+      }
+    };
+
+    checkAndRefreshLink();
+    setLinkSet(true);
+  }, [fileId, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      updateLastViewedAt(fileId);
+    }
+  }, [fileId, isMounted]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (errorMessage) {
+    return <div className="error-message">{errorMessage}</div>;
+  }
+
+  // useEffect(() => {
+  //   updateLastViewedAt(fileId);
+  // }, [fileId]);
 
   // useEffect(() => {
   //   console.log(singleLayerNodes);
@@ -62,13 +109,9 @@ export const Viewer = ({ fileName, fileId, fileSrc, fileType }: FileViewerProps)
   //     });
   //   }, []);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
+  if (!isMounted || !linkSet) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="fixed left-[50%] top-[50%]">
         <Spinner size="lg" />
       </div>
     );

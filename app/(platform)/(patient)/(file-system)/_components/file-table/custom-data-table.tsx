@@ -12,6 +12,10 @@ interface DataTableProps {
 export function CustomDataTable({ nodeId }: DataTableProps) {
   const foldersStore = useFolderStore();
 
+  useEffect(() => {
+    foldersStore.updateLastViewedAt(nodeId);
+  }, [nodeId]);
+
   const data = foldersStore.singleLayerNodes.filter((item) => item.parentId === nodeId);
   data.sort((a, b) => {
     // First, sort by isFile status

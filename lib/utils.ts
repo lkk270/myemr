@@ -415,11 +415,14 @@ export function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLay
     return { ...rest, lastViewedAt };
   });
 
-  // Separate items with and without a lastViewedAt
-  const itemsWithDate = updatedArray.filter((item) => item.lastViewedAt != null);
-  const itemsWithoutDate = updatedArray.filter((item) => item.lastViewedAt == null);
+  return sortSingleLayerNodes(updatedArray);
+}
 
-  // Sort items with a lastViewedAt and then concatenate the rest
+export function sortSingleLayerNodes(array: SingleLayerNodesType2[]): SingleLayerNodesType2[] {
+  // Separate items with and without a lastViewedAt
+  const itemsWithDate = array.filter((item) => item.lastViewedAt != null);
+  const itemsWithoutDate = array.filter((item) => item.lastViewedAt == null);
+
   const sortedItems = itemsWithDate
     .sort((a, b) => {
       const dateA = a.lastViewedAt as Date;

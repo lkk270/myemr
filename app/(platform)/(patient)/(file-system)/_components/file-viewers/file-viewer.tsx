@@ -7,8 +7,9 @@ import Image from "next/image";
 import { ImageViewer } from "./image-viewer";
 import { Spinner } from "@/components/spinner";
 import { useFolderStore } from "../hooks/use-folders";
-import { isLinkExpired } from "@/lib/utils";
+import { isLinkExpired, isViewableFile, cn } from "@/lib/utils";
 import { getPresignedUrl } from "../../actions/get-file-psu";
+import { FileViewerFallback } from "./file-viewer-fallback";
 // import FileViewer from "react-file-viewer";
 // import WebViewer from "@pdftron/webviewer";
 interface FileViewerProps {
@@ -28,11 +29,15 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
   const [attemptedRefresh, setAttemptedRefresh] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const isViewable = isViewableFile(fileType);
+
   useEffect(() => {
     const checkAndRefreshLink = async () => {
+      console.log("IN HERE 33");
       if (isLinkExpired(fileSrc) && !attemptedRefresh && isMounted) {
         setAttemptedRefresh(true); // Mark that an attempt was made
         try {
+          console.log("IN HERE 37");
           const response = await getPresignedUrl(fileId);
           const newSrc = response?.presignedUrl;
           if (!newSrc) {
@@ -135,16 +140,21 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
     //     <iframe src={fileSrc} className="w-full h-full max-w-xs max-h-xs overflow-hidden" />
     //   )}
     // </div>
-    <div className="relative pb-4 gap-y-2 flex flex-col max-h-[calc(100vh-160px)] dark:bg-[#1f1f1f] text-black overflow-hidden">
-      {fileType.includes("image") ? (
-        <div className="justify-between items-center flex flex-col max-w-[cal(100vw-300px)]">
-          <ImageViewer fileId={fileId} fileSrc={fileSrc} />
-        </div>
-      ) : (
-        <div className="max-w-[cal(100vw-300px)] flex flex-col w-full h-[calc(100vh-160px)]">
-          <iframe src={fileSrc} className="flex-grow overflow-hidden" />
-        </div>
-      )}
-    </div>
+
+    isViewable ? (
+      <div className="relative pb-4 gap-y-2 flex flex-col max-h-[calc(100vh-160px)] dark:bg-[#1f1f1f] text-black overflow-hidden">
+        {fileType.includes("image") ? (
+          <div className="justify-between items-center flex flex-col max-w-[cal(100vw-300px)]">
+            <ImageViewer fileId={fileId} fileSrc={fileSrc} />
+          </div>
+        ) : (
+          <div className={cn("max-w-[cal(100vw-300px)] flex flex-col w-full h-[calc(100vh-160px)]")}>
+            <iframe src={fileSrc} className="flex-grow overflow-hidden" />
+          </div>
+        )}
+      </div>
+    ) : (
+      <FileViewerFallback fileId={fileId} />
+    )
   );
 };

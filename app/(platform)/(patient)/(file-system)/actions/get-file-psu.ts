@@ -6,6 +6,7 @@ import { FileStatus } from "@prisma/client";
 import { File } from "@prisma/client";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { isViewableFile } from "@/lib/utils";
 
 export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   const user = await currentUser();
@@ -27,38 +28,58 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   const command = new GetObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `${file.patientProfileId}/${fileId}`,
-    ResponseContentDisposition: forDownload ? `attachment; filename="${file.name}"` : `filename="${file.name}"`, // Sets the filename for the download
+    ResponseContentDisposition:
+      forDownload || !isViewableFile(file.type || "")
+        ? `attachment; filename="${file.name}"`
+        : `filename="${file.name}"`, // Sets the filename for the download
   });
-  const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
+  const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
 
   return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
 };
 
-export const handleDownload = async (fileId: string) => {
-  const data = await getPresignedUrl(fileId, true); // Your function to get the presigned URL
-  if (!data.presignedUrl) {
-    console.error("Failed to get the presigned URL");
-    return;
+export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {
+  const user = await currentUser();
+
+  if (!user) {
+    return { error: "Unauthorized" };
   }
 
-  // Create an anchor tag for the download
-  const link = document.createElement("a");
-  link.href = data.presignedUrl;
-  link.setAttribute("download", data.fileName); // Set the desired filename here
-
-  // Prevent the toploader from triggering
-  link.addEventListener(
-    "click",
-    (e) => {
-      e.preventDefault(); // Prevent default anchor tag behavior
-      e.stopImmediatePropagation(); // Stop the event from propagating
-      window.location.href = link.href; // Manually navigate to trigger the download
+  const files = await prismadb.file.findMany({
+    where: {
+      id: {
+        in: fileIds,
+      },
     },
-    true,
-  ); // Capture phase
+  });
 
-  // Append to the document, trigger click, and remove
-  document.body.appendChild(link);
-  link.click(); // This should now prevent the toploader from activating
-  document.body.removeChild(link);
+  if (!files || files.length === 0) {
+    return { error: "Files not found" };
+  }
+
+  const s3Client = new S3Client({ region: process.env.AWS_REGION });
+  const urls = await Promise.all(
+    files.map(async (file) => {
+      const command = new GetObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: `${file.patientProfileId}/${file.id}`,
+        ResponseContentDisposition: `attachment; filename="${file.name}"`,
+      });
+
+      try {
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
+        return {
+          presignedUrl,
+          fileName: file.name,
+          type: file.type,
+          path: `${file.namePath.split(parentNamePath)[1]}`, // Adjust the path as needed for your zip structure
+        };
+      } catch (error) {
+        console.error("Error generating presigned URL for file:", file.id, error);
+        return null; // Handle errors as appropriate for your application
+      }
+    }),
+  );
+
+  return urls.filter((url) => url !== null); // Filter out any failed URL generations
 };

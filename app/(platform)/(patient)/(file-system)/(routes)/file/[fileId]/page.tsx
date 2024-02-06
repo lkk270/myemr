@@ -47,7 +47,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
     return <div>Something went wrong</div>;
   }
 
-  if (!response.presignedUrl || !response.type) {
+  if (!response.presignedUrl || typeof response.type !== "string") {
     return <div>Something went wrong</div>;
   }
   return (
@@ -56,7 +56,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
       <Viewer
         fileName={response.fileName}
         fileId={fileId}
-        fileType={response.type}
+        fileType={response.type || ""}
         initialFileSrc={response.presignedUrl}
       />
     </div>

@@ -73,6 +73,7 @@ export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
       width={imageWidth}
       //   height={500}
       src={fileSrc}
+      rootClassName="justify-center items-center flex flex-col"
       preview={{
         forceRender: true,
         toolbarRender: (

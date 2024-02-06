@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFolderStore } from "./hooks/use-folders";
-import { File, Folder } from "lucide-react";
+import { File, Folder, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
@@ -13,22 +13,24 @@ import { getFileIcon, formatFileSize } from "@/lib/utils";
 
 const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
   const isFile = record.isFile;
-  const RecordIcon = isFile ? getFileIcon(record.type || "") : Folder;
-  const iconColor = record.isRoot ? "#8d4fff" : !isFile ? "#4f5eff" : "";
+  const isTrash = record.namePath === "/Trash";
+  const RecordIcon = isFile ? getFileIcon(record.type || "") : isTrash ? Trash2 : Folder;
+  const iconColor = record.isRoot ? "#8d4fff" : !isTrash && !isFile ? "#4f5eff" : "";
   const pathSegments = record.namePath.split("/").filter((segment) => segment !== ""); // Split and filter out any empty segments
 
   return (
     <Card key={record.name} className={`w-full h-[175px] transition border-0 bg-primary/10 rounded-xl`}>
       <Link href={isFile ? `/file/${record.id}` : `/files/${record.id}`} onDragStart={(e) => e.preventDefault()}>
         <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
-          {!isFile ? (
+          {!isFile && !isTrash ? (
             <RecordIcon className="w-16 h-16" color={iconColor} fill={iconColor} />
           ) : (
             <RecordIcon className="w-16 h-16" color={iconColor} />
           )}
           <div className="p-2 flex flex-col gap-y-1 max-w-[175px] text-xs truncate">
             <p className="truncate font-bold">{record.name}</p>
-            <p className="truncate">In: {isFile ? pathSegments.slice(-2, -1) : pathSegments.slice(-1)}</p>
+
+            <p className="truncate">{record.isRoot ? "Root folder" : "In " + pathSegments.slice(-2, -1)}</p>
             {typeof record.size === "number" && <p className="truncate"> {formatFileSize(record.size)}</p>}
           </div>
         </CardHeader>

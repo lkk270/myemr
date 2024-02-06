@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { ChevronRight, ChevronDown, MoreHorizontal, GripVertical, Trash } from "lucide-react";
-import { usePathname } from "next/navigation";
 import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
@@ -14,6 +13,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { NodeDataType } from "@/app/types/file-types";
 import Link from "next/link";
 import { useFolderStore } from "../../hooks/use-folders";
+import { usePathnameHook } from "./hooks/use-pathname";
 
 type NodeProps = {
   node: any;
@@ -31,20 +31,15 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   const [isMounted, setIsMounted] = useState(false);
   const folderStore = useFolderStore();
   const isMobile = useMediaQuery("(max-width: 450px)");
-  const pathname = usePathname();
+  const { setPrevPathnameVar, prevPathnameVar, pathnameVar } = usePathnameHook();
+
+  const [nodeIdFromPath, setNodeIdFromPath] = useState("");
   // const hasMountedRef = useRef<boolean | null>(null);
-  // const prevPathnameRef = useRef<string | null>(pathname);
+  const prevPathnameRef = useRef<string | null>(null);
 
   const isTrashNode = node.data.namePath === "/Trash";
 
   const folderColor = node.data.isRoot ? "#8d4fff" : "#4f5eff";
-
-  let nodeIdFromPath = "";
-  if (pathname.includes("/files/")) {
-    nodeIdFromPath = pathname.split("/files/")[1];
-  } else if (pathname.includes("/file/")) {
-    nodeIdFromPath = pathname.split("/file/")[1];
-  }
 
   const completeNodePath = node.data.isFile ? node.data.path : `${node.data.path}${node.data.id}/`;
 
@@ -82,6 +77,23 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   //     return null;
   //   }
   // }
+
+  useEffect(() => {
+    let newNodeIdFromPath = "";
+    if (!pathnameVar) return;
+    if (pathnameVar.includes("/files/")) {
+      newNodeIdFromPath = pathnameVar.split("/files/")[1];
+    } else if (pathnameVar.includes("/file/")) {
+      newNodeIdFromPath = pathnameVar.split("/file/")[1];
+    }
+    setNodeIdFromPath(newNodeIdFromPath);
+    if (tree && prevPathnameVar !== pathnameVar) {
+      setIsMounted(true);
+      tree.open(newNodeIdFromPath);
+      tree.openParents(newNodeIdFromPath);
+      setPrevPathnameVar(pathnameVar);
+    }
+  }, [pathnameVar]);
 
   // useEffect(() => {
   //   if (tree && !isMounted) {

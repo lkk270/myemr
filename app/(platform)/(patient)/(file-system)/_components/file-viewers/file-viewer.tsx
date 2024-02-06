@@ -6,6 +6,7 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import Image from "next/image";
 import { ImageViewer } from "./image-viewer";
 import { Spinner } from "@/components/spinner";
+import { useFolderStore } from "../hooks/use-folders";
 // import FileViewer from "react-file-viewer";
 // import WebViewer from "@pdftron/webviewer";
 interface FileViewerProps {
@@ -16,10 +17,19 @@ interface FileViewerProps {
 }
 
 export const Viewer = ({ fileName, fileId, fileSrc, fileType }: FileViewerProps) => {
+  const { updateLastViewedAt } = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading } = useIsLoading();
   const [visible, setVisible] = useState(true);
-  console.log(fileType);
+
+  useEffect(() => {
+    updateLastViewedAt(fileId);
+  }, [fileId]);
+
+  // useEffect(() => {
+  //   console.log(singleLayerNodes);
+  //   setSingleLayerNodes(sortSingleLayerNodes(singleLayerNodes));
+  // }, [isMounted]);
   //   const viewer = useRef<any>(null);
 
   // if using a class, equivalent of componentDidMount

@@ -1,7 +1,13 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
-import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
+import {
+  sortFolderChildren,
+  sortRootNodes,
+  extractNodes,
+  addLastViewedAtAndSort,
+  sortSingleLayerNodes,
+} from "@/lib/utils";
 import _ from "lodash";
 
 interface FolderStore {
@@ -10,6 +16,7 @@ interface FolderStore {
   singleLayerNodesSet: boolean;
   foldersSet: boolean;
   usedFileStorage: bigint;
+  updateLastViewedAt: (nodeId: string) => void;
   setUsedFileStorage: (newUsedFileStorage: bigint) => void;
   getDropdownFolders: () => { label: string; value: string; namePath: string }[];
   getNode: (nodeId: string) => SingleLayerNodesType2 | undefined;
@@ -607,6 +614,25 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         ...state,
         singleLayerNodes: updatedSingleLayerNodes,
         folders: sortedFolders,
+      };
+    });
+  },
+
+  updateLastViewedAt: (nodeId) => {
+    console.log("Updating lastViewedAt for nodeId:", nodeId); // Log the nodeId
+
+    set((state) => {
+      // First, update the node's lastViewedAt using map
+      const updatedNodes = state.singleLayerNodes.map((node) =>
+        node.id === nodeId ? { ...node, lastViewedAt: new Date() } : node,
+      );
+
+      // Then, sort the updated nodes array using your custom sort function
+      const sortedNodes = sortSingleLayerNodes(updatedNodes);
+
+      // Finally, return the sorted array to update the state
+      return {
+        singleLayerNodes: sortedNodes,
       };
     });
   },

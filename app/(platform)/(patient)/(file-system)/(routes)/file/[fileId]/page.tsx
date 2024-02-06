@@ -7,6 +7,7 @@ import { Viewer } from "../../../_components/file-viewers/file-viewer";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPresignedUrl } from "../../../actions/get-file-psu";
+import { updateRecordViewActivity } from "@/lib/files";
 interface FilePagePageProps {
   params: {
     fileId: string;
@@ -39,6 +40,12 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   // });
   // const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
   const response = await getPresignedUrl(fileId);
+  try {
+    updateRecordViewActivity(user.id, fileId, true);
+  } catch (error) {
+    return <div>Something went wrong</div>;
+  }
+
   if (!response.presignedUrl || !response.type) {
     return <div>Something went wrong</div>;
   }

@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { File, Folder, FolderPlus, Upload, ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Folder, FolderPlus, Upload } from "lucide-react";
 import { useFolderStore } from "../hooks/use-folders";
 import {
   CommandDialog,
@@ -15,10 +14,15 @@ import {
 import { useSearch } from "../hooks/use-search";
 import Link from "next/link";
 import { getFileIcon } from "@/lib/utils";
+import { useAddFolderModal } from "../file-tree/_components/hooks";
+import { useUploadFilesModal } from "../file-tree/_components/hooks";
 export const SearchCommand = () => {
   const foldersStore = useFolderStore();
+  const addFolderModal = useAddFolderModal();
+  const uploadFilesModal = useUploadFilesModal();
+
   const singleLayerNodes = foldersStore.singleLayerNodes;
-  const router = useRouter();
+
   const [isMounted, setIsMounted] = useState(false);
 
   const toggle = useSearch((store) => store.toggle);
@@ -49,9 +53,19 @@ export const SearchCommand = () => {
     {
       label: "Create a new Folder",
       icon: FolderPlus,
-      action: () => onClose(),
+      action: () => {
+        addFolderModal.onOpen(null, true);
+        onClose();
+      },
     },
-    { label: "Upload records", icon: Upload, action: onClose },
+    {
+      label: "Upload records",
+      icon: Upload,
+      action: () => {
+        uploadFilesModal.onOpen(null, true);
+        onClose();
+      },
+    },
     // { label: "Back", icon: ChevronLeft, action: onClose },
   ];
 
@@ -80,10 +94,15 @@ export const SearchCommand = () => {
         <CommandGroup heading="Recent Records">
           {singleLayerNodes.length === 0 && <div className="text-primary/70 ml-2 text-sm">No records :(</div>}
           {singleLayerNodes?.map((node, index) => (
-            <Link key={index} href={node.isFile ? `/file/${node.id}` : `/files/${node.id}`} onClick={onClose}>
+            <Link
+              key={index}
+              href={node.isFile ? `/file/${node.id}` : `/files/${node.id}`}
+              onClick={onClose}
+              onDragStart={(e) => e.preventDefault()}
+            >
               <CommandItem key={node.id} value={`${node.name}`} title={node.name} className="text-primary/70">
                 {(() => {
-                  const CustomIcon = node.isFile ? getFileIcon(node.name) : Folder;
+                  const CustomIcon = node.isFile ? getFileIcon(node.type || "") : Folder;
                   return <CustomIcon className="mr-2 h-4 w-4" />;
                 })()}
                 <div className="flex flex-col">

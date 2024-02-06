@@ -5,7 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "@/lib/encryption";
 import prismadb from "@/lib/prismadb";
 import authConfig from "./auth.config";
-import { getUserById } from "@/auth/data/user";
+import { getUserById, getUserByEmail } from "@/auth/data/user";
 import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";
 import { getAccountByUserId } from "@/auth/data/account";
 
@@ -32,18 +32,18 @@ export const {
     async signIn({ user, account }) {
       // Allow OAuth without email verification
       if (account?.provider === "google") {
-        const existingUser = await getUserById(user.id);
+        const email = user.email;
+        if (!email) return false;
+        const existingUser = await getUserByEmail(email, UserType.PATIENT);
         if (!existingUser) {
           const { publicKey, privateKey } = generateAsymmetricKeyPairs();
           const symmetricKey = generateSymmetricKey();
           const safeName = (user.name + " ").split(" ");
-          const email = user.email;
-          if (!email) return false;
           await prismadb.$transaction(
             async (prisma) => {
               await prisma.user.create({
                 data: {
-                  email: user.email?.toLowerCase(),
+                  email: email.toLowerCase(),
                   emailVerified: new Date(),
                   type: "PATIENT",
                   role: "ADMIN",
@@ -80,6 +80,8 @@ export const {
             },
             { timeout: 20000 },
           );
+        } else {
+          throw new Error("Email is already being used through email & password sign in!");
         }
       }
       // if (account?.provider !== "credentials") return true;

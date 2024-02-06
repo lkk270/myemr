@@ -16,6 +16,7 @@ export type NodeDataType = {
   namePath: string;
   isFile: boolean;
   isRoot?: boolean;
+  size?: number;
 };
 
 export type NodeData2Type = {
@@ -25,22 +26,35 @@ export type NodeData2Type = {
   namePath: string;
   isFile: boolean;
   isRoot?: boolean;
+  type?: string;
+  size?: number;
+  createdAt: Date;
 };
 
-export type SingleLayerNodesType = {
+type SingleLayerNodeBaseType = {
   id: string;
   name: string;
   path: string;
   namePath: string;
   isFile: boolean;
-  lastViewedAt?: Date;
   parentId?: string | null;
+  type?: string;
+  size?: number;
   isRoot?: boolean;
+  createdAt: Date;
+  addedByUserId?: string | null;
+  addedByName: string;
+  userId: string;
+  patientProfileId: string;
+  updatedAt: Date;
+  children?: undefined;
+};
+
+export type SingleLayerNodesType = SingleLayerNodeBaseType & {
   recordViewActivity: {
     lastViewedAt: Date;
   }[];
 };
-
 export type SingleLayerNodesType2 = {
   id: string;
   name: string;
@@ -49,7 +63,16 @@ export type SingleLayerNodesType2 = {
   isFile: boolean;
   parentId?: string | null;
   lastViewedAt?: Date;
+  type?: string;
+  size?: number;
   isRoot?: boolean;
+  createdAt?: Date;
+  addedByUserId?: string | null;
+  addedByName: string;
+  userId: string;
+  patientProfileId: string;
+  updatedAt?: Date;
+  children?: undefined | any[];
 };
 
 export type MenuItemData = {
@@ -58,4 +81,11 @@ export type MenuItemData = {
   action: () => void;
   differentClassName?: string;
   isFile?: boolean;
+};
+
+export type FileWithStatus = {
+  file: File;
+  status?: "waiting" | "uploading" | "uploaded" | "error" | "canceled" | null;
+  isRetrying?: boolean;
+  controller: AbortController;
 };

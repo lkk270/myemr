@@ -18,10 +18,11 @@ interface LogoProps {
 }
 
 export const Logo = ({ textColor, showText = true }: LogoProps) => {
+  const size = showText ? "40" : "30";
   return (
-    <Link href="/" className={cn(showText ? "sm:w-32" : "")}>
+    <Link href="/" className={cn(showText ? "sm:w-32" : "")} onDragStart={(e) => e.preventDefault()}>
       <div className="flex items-center gap-x-2">
-        <Image priority={true} src="/logo.svg" height="40" width="40" alt="Logo" draggable={false} />
+        <Image priority={true} src="/logo.svg" height={size} width={size} alt="Logo" draggable={false} />
         {showText && (
           <p className={cn("font-semibold text-sm sm:flex sm:text-lg", font.className, textColor && `text-primary/70`)}>
             MyEMR

@@ -41,7 +41,7 @@ export const Heading = () => {
 
         {session.status === "authenticated" && user && (
           <Button asChild>
-            <Link href={`/${user.userType.toLowerCase()}-home`}>
+            <Link href={`/${user.userType.toLowerCase()}-home`} onDragStart={(e) => e.preventDefault()}>
               Enter MyEMR
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
@@ -51,7 +51,7 @@ export const Heading = () => {
       {!user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="default">
+            <Button variant="gooeyLeft">
               Join MyEMR
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

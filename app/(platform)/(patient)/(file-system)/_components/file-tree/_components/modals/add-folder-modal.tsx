@@ -20,31 +20,40 @@ import { toast } from "sonner";
 import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { GenericCombobox } from "@/components/generic-combobox";
+import { cn } from "@/lib/utils";
 
 export const AddFolderModal = () => {
   const user = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
   const addFolderModal = useAddFolderModal();
   const folderStore = useFolderStore();
   const [name, setName] = useState("");
+  const [parentNode, setParentNode] = useState<NodeDataType | SingleLayerNodesType2 | null>(null);
+
+  useEffect(() => {
+    if (addFolderModal.nodeData && !addFolderModal.showDropdown) {
+      setParentNode(addFolderModal.nodeData);
+    }
+  }, [addFolderModal.nodeData, addFolderModal.showDropdown]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !addFolderModal || !addFolderModal.nodeData) {
+  if (!isMounted || !addFolderModal || ((!addFolderModal.nodeData || !parentNode) && !addFolderModal.showDropdown)) {
     return null;
   }
-
   const handleSave = () => {
     setIsLoading(true);
-    const nodeData = addFolderModal.nodeData;
     const folderName = name.trim();
     const userId = user?.id;
     const email = user?.email;
-    const parentId = nodeData.id;
-    if (!email || !userId) {
+    const parentId = parentNode?.id;
+    if (!email || !userId || !parentId) {
       toast.error("Something went wrong");
       return;
     }
@@ -64,10 +73,17 @@ export const AddFolderModal = () => {
         updateType: "addSubFolder",
       })
       .then(({ data }) => {
-        console.log(data);
         const folder = data.folder;
-        console.log(folder);
-        folderStore.addSubFolder(folder.id, folder.name, folder.parentId, folder.path, folder.namePath, userId, email);
+        folderStore.addSubFolder(
+          folder.id,
+          folder.name,
+          folder.parentId,
+          folder.path,
+          folder.namePath,
+          userId,
+          userId,
+          email,
+        );
         setIsLoading(false);
         addFolderModal.onClose();
       })
@@ -92,13 +108,40 @@ export const AddFolderModal = () => {
     });
   };
 
+  const handleFolderChange = (value: string) => {
+    const newParentNode = folderStore.singleLayerNodes.find((node) => node.namePath === value);
+    if (!!newParentNode) {
+      setParentNode(newParentNode);
+    }
+  };
+
   return (
     <AlertDialog open={addFolderModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="whitespace-normal break-all">
-            Add a folder to <span className="italic">{addFolderModal.nodeData.name}</span>?
-          </AlertDialogTitle>
+          {addFolderModal.showDropdown ? (
+            <AlertDialogTitle>
+              <div>
+                {/* <Label htmlFor="height">Height</Label> */}
+                <GenericCombobox
+                  valueParam={parentNode?.namePath}
+                  handleChange={(value) => handleFolderChange(value)}
+                  disabled={isLoading}
+                  forFileSystem={true}
+                  className={cn("xs:min-w-[350px] xs:max-w-[350px]")}
+                  placeholder="Select parent folder"
+                  searchPlaceholder="Search..."
+                  noItemsMessage="No results"
+                  items={folderStore.getDropdownFolders()}
+                />
+              </div>
+            </AlertDialogTitle>
+          ) : (
+            <AlertDialogTitle>
+              Add a folder to <span className="italic whitespace-normal break-all">{parentNode?.name}</span>?
+            </AlertDialogTitle>
+          )}
+
           <AlertDialogDescription className="text-primary pt-2">
             <Input
               placeholder="Subfolder Name"
@@ -113,7 +156,7 @@ export const AddFolderModal = () => {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isLoading}
+            disabled={isLoading || !parentNode?.id || !name}
             onClick={() => {
               handleSave();
             }}

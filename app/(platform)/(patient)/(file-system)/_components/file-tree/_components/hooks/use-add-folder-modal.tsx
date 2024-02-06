@@ -3,9 +3,9 @@ import { NodeDataType } from "@/app/types/file-types";
 
 interface useAddFolderModalStore {
   isOpen: boolean;
-  nodeData: any;
+  nodeData: NodeDataType | null;
   showDropdown: boolean;
-  onOpen: (nodeData: NodeDataType, showDropdown: boolean) => void;
+  onOpen: (nodeData: NodeDataType | null, showDropdown: boolean) => void;
   onClose: () => void;
 }
 

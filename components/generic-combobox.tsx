@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 interface ComboboxItem {
   value: string;
   label: string;
+  namePath?: string;
 }
 
 interface GenericComboboxProps {
@@ -24,6 +25,7 @@ interface GenericComboboxProps {
   className?: string;
   disabled?: boolean;
   allowOther?: boolean;
+  forFileSystem?: boolean;
 }
 
 export const GenericCombobox = ({
@@ -37,6 +39,7 @@ export const GenericCombobox = ({
   className = "bg-secondary",
   disabled = false,
   allowOther = false,
+  forFileSystem = false,
 }: GenericComboboxProps) => {
   const [newItems, setNewItems] = useState(items);
   const [open, setOpen] = useState(false);
@@ -62,9 +65,16 @@ export const GenericCombobox = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn(width, "justify-between", className, "font-normal")}
+            className={cn(width, "justify-between items-center", className, "font-normal flex")}
           >
-            {valueParam ? newItems.find((item) => item.value === valueParam)?.label || valueParam : placeholder}
+            <div className="flex flex-col flex-grow min-w-0 items-start">
+              <span className="truncate text-left w-full">
+                {valueParam ? newItems.find((item) => item.value === valueParam)?.label || valueParam : placeholder}
+              </span>
+              <span className="truncate text-left w-full text-xs text-primary/40">
+                {forFileSystem && newItems.find((item) => item.value === valueParam)?.namePath}
+              </span>
+            </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -95,7 +105,7 @@ export const GenericCombobox = ({
             <CommandGroup>
               {newItems.map((item) => (
                 <CommandItem
-                  className="cursor-pointer"
+                  className={cn("cursor-pointer", className)}
                   key={item.value}
                   value={item.value}
                   onSelect={() => {
@@ -104,7 +114,12 @@ export const GenericCombobox = ({
                   }}
                 >
                   <Check className={cn("mr-2 h-4 w-4", valueParam === item.value ? "opacity-100" : "opacity-0")} />
-                  {item.label}
+                  <div className={cn("flex flex-col flex-grow min-w-0 items-start")}>
+                    <span className="text-left w-full whitespace-normal break-all">{item.label}</span>
+                    <span className="text-left w-full text-xs text-primary/40 whitespace-normal break-all">
+                      {forFileSystem && item.namePath}
+                    </span>
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

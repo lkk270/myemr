@@ -19,10 +19,11 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 export const RenameModal = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
   const renameModal = useRenameModal();
   const folderStore = useFolderStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -95,8 +96,8 @@ export const RenameModal = () => {
     <AlertDialog open={renameModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="whitespace-normal break-all">
-            Rename <span className="italic">{renameModal.nodeData.name}</span>?
+          <AlertDialogTitle>
+            Rename <span className="whitespace-normal break-all italic">{renameModal.nodeData.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-primary pt-2">
             <Input

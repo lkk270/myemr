@@ -5,10 +5,12 @@ const validUpdateTypes = [
   "deleteMedication",
   "renameNode",
   "moveNode",
-  "addNode",
+  "trashNode",
+  "restoreRootFolder",
   "deleteNode",
   "addRootNode",
   "addSubFolder",
+  "uploadFiles",
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
@@ -17,7 +19,9 @@ const patientConditionals: any = {
   deleteMedication: { requiredFields: ["medicationId"], optionalFields: [] },
   renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
   moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
-  deleteNode: { requiredFields: ["nodeId", "isFile"], optionalFields: [] },
+  trashNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
+  restoreRootFolder: { requiredFields: ["selectedId"], optionalFields: [] },
+  deleteNode: { requiredFields: ["nodeId", "isFile", "forEmptyTrash"], optionalFields: [] },
   addRootNode: {
     requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],
@@ -25,6 +29,10 @@ const patientConditionals: any = {
   addSubFolder: {
     requiredFields: ["parentId", "folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],
+  },
+  uploadFiles: {
+    requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
+    optionalFields: ["folderPath"],
   },
 };
 

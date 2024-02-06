@@ -344,6 +344,24 @@ export function getFileIcon(fileType: string) {
   }
 }
 
+export function isViewableFile(fileType: string) {
+  const viewableTypes = [
+    "application/pdf",
+    "audio/mpeg",
+    "audio/mp4",
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/avif",
+    "image/webp",
+    "image/svg+xml",
+    "image/vnd.microsoft.icon",
+    "image/x-icon",
+    "image/bmp",
+  ];
+  return viewableTypes.includes(fileType);
+}
+
 export function isValidNodeName(fileName: string): boolean {
   // Check if the file name is empty
   if (!fileName || fileName.trim().length === 0) {

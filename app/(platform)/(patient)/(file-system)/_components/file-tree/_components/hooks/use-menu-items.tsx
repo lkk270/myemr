@@ -182,9 +182,12 @@ export const useMenuItems = (nodeData: any) => {
     if (isTrashNode && item.label === "Empty Trash" && !folderHasContents) {
       return false;
     }
-    if (item.label === "Export" && !nodeData.isFile! && (folderHasContents || !folderHasFileDescendants)) {
-      return false;
-    }
+    // if (item.isFile && item.label === "Export") {
+    //   return true;
+    // }
+    // if (!item.isFile && item.label === "Export" && (!folderHasContents || !folderHasFileDescendants)) {
+    //   return false;
+    // }
     return true; // Include the item if none of the conditions above match
   });
 

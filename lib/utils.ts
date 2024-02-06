@@ -441,3 +441,23 @@ export function formatFileSize(bytes: number) {
   else if (bytes < 1000000000000) return (bytes / 1000000000).toFixed(2) + " GB";
   return (bytes / 1000000000000).toFixed(2) + " TB";
 }
+
+// Assuming amzDate is a string like "20240205T235432Z"
+export const isLinkExpired = (url: string) => {
+  const urlParams = new URL(url);
+  const amzDateStr = urlParams.searchParams.get("X-Amz-Date");
+  const amzExpires = urlParams.searchParams.get("X-Amz-Expires");
+
+  if (!amzDateStr || !amzExpires) {
+    return false; // If any parameter is missing, assume the link is not expired.
+  }
+  // Parse the X-Amz-Date string to a Date object.
+  // The X-Amz-Date is in the format "YYYYMMDDTHHMMSSZ", which is basically ISO8601.
+  // However, JavaScript's Date constructor might not parse it correctly without modifications.
+  // Convert "YYYYMMDDTHHMMSSZ" to "YYYY-MM-DDTHH:MM:SSZ" which is fully supported.
+  const amzDate = amzDateStr.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z");
+
+  const expiryTimestamp = new Date(amzDate).getTime() + parseInt(amzExpires) * 1000; // Convert expires to milliseconds
+  // Compare with current UTC time in milliseconds
+  return expiryTimestamp <= new Date().getTime();
+};

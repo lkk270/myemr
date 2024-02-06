@@ -45,7 +45,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   return (
     <div className="pt-16 px-6">
       <NodePageHeader nodeId={fileId} isFile={true} />
-      <Viewer fileId={fileId} fileType={response.type} fileSrc={response.presignedUrl} />
+      <Viewer fileName={response.fileName} fileId={fileId} fileType={response.type} fileSrc={response.presignedUrl} />
     </div>
   );
 };

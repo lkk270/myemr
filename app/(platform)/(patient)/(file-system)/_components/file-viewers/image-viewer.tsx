@@ -68,9 +68,59 @@ export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
     if (!data.presignedUrl) {
       return;
     }
-    setFileSrcTrue(data.presignedUrl);
 
-    // FileSaver.saveAs(data.presignedUrl, "2.JPG");
+    FileSaver.saveAs(data.presignedUrl, data.fileName);
+  };
+
+  const handleDownload4 = async () => {
+    const data = await getPresignedUrl(fileId, true); // Assuming this returns the presigned URL
+    if (!data.presignedUrl) {
+      return;
+    }
+
+    // Create an invisible `<a>` element
+    const link = document.createElement("a");
+    link.href = data.presignedUrl;
+    link.style.display = "none";
+    link.setAttribute("download", data.fileName); // Set the desired filename here
+
+    // Append to the document and trigger the download
+    document.body.appendChild(link);
+    link.addEventListener("click", (e) => {
+      console.log("IN HERE");
+    });
+
+    // Clean up by removing the element after download
+    document.body.removeChild(link);
+  };
+
+  const handleDownload5 = async () => {
+    const data = await getPresignedUrl(fileId, true); // Your function to get the presigned URL
+    if (!data.presignedUrl) {
+      console.error("Failed to get the presigned URL");
+      return;
+    }
+
+    // Create an anchor tag for the download
+    const link = document.createElement("a");
+    link.href = data.presignedUrl;
+    link.setAttribute("download", data.fileName); // Set the desired filename here
+
+    // Prevent the toploader from triggering
+    link.addEventListener(
+      "click",
+      (e) => {
+        e.preventDefault(); // Prevent default anchor tag behavior
+        e.stopImmediatePropagation(); // Stop the event from propagating
+        window.location.href = link.href; // Manually navigate to trigger the download
+      },
+      true,
+    ); // Capture phase
+
+    // Append to the document, trigger click, and remove
+    document.body.appendChild(link);
+    link.click(); // This should now prevent the toploader from activating
+    document.body.removeChild(link);
   };
 
   return (
@@ -78,7 +128,7 @@ export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
       className="overflow-hidden"
       width={imageWidth}
       //   height={500}
-      src={fileSrcTrue}
+      src={fileSrc}
       preview={{
         forceRender: true,
         toolbarRender: (
@@ -86,7 +136,7 @@ export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
           { transform: { scale }, actions: { onFlipY, onFlipX, onRotateLeft, onRotateRight, onZoomOut, onZoomIn } },
         ) => (
           <Space size={12} className="toolbar-wrapper">
-            <DownloadOutlined onClick={handleDownload3} />
+            <DownloadOutlined onClick={handleDownload5} />
             <SwapOutlined rotate={90} onClick={onFlipY} />
             <SwapOutlined onClick={onFlipX} />
             <RotateLeftOutlined onClick={onRotateLeft} />

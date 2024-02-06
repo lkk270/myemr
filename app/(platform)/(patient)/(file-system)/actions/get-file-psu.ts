@@ -31,5 +31,5 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   });
   const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
 
-  return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type };
+  return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
 };

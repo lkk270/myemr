@@ -100,6 +100,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         tree.openParents(newNodeIdFromPath);
       }
       tree.deselectAll();
+      // tree.select(newNodeIdFromPath);
     }
   }, [pathnameVar]);
 
@@ -263,6 +264,12 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // if (node.data.namePath !== "/Trash" && node.data.namePath.startsWith("/Trash")) {
   //   return null;
   // }
+
+  const nodeOnclick = () => {
+    if (!tree.hasMultipleSelections) {
+      router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id);
+    }
+  };
   return (
     <div className={cn("px-2", isTrashNode && "pt-2")}>
       {isMounted && (
@@ -347,7 +354,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     onDragStart={(e) => {
                       if (node.data.isRoot) e.preventDefault();
                     }}
-                    onDoubleClick={() => router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id)}
+                    onClick={nodeOnclick}
                     style={{
                       pointerEvents: tree.hasMultipleSelections > 1 ? "none" : "auto",
                     }}
@@ -376,7 +383,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 onDragStart={(e) => {
                   if (node.data.isRoot) e.preventDefault();
                 }}
-                onDoubleClick={() => router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id)}
+                onClick={nodeOnclick}
                 title={node.data.namePath}
                 // href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                 //!node.data.parentId ? "cursor-pointer" : "cursor-grab"

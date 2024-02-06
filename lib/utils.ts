@@ -334,7 +334,7 @@ export function getFileIcon(fileType: string) {
       return BsFileZip;
     default:
       if (fileType.includes("video")) {
-        return LuFileVideo;
+        return BiMoviePlay;
       }
       if (fileType.includes("image")) {
         return BsFileEarmarkImage;

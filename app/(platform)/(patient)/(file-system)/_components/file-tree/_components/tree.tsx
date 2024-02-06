@@ -39,6 +39,7 @@ const customDragPreview = (
   //   setAllSelectedHaveSameParent(true);
   //   return null;
   // }
+  // console.log(allSelectedHaveSameParent);
   if (!allSelectedHaveSameParent) {
     return null;
   }
@@ -101,25 +102,27 @@ const customDragPreview = (
   if (numberOfSelectedIds <= 1 || (selectedIds.length > 1 && !selectedIds.includes(id))) {
     const { name, isFile } = getItemData(id);
     const truncatedName = truncateName(name);
-    if (!truncatedName) {
+    if (!truncatedName || !allSelectedHaveSameParent) {
       return null;
     }
 
     return (
-      <div style={{ ...baseStyle, left: mouse.x + "px", top: mouse.y + "px" }}>
-        {renderIconAndName(isFile, truncatedName)}
-      </div>
+      allSelectedHaveSameParent && (
+        <div style={{ ...baseStyle, left: mouse.x + "px", top: mouse.y + "px" }}>
+          {renderIconAndName(isFile, truncatedName)}
+        </div>
+      )
     );
   }
 
   const firstNodeParentId = tree.get(selectedIds[0]).parent.id;
   const allHaveSameParent =
     selectedIds.length > 1 && selectedIds.every((selectedId) => tree.get(selectedId).parent.id === firstNodeParentId);
-  setAllSelectedHaveSameParent(allHaveSameParent);
+  // setAllSelectedHaveSameParent(allHaveSameParent);
   if (!allHaveSameParent) {
     tree.deselectAll();
-    tree.select("c2-2");
     toast.error("Dragged nodes must have the same parent", { duration: 1750 });
+    setAllSelectedHaveSameParent(false);
     return null;
   }
 
@@ -219,7 +222,6 @@ const FileTree = ({ width }: FileTreeProps) => {
   }, []);
 
   useEffect(() => {
-    console.log("IN HERE");
     setPrevPathnameVar(pathnameVar);
     setPathnameVar(pathname);
   }, [pathname]);
@@ -241,8 +243,16 @@ const FileTree = ({ width }: FileTreeProps) => {
     }
   };
 
+  useEffect(() => {
+    setAllSelectedHaveSameParent(true);
+  }, [draggedNode.parentId]);
+
   const disableDrag = () => {
-    return !draggedNode.parentId || !allSelectedHaveSameParent;
+    const currentAllSelectedHaveSameParent = allSelectedHaveSameParent;
+    if (currentAllSelectedHaveSameParent === false) {
+      console.log(currentAllSelectedHaveSameParent);
+    }
+    return !draggedNode.parentId || !currentAllSelectedHaveSameParent;
   };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 

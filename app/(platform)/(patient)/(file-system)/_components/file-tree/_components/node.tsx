@@ -5,6 +5,7 @@ import DragContext from "./drag-context";
 import { cn, getFileIcon } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { MenuHeader } from "./menu-header";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ActionDropdown } from "./action-dropdown";
@@ -35,7 +36,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   const [nodeIdFromPath, setNodeIdFromPath] = useState("");
   // const hasMountedRef = useRef<boolean | null>(null);
-  const prevPathnameRef = useRef<string | null>(null);
+  const router = useRouter();
 
   const isTrashNode = node.data.namePath === "/Trash";
 
@@ -86,12 +87,19 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     } else if (pathnameVar.includes("/file/")) {
       newNodeIdFromPath = pathnameVar.split("/file/")[1];
     }
+    const isPathNodeInTrash = folderStore.singleLayerNodes.some((node) => {
+      return node.id === newNodeIdFromPath && node.namePath.startsWith("/Trash");
+    });
+
     setNodeIdFromPath(newNodeIdFromPath);
     if (tree && prevPathnameVar !== pathnameVar) {
       setIsMounted(true);
-      tree.open(newNodeIdFromPath);
-      tree.openParents(newNodeIdFromPath);
       setPrevPathnameVar(pathnameVar);
+      if (!isPathNodeInTrash) {
+        tree.open(newNodeIdFromPath);
+        tree.openParents(newNodeIdFromPath);
+      }
+      tree.deselectAll();
     }
   }, [pathnameVar]);
 
@@ -335,14 +343,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                       {node.isOpen ? <ChevronDown size={iconSize} /> : <ChevronRight size={iconSize} />}
                     </span>
                   )}
-                  <Link
+                  <div
                     onDragStart={(e) => {
                       if (node.data.isRoot) e.preventDefault();
                     }}
+                    onDoubleClick={() => router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id)}
                     style={{
                       pointerEvents: tree.hasMultipleSelections > 1 ? "none" : "auto",
                     }}
-                    href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                     className="mr-[6px] flex-shrink-0"
                   >
                     <div title={node.data.namePath}>
@@ -356,25 +364,26 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                         <FaFolder size={iconSize} color={folderColor} />
                       )}
                     </div>
-                  </Link>
+                  </div>
                 </>
               )}
               {/*           <span className={cn("cursor-grab", node.isEditing && "border-black border")}>
                */}
-              <Link
+              <div
                 style={{
                   pointerEvents: tree.hasMultipleSelections ? "none" : "auto",
                 }}
                 onDragStart={(e) => {
                   if (node.data.isRoot) e.preventDefault();
                 }}
+                onDoubleClick={() => router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id)}
                 title={node.data.namePath}
-                href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
+                // href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                 //!node.data.parentId ? "cursor-pointer" : "cursor-grab"
                 className={cn("truncate flex-grow cursor-pointer")}
               >
                 {node.data.name}
-              </Link>
+              </div>
               {!isTrashNode && (
                 <div className={cn(isMobile ? "" : "action-button")}>
                   <ActionDropdown

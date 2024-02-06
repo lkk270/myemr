@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/alert-dialog";
 // import { Button } from "@/components/ui/button";
 import { useDownloadModal } from "../hooks/use-download-modal";
-
+import { useDownloadFile } from "../../../hooks/use-download-file";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export const DownloadModal = () => {
   const [isMounted, setIsMounted] = useState(false);
   const downloadModal = useDownloadModal();
+  const downloadFile = useDownloadFile();
   const downloadNodes = downloadModal.nodeDatas;
   const firstDownloadNode = downloadNodes ? downloadNodes[0] : null;
   useEffect(() => {
@@ -48,7 +49,15 @@ export const DownloadModal = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
-          <AlertDialogAction className="w-20 h-8 text-sm">Export</AlertDialogAction>
+          <AlertDialogAction
+            className="w-20 h-8 text-sm"
+            onClick={async () => {
+              downloadFile(firstDownloadNode.id);
+              downloadModal.onClose();
+            }}
+          >
+            Export
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

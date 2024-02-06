@@ -182,7 +182,7 @@ export const useMenuItems = (nodeData: any) => {
     if (isTrashNode && item.label === "Empty Trash" && !folderHasContents) {
       return false;
     }
-    if (item.label === "Export" && (!folderHasContents || !folderHasFileDescendants)) {
+    if (item.label === "Export" && !nodeData.isFile! && (folderHasContents || !folderHasFileDescendants)) {
       return false;
     }
     return true; // Include the item if none of the conditions above match

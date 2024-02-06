@@ -12,55 +12,46 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 // import { Button } from "@/components/ui/button";
-import { useDeleteModal } from "../hooks/use-delete-node-modal";
+import { useDeleteMedicationModal } from "../hooks/use-delete-medication-modal";
 import { useState, useEffect } from "react";
-import { useFolderStore } from "../../../hooks/use-folders";
 import _ from "lodash";
 import axios from "axios";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { useMedicationStore } from "../hooks/use-medications";
 
-export const DeleteModal = () => {
+export const DeleteMedicationModal = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const foldersStore = useFolderStore();
-  const deleteModal = useDeleteModal();
-
+  const { isLoading, setIsLoading } = useIsLoading();
+  const medicationStore = useMedicationStore();
+  const deleteMedicationModal = useDeleteMedicationModal();
+  const deleteMedication = deleteMedicationModal.medication;
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !deleteModal || !deleteModal.nodeData) {
+  if (!isMounted || !deleteMedication) {
     return null;
   }
 
   const handleSave = () => {
     setIsLoading(true);
-    const nodeData = deleteModal.nodeData;
     const promise = axios
-      .post("/api/patient-update", {
-        nodeId: nodeData.id,
-        isFile: nodeData.isFile ? true : false,
-        updateType: "deleteNode",
-      })
-      .then(({ data }) => {
-        foldersStore.deleteNode(nodeData.id);
-        setIsLoading(false);
-        deleteModal.onClose();
+      .post("/api/patient-update", { medicationId: deleteMedication.id, updateType: "deleteMedication" })
+      .then(() => {
+        medicationStore.deleteMedication(deleteMedication.id);
+        deleteMedicationModal.onClose();
       })
       .catch((error) => {
-        console.log(error?.response?.data);
-        // error = error?.response?.data || "Something went wrong";
-        // console.log(error);
         throw error;
       })
       .finally(() => {
         setIsLoading(false);
-        // renameModal.onClose();
-        //no need for set loading to false
-        // Toggle edit mode off after operation
       });
+
     toast.promise(promise, {
-      loading: "Deleting node...",
+      loading: "Saving changes",
       success: "Changes saved successfully",
       error: "Something went wrong",
       duration: 1250,
@@ -68,20 +59,19 @@ export const DeleteModal = () => {
   };
 
   return (
-    <AlertDialog open={deleteModal.isOpen}>
+    <AlertDialog open={deleteMedicationModal.isOpen}>
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="whitespace-normal break-all">
-            Send <span className="italic">{deleteModal.nodeData.name}</span> to trash?
+          <AlertDialogTitle>
+            Delete <span className="whitespace-normal break-all italic">{deleteMedication.name}</span>
+            {"  ?"}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {deleteModal.nodeData.isFile
-              ? "This document will be moved to trash."
-              : "This folder and all its children will be moved to trash."}
+            {"This medication will be permanently deleted. This action cannot be undone."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading} onClick={deleteModal.onClose} className="w-20 h-8 text-sm">
+          <AlertDialogCancel disabled={isLoading} onClick={deleteMedicationModal.onClose} className="w-20 h-8 text-sm">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction

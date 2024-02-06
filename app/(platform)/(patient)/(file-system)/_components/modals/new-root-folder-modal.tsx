@@ -18,19 +18,23 @@ import { rootFolderCategories } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { toast } from "sonner";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 interface CommandItemComponentProps {
   obj: { label: string; value: string };
   index: number;
   alreadyUsed: boolean;
+  isInTrash: boolean;
 }
 export const NewRootFolder = () => {
   const user = useCurrentUser();
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
-  const alreadyUsedRootNames = singleLayerNodes.filter((item) => item.isRoot).map((item) => item.name);
+  const alreadyUsedRootNames = singleLayerNodes
+    .filter((item) => item.isRoot && item.namePath !== "/Trash")
+    .map((item) => item.name);
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   const isOpen = useNewRootFolder((store) => store.isOpen);
   const onClose = useNewRootFolder((store) => store.onClose);
@@ -85,7 +89,7 @@ export const NewRootFolder = () => {
     return null;
   }
 
-  const CommandItemComponent = ({ obj, index, alreadyUsed }: CommandItemComponentProps) => {
+  const CommandItemComponent = ({ obj, index, alreadyUsed, isInTrash }: CommandItemComponentProps) => {
     const commonProps = {
       key: index,
       value: obj.label,
@@ -95,7 +99,9 @@ export const NewRootFolder = () => {
     if (alreadyUsed) {
       return (
         <CommandItem
-          {...commonProps}
+          key={commonProps.key}
+          value={commonProps.value}
+          title={commonProps.title}
           className="text-md text-primary/20 cursor-not-allowed aria-selected:bg-secondary aria-selected:text-primary/20"
         >
           <div className="flex justify-between items-center w-full">
@@ -106,7 +112,7 @@ export const NewRootFolder = () => {
               {obj.label}
             </div>
             <Badge className="border-primary/10 border-[1px] flex justify-end text-primary/30" variant="outline">
-              Already exists
+              {isInTrash ? "Already exists (in trash)" : "Already exists"}
             </Badge>
           </div>
         </CommandItem>
@@ -114,7 +120,9 @@ export const NewRootFolder = () => {
     } else {
       return (
         <CommandItem
-          {...commonProps}
+          key={commonProps.key}
+          value={commonProps.value}
+          title={commonProps.title}
           onSelect={() => onSelect(obj.label)}
           className="text-md text-primary/70 hover:text-primary"
         >
@@ -136,7 +144,13 @@ export const NewRootFolder = () => {
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Root Categories">
           {rootFolderCategories?.map((obj, index) => (
-            <CommandItemComponent obj={obj} index={index} alreadyUsed={alreadyUsedRootNames.includes(obj.label)} />
+            <CommandItemComponent
+              key={index}
+              obj={obj}
+              index={index}
+              alreadyUsed={alreadyUsedRootNames.includes(obj.label)}
+              isInTrash={singleLayerNodes.some((node) => node.name === obj.label && node.namePath.startsWith("/Trash"))}
+            />
           ))}
         </CommandGroup>
       </CommandList>

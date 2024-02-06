@@ -3,14 +3,16 @@ import { NodeDataType } from "@/app/types/file-types";
 
 interface useDeleteModalStore {
   isOpen: boolean;
-  nodeData: any;
-  onOpen: (nodeData: NodeDataType) => void;
+  forEmptyTrash: boolean;
+  nodeDatas: NodeDataType[] | null;
+  onOpen: (nodeDatas: NodeDataType[], forEmptyTrash: boolean) => void;
   onClose: () => void;
 }
 
 export const useDeleteModal = create<useDeleteModalStore>((set) => ({
   isOpen: false,
-  nodeData: null,
-  onOpen: (nodeData) => set({ isOpen: true, nodeData }),
+  nodeDatas: null,
+  forEmptyTrash: false,
+  onOpen: (nodeDatas, forEmptyTrash) => set({ isOpen: true, nodeDatas, forEmptyTrash }),
   onClose: () => set({ isOpen: false }),
 }));

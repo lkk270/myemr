@@ -1,26 +1,26 @@
 "use client";
-import { ChevronsLeft, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+
+import { ChevronsLeft } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
-// import { FoldersTree } from "./folders-tree";
-import { NodeData2Type } from "@/app/types/file-types";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
-// import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-// import { CitiesTree } from "../(test)/cities-tree";
-import Arborist from "./file-tree/_components/tree";
-import { Item } from "./item";
+import FileTree from "./file-tree/_components/tree";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
-// import { TrashBox } from "./trash-box";
+
 interface SidebarProps {
   data: any[];
-  singleLayerNodes: NodeData2Type[];
+  singleLayerNodes: SingleLayerNodesType2[];
+  usedFileStorage: bigint;
+  allotedStorageInGb: number;
 }
-export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorageInGb }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
@@ -31,14 +31,16 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
+  // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
+  // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
   useEffect(() => {
-    console.log(" IN HERE");
     setIsMounted(true);
     console.log(data);
-    console.log(singleLayerNodes);
+    // console.log(singleLayerNodes);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
+    folderStore.setUsedFileStorage(usedFileStorage);
   }, []);
 
   useEffect(() => {
@@ -98,18 +100,12 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
       setTimeout(() => setIsResetting(false), 300);
     }
   };
-  const handleCreate = () => {
-    // const promise = create({ title: "Untitled" }).then((documentId) => router.push(`/documents/${documentId}`));
-    // toast.promise(promise, {
-    //   loading: "Creating a new note...",
-    //   success: "New note created!",
-    //   error: "Failed to create a new note.",
-    // });
+
+  const formatStorageValue = (value: bigint) => {
+    const formattedValue = (Number(value) / 1000000000).toFixed(4);
+    return formattedValue === "-0.0000" ? "0.0000" : formattedValue;
   };
-  const onDragEnd = (result: any) => {
-    // Logic to handle drag end event
-    // This is where you would reorder folders/files based on the drag result
-  };
+
   return (
     isMounted && (
       <>
@@ -122,7 +118,7 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
             isMobile && "w-0",
           )}
         >
-          <div className="pl-4 pt-4 w-20">
+          <div className="pl-4 pt-2 w-20">
             <Logo showText={false} />
             <div
               onClick={collapse}
@@ -135,20 +131,21 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
               <ChevronsLeft className="h-6 w-6" />
             </div>
           </div>
-          {/* <div className="pt-4">
-            <div>
-              <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-              <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
-            </div>
-          </div> */}
-          {/* <div className="overflow-y-auto" style={{ height: `calc(100vh - 100px)` }}> */}
-          {/* <CitiesTree width={sidebarWidth} /> */}
-          <Arborist width={sidebarWidth} />
-          {/* <Item onClick={handleCreate} icon={Plus} label="Add a page" /> */}
-          {/* </div> */}
-          <div className="py-4 px-6">
+
+          <FileTree width={sidebarWidth} />
+          <div className="flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10">
             <NewRootFolderBox />
-            {/* <Item onClick={handleCreate} label="New Root Folder" icon={PlusCircle} /> */}
+            <Separator />
+            <div role="button" className="flex flex-col gap-y-1">
+              <Progress className="h-1" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
+              <div className="flex flex-row justify-between text-xs font-light ">
+                <span className="italic">{`${formatStorageValue(
+                  folderStore.usedFileStorage,
+                )} Gb / ${allotedStorageInGb} Gb`}</span>
+
+                <span role="button">Upgrade</span>
+              </div>
+            </div>
           </div>
           <div
             onMouseDown={handleMouseDown}
@@ -157,7 +154,6 @@ export const Sidebar = ({ data, singleLayerNodes }: SidebarProps) => {
             className="hover:w-[6px] transition cursor-ew-resize absolute h-full w-[1px] bg-primary/10 right-0 top-0"
           />
         </aside>
-        {/* </DragDropContext> */}
         <div
           ref={navbarRef}
           className={cn(

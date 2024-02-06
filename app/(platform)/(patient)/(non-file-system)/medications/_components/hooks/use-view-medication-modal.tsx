@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { Medication } from "@prisma/client";
 import { MedicationType } from "@/app/types";
 
 interface useViewMedicationStore {

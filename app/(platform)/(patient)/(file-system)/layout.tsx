@@ -1,8 +1,10 @@
-import { DeleteModal } from "./_components/file-tree/_components/modals/delete-file-modal";
+import { DeleteModal } from "./_components/file-tree/_components/modals/delete-node-modal";
 import { DownloadModal } from "./_components/file-tree/_components/modals/download-modal";
 import { RenameModal } from "./_components/file-tree/_components/modals/rename-modal";
 import { MoveModal } from "./_components/file-tree/_components/modals/move-modal";
+import { TrashModal } from "./_components/file-tree/_components/modals/trash-node-modal";
 import { AddFolderModal } from "./_components/file-tree/_components/modals/add-folder-modal";
+import { UploadFilesModal } from "./_components/file-tree/_components/modals/upload-files-modal";
 import { Sidebar } from "./_components/sidebar";
 
 import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
@@ -12,9 +14,11 @@ import { NewRootFolder } from "./_components/modals/new-root-folder-modal";
 // import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
-import { sortFolderChildren, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
+import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
+import { allotedPatientStorage } from "@/lib/constants";
+import { FileStatus, PatientPlan } from "@prisma/client";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -32,6 +36,9 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       },
       include: {
         files: {
+          where: {
+            status: FileStatus.SUCCESS,
+          },
           include: {
             recordViewActivity: {
               where: {
@@ -92,7 +99,12 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   const allFolders = await fetchAllFoldersForPatient(null);
-  const sortedFolders = allFolders.map((folder) => sortFolderChildren(folder));
+  const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
+  const sortedFolders = sortRootNodes(sortedFoldersTemp);
+  const patient = await prismadb.patientProfile.findUnique({
+    where: { userId: user.id },
+    select: { usedFileStorage: true, plan: true },
+  });
 
   // const singleLayerFolders = await prismadb.folder.findMany({
   //   where: {
@@ -146,19 +158,44 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // console.log(singleLayerNodesOld);
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
   // console.log(singleLayerNodes);
+  const trashExists = singleLayerNodes.some((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
+  if (singleLayerNodes && !trashExists && singleLayerNodes.length > 0) {
+    const trashFolder = await prismadb.folder.create({
+      data: {
+        name: "Trash",
+        namePath: "/Trash",
+        isRoot: true,
+        addedByUserId: user.id,
+        addedByName: `${user.name}`,
+        userId: user.id,
+        patientProfileId: singleLayerNodes[0].patientProfileId,
+      },
+    });
+    singleLayerNodes.push(trashFolder);
+    sortedFolders.push(trashFolder);
+  }
 
-  if (!sortedFolders || !singleLayerNodes) {
+  if (!sortedFolders || !singleLayerNodes || !patient) {
     return <div>something went wrong</div>;
   }
 
+  const usedFileStorage = patient.usedFileStorage;
+  const allotedStorageInGb = allotedPatientStorage[patient.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar data={sortedFolders} singleLayerNodes={singleLayerNodes} />
+      <Sidebar
+        usedFileStorage={usedFileStorage}
+        allotedStorageInGb={allotedStorageInGb}
+        data={sortedFolders}
+        singleLayerNodes={singleLayerNodes}
+      />
       <DeleteModal />
+      <TrashModal />
       <DownloadModal />
       <RenameModal />
       <MoveModal />
       <AddFolderModal />
+      <UploadFilesModal />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />

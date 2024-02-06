@@ -13,7 +13,16 @@ import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
 
 // Symmetric encryption configuration
 const algorithm = "aes-256-cbc";
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "medicationId", "createdAt", "updatedAt"];
+const exemptFields = [
+  "unit",
+  "patientProfileId",
+  "userId",
+  "id",
+  "medicationId",
+  "createdAt",
+  "updatedAt",
+  "usedFileStorage",
+];
 // Function to convert key objects to PEM formatted strings
 function convertKeyToString(key: KeyObject) {
   return key.export({ type: "pkcs1", format: "pem" }).toString();

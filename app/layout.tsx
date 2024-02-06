@@ -8,11 +8,13 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
 import NextTopLoader from "nextjs-toploader";
+import HolyLoader from "holy-loader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
 import { NewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
 import { ViewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
+import { DeleteMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/delete-medication-modal";
 import TopLoader from "@/components/top-loader";
 
 const font = Inter({ subsets: ["latin"] });
@@ -40,7 +42,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <SessionProvider session={session}>
       <html lang="en" suppressHydrationWarning>
         <body className={cn(font.className)}>
-          <NextTopLoader color="#4f5eff" />
+          {/* <NextTopLoader color="#4f5eff" /> */}
+          <HolyLoader color="#4f5eff" height={4} speed={250} easing="linear" showSpinner />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -50,6 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             <NewMedicationModal />
             <ViewMedicationModal />
+            <DeleteMedicationModal />
             <Toaster closeButton position="bottom-right" richColors theme="system" />
 
             {children}

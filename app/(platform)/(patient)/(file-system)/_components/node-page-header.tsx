@@ -8,16 +8,38 @@ import Link from "next/link"; // Assuming you are using Next.js for routing
 import { ActionDropdown } from "./file-tree/_components/action-dropdown";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAddFolderModal } from "./file-tree/_components/hooks";
+import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
 import { NodeDataType } from "@/app/types/file-types";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useIsLoading } from "@/hooks/use-is-loading";
+
 interface NodePageHeaderProps {
   nodeId: string;
   isFile?: boolean;
 }
 
 export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
+  const router = useRouter();
   const addFolderModal = useAddFolderModal();
+  const uploadFilesModal = useUploadFilesModal();
   const folderStore = useFolderStore();
-  const node = folderStore.getNode(nodeId);
+  const [isMounted, setIsMounted] = useState(false);
+  const { isLoading } = useIsLoading();
+  let node = folderStore.getNode(nodeId);
+
+  useEffect(() => {
+    node = folderStore.getNode(nodeId);
+    setIsMounted(true);
+    if (!node) {
+      router.push("/files");
+    }
+  }, []);
+
+  if (!isMounted || !node) {
+    return null;
+  }
+
   const namePath = node?.namePath;
   const path = node?.path;
   const paths = path?.split("/").slice(1);
@@ -26,12 +48,17 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const currentFolder = folders.pop();
   const foldersLength = folders.length;
   return (
-    <div className="py-4 gap-y-2 flex flex-col">
-      {!isFile && (
-        <div className="flex gap-x-2">
+    <div className="pb-4 gap-y-2 flex flex-col">
+      {!isFile && !node.namePath.startsWith("/Trash") && (
+        <div className="flex flex-col xs:flex-row gap-x-2 gap-y-2">
           <Button
+            disabled={isLoading}
+            onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
-            className="border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8"
+            className={cn(
+              isLoading && "cursor-not-allowed",
+              "border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8",
+            )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <Upload className="w-5 h-5" />
@@ -39,12 +66,17 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             </div>
           </Button>
           <Button
+            disabled={isLoading}
+            onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
-            className="border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8"
+            className={cn(
+              isLoading && "cursor-not-allowed",
+              "border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8",
+            )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <FolderPlus className="w-5 h-5" />
-              <div onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}>Add subfolder</div>
+              <div>Add subfolder</div>
             </div>
           </Button>
         </div>
@@ -57,7 +89,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             const id = node ? node.id : null;
             return (
               <span key={index} style={{ marginRight: "5px" }}>
-                <Link href={id ? `/files/${id}` : "/files"}>
+                <Link href={id ? `/files/${id}` : "/files"} onDragStart={(e) => e.preventDefault()}>
                   <span className="hover:underline cursor-pointer">{folder}</span>
                 </Link>
                 {" / "}
@@ -66,8 +98,8 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
           })
         ) : (
           <span key={0} style={{ marginRight: "5px" }}>
-            <Link href={"/files"}>
-              <span className="hover:underline cursor-pointer">/</span>
+            <Link href={"/files"} onDragStart={(e) => e.preventDefault()}>
+              <span className="hover:underline cursor-pointer whitespace-normal break-all">/</span>
             </Link>
           </span>
         )}
@@ -75,7 +107,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
 
       {currentFolder && (
         <div className={cn("flex items-center")}>
-          <div className="text-lg font-bold">{currentFolder}</div>
+          <div className="text-lg font-bold truncate">{currentFolder}</div>
           <ActionDropdown
             showMenuHeader={false}
             nodeData={node}

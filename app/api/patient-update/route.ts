@@ -23,12 +23,15 @@ import {
   deleteNode,
   addRootNode,
   addSubFolder,
+  restoreRootFolder,
+  getAllObjectsToDelete,
+  deleteS3Objects,
 } from "@/lib/files";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
 const discreteTables = ["addresses", "member"];
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
+const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
 function buildUpdatePayload(data: any, symmetricKey: string) {
   const payload: any = {};
   for (const key in data) {
@@ -215,10 +218,26 @@ export async function POST(req: Request) {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
       await moveNodes(selectedIds, targetId, userId);
+    } else if (updateType === "trashNode") {
+      const selectedIds = body.selectedIds;
+      const targetId = body.targetId;
+      await moveNodes(selectedIds, targetId, userId, true);
+    } else if (updateType === "restoreRootFolder") {
+      const selectedId = body.selectedId;
+      await restoreRootFolder(selectedId, userId);
     } else if (updateType === "deleteNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
-      await deleteNode(nodeId, isFile);
+      const forEmptyTrash = body.forEmptyTrash;
+      const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(nodeId, isFile, patient.id);
+
+      if (convertedObjects.length === 0 && isFile) {
+        return new NextResponse("file not found", { status: 500 });
+      }
+      await deleteNode(nodeId, isFile, forEmptyTrash, totalSize, patient.id);
+      console.log(rawObjects);
+      await deleteS3Objects(convertedObjects, rawObjects, patient.id);
+      return new NextResponse(JSON.stringify({ totalSize: totalSize }));
     } else if (updateType === "addRootNode") {
       const folderId = await addRootNode(
         body.folderName,
@@ -241,6 +260,7 @@ export async function POST(req: Request) {
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
+    console.log(error);
     const errorString = error.toString().toLowerCase();
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });

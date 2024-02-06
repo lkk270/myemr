@@ -20,8 +20,12 @@ import {
   BsFileEarmarkExcel,
   BsFiletypePdf,
   BsFileEarmark,
+  BsFileEarmarkImage,
+  BsFiletypeTiff,
+  BsFileZip,
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { LuFileVideo } from "react-icons/lu";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -255,41 +259,107 @@ export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export function getFileIcon(filename: string) {
-  // Provide a fallback ('') for pop() in case the array is empty
-  const extension = filename.split(".").pop()?.toLowerCase() || "";
+// export function getFileIcon(filename: string, fileType?: string) {
+//   // Provide a fallback ('') for pop() in case the array is empty
+//   const extension = filename.split(".").pop()?.toLowerCase() || "";
 
-  switch (extension) {
-    case "doc":
-    case "docx":
+//   switch (extension) {
+//     case "doc":
+//     case "docx":
+//       return BsFiletypeDocx;
+//     case "xls":
+//     case "xlsx":
+//       return BsFileEarmarkExcel;
+//     case "ppt":
+//     case "pptx":
+//     case "pptm":
+//       return FaRegFilePowerpoint;
+//     case "pdf":
+//       return BsFiletypePdf;
+//     case "mov":
+//       return BiMoviePlay;
+//     case "png":
+//       return BsFiletypePng;
+//     case "jpg":
+//     case "jpeg":
+//       return BsFiletypeJpg;
+//     case "csv":
+//       return BsFiletypeCsv;
+//     case "mp4":
+//       return BsFiletypeMp4;
+//     case "mp3":
+//       return BsFiletypeMp3;
+//     case "txt":
+//       return BsFiletypeTxt;
+//     default:
+//       if (fileType?.includes("image")) {
+//         return BsFileEarmarkImage;
+//       } else {
+//         return BsFileEarmark;
+//       }
+//   }
+// }
+
+export function getFileIcon(fileType: string) {
+  switch (fileType) {
+    case "application/msword":
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
       return BsFiletypeDocx;
-    case "xls":
-    case "xlsx":
+    case "application/vnd.ms-excel":
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
       return BsFileEarmarkExcel;
-    case "ppt":
-    case "pptx":
-    case "pptm":
-      return FaRegFilePowerpoint;
-    case "pdf":
-      return BsFiletypePdf;
-    case "mov":
-      return BiMoviePlay;
-    case "png":
-      return BsFiletypePng;
-    case "jpg":
-    case "jpeg":
-      return BsFiletypeJpg;
-    case "csv":
+    case "text/csv":
       return BsFiletypeCsv;
-    case "mp4":
+    case "application/vnd.ms-powerpoint":
+    case "application/vnd.ms-powerpoint.presentation.macroenabled.12":
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      return FaRegFilePowerpoint;
+    case "application/pdf":
+      return BsFiletypePdf;
+    case "video/quicktime":
+      return BiMoviePlay;
+    case "image/png":
+      return BsFiletypePng;
+    case "image/jpeg":
+      return BsFiletypeJpg;
+    case "image/tiff":
+      return BsFiletypeTiff;
+    case "audio/mp4":
       return BsFiletypeMp4;
-    case "mp3":
+    case "audio/mpeg":
       return BsFiletypeMp3;
-    case "txt":
+    case "text/plain":
       return BsFiletypeTxt;
+    case "application/zip":
+      return BsFileZip;
     default:
-      return BsFileEarmark;
+      if (fileType.includes("video")) {
+        return BiMoviePlay;
+      }
+      if (fileType.includes("image")) {
+        return BsFileEarmarkImage;
+      } else {
+        return BsFileEarmark;
+      }
   }
+}
+
+export function isViewableFile(fileType: string) {
+  const viewableTypes = [
+    "application/pdf",
+    "audio/mpeg",
+    "audio/mp4",
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/avif",
+    "image/webp",
+    "image/svg+xml",
+    "image/vnd.microsoft.icon",
+    "image/x-icon",
+    "image/bmp",
+  ];
+  return viewableTypes.includes(fileType);
 }
 
 export function isValidNodeName(fileName: string): boolean {
@@ -324,6 +394,20 @@ export const sortFolderChildren = (folder: any): any => {
   return sortedFolder;
 };
 
+export const sortRootNodes = (array: any[]) => {
+  return array.sort((a, b) => {
+    // Check for special 'Trash' condition
+    const isATrash = a.name === "Trash" && !a.isFile && a.isRoot === true;
+    const isBTrash = b.name === "Trash" && !b.isFile && b.isRoot === true;
+
+    if (isATrash) return 1; // Always sort 'Trash' to the end
+    if (isBTrash) return -1;
+
+    // Standard alphabetical sorting
+    return a.name.localeCompare(b.name);
+  });
+};
+
 export const extractNodes = (folders: any[]) => {
   let rawAllNodes: any[] = [];
 
@@ -349,11 +433,14 @@ export function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLay
     return { ...rest, lastViewedAt };
   });
 
-  // Separate items with and without a lastViewedAt
-  const itemsWithDate = updatedArray.filter((item) => item.lastViewedAt != null);
-  const itemsWithoutDate = updatedArray.filter((item) => item.lastViewedAt == null);
+  return sortSingleLayerNodes(updatedArray);
+}
 
-  // Sort items with a lastViewedAt and then concatenate the rest
+export function sortSingleLayerNodes(array: SingleLayerNodesType2[]): SingleLayerNodesType2[] {
+  // Separate items with and without a lastViewedAt
+  const itemsWithDate = array.filter((item) => item.lastViewedAt != null);
+  const itemsWithoutDate = array.filter((item) => item.lastViewedAt == null);
+
   const sortedItems = itemsWithDate
     .sort((a, b) => {
       const dateA = a.lastViewedAt as Date;
@@ -364,3 +451,31 @@ export function addLastViewedAtAndSort(array: SingleLayerNodesType[]): SingleLay
 
   return sortedItems;
 }
+
+export function formatFileSize(bytes: number) {
+  if (bytes < 1000) return bytes + " Bytes";
+  else if (bytes < 1000000) return (bytes / 1000).toFixed(1) + " KB";
+  else if (bytes < 1000000000) return (bytes / 1000000).toFixed(1) + " MB";
+  else if (bytes < 1000000000000) return (bytes / 1000000000).toFixed(2) + " GB";
+  return (bytes / 1000000000000).toFixed(2) + " TB";
+}
+
+// Assuming amzDate is a string like "20240205T235432Z"
+export const isLinkExpired = (url: string) => {
+  const urlParams = new URL(url);
+  const amzDateStr = urlParams.searchParams.get("X-Amz-Date");
+  const amzExpires = urlParams.searchParams.get("X-Amz-Expires");
+
+  if (!amzDateStr || !amzExpires) {
+    return false; // If any parameter is missing, assume the link is not expired.
+  }
+  // Parse the X-Amz-Date string to a Date object.
+  // The X-Amz-Date is in the format "YYYYMMDDTHHMMSSZ", which is basically ISO8601.
+  // However, JavaScript's Date constructor might not parse it correctly without modifications.
+  // Convert "YYYYMMDDTHHMMSSZ" to "YYYY-MM-DDTHH:MM:SSZ" which is fully supported.
+  const amzDate = amzDateStr.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z");
+
+  const expiryTimestamp = new Date(amzDate).getTime() + parseInt(amzExpires) * 1000; // Convert expires to milliseconds
+  // Compare with current UTC time in milliseconds
+  return expiryTimestamp <= new Date().getTime();
+};

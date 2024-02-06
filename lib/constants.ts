@@ -983,3 +983,9 @@ export const dosageFrequency = [
   { value: "q12h", label: "Every 12 hours" },
   { value: "q24h", label: "Every 24 hours" },
 ];
+
+export const allotedPatientStorage = {
+  FREE: 1,
+  PREMIUM_1: 10,
+  PREMIUM_2: 100,
+};

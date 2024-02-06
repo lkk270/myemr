@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useNewMedicationModal } from "../_components/hooks/use-new-medication-modal";
 import { cn } from "@/lib/utils";
+import { useIsLoading } from "@/hooks/use-is-loading";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
@@ -37,7 +38,7 @@ export const NewMedicationForm = () => {
     description: "",
     status: "active",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   const validateMedication = () => {
     if (!medication) {
@@ -81,11 +82,11 @@ export const NewMedicationForm = () => {
         console.log(error?.response?.data);
         error = error?.response?.data || "Something went wrong";
         console.log(error);
-        setIsLoading(false);
 
         throw error;
       })
       .finally(() => {
+        setIsLoading(false);
         //no need for set loading to false
         // Toggle edit mode off after operation
       });

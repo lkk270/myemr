@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Folder } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useFolderStore } from "../../../hooks/use-folders";
 import {
   CommandDialog,
@@ -19,90 +18,107 @@ import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import _ from "lodash";
 import axios from "axios";
 import { toast } from "sonner";
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { cn } from "@/lib/utils";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
-  const moveNode = moveModal.nodeData;
+  const moveNodes = moveModal.nodeDatas;
+  const firstMoveNode = moveNodes ? moveNodes[0] : null;
   const foldersStore = useFolderStore();
   const singleLayerNodes = foldersStore.singleLayerNodes;
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useIsLoading();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const onSelect = (id: string) => {
-    if (moveNode) {
+  const onSelect = async (id: string) => {
+    if (isLoading) return;
+    if (moveNodes) {
       setIsLoading(true);
-      const originalFolders = _.cloneDeep(foldersStore.folders);
-      foldersStore.moveNodes([moveNode.id], id);
-      const promise = axios
-        .post("/api/patient-update", {
-          selectedIds: [moveNode.id],
-          targetId: id,
-          updateType: "moveNode",
-        })
-        .then(({ data }) => {
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          foldersStore.setFolders(originalFolders);
-          // error = error?.response?.data || "Something went wrong";
-          // console.log(error);
-          throw error;
-        })
-        .finally(() => {
-          setIsLoading(false);
-          // renameModal.onClose();
-          //no need for set loading to false
-          // Toggle edit mode off after operation
+      for (const moveNode of moveNodes) {
+        const promise = axios
+          .post("/api/patient-update", {
+            selectedIds: [moveNode.id],
+            targetId: id,
+            updateType: "moveNode",
+          })
+          .then(({ data }) => {
+            foldersStore.moveNodes([moveNode.id], id);
+            // Success handling
+          })
+          .catch((error) => {
+            // Error handling
+            throw error; // Rethrow to allow the toast to catch it
+          });
+
+        toast.promise(promise, {
+          loading: "Moving node",
+          success: "Changes saved successfully",
+          error: "Something went wrong",
+          duration: 1250,
         });
-      toast.promise(promise, {
-        loading: "Moving node",
-        success: "Changes saved successfully",
-        error: "Something went wrong",
-        duration: 1250,
-      });
+
+        try {
+          await promise; // Wait for the current promise to resolve or reject
+        } catch (error) {
+          // Error handling if needed
+        }
+      }
+      setIsLoading(false);
+      moveModal.onClose();
     }
-    moveModal.onClose();
   };
 
-  if (!isMounted || !moveNode) {
+  if (!isMounted || !moveNodes || !firstMoveNode) {
     return null;
   }
-  const parentFolder = singleLayerNodes.find((element) => element.id === moveNode.parentId);
+  const parentFolder = singleLayerNodes.find((element) => element.id === firstMoveNode.parentId);
 
   if (!parentFolder) {
     return null;
   }
 
   const isValidReceivingFolder = (node: SingleLayerNodesType2) => {
+    if (node.namePath.startsWith("/Trash")) return false;
     const completeNodePath = `${node.path}${node.id}/`;
-    if (
-      !node.isFile &&
-      !moveNode.isFile &&
-      moveNode.parentId &&
-      node.id !== moveNode.parentId &&
-      !completeNodePath.includes(moveNode.path)
-    ) {
-      return true;
+    let ret = true;
+    for (let moveNode of moveNodes) {
+      if (
+        !node.isFile &&
+        !moveNode.isFile &&
+        moveNode.parentId &&
+        node.id !== moveNode.parentId &&
+        !completeNodePath.includes(moveNode.path)
+      ) {
+        continue;
+      }
+      if (!node.isFile && moveNode.isFile && moveNode.parentId && node.id !== moveNode.parentId) {
+        continue;
+      } else {
+        return false;
+      }
     }
-    if (!node.isFile && moveNode.isFile && moveNode.parentId && node.id !== moveNode.parentId) {
-      return true;
-    }
-    return false;
+    return ret;
   };
   return (
     <CommandDialog open={moveModal.isOpen} onOpenChange={moveModal.onClose}>
-      {isMobile ? (
-        <div>
-          <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${moveNode.name})`}</span>
-          <CommandInput placeholder={`Move ${moveNode.isFile ? "file" : "folder"} to...`} />
-        </div>
+      {moveNodes.length === 1 ? (
+        isMobile ? (
+          <div>
+            <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${firstMoveNode.name})`}</span>
+            <CommandInput placeholder={`Move ${firstMoveNode.isFile ? "file" : "folder"} to...`} />
+          </div>
+        ) : (
+          <CommandInput
+            placeholder={`Move the ${firstMoveNode.isFile ? "file" : "folder"} "${firstMoveNode.name}" to...`}
+          />
+        )
       ) : (
-        <CommandInput placeholder={`Move the ${moveNode.isFile ? "file" : "folder"} "${moveNode.name}" to...`} />
+        <CommandInput placeholder={`Move to...`} />
       )}
 
       <CommandList>
@@ -113,6 +129,7 @@ export const MoveModal = () => {
             key={parentFolder.id}
             value={`${parentFolder.name}`}
             title={parentFolder.name}
+            disabled
           >
             <div className="flex justify-between items-center w-full">
               <div className="flex gap-x-4 items-center">
@@ -140,10 +157,16 @@ export const MoveModal = () => {
               isValidReceivingFolder(node) && (
                 <CommandItem
                   onSelect={() => onSelect(node.id)}
-                  className="text-md text-primary/70"
+                  className={cn(
+                    "text-md",
+                    isLoading
+                      ? "text-primary/20 cursor-not-allowed aria-selected:bg-secondary aria-selected:text-primary/20"
+                      : "text-primary/70",
+                  )}
                   key={node.id}
                   value={`${node.name}`}
                   title={node.name}
+                  disabled={isLoading}
                 >
                   <div className="flex gap-x-4 items-center justify-center">
                     <div className="bg-primary/10 rounded-md p-2">

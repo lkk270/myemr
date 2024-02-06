@@ -1,20 +1,19 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Tree } from "react-arborist";
-// import { data } from "../_data/data";
 import Node from "./node";
-import { TbFolderPlus } from "react-icons/tb";
-import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
-import { File, FolderClosed, Search, X } from "lucide-react";
+import { File, FolderClosed, X } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { cn } from "@/lib/utils";
-import { FillFlexParent } from "./fill-flex-parent";
-import { Item } from "../../item";
-import { Input } from "@/components/ui/input";
+import { usePathname } from "next/navigation";
+import { usePathnameHook } from "./hooks/use-pathname";
+// import { Input } from "@/components/ui/input";
 import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
-interface ArboristProps {
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { SingleLayerNodesType2 } from "@/app/types/file-types";
+
+interface FileTreeProps {
   width: number;
 }
 
@@ -36,10 +35,11 @@ const customDragPreview = (
   // if ((selectedIds.length === 0 && !id) || (selectedIds.length > 0 && !id)) {
   //   return null;
   // }
-  if (!isDragging || !mouse || !tree) {
-    setAllSelectedHaveSameParent(true);
-    return null;
-  }
+  // if (!isDragging || !mouse || !tree) {
+  //   setAllSelectedHaveSameParent(true);
+  //   return null;
+  // }
+  // console.log(allSelectedHaveSameParent);
   if (!allSelectedHaveSameParent) {
     return null;
   }
@@ -102,25 +102,27 @@ const customDragPreview = (
   if (numberOfSelectedIds <= 1 || (selectedIds.length > 1 && !selectedIds.includes(id))) {
     const { name, isFile } = getItemData(id);
     const truncatedName = truncateName(name);
-    if (!truncatedName) {
+    if (!truncatedName || !allSelectedHaveSameParent) {
       return null;
     }
 
     return (
-      <div style={{ ...baseStyle, left: mouse.x + "px", top: mouse.y + "px" }}>
-        {renderIconAndName(isFile, truncatedName)}
-      </div>
+      allSelectedHaveSameParent && (
+        <div style={{ ...baseStyle, left: mouse.x + "px", top: mouse.y + "px" }}>
+          {renderIconAndName(isFile, truncatedName)}
+        </div>
+      )
     );
   }
 
   const firstNodeParentId = tree.get(selectedIds[0]).parent.id;
   const allHaveSameParent =
     selectedIds.length > 1 && selectedIds.every((selectedId) => tree.get(selectedId).parent.id === firstNodeParentId);
-  setAllSelectedHaveSameParent(allHaveSameParent);
+  // setAllSelectedHaveSameParent(allHaveSameParent);
   if (!allHaveSameParent) {
     tree.deselectAll();
-    tree.select("c2-2");
     toast.error("Dragged nodes must have the same parent", { duration: 1750 });
+    setAllSelectedHaveSameParent(false);
     return null;
   }
 
@@ -149,8 +151,13 @@ const customDragPreview = (
   return <div>{stackedItems}</div>;
 };
 
-const Arborist = ({ width }: ArboristProps) => {
+const FileTree = ({ width }: FileTreeProps) => {
   const folderStore = useFolderStore();
+  const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
+  const { prevPathnameVar, setPrevPathnameVar, pathnameVar, setPathnameVar } = usePathnameHook();
+  // const [nodeIdFromPath, setNodeIdFromPath] = useState<string | null>(null);
+
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
   // console.log(folderStore.folders);
@@ -158,8 +165,8 @@ const Arborist = ({ width }: ArboristProps) => {
   const [term, setTerm] = useState<string>("");
   const [allSelectedHaveSameParent, setAllSelectedHaveSameParent] = useState(true);
   const treeRef = useRef<any>(null); // Replace 'any' with the appropriate type
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { isLoading, setIsLoading } = useIsLoading();
+  const [trashNodeId, setTrashNodeId] = useState<string | null>(null);
   const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
   const [contextDisableDrop, setContextDisableDrop] = useState(false);
   const [screenHeight, setScreenHeight] = useState(0);
@@ -191,6 +198,10 @@ const Arborist = ({ width }: ArboristProps) => {
   });
 
   useEffect(() => {
+    const trashNode = folderStore.singleLayerNodes.find((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
+    if (trashNode) {
+      setTrashNodeId(trashNode.id);
+    }
     // Set the screen height after the component mounts
     setScreenHeight(window.innerHeight);
 
@@ -205,27 +216,43 @@ const Arborist = ({ width }: ArboristProps) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    setIsMounted(true);
+    setPathnameVar(pathname);
+  }, []);
+
+  useEffect(() => {
+    setPrevPathnameVar(pathnameVar);
+    setPathnameVar(pathname);
+  }, [pathname]);
+
   // Now, this is just a reference to the tree component
 
-  // // Update the ref callback
-  // useEffect(() => {
-  //   setTreeInstance(treeRef.current);
-  // }, []);
+  // Update the ref callback
 
-  const clearInput = () => {
-    setTerm("");
-  };
+  // const clearInput = () => {
+  //   setTerm("");
+  // };
 
   const customDragPreviewWithTree = (props: any) => {
     if (!treeRef || !treeRef.current) {
-      console.warn("Tree instance not available");
+      // console.warn("Tree instance not available");
       return null;
+    } else {
+      return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
     }
-    return customDragPreview(props, treeRef.current, allSelectedHaveSameParent, setAllSelectedHaveSameParent);
   };
 
+  useEffect(() => {
+    setAllSelectedHaveSameParent(true);
+  }, [draggedNode.parentId]);
+
   const disableDrag = () => {
-    return !draggedNode.parentId || !allSelectedHaveSameParent;
+    const currentAllSelectedHaveSameParent = allSelectedHaveSameParent;
+    if (currentAllSelectedHaveSameParent === false) {
+      console.log(currentAllSelectedHaveSameParent);
+    }
+    return !draggedNode.parentId || !currentAllSelectedHaveSameParent;
   };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 
@@ -242,29 +269,18 @@ const Arborist = ({ width }: ArboristProps) => {
       isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id || !allSelectedHaveSameParent,
     );
     // Disable drop if either of the conditions are met
-    return isDroppingFileIntoFolder || isReorderingInSameFolder || !hoveredNode.id || !allSelectedHaveSameParent;
+    return (
+      isLoading ||
+      isDroppingFileIntoFolder ||
+      isReorderingInSameFolder ||
+      !hoveredNode.id ||
+      !allSelectedHaveSameParent ||
+      hoveredNode.namePath === "/Trash"
+    );
   };
 
-  const createFileFolder = (
-    <div className="flex gap-2">
-      <button
-        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer"
-        onClick={() => treeRef.current.createInternal()}
-        title="New Folder..."
-      >
-        <TbFolderPlus />
-      </button>
-      <button
-        className="bg-green-500 text-white p-2 rounded hover:bg-green-600 cursor-pointer"
-        onClick={() => treeRef.current.createLeaf()}
-        title="New File..."
-      >
-        <AiOutlineFileAdd />
-      </button>
-    </div>
-  );
-
   const onMove = ({ dragIds, parentId, index }: any) => {
+    console.log(parentId);
     setIsLoading(true);
     const originalFolders = _.cloneDeep(folderStore.folders);
     folderStore.moveNodes(dragIds, parentId);
@@ -275,9 +291,7 @@ const Arborist = ({ width }: ArboristProps) => {
         targetId: parentId,
         updateType: "moveNode",
       })
-      .then(({ data }) => {
-        setIsLoading(false);
-      })
+      .then(({ data }) => {})
       .catch((error) => {
         folderStore.setFolders(originalFolders);
         console.log(error?.response?.data);
@@ -304,9 +318,7 @@ const Arborist = ({ width }: ArboristProps) => {
 
   return (
     <>
-      <div className="p-4">
-        {/* <Item label="Search" icon={Search} isSearch onClick={search.onOpen} /> */}
-        {/* <Item onClick={handleCreate} label="New page" icon={PlusCircle} /> */}
+      {/* <div className="p-4">
         <Input
           className="pr-8 bg-secondary border-primary/10 text-muted-foreground font-medium"
           placeholder="Filter"
@@ -315,11 +327,14 @@ const Arborist = ({ width }: ArboristProps) => {
         />
         {term && (
           <div role="button" onClick={clearInput}>
-            <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-20 right-6" />
+            <X className="h-6 w-6 text-muted-foreground rounded-sm absolute top-16 right-6" />
           </div>
         )}
-      </div>
-      <div className="overflow-y-hidden" style={{ height: `calc(100vh)` }}>
+      </div> */}
+      <div
+        className="overflow-y-hidden pt-8"
+        //style={{ height: `calc(100vh)` }}
+      >
         <DragContext.Provider
           value={{
             hoveredNode,
@@ -347,7 +362,8 @@ const Arborist = ({ width }: ArboristProps) => {
           {(dimens) => ( */}
             <Tree
               // {...dimens}
-              className="custom-scrollbar overflow-y-hidden h-[calc(100vh-100px)]"
+              //h-[calc(100vh-100px)]
+              className="custom-scrollbar overflow-y-hidden pb-10"
               renderCursor={CustomCursor}
               renderDragPreview={customDragPreviewWithTree}
               ref={treeRef}
@@ -356,7 +372,7 @@ const Arborist = ({ width }: ArboristProps) => {
               data={folderStore.folders}
               // initialData={folderStore.folders}
               width={width - 8}
-              height={screenHeight - 200}
+              height={screenHeight - 180}
               // rowClassName={"max-w-[200px] w-full"}
               indent={15}
               rowHeight={31}
@@ -364,7 +380,7 @@ const Arborist = ({ width }: ArboristProps) => {
               disableDrop={disableDrop}
               disableDrag={disableDrag}
               onMove={onMove}
-              searchMatch={(node, term) => node.data.namePath.toLowerCase().includes(term.toLowerCase())}
+              // searchMatch={(node, term) => node.data.namePath.toLowerCase().includes(term.toLowerCase())}
             >
               {Node as any}
             </Tree>
@@ -377,4 +393,4 @@ const Arborist = ({ width }: ArboristProps) => {
   );
 };
 
-export default Arborist;
+export default FileTree;

@@ -282,3 +282,37 @@ body {
 .action-button-clicked {
   visibility: visible;
 }
+
+.ant-upload-list {
+  color: hsl(var(--primary));
+}
+
+/* .ant-upload-icon {
+  color: hsl(var(--primary));
+  background-color: hsl(var(--primary));
+}
+
+.ant-btn {
+  color: hsl(var(--primary));
+  background-color: hsl(var(--primary));
+} */
+
+.anticon {
+  color: hsl(var(--primary)) !important;
+}
+.anticon.anticon-delete {
+  color: #f85249 !important;
+}
+
+.ant-upload-list-item.ant-upload-list-item-success {
+  color: #74c991 !important;
+}
+
+.anticon.anticon-inbox {
+  color: #4f5eff !important;
+}
+
+/* .ant-upload-list {
+  max-height: 150px;
+  overflow-y: scroll;
+} */

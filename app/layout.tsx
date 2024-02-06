@@ -8,6 +8,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
 import NextTopLoader from "nextjs-toploader";
+import HolyLoader from "holy-loader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
@@ -41,7 +42,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <SessionProvider session={session}>
       <html lang="en" suppressHydrationWarning>
         <body className={cn(font.className)}>
-          <NextTopLoader color="#4f5eff" />
+          {/* <NextTopLoader color="#4f5eff" /> */}
+          <HolyLoader color="#4f5eff" height={4} speed={250} easing="linear" showSpinner />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

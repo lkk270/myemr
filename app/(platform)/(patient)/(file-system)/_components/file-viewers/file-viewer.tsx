@@ -11,10 +11,11 @@ import { Spinner } from "@/components/spinner";
 interface FileViewerProps {
   fileId: string;
   fileSrc: string;
+  fileName: string;
   fileType: string;
 }
 
-export const Viewer = ({ fileId, fileSrc, fileType }: FileViewerProps) => {
+export const Viewer = ({ fileName, fileId, fileSrc, fileType }: FileViewerProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading } = useIsLoading();
   const [visible, setVisible] = useState(true);

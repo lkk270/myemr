@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Tree } from "react-arborist";
 import Node from "./node";
-import { TbFolderPlus } from "react-icons/tb";
-import { AiOutlineFileAdd } from "react-icons/ai";
 import DragContext from "./drag-context";
 import { File, FolderClosed, X } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { Input } from "@/components/ui/input";
+import { usePathname } from "next/navigation";
+import { usePathnameHook } from "./hooks/use-pathname";
+// import { Input } from "@/components/ui/input";
 import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
 import { useIsLoading } from "@/hooks/use-is-loading";
@@ -150,6 +150,11 @@ const customDragPreview = (
 
 const FileTree = ({ width }: FileTreeProps) => {
   const folderStore = useFolderStore();
+  const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
+  const { prevPathnameVar, setPrevPathnameVar, pathnameVar, setPathnameVar } = usePathnameHook();
+  // const [nodeIdFromPath, setNodeIdFromPath] = useState<string | null>(null);
+
   // const [treeInstance, setTreeInstance] = useState<any>(null);
   // folderStore.setFolders(data);
   // console.log(folderStore.folders);
@@ -208,13 +213,24 @@ const FileTree = ({ width }: FileTreeProps) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    setIsMounted(true);
+    setPathnameVar(pathname);
+  }, []);
+
+  useEffect(() => {
+    console.log("IN HERE");
+    setPrevPathnameVar(pathnameVar);
+    setPathnameVar(pathname);
+  }, [pathname]);
+
   // Now, this is just a reference to the tree component
 
   // Update the ref callback
 
-  const clearInput = () => {
-    setTerm("");
-  };
+  // const clearInput = () => {
+  //   setTerm("");
+  // };
 
   const customDragPreviewWithTree = (props: any) => {
     if (!treeRef || !treeRef.current) {
@@ -252,25 +268,6 @@ const FileTree = ({ width }: FileTreeProps) => {
       hoveredNode.namePath === "/Trash"
     );
   };
-
-  const createFileFolder = (
-    <div className="flex gap-2">
-      <button
-        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer"
-        onClick={() => treeRef.current.createInternal()}
-        title="New Folder..."
-      >
-        <TbFolderPlus />
-      </button>
-      <button
-        className="bg-green-500 text-white p-2 rounded hover:bg-green-600 cursor-pointer"
-        onClick={() => treeRef.current.createLeaf()}
-        title="New File..."
-      >
-        <AiOutlineFileAdd />
-      </button>
-    </div>
-  );
 
   const onMove = ({ dragIds, parentId, index }: any) => {
     console.log(parentId);

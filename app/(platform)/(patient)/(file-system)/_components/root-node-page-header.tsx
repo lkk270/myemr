@@ -19,7 +19,7 @@ export const RootNodePageHeader = ({}: NodePageHeaderProps) => {
 
   return (
     <div className="pb-4 gap-y-2 flex flex-col">
-      <div className="grid grid-cols-1 xxs:grid-cols-2 gap-y-2 xs:flex-row xs:flex gap-x-2 ">
+      <div className="grid grid-cols-1 xxs:grid-cols-2 gap-y-2 xs:flex-row xs:flex gap-x-2">
         <Button
           disabled={isLoading}
           onClick={() => uploadFilesModal.onOpen(null, true)}

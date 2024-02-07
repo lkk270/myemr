@@ -43,8 +43,6 @@ export const UploadFilesModal = () => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {}, [files]);
-
   useEffect(() => {
     setFiles([]);
   }, [uploadFilesModal.nodeData?.id]);

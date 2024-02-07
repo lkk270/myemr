@@ -24,6 +24,10 @@ export const DownloadModal = () => {
   const downloadFile = useDownloadFile();
   const downloadZip = useDownloadZip();
   const { singleLayerNodes } = useFolderStore();
+  const [fileIds, setFileIds] = useState<string[]>([]);
+  const [parentNamePath, setParentNamePath] = useState<string>("");
+  const [parentName, setParentName] = useState<string>("");
+
   const downloadNodes = downloadModal.nodeDatas;
   const firstDownloadNode = downloadNodes ? downloadNodes[0] : null;
 
@@ -31,14 +35,42 @@ export const DownloadModal = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !downloadModal || !downloadNodes || !firstDownloadNode) {
+  useEffect(() => {
+    if (!isMounted || !downloadNodes || downloadNodes.length === 0) {
+      return;
+    }
+
+    let newFileIds: string[] = [];
+    let newParentNamePath = "";
+    let newParentName = "";
+    if (!!firstDownloadNode && !firstDownloadNode.isFile && downloadNodes.length === 1) {
+      newFileIds = singleLayerNodes
+        .filter((node) => node.isFile && node.path.includes(`/${firstDownloadNode.id}/`))
+        .map((node) => node.id);
+      newParentNamePath = firstDownloadNode.namePath;
+      newParentName = firstDownloadNode.name;
+    } else if (downloadNodes.length > 1) {
+      downloadNodes.forEach((node) => {
+        if (node.isFile) {
+          newFileIds.push(node.id);
+        } else {
+          let folderFileIds = singleLayerNodes
+            .filter((n) => n.isFile && n.path.includes(`/${node.id}/`))
+            .map((n) => n.id);
+          newFileIds = [...newFileIds, ...folderFileIds];
+        }
+      });
+      const parentNode = singleLayerNodes.find((node) => node.id === firstDownloadNode?.parentId);
+      newParentNamePath = parentNode?.namePath || "enclosing";
+      newParentName = parentNode?.name || "enclosing";
+    }
+    setParentNamePath(newParentNamePath);
+    setParentName(newParentName);
+    setFileIds(newFileIds);
+  }, [isMounted, downloadNodes, singleLayerNodes]);
+
+  if (!isMounted || !downloadModal.isOpen || !downloadNodes || !firstDownloadNode) {
     return null;
-  }
-  let fileIds: string[] = [];
-  if (!firstDownloadNode.isFile) {
-    fileIds = singleLayerNodes
-      .filter((node) => node.isFile && node.path.includes(`/${firstDownloadNode.id}/`))
-      .map((node) => node.id);
   }
 
   return (
@@ -63,9 +95,9 @@ export const DownloadModal = () => {
           <AlertDialogAction
             className="w-20 h-8 text-sm"
             onClick={async () => {
-              downloadNodes[0].isFile
+              downloadNodes[0].isFile && downloadNodes.length === 1
                 ? downloadFile(firstDownloadNode.id)
-                : downloadZip(fileIds, firstDownloadNode.namePath, firstDownloadNode.name);
+                : downloadZip(fileIds, parentNamePath, parentName);
               downloadModal.onClose();
             }}
           >

@@ -40,7 +40,7 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
 
 export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {
   const user = await currentUser();
-
+  console.log(fileIds);
   if (!user) {
     return { error: "Unauthorized" };
   }

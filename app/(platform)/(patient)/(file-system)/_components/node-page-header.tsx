@@ -50,14 +50,14 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   return (
     <div className="pb-4 gap-y-2 flex flex-col">
       {!isFile && !node.namePath.startsWith("/Trash") && (
-        <div className="flex flex-col xs:flex-row gap-x-2 gap-y-2">
+        <div className="grid grid-cols-2 gap-y-2 xs:flex-row xs:flex gap-x-2">
           <Button
             disabled={isLoading}
             onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
             className={cn(
               isLoading && "cursor-not-allowed",
-              "border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8",
+              "border border-primary/10 flex flex-col items-start justify-center w-[126px] xxs:w-40 px-3 py-8",
             )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
@@ -71,7 +71,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             variant="secondary"
             className={cn(
               isLoading && "cursor-not-allowed",
-              "border border-primary/10 flex flex-col items-start justify-center w-36 xs:w-40 px-3 py-8",
+              "border border-primary/10 flex flex-col items-start justify-center w-[126px] xxs:w-40 px-3 py-8",
             )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">

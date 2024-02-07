@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-
+import { useMediaQuery } from "usehooks-ts";
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   newOnOpen?: () => void;
@@ -18,6 +18,7 @@ interface DataTableToolbarProps<TData> {
 
 export function DataTableToolbar<TData>({ table, newOnOpen, filters = [] }: DataTableToolbarProps<TData>) {
   // const newMedicationModal = useNewMedicationModal();
+  const isMobile = useMediaQuery("(max-width: 450px)");
   const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
@@ -35,16 +36,18 @@ export function DataTableToolbar<TData>({ table, newOnOpen, filters = [] }: Data
           onChange={(event) => setFilterText(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {filters.map((filter) => {
-          return (
-            <DataTableFacetedFilter
-              key={filter.accessorKey}
-              column={table.getColumn(filter.accessorKey)}
-              title={filter.title}
-              options={filter.options}
-            />
-          );
-        })}
+
+        {!isMobile &&
+          filters.map((filter) => {
+            return (
+              <DataTableFacetedFilter
+                key={filter.accessorKey}
+                column={table.getColumn(filter.accessorKey)}
+                title={filter.title}
+                options={filter.options}
+              />
+            );
+          })}
         {isFiltered && (
           <Button
             variant="ghost"

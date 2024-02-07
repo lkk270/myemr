@@ -21,7 +21,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
 
   return (
     <>
-      <nav className="justify-between px-3 py-2 w-full flex items-center gap-x-4">
+      <nav className="justify-between px-3 py-4 xs:py-2 w-full flex items-center gap-x-4">
         {isCollapsed && (
           <div className="flex items-center gap-x-4 xs:gap-x-6">
             <Logo showText={false} />

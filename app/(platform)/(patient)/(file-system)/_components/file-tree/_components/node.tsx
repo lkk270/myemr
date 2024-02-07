@@ -325,9 +325,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
             >
               {node.data.isFile ? (
                 <>
-                  <GripVertical
-                    className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
-                  />
+                  <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
                   <span className="w-5 flex-shrink-0 mr-1"></span>
                   <span className="mr-2 flex items-center flex-shrink-0">
                     <CustomIcon size={iconSize} />
@@ -336,9 +334,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               ) : (
                 <>
                   {!node.data.isRoot && (
-                    <GripVertical
-                      className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
-                    />
+                    <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
                   )}
                   {!isTrashNode && (
                     <span

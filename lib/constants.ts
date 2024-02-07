@@ -21,11 +21,11 @@ export const navRoutes = [
     href: "/about",
     label: "About",
   },
-  {
-    icon: ScrollText,
-    href: "/notes",
-    label: "Notes",
-  },
+  // {
+  //   icon: ScrollText,
+  //   href: "/notes",
+  //   label: "Notes",
+  // },
   {
     icon: Stethoscope,
     href: "/providers",

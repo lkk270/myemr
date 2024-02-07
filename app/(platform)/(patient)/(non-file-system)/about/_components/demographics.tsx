@@ -1,9 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { buttonVariants } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -341,7 +337,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           </Card>
         </TabsContent>
         <TabsContent className="w-full" value="contact">
-          <Card className="min-h-full shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
+          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
             <CardHeaderComponent
               title="Contact Information"
               isEditing={isEditing}
@@ -388,6 +384,22 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   disabled={!isEditing || isLoading}
                 />
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent className="w-full" value="insurance">
+          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
+            <CardHeaderComponent
+              title="Insurance"
+              isEditing={isEditing}
+              isLoading={isLoading}
+              handleSave={handleSave}
+              handleEditToggle={handleEditToggle}
+              handleCancel={handleCancel}
+              showButtons={false}
+            />
+            <CardContent className="pt-4">
+              <div className="grid gap-y-4"></div>
             </CardContent>
           </Card>
         </TabsContent>

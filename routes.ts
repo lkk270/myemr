@@ -27,15 +27,7 @@ export const authRoutes = [
  * An array of routes that are patient specific
  * @type {string[]}
  */
-export const patientRoutes = [
-  "/patient-home",
-  "/files",
-  "/about",
-  "/meds",
-  "/notes",
-  "/providers",
-  "/patient-settings",
-];
+export const patientRoutes = ["/patient-home", "/files", "/about", "/meds", "/providers", "/patient-settings"];
 
 /**
  * An array of routes that are provider specific

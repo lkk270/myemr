@@ -17,6 +17,7 @@ import { useDownloadFile, useDownloadZip } from "../../../hooks/use-download-fil
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useFolderStore } from "../../../hooks/use-folders";
+import { toast } from "sonner";
 
 export const DownloadModal = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -35,6 +36,7 @@ export const DownloadModal = () => {
     setIsMounted(true);
   }, []);
 
+  
   useEffect(() => {
     if (!isMounted || !downloadNodes || downloadNodes.length === 0) {
       return;
@@ -67,6 +69,11 @@ export const DownloadModal = () => {
     setParentNamePath(newParentNamePath);
     setParentName(newParentName);
     setFileIds(newFileIds);
+    if (newFileIds.length === 0 && downloadModal.isOpen) {
+      const folderStr = downloadNodes.length <= 1 ? "a folder that doesn't" : "folders that don't";
+      toast.warning(`Can't export ${folderStr} contain any files`, { duration: 3000 });
+      downloadModal.onClose();
+    }
   }, [isMounted, downloadNodes, singleLayerNodes]);
 
   if (!isMounted || !downloadModal.isOpen || !downloadNodes || !firstDownloadNode) {
@@ -94,6 +101,7 @@ export const DownloadModal = () => {
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="w-20 h-8 text-sm"
+            // disabled={fileIds.length === 0}
             onClick={async () => {
               downloadNodes[0].isFile && downloadNodes.length === 1
                 ? downloadFile(firstDownloadNode.id)

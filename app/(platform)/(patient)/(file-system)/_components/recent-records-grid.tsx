@@ -59,16 +59,23 @@ export const RecentRecordsGrid = ({}) => {
         })}
       </div>
       <div className="text-lg font-bold py-3">Recent Files</div>
-      <div
-        className="grid grid-flow-row gap-2 pb-10 auto-cols-max"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
-      >
-        {files.map((item, index) => {
-          if (item.isFile) {
-            return <RecordCard record={item} key={`file-${index}`} />;
-          }
-        })}
-      </div>
+      {files.length === 0 ? (
+        <div className="relative w-32 gap-y-4">
+          <Image draggable={false} height={300} width={300} src="/noData.svg" alt="Empty" />
+          <span className="text-md font-bold">No data found.</span>
+        </div>
+      ) : (
+        <div
+          className="grid grid-flow-row gap-2 pb-10 auto-cols-max"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
+        >
+          {files.map((item, index) => {
+            if (item.isFile) {
+              return <RecordCard record={item} key={`file-${index}`} />;
+            }
+          })}
+        </div>
+      )}
     </div>
   );
 };

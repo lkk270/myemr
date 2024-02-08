@@ -103,9 +103,12 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({
     where: { userId: user.id },
-    select: { usedFileStorage: true, plan: true },
+    select: { id: true, usedFileStorage: true, plan: true },
   });
 
+  if (!sortedFolders || !patient) {
+    return <div>something went wrong</div>;
+  }
   // const singleLayerFolders = await prismadb.folder.findMany({
   //   where: {
   //     userId: user.id,
@@ -157,9 +160,8 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // const singleLayerNodesOld = addLastViewedAtAndSort(singleLayerFolders.concat(singleLayerFiles));
   // console.log(singleLayerNodesOld);
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-  // console.log(singleLayerNodes);
   const trashExists = singleLayerNodes.some((obj: SingleLayerNodesType2) => obj.namePath === "/Trash");
-  if (singleLayerNodes && !trashExists && singleLayerNodes.length > 0) {
+  if (singleLayerNodes && !trashExists) {
     const trashFolder = await prismadb.folder.create({
       data: {
         name: "Trash",
@@ -168,15 +170,11 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
         addedByUserId: user.id,
         addedByName: `${user.name}`,
         userId: user.id,
-        patientProfileId: singleLayerNodes[0].patientProfileId,
+        patientProfileId: patient.id,
       },
     });
     singleLayerNodes.push(trashFolder);
     sortedFolders.push(trashFolder);
-  }
-
-  if (!sortedFolders || !singleLayerNodes || !patient) {
-    return <div>something went wrong</div>;
   }
 
   const usedFileStorage = patient.usedFileStorage;

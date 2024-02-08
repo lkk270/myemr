@@ -248,11 +248,13 @@ model File {
 }
 
 model DeadFile {
-  id               String @id @default(cuid())
+  id               String   @id @default(cuid())
   awsKey           String
   userId           String
   patientProfileId String
   size             Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // model ProviderProfile {

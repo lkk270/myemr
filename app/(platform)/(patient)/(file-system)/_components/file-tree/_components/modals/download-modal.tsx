@@ -36,7 +36,6 @@ export const DownloadModal = () => {
     setIsMounted(true);
   }, []);
 
-  
   useEffect(() => {
     if (!isMounted || !downloadNodes || downloadNodes.length === 0) {
       return;
@@ -69,7 +68,7 @@ export const DownloadModal = () => {
     setParentNamePath(newParentNamePath);
     setParentName(newParentName);
     setFileIds(newFileIds);
-    if (newFileIds.length === 0 && downloadModal.isOpen) {
+    if (newFileIds.length === 0 && !firstDownloadNode?.isFile && downloadModal.isOpen) {
       const folderStr = downloadNodes.length <= 1 ? "a folder that doesn't" : "folders that don't";
       toast.warning(`Can't export ${folderStr} contain any files`, { duration: 3000 });
       downloadModal.onClose();

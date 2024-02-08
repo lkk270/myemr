@@ -50,7 +50,7 @@ export const RecentRecordsGrid = ({}) => {
       <div className="text-lg font-bold py-3">Recent Folders</div>
       <div
         className="grid grid-flow-row gap-2 pb-10 auto-cols-max"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))" }}
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
       >
         {folders.map((item, index) => {
           if (!item.isFile) {
@@ -61,7 +61,7 @@ export const RecentRecordsGrid = ({}) => {
       <div className="text-lg font-bold py-3">Recent Files</div>
       <div
         className="grid grid-flow-row gap-2 pb-10 auto-cols-max"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))" }}
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
       >
         {files.map((item, index) => {
           if (item.isFile) {

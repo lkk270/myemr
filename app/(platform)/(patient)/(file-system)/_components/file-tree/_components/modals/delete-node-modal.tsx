@@ -54,8 +54,8 @@ export const DeleteModal = () => {
         })
         .then(({ data }) => {
           foldersStore.deleteNode(deleteNode.id, deleteModal.forEmptyTrash);
-          console.log(BigInt(foldersStore.usedFileStorage));
-          console.log(BigInt(data.totalSize));
+          // console.log(BigInt(foldersStore.usedFileStorage));
+          // console.log(BigInt(data.totalSize));
           const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(data.totalSize);
           foldersStore.setUsedFileStorage(newUsedFileStorage);
           if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {

@@ -235,7 +235,6 @@ export async function POST(req: Request) {
         return new NextResponse("file not found", { status: 500 });
       }
       await deleteNode(nodeId, isFile, forEmptyTrash, totalSize, patient.id);
-      console.log(rawObjects);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
       return new NextResponse(JSON.stringify({ totalSize: totalSize }));
     } else if (updateType === "addRootNode") {

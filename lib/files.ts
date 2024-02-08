@@ -231,7 +231,9 @@ async function deleteSubFolders(prisma: any, parentId: string) {
 
 export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, patientProfileId: string) {
   const allFilesToDelete = await prismadb.file.findMany({
-    where: isFile ? { id: nodeId } : { path: { contains: nodeId } },
+    where: isFile
+      ? { id: nodeId, status: FileStatus.SUCCESS }
+      : { path: { contains: nodeId }, status: FileStatus.SUCCESS },
     select: {
       id: true,
       size: true,

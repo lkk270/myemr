@@ -243,7 +243,7 @@ export const UploadFilesModal = () => {
             </AlertDialogTitle>
           )}
 
-          <Dropzone onChange={setFiles} className="w-full" fileExtension="pdf" />
+          <Dropzone onChangeMulti={setFiles} className="w-full" />
         </AlertDialogHeader>
 
         {/* Scrollable File List */}

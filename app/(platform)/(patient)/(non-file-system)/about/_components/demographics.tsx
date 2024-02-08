@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
+import { Button } from "@/components/ui/button";
 
 import _ from "lodash";
 const inputClassName = "bg-secondary border-primary/10";
@@ -42,6 +44,7 @@ const tabsData = [
 ];
 
 export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
+  const uploadInsuranceModal = useUploadInsuranceModal();
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
   const [isEditing, setIsEditing] = useState(false);
@@ -399,7 +402,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
               showButtons={false}
             />
             <CardContent className="pt-4">
-              <div className="grid gap-y-4"></div>
+              <Button onClick={uploadInsuranceModal.onOpen}>Upload</Button>
             </CardContent>
           </Card>
         </TabsContent>

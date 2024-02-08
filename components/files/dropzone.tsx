@@ -9,13 +9,14 @@ import { cn } from "@/lib/utils";
 
 // Define the props expected by the Dropzone component
 interface DropzoneProps {
-  onChange: React.Dispatch<React.SetStateAction<FileWithStatus[]>>;
+  onChangeMulti?: React.Dispatch<React.SetStateAction<FileWithStatus[]>>;
+  onChangeSingle?: React.Dispatch<React.SetStateAction<FileWithStatus | null>>;
   className?: string;
-  fileExtension?: string;
+  forInsurance?: boolean;
 }
 
 // Create the Dropzone component receiving props
-export function Dropzone({ onChange, className, fileExtension, ...props }: DropzoneProps) {
+export function Dropzone({ onChangeMulti, onChangeSingle, className, forInsurance = false, ...props }: DropzoneProps) {
   // Initialize state variables using the useState hook
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isOverArea, setIsOverArea] = useState(false);
@@ -63,7 +64,11 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
     }
     console.log(newFiles);
     setFileInfo((prevFiles) => [...newFiles.map((fws) => fws.file), ...prevFiles]);
-    onChange((prevFiles) => [...newFiles, ...prevFiles]);
+    if (onChangeMulti) {
+      onChangeMulti((prevFiles) => [...newFiles, ...prevFiles]);
+    } else if (onChangeSingle) {
+      onChangeSingle(newFiles[0]);
+    }
     setError(null);
   };
 
@@ -97,7 +102,10 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
             <input
               ref={fileInputRef}
               type="file"
-              accept={`
+              accept={
+                forInsurance
+                  ? `image/png, image/jpeg`
+                  : `
               image/*,audio/*,video/*,
               .heic,.webp,.ipynb,
               .pdf,.doc,.docx,.txt,.csv,.xls,.xlsx,.ppt,.pptx,
@@ -116,10 +124,11 @@ export function Dropzone({ onChange, className, fileExtension, ...props }: Dropz
               application/vnd.oasis.opendocument.spreadsheet,
               application/vnd.oasis.opendocument.presentation,
               application/x-dicom
-            `}
+            `
+              }
               onChange={handleFileInputChange}
               className="hidden"
-              multiple
+              multiple={!forInsurance}
             />
           </div>
           {/* {error && <span className="text-red-500">{error}</span>} */}

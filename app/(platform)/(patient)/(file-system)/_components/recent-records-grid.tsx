@@ -46,7 +46,7 @@ export const RecentRecordsGrid = ({}) => {
   const files = singleLayerNodes.filter((node) => node.isFile).slice(0, 12);
 
   return (
-    <div className="pr-3 pt-4 max-h-[calc(100vh-206px)] overflow-y-scroll">
+    <div className="pr-3 pt-4 max-h-[calc(100vh-340px)] xs:max-h-[calc(100vh-206px)] overflow-y-scroll">
       <div className="text-lg font-bold py-3">Recent Folders</div>
       <div
         className="grid grid-flow-row gap-2 pb-10 auto-cols-max"

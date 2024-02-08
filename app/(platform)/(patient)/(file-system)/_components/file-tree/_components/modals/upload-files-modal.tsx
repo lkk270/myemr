@@ -93,14 +93,13 @@ export const UploadFilesModal = () => {
     }
 
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
-    console.log(tempFileList);
+    // console.log(tempFileList);
     const uploadPromises = tempFileList
       .filter((fileObj) => !fileObj.status || isForRetry)
       .map(async (tempFile, index) => {
         let fileId = null;
         let goodPsuResponse = false;
         try {
-          console.log("IN HERE 96");
           const file = tempFile.file;
 
           const response = await fetch("/api/upload", {
@@ -126,10 +125,8 @@ export const UploadFilesModal = () => {
             fileId = fields.key.split("/")[1];
           }
           if (response.ok) {
-            console.log("GOOOD 124");
             goodPsuResponse = true;
           } else {
-            console.log("BADD 129");
             throw new Error(responseObj.message || "Upload failed");
           }
 
@@ -146,8 +143,6 @@ export const UploadFilesModal = () => {
           });
 
           if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
-
-          updateFileStatus(singleFileObj, "uploaded", index);
 
           const data = await updateStatus(fileId);
 
@@ -168,9 +163,11 @@ export const UploadFilesModal = () => {
               createdFile.size,
             );
           }
+          updateFileStatus(singleFileObj, "uploaded", index);
+
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
-          console.error("Upload or status update failed for file", index, error);
+          // console.error("Upload or status update failed for file", index, error);
           const errorMessage = error as any;
           const errorMessageStr = errorMessage.toString();
           if (goodPsuResponse) {
@@ -208,7 +205,7 @@ export const UploadFilesModal = () => {
   const cancelUpload = (fileObj: FileWithStatus) => {
     fileObj.controller.abort(); // Abort the request for this specific file
     // Update the file's status to reflect the cancellation, if necessary
-    console.log("IN HERE");
+    // console.log("IN HERE");
     // updateFileStatus(fileObj, "canceled", -1);
   };
 

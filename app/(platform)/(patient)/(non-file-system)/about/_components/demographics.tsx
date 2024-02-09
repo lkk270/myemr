@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,7 +21,6 @@ import { cn, checkForInvalidDemographicsData, calculateBMI, isLinkExpired } from
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
-import { Button } from "@/components/ui/button";
 import { useInsuranceImages } from "../hooks/use-insurance-images";
 import _ from "lodash";
 import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";

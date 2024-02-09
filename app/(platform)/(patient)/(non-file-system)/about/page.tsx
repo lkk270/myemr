@@ -65,19 +65,7 @@ const PatientDemographics = async () => {
     },
   });
 
-  const insurance = await prismadb.insuranceFile.findMany({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      side: true,
-    },
-    orderBy: {
-      side: "asc",
-    },
-  });
-  const insuranceLength = insurance.length;
-  if (!patientDemographics || insuranceLength === 1 || insuranceLength > 2) {
+  if (!patientDemographics) {
     return <div>something went wrong</div>;
   }
   let decryptedPatientDemographics;
@@ -89,7 +77,7 @@ const PatientDemographics = async () => {
   }
   return (
     <div className="flex pt-4 px-2 xs:px-10 h-full justify-center">
-      <Demographics insurance={insurance} patientDemographics={decryptedPatientDemographics} />
+      <Demographics patientDemographics={decryptedPatientDemographics} />
     </div>
   );
 };

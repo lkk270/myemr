@@ -17,7 +17,7 @@ import { GenericCalendar } from "@/components/generic-calendar";
 import { GenericAddress } from "@/components/generic-address";
 import { CardHeaderComponent } from "./card-header";
 import { toast } from "sonner";
-import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
+import { cn, checkForInvalidDemographicsData, calculateBMI, isLinkExpired } from "@/lib/utils";
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
@@ -26,10 +26,12 @@ import { useInsuranceImages } from "../hooks/use-insurance-images";
 import _ from "lodash";
 import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";
 import { ImageViewer } from "../../../(file-system)/_components/file-viewers/image-viewer";
+import { InsuranceSkeleton } from "./insurance-skeleton";
+import { getInsurance } from "../actions/get-insurance";
+
 const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
-  insurance: { side: InsuranceSide }[];
   patientDemographics: PatientDemographicsType;
 }
 
@@ -46,38 +48,60 @@ const tabsData = [
   { value: "insurance", label: "Insurance" },
 ];
 
-export const Demographics = ({ patientDemographics, insurance }: PatientDemographicsProps) => {
+export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
   const uploadInsuranceModal = useUploadInsuranceModal();
+  const [isMounted, setIsMounted] = useState(false);
   const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
   const [isEditing, setIsEditing] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
+  const [activeTab, setActiveTab] = useState("demographics");
+  const [insurance, setInsurance] = useState<{ side: InsuranceSide }[]>([]);
+  const [attemptedInsuranceGet, setAttemptedInsuranceGet] = useState(false);
 
   useEffect(() => {
-    // Define an async function inside the useEffect
     const fetchUrls = async () => {
-      if (insurance.length === 2) {
+      if (!isMounted) return;
+      if (!attemptedInsuranceGet) {
+        setAttemptedInsuranceGet(true);
+        const data = await getInsurance();
+        const insuranceData = data.insurance;
+        if (insuranceData) setInsurance(insuranceData);
+      }
+      if (
+        insurance.length === 2 &&
+        activeTab === "insurance" &&
+        (!imagesUrls["front"] ||
+          !imagesUrls["back"] ||
+          isLinkExpired(imagesUrls["front"]) ||
+          isLinkExpired(imagesUrls["front"]))
+      ) {
         try {
-          // Await the async operations inside this function
+          setIsLoading(true);
+
           const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT);
           const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK);
 
-          // Corrected from backUrl.presignedUrl to backUrlData.presignedUrl
           const frontUrl = frontUrlData.presignedUrl;
           const backUrl = backUrlData.presignedUrl;
 
-          // Assuming setInsuranceImageUrls should be called with an object or separate calls for each side
-          // If it's meant to be separate calls for each url:
           setInsuranceImageUrls({ front: frontUrl, back: backUrl });
+
+          setIsMounted(true);
+          setIsLoading(false);
         } catch (error) {
+          setIsLoading(false);
+          setIsMounted(true);
           console.error("Failed to fetch presigned URLs", error);
         }
       }
     };
 
+    // Only attempt to fetch URLs if the "insurance" tab is active
+    setIsMounted(true);
     fetchUrls();
-  }, []);
+  }, [insurance, activeTab]);
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 
@@ -209,12 +233,52 @@ export const Demographics = ({ patientDemographics, insurance }: PatientDemograp
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
+  const InsuranceContent = () => {
+    // Decide the content based on the state
+    let contentElements;
+
+    if (imagesUrls.front && imagesUrls.back) {
+      // Render ImageViewer components for front and back images
+      contentElements = (
+        <>
+          <ImageViewer forInsurance fileId={InsuranceSide.FRONT} fileSrc={imagesUrls.front} />
+          <ImageViewer forInsurance fileId={InsuranceSide.BACK} fileSrc={imagesUrls.back} />
+        </>
+      );
+    } else {
+      // Render InsuranceSkeleton components, with pulse only if isLoading is true
+      const skeletonProps = isLoading ? { pulse: true } : {};
+      contentElements = (
+        <>
+          <InsuranceSkeleton {...skeletonProps} />
+          <InsuranceSkeleton {...skeletonProps} />
+        </>
+      );
+    }
+
+    return (
+      <div
+        className="items-center pt-2 grid grid-flow-row gap-2 auto-cols-max"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))" }}
+      >
+        {contentElements}
+      </div>
+    );
+  };
+
   return (
     <Tabs orientation="vertical" defaultValue="demographics" className="w-full flex flex-col md:flex-row">
       {/* Sidebar with tabs */}
       <TabsList className="flex-row md:-mx-4 flex md:flex-col md:w-40 md:px-3 md:py-14 md:mt-2">
         {tabsData.map((tab) => (
-          <TabsTrigger key={tab.value} className="w-full data-[state=active]:bg-primary/10" value={tab.value}>
+          <TabsTrigger
+            onClick={() => {
+              setActiveTab(tab.value);
+            }}
+            key={tab.value}
+            className="w-full data-[state=active]:bg-primary/10"
+            value={tab.value}
+          >
             {tab.label}
           </TabsTrigger>
         ))}
@@ -428,20 +492,10 @@ export const Demographics = ({ patientDemographics, insurance }: PatientDemograp
               handleSave={handleSave}
               handleEditToggle={handleEditToggle}
               handleCancel={handleCancel}
-              showButtons={false}
+              forInsurance={true}
             />
             <CardContent className="pt-4">
-              <Button onClick={uploadInsuranceModal.onOpen}>Upload</Button>
-              {imagesUrls.front && imagesUrls.back && (
-                <div
-                  className=" items-center pt-2 grid grid-flow-row gap-2 auto-cols-max"
-                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))" }}
-                >
-                  <ImageViewer forInsurance fileId={InsuranceSide.FRONT} fileSrc={imagesUrls.front} />
-
-                  <ImageViewer forInsurance fileId={InsuranceSide.BACK} fileSrc={imagesUrls.back} />
-                </div>
-              )}
+              <InsuranceContent />
             </CardContent>
           </Card>
         </TabsContent>

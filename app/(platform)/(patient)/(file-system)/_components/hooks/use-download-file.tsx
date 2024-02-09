@@ -16,7 +16,7 @@ export const useDownloadFile = () => {
     // if (isLoading) return;
     // setIsLoading(true);
     // Call your API endpoint to get the presigned URL
-
+    console.log(fileId);
     const data = forInsurance
       ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true)
       : await getPresignedUrl(fileId, true);

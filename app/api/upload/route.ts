@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     if (!userId || !user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    if (!patientUpdateVerification(body)) {
+    if (!patientUpdateVerification({ ...body, updateType: "uploadFiles" })) {
       return NextResponse.json({ message: "Invalid body" }, { status: 400 });
     }
 
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
           },
           Expires: 600, // Seconds before the presigned post expires. 3600 by default.
         });
-        return Response.json({ url, fields });
+        return Response.json({ url, fields, fileIdResponse: file.id });
       } else {
         return Response.json({ error: "No file made" });
       }
@@ -115,9 +115,8 @@ export async function POST(request: Request) {
         .catch((decrementError) => console.error("Failed to decrement storage", decrementError));
       throw error;
     }
-  } catch (error) {
-    console.log(error);
-
-    return Response.json({ error: error });
+  } catch (error: any) {
+    const errorMessage = !!error && error.message ? error.message : "Something went wrong";
+    return Response.json({ error: errorMessage });
   }
 }

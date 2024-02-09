@@ -21,7 +21,7 @@ import { FileWithStatus, NodeDataType, SingleLayerNodesType2 } from "@/app/types
 import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { updateStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
+import { updateRegularFileStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
 
@@ -108,10 +108,8 @@ export const UploadFilesModal = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              updateType: "uploadFiles",
               fileName: file.name,
               contentType: file.type,
-              folderPath: "myfolder",
               size: file.size,
               parentId: parentNode?.id,
               parentNamePath: parentNode?.namePath,
@@ -119,10 +117,10 @@ export const UploadFilesModal = () => {
             }),
           });
           const responseObj = await response.json();
-          const { url, fields } = responseObj;
+          const { url, fields, fileIdResponse } = responseObj;
 
           if (fields.key) {
-            fileId = fields.key.split("/")[1];
+            fileId = fileIdResponse;
           }
           if (response.ok) {
             goodPsuResponse = true;
@@ -144,7 +142,7 @@ export const UploadFilesModal = () => {
 
           if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
 
-          const data = await updateStatus(fileId);
+          const data = await updateRegularFileStatus(fileId);
 
           if (!data.success) throw new Error(data.error || "Status update failed");
 

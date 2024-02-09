@@ -14,12 +14,20 @@ import { useDownloadFile } from "../hooks/use-download-file";
 interface ImageViewerProps {
   fileId: string;
   fileSrc: string;
+  forInsurance?: boolean;
 }
-export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
+export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageViewerProps) => {
   const downloadFile = useDownloadFile();
 
-  const calculateImageWidth = () =>
-    window.innerWidth <= 768 ? Math.min(window.innerWidth - 100, 510) : Math.min(window.innerWidth - 450, 510);
+  const calculateImageWidth = () => {
+    if (forInsurance) {
+      return window.innerWidth <= 1024
+        ? Math.min(window.innerWidth / 2 - 50, 260)
+        : Math.min(window.innerWidth / 2 - 225, 260);
+    } else {
+      return window.innerWidth <= 768 ? Math.min(window.innerWidth - 100, 510) : Math.min(window.innerWidth - 450, 510);
+    }
+  };
 
   const [imageWidth, setImageWidth] = useState(calculateImageWidth);
 

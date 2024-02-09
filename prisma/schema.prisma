@@ -74,6 +74,11 @@ enum DoctorPlan {
   PREMIUM_2
 }
 
+enum InsuranceSide {
+  FRONT
+  BACK
+}
+
 model PatientAddress {
   id       String  @id @default(uuid())
   address  String
@@ -220,6 +225,26 @@ model Folder {
   @@index([patientProfileId])
 }
 
+model InsuranceFile {
+  id               String         @id @default(cuid())
+  side             InsuranceSide
+  uploadedByUserId String?
+  uploadedByName   String         @default("Charli Dog")
+  type             String?
+  size             Int
+  status           FileStatus     @default(NOT_UPLOADED)
+  userId           String
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientProfileId])
+  @@unique([side, userId])
+  @@unique([side, patientProfileId])
+}
+
 model File {
   id               String     @id @default(cuid())
   name             String
@@ -364,13 +389,14 @@ model PatientProfile {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  member      Member[]
-  addresses   PatientAddress[]
-  medications Medication[]
-  folders     Folder[]
-  files       File[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  member        Member[]
+  addresses     PatientAddress[]
+  medications   Medication[]
+  folders       Folder[]
+  files         File[]
+  InsuranceFile InsuranceFile[]
 
   @@index([userId])
 }

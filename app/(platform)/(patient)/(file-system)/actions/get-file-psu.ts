@@ -2,7 +2,7 @@
 
 import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
-import { FileStatus } from "@prisma/client";
+import { FileStatus, InsuranceSide } from "@prisma/client";
 import { File } from "@prisma/client";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -36,6 +36,37 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
 
   return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
+};
+
+export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload = false) => {
+  const user = await currentUser();
+
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
+
+  const file = await prismadb.insuranceFile.findFirst({
+    where: {
+      userId: user.id,
+      side: side,
+    },
+  });
+  if (!file) {
+    return { error: "File not found" };
+  }
+
+  const s3Client = new S3Client({ region: process.env.AWS_REGION });
+  const command = new GetObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `${file.patientProfileId}/insurance/${side.toLowerCase()}`,
+    ResponseContentDisposition:
+      forDownload || !isViewableFile(file.type || "")
+        ? `attachment; filename="${file.side}"`
+        : `filename="${file.side}"`, // Sets the filename for the download
+  });
+  const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
+
+  return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.side };
 };
 
 export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {

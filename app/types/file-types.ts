@@ -88,4 +88,5 @@ export type FileWithStatus = {
   status?: "waiting" | "uploading" | "uploaded" | "error" | "canceled" | null;
   isRetrying?: boolean;
   controller: AbortController;
+  insuranceSide?: "front" | "back";
 };

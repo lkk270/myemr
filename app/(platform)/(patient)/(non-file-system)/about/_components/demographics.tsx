@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import axios from "axios";
 
-import { PatientAddress, Unit } from "@prisma/client";
+import { InsuranceSide, PatientAddress, Unit } from "@prisma/client";
 import { PatientDemographicsType } from "@/app/types";
 import { PhoneNumber } from "@/components/phone-number";
 import { GenericCombobox } from "@/components/generic-combobox";
@@ -22,11 +22,14 @@ import { genders, races, martialStatuses, heightsImperial, heightsMetric } from 
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
 import { Button } from "@/components/ui/button";
-
+import { useInsuranceImages } from "../hooks/use-insurance-images";
 import _ from "lodash";
+import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";
+import { ImageViewer } from "../../../(file-system)/_components/file-viewers/image-viewer";
 const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
+  insurance: { id: string; side: InsuranceSide }[];
   patientDemographics: PatientDemographicsType;
 }
 
@@ -43,12 +46,38 @@ const tabsData = [
   { value: "insurance", label: "Insurance" },
 ];
 
-export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
+export const Demographics = ({ patientDemographics, insurance }: PatientDemographicsProps) => {
   const uploadInsuranceModal = useUploadInsuranceModal();
+  const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
   const [isEditing, setIsEditing] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
+
+  useEffect(() => {
+    // Define an async function inside the useEffect
+    const fetchUrls = async () => {
+      if (insurance.length === 2) {
+        try {
+          // Await the async operations inside this function
+          const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT);
+          const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK);
+
+          // Corrected from backUrl.presignedUrl to backUrlData.presignedUrl
+          const frontUrl = frontUrlData.presignedUrl;
+          const backUrl = backUrlData.presignedUrl;
+
+          // Assuming setInsuranceImageUrls should be called with an object or separate calls for each side
+          // If it's meant to be separate calls for each url:
+          setInsuranceImageUrls({ front: frontUrl, back: backUrl });
+        } catch (error) {
+          console.error("Failed to fetch presigned URLs", error);
+        }
+      }
+    };
+
+    fetchUrls();
+  }, []);
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 
@@ -403,6 +432,17 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
             />
             <CardContent className="pt-4">
               <Button onClick={uploadInsuranceModal.onOpen}>Upload</Button>
+              {imagesUrls.front && imagesUrls.back && (
+                <div className="grid grid-cols-1 lg:grid-cols-2">
+                  <div className="justify-between items-center flex flex-col max-w-[150px]">
+                    <ImageViewer forInsurance fileId={insurance[0].id} fileSrc={imagesUrls.front} />
+                  </div>
+
+                  <div className="justify-between items-center flex flex-col max-w-[150px]">
+                    <ImageViewer forInsurance fileId={insurance[1].id} fileSrc={imagesUrls.back} />
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

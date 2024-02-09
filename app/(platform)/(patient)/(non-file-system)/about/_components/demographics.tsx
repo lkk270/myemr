@@ -61,8 +61,10 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
   useEffect(() => {
     const fetchUrls = async () => {
+      console.log("In 64");
       if (!isMounted) return;
       if (!attemptedInsuranceGet) {
+        console.log("In 67");
         setAttemptedInsuranceGet(true);
         const data = await getInsurance();
         const insuranceData = data.insurance;
@@ -76,6 +78,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
           isLinkExpired(imagesUrls["front"]) ||
           isLinkExpired(imagesUrls["front"]))
       ) {
+        console.log("In 81");
         try {
           setIsLoading(true);
 
@@ -84,7 +87,8 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
           const frontUrl = frontUrlData.presignedUrl;
           const backUrl = backUrlData.presignedUrl;
-
+          console.log(frontUrl);
+          console.log(backUrl);
           setInsuranceImageUrls({ front: frontUrl, back: backUrl });
 
           setIsMounted(true);

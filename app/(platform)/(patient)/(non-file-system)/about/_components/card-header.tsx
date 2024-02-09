@@ -4,11 +4,10 @@ import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
-
+import { useIsLoading } from "@/hooks/use-is-loading";
 interface CardHeaderComponentProps {
   title: string;
   isEditing: boolean;
-  isLoading: boolean;
   handleSave: () => void;
   handleEditToggle: () => void;
   handleCancel: () => void;
@@ -18,19 +17,19 @@ interface CardHeaderComponentProps {
 export const CardHeaderComponent = ({
   title,
   isEditing,
-  isLoading,
   handleSave,
   handleEditToggle,
   handleCancel,
   forInsurance = false,
 }: CardHeaderComponentProps) => {
+  const { isLoading } = useIsLoading();
   const { onOpen } = useUploadInsuranceModal();
   return (
     <div className="px-8">
       <CardHeader className="px-4 flex flex-row justify-between items-center bg-transparent text-primary/70 rounded-t-xl">
         <CardTitle className="px-0 text-md sm:text-xl">{title}</CardTitle>
         {forInsurance ? (
-          <Button size="sm" onClick={onOpen}>
+          <Button disabled={isLoading} size="sm" onClick={onOpen}>
             Upload
           </Button>
         ) : (

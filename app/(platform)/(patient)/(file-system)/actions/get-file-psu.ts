@@ -60,7 +60,7 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
   const command = new GetObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
-    Key: `${file.patientProfileId}/insurance/${side.toLowerCase()}`,
+    Key: `${file.patientProfileId}/insurance/${side}`,
     ResponseContentDisposition:
       forDownload || !isViewableFile(file.type || "") ? `attachment; filename="${fileName}"` : `filename="${fileName}"`, // Sets the filename for the download
   });

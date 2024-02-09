@@ -291,7 +291,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
             <CardHeaderComponent
               title="Personal Information"
               isEditing={isEditing}
-              isLoading={isLoading}
               handleSave={handleSave}
               handleEditToggle={handleEditToggle}
               handleCancel={handleCancel}
@@ -436,7 +435,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
             <CardHeaderComponent
               title="Contact Information"
               isEditing={isEditing}
-              isLoading={isLoading}
               handleSave={handleSave}
               handleEditToggle={handleEditToggle}
               handleCancel={handleCancel}
@@ -487,7 +485,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
             <CardHeaderComponent
               title="Insurance"
               isEditing={isEditing}
-              isLoading={isLoading}
               handleSave={handleSave}
               handleEditToggle={handleEditToggle}
               handleCancel={handleCancel}

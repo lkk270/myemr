@@ -230,7 +230,7 @@ model InsuranceFile {
   side             InsuranceSide
   uploadedByUserId String?
   uploadedByName   String         @default("Charli Dog")
-  type             String?
+  type             String
   size             Int
   status           FileStatus     @default(NOT_UPLOADED)
   userId           String
@@ -240,9 +240,9 @@ model InsuranceFile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([patientProfileId])
   @@unique([side, userId])
   @@unique([side, patientProfileId])
+  @@index([patientProfileId])
 }
 
 model File {

@@ -109,11 +109,12 @@ export const MoveModal = () => {
       {moveNodes.length === 1 ? (
         isMobile ? (
           <div>
-            <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${firstMoveNode.name})`}</span>
+            <div className="px-8 pt-1 text-sm text-primary/30 whitespace-normal break-all">{`(${firstMoveNode.name})`}</div>
             <CommandInput placeholder={`Move ${firstMoveNode.isFile ? "file" : "folder"} to...`} />
           </div>
         ) : (
           <CommandInput
+            className={cn(!isMobile && "pr-8 truncate")}
             placeholder={`Move the ${firstMoveNode.isFile ? "file" : "folder"} "${firstMoveNode.name}" to...`}
           />
         )

@@ -1,8 +1,6 @@
-// import { initialPatientProfile } from "@/lib/initial-profile";
+import { PatientHome } from "./_components/patient-home";
 
-const PatientHome = async () => {
-  // await initialPatientProfile();
-  return <p className="text-indigo-700 text-3xl">Hello Patient</p>;
+const Home = async () => {
+  return <PatientHome />;
 };
-
-export default PatientHome;
+export default Home;

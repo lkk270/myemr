@@ -55,18 +55,23 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
     return { error: "File not found" };
   }
 
+  const fileName = `${file.side}.${file.type.split("image/")[1]}`;
+
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
   const command = new GetObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `${file.patientProfileId}/insurance/${side.toLowerCase()}`,
     ResponseContentDisposition:
-      forDownload || !isViewableFile(file.type || "")
-        ? `attachment; filename="${file.side}"`
-        : `filename="${file.side}"`, // Sets the filename for the download
+      forDownload || !isViewableFile(file.type || "") ? `attachment; filename="${fileName}"` : `filename="${fileName}"`, // Sets the filename for the download
   });
   const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
 
-  return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.side };
+  return {
+    success: "Settings Updated!",
+    presignedUrl: presignedUrl,
+    type: file.type,
+    fileName: fileName,
+  };
 };
 
 export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {

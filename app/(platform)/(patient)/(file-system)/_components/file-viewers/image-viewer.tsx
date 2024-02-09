@@ -10,7 +10,6 @@ import React, { useEffect, useState } from "react";
 import { Image, Space } from "antd";
 // import { getPresignedUrl, handleDownload } from "../../actions/get-file-psu";
 import { useDownloadFile } from "../hooks/use-download-file";
-
 interface ImageViewerProps {
   fileId: string;
   fileSrc: string;
@@ -21,9 +20,7 @@ export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageView
 
   const calculateImageWidth = () => {
     if (forInsurance) {
-      return window.innerWidth <= 1024
-        ? Math.min(window.innerWidth / 2 - 50, 260)
-        : Math.min(window.innerWidth / 2 - 225, 260);
+      return Math.min(350, window.innerWidth);
     } else {
       return window.innerWidth <= 768 ? Math.min(window.innerWidth - 100, 510) : Math.min(window.innerWidth - 450, 510);
     }
@@ -89,7 +86,7 @@ export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageView
           { transform: { scale }, actions: { onFlipY, onFlipX, onRotateLeft, onRotateRight, onZoomOut, onZoomIn } },
         ) => (
           <Space size={12} className="toolbar-wrapper">
-            <DownloadOutlined onClick={() => downloadFile(fileId)} />
+            <DownloadOutlined onClick={() => downloadFile(fileId, forInsurance)} />
             <SwapOutlined rotate={90} onClick={onFlipY} />
             <SwapOutlined onClick={onFlipX} />
             <RotateLeftOutlined onClick={onRotateLeft} />

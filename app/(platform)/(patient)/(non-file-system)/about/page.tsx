@@ -70,7 +70,6 @@ const PatientDemographics = async () => {
       userId: user.id,
     },
     select: {
-      id: true,
       side: true,
     },
     orderBy: {

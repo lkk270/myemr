@@ -29,7 +29,7 @@ import { ImageViewer } from "../../../(file-system)/_components/file-viewers/ima
 const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
-  insurance: { id: string; side: InsuranceSide }[];
+  insurance: { side: InsuranceSide }[];
   patientDemographics: PatientDemographicsType;
 }
 
@@ -433,14 +433,13 @@ export const Demographics = ({ patientDemographics, insurance }: PatientDemograp
             <CardContent className="pt-4">
               <Button onClick={uploadInsuranceModal.onOpen}>Upload</Button>
               {imagesUrls.front && imagesUrls.back && (
-                <div className="grid grid-cols-1 lg:grid-cols-2">
-                  <div className="justify-between items-center flex flex-col max-w-[150px]">
-                    <ImageViewer forInsurance fileId={insurance[0].id} fileSrc={imagesUrls.front} />
-                  </div>
+                <div
+                  className=" items-center pt-2 grid grid-flow-row gap-2 auto-cols-max"
+                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))" }}
+                >
+                  <ImageViewer forInsurance fileId={InsuranceSide.FRONT} fileSrc={imagesUrls.front} />
 
-                  <div className="justify-between items-center flex flex-col max-w-[150px]">
-                    <ImageViewer forInsurance fileId={insurance[1].id} fileSrc={imagesUrls.back} />
-                  </div>
+                  <ImageViewer forInsurance fileId={InsuranceSide.BACK} fileSrc={imagesUrls.back} />
                 </div>
               )}
             </CardContent>

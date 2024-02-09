@@ -26,7 +26,7 @@ export const CardHeaderComponent = ({
   const { onOpen } = useUploadInsuranceModal();
   return (
     <div className="px-8">
-      <CardHeader className="px-4 flex flex-row justify-between items-center bg-transparent text-primary/70 rounded-t-xl">
+      <CardHeader className="px-4  pt-5 pb-3 flex flex-row justify-between items-center bg-transparent text-primary/70 rounded-t-xl">
         <CardTitle className="px-0 text-md sm:text-xl">{title}</CardTitle>
         {forInsurance ? (
           <Button disabled={isLoading} size="sm" onClick={onOpen}>

@@ -22,7 +22,9 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSi
   const [isOverArea, setIsOverArea] = useState(false);
   const [fileInfo, setFileInfo] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
-
+  const title = !!insuranceSide
+    ? "Click or drag a JPEG/JPG or PNG to this area to upload"
+    : "Click or drag file(s) to this area to upload.";
   // Function to handle drag over event
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -102,7 +104,7 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSi
         >
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Inbox color={"#4f5eff"} className="w-8 h-8 mb-2" />
-            <span className="font-medium text-sm">Click or drag file(s) to this area to upload.</span>
+            <span className="font-medium text-sm">{title}</span>
             <input
               ref={fileInputRef}
               type="file"

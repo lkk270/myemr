@@ -31,13 +31,13 @@ export const UploadInsuranceModal = () => {
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const uploadInsuranceModal = useUploadInsuranceModal();
-  const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
+  const { setInsuranceImageUrls } = useInsuranceImages();
   const [files, setFiles] = useState<{ front: FileWithStatus | null; back: FileWithStatus | null }>({
     front: null,
     back: null,
   });
 
-  const [imageUrls, setImageUrlsLocal] = useState<{ front: string | null; back: string | null }>({
+  const [imageUrlsLocal, setImageUrlsLocal] = useState<{ front: string | null; back: string | null }>({
     front: null,
     back: null,
   });
@@ -48,7 +48,7 @@ export const UploadInsuranceModal = () => {
 
   useEffect(() => {
     // Update for the front image
-    if (files.front?.file) {
+    if (!!files.front?.file) {
       const frontUrl = URL.createObjectURL(files.front.file);
       setImageUrlsLocal((currentUrls) => ({ ...currentUrls, front: frontUrl }));
       // Cleanup function for the front image
@@ -58,7 +58,7 @@ export const UploadInsuranceModal = () => {
 
   useEffect(() => {
     // Update for the back image
-    if (files.back?.file) {
+    if (!!files.back?.file) {
       const backUrl = URL.createObjectURL(files.back.file);
       setImageUrlsLocal((currentUrls) => ({ ...currentUrls, back: backUrl }));
       // Cleanup function for the back image
@@ -66,9 +66,9 @@ export const UploadInsuranceModal = () => {
     }
   }, [files.back?.file]); // Dependencies ensure this effect runs only when files change.
 
-  useEffect(() => {
-    console.log(files);
-  }, [files]);
+  // useEffect(() => {
+  //   console.log(files);
+  // }, [files]);
 
   if (!isMounted || !uploadInsuranceModal) {
     return null;
@@ -130,16 +130,11 @@ export const UploadInsuranceModal = () => {
           });
           const responseObj = await response.json();
           const { url, fields, fileIdResponse, updateStatusRequired } = responseObj;
-          console.log(url);
-          console.log(fields);
 
           if (response.ok) {
-            console.log("IN HERE");
             goodPsuResponse = true;
           } else {
             isError = true;
-            console.log("ERROR");
-            console.log(responseObj);
             throw new Error(responseObj.message || "Upload failed");
           }
 
@@ -163,8 +158,6 @@ export const UploadInsuranceModal = () => {
           if (updateStatusRequired) {
             const data = await updateInsuranceStatus(fileId);
 
-            console.log(data);
-
             if (!data.success) throw new Error(data.error || "Status update failed");
           }
           const imageS3Data = await getPresignedInsuranceUrl(side);
@@ -176,8 +169,6 @@ export const UploadInsuranceModal = () => {
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
           isError = true;
-          console.log(error);
-          console.log("IN HERE");
           const errorMessage = error as any;
           updateFileStatus(keyToUse, "error");
 
@@ -192,7 +183,9 @@ export const UploadInsuranceModal = () => {
     }
     setIsLoading(false);
     if (!isError) {
-      setInsuranceImageUrls(imageUrls);
+      setInsuranceImageUrls(imageUrlsLocal);
+      setImageUrlsLocal({ front: null, back: null });
+      // setFiles({ front: null, back: null });
       uploadInsuranceModal.onClose();
     }
   };
@@ -212,8 +205,8 @@ export const UploadInsuranceModal = () => {
                     <div className="flex flex-row gap-x-2">
                       <span
                         className={cn(
-                          files.front?.status === "error" && "text-red-500",
-                          files.front?.status === "uploaded" && "text-green-600",
+                          !!imageUrlsLocal.front && files.front?.status === "error" && "text-red-500",
+                          !!imageUrlsLocal.front && files.front?.status === "uploaded" && "text-green-600",
                         )}
                       >
                         Front
@@ -236,13 +229,13 @@ export const UploadInsuranceModal = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center gap-4">
-                    {files.front && !!imageUrls["front"] ? (
+                    {files.front && !!imageUrlsLocal["front"] ? (
                       <Image
                         className="w-auto"
                         draggable={false}
                         height={isMobile ? 50 : 100}
                         width={isMobile ? 200 : 400}
-                        src={imageUrls["front"]}
+                        src={imageUrlsLocal["front"]}
                         alt="Front of insurance card"
                       />
                     ) : (
@@ -255,8 +248,8 @@ export const UploadInsuranceModal = () => {
                     <div className="flex flex-row gap-x-2">
                       <span
                         className={cn(
-                          files.back?.status === "error" && "text-red-500",
-                          files.back?.status === "uploaded" && "text-green-600",
+                          !!imageUrlsLocal.back && files.back?.status === "error" && "text-red-500",
+                          !!imageUrlsLocal.back && files.back?.status === "uploaded" && "text-green-600",
                         )}
                       >
                         Back
@@ -279,13 +272,13 @@ export const UploadInsuranceModal = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center gap-4">
-                    {files.back && !!imageUrls["back"] ? (
+                    {files.back && !!imageUrlsLocal["back"] ? (
                       <Image
                         className="w-auto"
                         draggable={false}
                         height={isMobile ? 50 : 100}
                         width={isMobile ? 200 : 400}
-                        src={imageUrls["back"]}
+                        src={imageUrlsLocal["back"]}
                         alt="Back of insurance card"
                       />
                     ) : (

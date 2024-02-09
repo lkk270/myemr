@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Inbox } from "lucide-react";
 import { FileWithStatus } from "@/app/types/file-types";
 import { cn } from "@/lib/utils";
@@ -10,13 +10,13 @@ import { cn } from "@/lib/utils";
 // Define the props expected by the Dropzone component
 interface DropzoneProps {
   onChangeMulti?: React.Dispatch<React.SetStateAction<FileWithStatus[]>>;
-  onChangeSingle?: React.Dispatch<React.SetStateAction<FileWithStatus | null>>;
+  onChangeSingle?: (key: "front" | "back", file: FileWithStatus | null) => void;
   className?: string;
-  forInsurance?: boolean;
+  insuranceSide?: "front" | "back";
 }
 
 // Create the Dropzone component receiving props
-export function Dropzone({ onChangeMulti, onChangeSingle, className, forInsurance = false, ...props }: DropzoneProps) {
+export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSide, ...props }: DropzoneProps) {
   // Initialize state variables using the useState hook
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isOverArea, setIsOverArea] = useState(false);
@@ -62,12 +62,16 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, forInsuranc
       // Convert each File into a FileWithStatus object
       newFiles.push({ file: file, controller: new AbortController() });
     }
-    console.log(newFiles);
     setFileInfo((prevFiles) => [...newFiles.map((fws) => fws.file), ...prevFiles]);
     if (onChangeMulti) {
       onChangeMulti((prevFiles) => [...newFiles, ...prevFiles]);
-    } else if (onChangeSingle) {
-      onChangeSingle(newFiles[0]);
+    } else if (onChangeSingle && !!insuranceSide) {
+      const file = { ...newFiles[0], insuranceSide: insuranceSide };
+      if (file.file.type !== "image/png" && file.file.type !== "image/jpeg") {
+        toast.error("Invalid file type. Must be a PNG or JPEG file!", { duration: 3000 });
+        return;
+      }
+      onChangeSingle(insuranceSide, file);
     }
     setError(null);
   };
@@ -103,7 +107,7 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, forInsuranc
               ref={fileInputRef}
               type="file"
               accept={
-                forInsurance
+                !!insuranceSide
                   ? `image/png, image/jpeg`
                   : `
               image/*,audio/*,video/*,
@@ -128,7 +132,7 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, forInsuranc
               }
               onChange={handleFileInputChange}
               className="hidden"
-              multiple={!forInsurance}
+              multiple={!insuranceSide}
             />
           </div>
           {/* {error && <span className="text-red-500">{error}</span>} */}

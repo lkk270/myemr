@@ -11,6 +11,7 @@ const validUpdateTypes = [
   "addRootNode",
   "addSubFolder",
   "uploadFiles",
+  "insuranceUpload",
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
@@ -34,42 +35,54 @@ const patientConditionals: any = {
     requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
     optionalFields: ["folderPath"],
   },
+  insuranceUpload: {
+    requiredFields: ["side", "contentType", "size"],
+    optionalFields: [],
+  },
 };
 
+const insuranceFileNames = ["FRONT", "BACK"];
+
 export const patientUpdateVerification = (body: any) => {
-  // Basic checks
-  if (!body || typeof body !== "object" || Object.keys(body).length === 0) {
-    return false;
-  }
-
-  const { updateType } = body;
-
-  // Check if updateType is valid
-  if (!validUpdateTypes.includes(updateType)) {
-    return false;
-  }
-
-  const conditionals = patientConditionals[updateType];
-  const allFields = [...conditionals.requiredFields, ...conditionals.optionalFields];
-
-  // Check if body contains only the allowed fields (required + optional)
-  for (const key in body) {
-    if (!allFields.includes(key) && key !== "updateType") {
+  try {
+    // Basic checks
+    if (!body || typeof body !== "object" || Object.keys(body).length === 0) {
       return false;
     }
-  }
+    const { updateType } = body;
 
-  // Check if required fields are present
-  for (const field of conditionals.requiredFields) {
-    if (!body.hasOwnProperty(field)) {
+    // Check if updateType is valid
+    if (!validUpdateTypes.includes(updateType)) {
       return false;
     }
-  }
+    const conditionals = patientConditionals[updateType];
+    const allFields = [...conditionals.requiredFields, ...conditionals.optionalFields];
 
-  // Specific checks for 'deleteMedication'
-  if (updateType === "deleteMedication" && body.fieldsObj) {
+    // Check if body contains only the allowed fields (required + optional)
+    for (const key in body) {
+      if (!allFields.includes(key) && key !== "updateType") {
+        return false;
+      }
+    }
+
+    // Check if required fields are present
+    for (const field of conditionals.requiredFields) {
+      if (!body.hasOwnProperty(field)) {
+        return false;
+      }
+    }
+
+    // Specific checks for 'deleteMedication'
+    if (updateType === "deleteMedication" && body.fieldsObj) {
+      return false;
+    }
+    if (updateType === "insuranceUpload" && !insuranceFileNames.includes(body.side)) {
+      return false;
+    }
+
+    return true;
+  } catch (error: any) {
+    console.log(error);
     return false;
   }
-
-  return true;
 };

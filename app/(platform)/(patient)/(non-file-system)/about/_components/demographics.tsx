@@ -328,7 +328,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
-                  <div className="w-[220px] md:w-full">
+                  <div className="w-full">
                     <Label htmlFor="dateOfBirth">Date of Birth</Label>
 
                     {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
@@ -343,6 +343,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <div>
                     <Label htmlFor="gender">Gender</Label>
                     <GenericCombobox
+                      width={"w-full"}
                       handleChange={(value) => handleChange("gender", value)}
                       valueParam={user.gender}
                       disabled={!isEditing || isLoading}
@@ -357,6 +358,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <div>
                     <Label htmlFor="race">Race</Label>
                     <GenericCombobox
+                      width={"w-full"}
                       handleChange={(value) => handleChange("race", value)}
                       valueParam={user.race}
                       disabled={!isEditing || isLoading}
@@ -371,6 +373,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <div>
                     <Label htmlFor="maritalStatus">Marital Status</Label>
                     <GenericCombobox
+                      width={"w-full"}
                       valueParam={user.maritalStatus}
                       handleChange={(value) => handleChange("maritalStatus", value)}
                       disabled={!isEditing || isLoading}
@@ -386,6 +389,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                   <div>
                     <Label htmlFor="height">Height</Label>
                     <GenericCombobox
+                      width={"w-full"}
                       valueParam={user.height}
                       handleChange={(value) => handleChange("height", value)}
                       disabled={!isEditing || isLoading}
@@ -405,7 +409,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                         name="weight"
                         min={2}
                         max={1500}
-                        className={cn(inputClassName, " max-w-[240px] sm:max-w-[120px]")}
+                        className={cn(inputClassName, "sm:max-w-[120px]")}
                         value={user.weight || ""}
                         onChange={handleInputChange}
                         placeholder="Weight"
@@ -421,7 +425,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
                       id="bmi"
                       name="bmi"
                       placeholder="N/A"
-                      className={cn(inputClassName, " max-w-[240px] sm:max-w-[120px]")}
+                      className={cn(inputClassName, "sm:max-w-[120px]")}
                       value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
                       disabled={true}
                     />

@@ -79,6 +79,21 @@ enum InsuranceSide {
   BACK
 }
 
+enum AccessCodeValidTime {
+  MINUTE_30
+  HOUR_1
+  HOUR_12
+  DAY_1
+  WEEK_1
+}
+
+enum AccessCodeType {
+  UPLOAD_FILES_ONLY
+  READ_ONLY
+  READ_AND_ADD
+  FULL_ACCESS
+}
+
 model PatientAddress {
   id       String  @id @default(uuid())
   address  String
@@ -478,4 +493,14 @@ model TwoFactorConfirmation {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId])
+}
+
+model PatientProfileAccessCode {
+  id               String              @id @default(cuid())
+  patientProfileId String
+  userId           String
+  validFor         AccessCodeValidTime
+  accessType       AccessCodeType
+  token            String              @unique
+  expires          DateTime
 }

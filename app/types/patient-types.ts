@@ -18,6 +18,7 @@ export type PatientDemographicsType = {
   policyNumber?: string | null;
   groupNumber?: string | null;
   addresses: PatientAddress[] | any;
+  insuranceImagesSet: boolean;
 };
 
 export type PatientDemographicsContactType = {

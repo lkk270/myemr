@@ -27,7 +27,7 @@ export const PatientHome = () => {
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Add a provider</h2>
             <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed dark:text-gray-400">
               Did a provider share a connect code with you? Enter it here so they can be connected to your account. You can
-              always modify their access by going to{" "}
+              always modify their access in{" "}
               <a className="underline" href="/providers">
                 providers
               </a>

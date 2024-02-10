@@ -20,7 +20,6 @@ import { toast } from "sonner";
 import { cn, checkForInvalidDemographicsData, calculateBMI, isLinkExpired } from "@/lib/utils";
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
 import { useInsuranceImages } from "../hooks/use-insurance-images";
 import _ from "lodash";
 import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";
@@ -48,7 +47,6 @@ const tabsData = [
 ];
 
 export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
-  const uploadInsuranceModal = useUploadInsuranceModal();
   const [isMounted, setIsMounted] = useState(false);
   const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
@@ -56,20 +54,13 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   const [isEditing, setIsEditing] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const [activeTab, setActiveTab] = useState("demographics");
-  const [insurance, setInsurance] = useState<{ side: InsuranceSide }[]>([]);
-  const [attemptedInsuranceGet, setAttemptedInsuranceGet] = useState(false);
 
   useEffect(() => {
+    console.log(user.insuranceImagesSet);
     const fetchUrls = async () => {
       if (!isMounted) return;
-      if (!attemptedInsuranceGet) {
-        setAttemptedInsuranceGet(true);
-        const data = await getInsurance();
-        const insuranceData = data.insurance;
-        if (insuranceData) setInsurance(insuranceData);
-      }
       if (
-        insurance.length === 2 &&
+        user.insuranceImagesSet &&
         activeTab === "insurance" &&
         (!imagesUrls["front"] ||
           !imagesUrls["back"] ||
@@ -101,7 +92,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     // Only attempt to fetch URLs if the "insurance" tab is active
     setIsMounted(true);
     fetchUrls();
-  }, [insurance, activeTab]);
+  }, [activeTab]);
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 

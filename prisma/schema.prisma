@@ -362,30 +362,31 @@ model User {
 }
 
 model PatientProfile {
-  id                String      @id @default(cuid())
-  userId            String      @unique
-  firstName         String
-  lastName          String
-  email             String      @unique
-  imageUrl          String?
-  gender            String?
-  dateOfBirth       String?
-  maritalStatus     String?
-  race              String?
-  height            String?
-  weight            String?
-  allergies         String?
-  unit              Unit        @default(IMPERIAL)
-  mobilePhone       String?
-  homePhone         String?
-  insuranceProvider String?
-  policyNumber      String?
-  groupNumber       String?
-  publicKey         String      @db.Text
-  privateKey        String      @db.Text
-  symmetricKey      String      @db.Text
-  plan              PatientPlan @default(FREE)
-  usedFileStorage   BigInt      @default(0)
+  id                 String      @id @default(cuid())
+  userId             String      @unique
+  firstName          String
+  lastName           String
+  email              String      @unique
+  imageUrl           String?
+  gender             String?
+  dateOfBirth        String?
+  maritalStatus      String?
+  race               String?
+  height             String?
+  weight             String?
+  allergies          String?
+  unit               Unit        @default(IMPERIAL)
+  mobilePhone        String?
+  homePhone          String?
+  insuranceImagesSet Boolean     @default(false)
+  insuranceProvider  String?
+  policyNumber       String?
+  groupNumber        String?
+  publicKey          String      @db.Text
+  privateKey         String      @db.Text
+  symmetricKey       String      @db.Text
+  plan               PatientPlan @default(FREE)
+  usedFileStorage    BigInt      @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

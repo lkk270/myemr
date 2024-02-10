@@ -199,7 +199,7 @@ export const UploadInsuranceModal = () => {
           </AlertDialogHeader>
           <div className="flex-grow flex items-center justify-center">
             <div className="w-full">
-              <div className="grid grid-cols-1 sm:grid-cols-2 justify-center items-center gap-4">
+              <div className="grid grid-cols-1 justify-center items-center gap-4">
                 <Card className="w-full">
                   <CardHeader className="text-base font-semibold">
                     <div className="flex flex-row gap-x-2">
@@ -231,7 +231,7 @@ export const UploadInsuranceModal = () => {
                   <CardContent className="flex flex-col items-center gap-4">
                     {files.front && !!imageUrlsLocal["front"] ? (
                       <Image
-                        className="w-auto"
+                        className="w-[1/3]"
                         draggable={false}
                         height={isMobile ? 50 : 100}
                         width={isMobile ? 200 : 400}
@@ -274,7 +274,7 @@ export const UploadInsuranceModal = () => {
                   <CardContent className="flex flex-col items-center gap-4">
                     {files.back && !!imageUrlsLocal["back"] ? (
                       <Image
-                        className="w-auto"
+                        className="w-[1/3]"
                         draggable={false}
                         height={isMobile ? 50 : 100}
                         width={isMobile ? 200 : 400}
@@ -289,7 +289,7 @@ export const UploadInsuranceModal = () => {
               </div>
             </div>
           </div>
-          <AlertDialogFooter className="justify-end items-end mt-auto">
+          <AlertDialogFooter className="justify-end items-end py-2">
             <AlertDialogCancel disabled={isLoading} onClick={uploadInsuranceModal.onClose} className="w-20 h-8 text-sm">
               Cancel
             </AlertDialogCancel>

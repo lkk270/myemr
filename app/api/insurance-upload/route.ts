@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { InsuranceFile } from "@prisma/client";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -34,22 +35,23 @@ export async function POST(request: Request) {
         id: true,
         firstName: true,
         lastName: true,
+        insuranceImagesSet: true,
       },
     });
 
     if (!patient) {
       return NextResponse.json({ message: "Patient not found" }, { status: 400 });
     }
-    let file = await prismadb.insuranceFile.findFirst({
-      where: {
-        userId: userId,
-        side: side,
-      },
-    });
+    // let file = await prismadb.insuranceFile.findFirst({
+    //   where: {
+    //     userId: userId,
+    //     side: side,
+    //   },
+    // });
 
     let updateStatusRequired = false;
-
-    if (!file) {
+    let file: InsuranceFile | null = null;
+    if (!patient.insuranceImagesSet) {
       updateStatusRequired = true;
       file = await prismadb.insuranceFile.create({
         data: {
@@ -63,7 +65,7 @@ export async function POST(request: Request) {
         },
       });
     }
-    if (file) {
+    if (file || patient.insuranceImagesSet) {
       const client = new S3Client({ region: process.env.AWS_REGION });
       const key = `${patient.id}/insurance/${side}`;
       const { url, fields } = await createPresignedPost(client, {
@@ -78,7 +80,12 @@ export async function POST(request: Request) {
         },
         Expires: 600, // Seconds before the presigned post expires. 3600 by default.
       });
-      return Response.json({ url, fields, fileIdResponse: file.id, updateStatusRequired: updateStatusRequired });
+      return Response.json({
+        url,
+        fields,
+        fileIdResponse: !!file ? file.id : "",
+        updateStatusRequired: updateStatusRequired,
+      });
     } else {
       return NextResponse.json({ message: "No file made" }, { status: 500 });
     }

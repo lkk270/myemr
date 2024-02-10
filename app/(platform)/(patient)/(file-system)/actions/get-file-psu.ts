@@ -7,6 +7,22 @@ import { File } from "@prisma/client";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isViewableFile } from "@/lib/utils";
+import * as mime from "mime-types";
+
+const getFileName = (fileNameTemp: string, fileType: string) => {
+  const currentMimeType = mime.lookup(fileNameTemp);
+
+  const newExtension = mime.extension(fileType);
+
+  if (!newExtension) {
+    console.error("Unsupported file type");
+    return fileNameTemp; // Or handle this case as needed
+  }
+  if (currentMimeType === fileType) {
+    return fileNameTemp;
+  }
+  return `${fileNameTemp}.${newExtension}`;
+};
 
 export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   const user = await currentUser();
@@ -25,13 +41,12 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   }
 
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
+  const fileName = getFileName(file.name, file.type as string);
   const command = new GetObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `${file.patientProfileId}/${fileId}`,
     ResponseContentDisposition:
-      forDownload || !isViewableFile(file.type || "")
-        ? `attachment; filename="${file.name}"`
-        : `filename="${file.name}"`, // Sets the filename for the download
+      forDownload || !isViewableFile(file.type || "") ? `attachment; filename="${fileName}"` : `filename="${fileName}"`, // Sets the filename for the download
   });
   const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
 
@@ -55,7 +70,7 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
     return { error: "File not found" };
   }
 
-  const fileName = `${file.side}.${file.type.split("image/")[1]}`;
+  const fileName = getFileName(file.side, file.type);
 
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
   const command = new GetObjectCommand({
@@ -96,10 +111,11 @@ export const getPresignedUrls = async (fileIds: string[], parentNamePath: string
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
   const urls = await Promise.all(
     files.map(async (file) => {
+      const fileName = getFileName(file.name, file.type as string);
       const command = new GetObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: `${file.patientProfileId}/${file.id}`,
-        ResponseContentDisposition: `attachment; filename="${file.name}"`,
+        ResponseContentDisposition: `attachment; filename="${fileName}"`,
       });
 
       try {

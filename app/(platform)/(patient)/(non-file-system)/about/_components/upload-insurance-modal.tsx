@@ -218,7 +218,7 @@ export const UploadInsuranceModal = () => {
                       )}
                       {files.front && files.front.status === "uploading" && (
                         <div className="pt-1">
-                          <Spinner size="default" defaultLoader={false} />
+                          <Spinner size="default" loaderType={"loader2"} />
                         </div>
                       )}
                       {files.front && files.front.status === "error" && (
@@ -261,7 +261,7 @@ export const UploadInsuranceModal = () => {
                       )}
                       {files.back && files.back.status === "uploading" && (
                         <div className="pt-1">
-                          <Spinner size="default" defaultLoader={false} />
+                          <Spinner size="default" loaderType={"loader2"} />
                         </div>
                       )}
                       {files.back && files.back.status === "error" && (

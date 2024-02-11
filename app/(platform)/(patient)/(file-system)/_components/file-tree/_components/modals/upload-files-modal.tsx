@@ -267,7 +267,7 @@ export const UploadFilesModal = () => {
                 <div className="flex items-center text-muted-foreground overflow-hidden">
                   {fileObj.status === "uploading" && (
                     <div className="flex-shrink-0 pr-2">
-                      <Spinner size="default" defaultLoader={false} />
+                      <Spinner size="default" loaderType={"loader2"} />
                     </div>
                   )}
                   {(fileObj.status === "error" || fileObj.status === "canceled") && (

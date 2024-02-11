@@ -35,7 +35,6 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
   }
 
   if (!password && existingUser && existingUser.password && existingUser.accountType === AccountType.CREDENTIALS) {
-    console.log("IN HERE BITCH");
     return { error: "Email is already being used through email & password sign in!" };
   }
   if (!existingUser.emailVerified) {

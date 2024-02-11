@@ -16,7 +16,7 @@ export const PatientHome = () => {
         <div
           className={cn(
             isMobile && "min-w-[90vw]",
-            "shadow-lg container grid items-center gap-4 px-4 text-center md:px-6 lg:gap-10 bg-primary/5  dark:bg-[#1a1a1a] rounded-lg",
+            "shadow-lg container grid items-center gap-4 px-4 text-center md:px-6 lg:gap-10 bg-primary/5  dark:bg-[#161616]  rounded-lg",
           )}
         >
           <div className="space-y-3">
@@ -39,7 +39,7 @@ export const PatientHome = () => {
         <div
           className={cn(
             isMobile && "min-w-[90vw]",
-            "shadow-lg container grid items-center gap-4 px-4 text-center md:px-6 lg:gap-10 bg-primary/5 dark:bg-[#1a1a1a] rounded-lg",
+            "shadow-lg container grid items-center gap-4 px-4 text-center md:px-6 lg:gap-10 bg-primary/5 dark:bg-[#161616]  rounded-lg",
           )}
         >
           <div className="space-y-3">

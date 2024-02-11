@@ -8,6 +8,7 @@ import { GenerateCodeSchema } from "../schemas";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/spinner";
 import { Copy, Check, RefreshCw } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -15,7 +16,8 @@ import { AccessCodeValidTime, AccessCodeType } from "@prisma/client";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { accessCode } from "../actions/generate-access-code";
 import { toast } from "sonner";
 
 const validTimes = [
@@ -35,6 +37,10 @@ const accessTypes = [
 
 export const GenerateCode = () => {
   const [code, setCode] = useState("");
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [isPending, startTransition] = useTransition();
+
   const [isCopied, setIsCopied] = useState(false);
   const form = useForm<z.infer<typeof GenerateCodeSchema>>({
     resolver: zodResolver(GenerateCodeSchema),
@@ -60,6 +66,31 @@ export const GenerateCode = () => {
     setTimeout(() => setIsCopied(false), 2000); // Reset the copied state after 2 seconds
   };
 
+  const onSubmit = (values: z.infer<typeof GenerateCodeSchema>) => {
+    setError("");
+    setSuccess("");
+
+    startTransition(() => {
+      accessCode(values)
+        .then((data) => {
+          if (data?.error) {
+            // form.reset();
+            setError(data.error);
+          }
+
+          if (data?.success) {
+            form.reset();
+            setSuccess(data.success);
+          }
+
+          if (data?.success && data?.code) {
+            setCode(data.code);
+          }
+        })
+        .catch(() => setError("Something went wrong"));
+    });
+  };
+
   const watchedValidFor = form.watch("validFor");
   const watchedAccessType = form.watch("accessType");
 
@@ -67,12 +98,13 @@ export const GenerateCode = () => {
     <Form {...form}>
       {/*  onSubmit={form.handleSubmit(onSubmit)} */}
       <form
+        onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
           isMobile && "min-w-[98vw]",
-          "min-h-[400px] lg:min-h-[200px] shadow-lg container grid items-center px-2 sm:px-4 text-center md:px-6 bg-primary/5 dark:bg-[#1a1a1a] rounded-lg",
+          "min-h-[350px] lg:min-h-[200px] shadow-lg flex flex-col justify-between items-center px-2 sm:px-4 py-6 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg", // Added py-6 for padding at the top and bottom
         )}
       >
-        <div className="space-y-3 pt-2">
+        <div className="py-2">
           <h2 className="text-xl font-bold tracking-tighter sm:text-2xl">Generate a Code</h2>
           <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed dark:text-gray-400">
             Generate a unique code to grant someone access.
@@ -123,35 +155,34 @@ export const GenerateCode = () => {
           )}
         />
 
-        <div className="flex flex-row items-center justify-center">
+        <div className="flex flex-row mb-2">
           <CopyToClipboard text={code} onCopy={onCopy}>
             <Button
+              disabled={!code || isPending}
               variant={"default"}
               className={cn(
-                "inline-flex items-center text-sm font-semibold py-2 px-4 rounded-l outline-none focus:outline-none transition duration-150 ease-in-out",
+                "min-w-[130px] inline-flex items-center text-sm font-semibold px-4 rounded-l outline-none focus:outline-none transition duration-150 ease-in-out",
                 isCopied ? "border-2 border-green-500 text-green-500" : "border-2 border-transparent", // Keep border consistent
-                "min-w-[130px]", // Ensure buttons have a minimum width
               )}
               onClick={(e) => e.preventDefault()}
             >
-              <span className={cn("flex-1", !code && "text-muted-foreground")}>{code ? code : "CODE"}</span>{" "}
-              {/* Allow code to flex within button */}
+              <span className={cn("flex-1")}>{code ? code : "CODE"}</span> {/* Allow code to flex within button */}
               {isCopied ? <Check className="ml-2 h-4 w-4 text-green-500" /> : <Copy className="ml-2 h-4 w-4" />}
             </Button>
           </CopyToClipboard>
-          <div
-            role="button"
+          <Button
+            disabled={isPending}
+            variant="none"
+            type="submit"
             className="hover:font-bold inline-flex items-center text-sm font-semibold py-2 px-4 rounded-r outline-none focus:outline-none border-2 border-transparent transition duration-150 ease-in-out min-w-[130px]" // Apply consistent border and min-width
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setCode("CUNT")
-              // Implement refresh/generate functionality
-            }}
           >
-            <RefreshCw className="h-4 w-4 mr-1" />
+            {isPending ? (
+              <Spinner className="mr-1" size="default" loaderType={"refresh"} />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-1" />
+            )}
             Generate
-          </div>
+          </Button>
         </div>
       </form>
     </Form>

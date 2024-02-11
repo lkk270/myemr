@@ -8,12 +8,15 @@ import { GenerateCodeSchema } from "../schemas";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Copy } from "lucide-react";
+import { Copy, Check, RefreshCw } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { AccessCodeValidTime, AccessCodeType } from "@prisma/client";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const validTimes = [
   { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
@@ -31,6 +34,8 @@ const accessTypes = [
 ];
 
 export const GenerateCode = () => {
+  const [code, setCode] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
   const form = useForm<z.infer<typeof GenerateCodeSchema>>({
     resolver: zodResolver(GenerateCodeSchema),
     defaultValues: {
@@ -49,10 +54,14 @@ export const GenerateCode = () => {
   const handleAccessTypeChange = (value: AccessCodeType) => {
     setValue("accessType", value);
   };
+
+  const onCopy = () => {
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000); // Reset the copied state after 2 seconds
+  };
+
   const watchedValidFor = form.watch("validFor");
   const watchedAccessType = form.watch("accessType");
-
-  console.log(watchedValidFor);
 
   return (
     <Form {...form}>
@@ -79,7 +88,7 @@ export const GenerateCode = () => {
                   <ToggleGroupItem
                     key={obj.value}
                     className={cn(
-                      "text-xs lg:text-md",
+                      "text-xs lg:text-md hover:bg-primary/10",
                       obj.value === watchedValidFor && "data-[state=on]:bg-primary/10",
                     )}
                     value={obj.value}
@@ -101,7 +110,7 @@ export const GenerateCode = () => {
                   <ToggleGroupItem
                     key={obj.value}
                     className={cn(
-                      "text-xs lg:text-md",
+                      "text-xs lg:text-md hover:bg-primary/10",
                       obj.value === watchedAccessType && "data-[state=on]:bg-primary/10",
                     )}
                     value={obj.value}
@@ -114,29 +123,34 @@ export const GenerateCode = () => {
           )}
         />
 
-        <div className="mx-auto w-full max-w-sm space-y-4">
-          <div>
-            <div className="flex p-6 items-center space-x-4">
-              <div className="flex flex-col">
-                <div className="p-0">
-                  <div className="flex rounded-md border border-gray-200 items-center w-full">
-                    <Input
-                      className="rounded-l-md rounded-r-none border-gray-200 border-r-0 w-full"
-                      placeholder="Access token"
-                      type="password"
-                    />
-                    <Button className="rounded-l-none" variant="ghost">
-                      <Copy className="h-4 w-4" />
-                      <span className="sr-only">Copy</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <Button>Generate</Button>
-            </div>
-            {/* <div className="flex p-6 items-center space-x-4">
-              <Button variant="ghost">Share</Button>
-            </div> */}
+        <div className="flex flex-row items-center justify-center">
+          <CopyToClipboard text={code} onCopy={onCopy}>
+            <Button
+              variant={"default"}
+              className={cn(
+                "inline-flex items-center text-sm font-semibold py-2 px-4 rounded-l outline-none focus:outline-none transition duration-150 ease-in-out",
+                isCopied ? "border-2 border-green-500 text-green-500" : "border-2 border-transparent", // Keep border consistent
+                "min-w-[130px]", // Ensure buttons have a minimum width
+              )}
+              onClick={(e) => e.preventDefault()}
+            >
+              <span className={cn("flex-1", !code && "text-muted-foreground")}>{code ? code : "CODE"}</span>{" "}
+              {/* Allow code to flex within button */}
+              {isCopied ? <Check className="ml-2 h-4 w-4 text-green-500" /> : <Copy className="ml-2 h-4 w-4" />}
+            </Button>
+          </CopyToClipboard>
+          <div
+            role="button"
+            className="hover:font-bold inline-flex items-center text-sm font-semibold py-2 px-4 rounded-r outline-none focus:outline-none border-2 border-transparent transition duration-150 ease-in-out min-w-[130px]" // Apply consistent border and min-width
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setCode("CUNT")
+              // Implement refresh/generate functionality
+            }}
+          >
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Generate
           </div>
         </div>
       </form>

@@ -1,4 +1,4 @@
-import { Loader, Loader2 } from "lucide-react";
+import { Loader, Loader2, RefreshCw } from "lucide-react";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -19,13 +19,11 @@ const spinnerVariants = cva("text-muted-foreground animate-spin", {
 });
 
 interface SpinnerProps extends VariantProps<typeof spinnerVariants> {
-  defaultLoader?: boolean;
+  loaderType?: "loader" | "loader2" | "refresh";
+  className?: string;
 }
 
-export const Spinner = ({ size, defaultLoader = true }: SpinnerProps) => {
-  return defaultLoader ? (
-    <Loader className={cn(spinnerVariants({ size }))} />
-  ) : (
-    <Loader2 className={cn(spinnerVariants({ size }))} />
-  );
+export const Spinner = ({ size, loaderType = "loader", className = "" }: SpinnerProps) => {
+  const Icon = loaderType === "loader" ? Loader : loaderType === "loader2" ? Loader2 : RefreshCw;
+  return <Icon className={cn(spinnerVariants({ size }), className)} />;
 };

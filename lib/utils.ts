@@ -25,7 +25,6 @@ import {
   BsFileZip,
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
-import { LuFileVideo } from "react-icons/lu";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

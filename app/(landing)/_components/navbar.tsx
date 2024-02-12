@@ -25,6 +25,11 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   const session = useSession();
   const sessionData = session.data;
   const user = sessionData?.user || null;
+  // console.log(sessionData);
+  // console.log(sessionData?.user.role);
+  console.log(session);
+  console.log(user);
+  console.log(session.status);
 
   return (
     <div
@@ -58,7 +63,10 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
           </>
         )}
         {session.status === "loading" && <Spinner />}
-        {user && session.status === "authenticated" && <>{redirect(`/${user.userType.toLowerCase()}-home`)}</>}
+        {/* {user &&
+          session.status === "authenticated" &&
+          sessionData?.user.userType === "PATIENT" &&
+          sessionData?.user.role === "ADMIN" && <>{redirect(`/${user.userType.toLowerCase()}-home`)}</>} */}
         {/* {!isSignedIn && isLoaded && (
           <>
             <LoginButton asChild>

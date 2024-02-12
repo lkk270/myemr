@@ -4,17 +4,21 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "./mobile-sidebar";
-import { navRoutes } from "@/lib/constants";
+import { navRoutes, tempPatientAccessNavRoutes } from "@/lib/constants";
 
 import { usePathname } from "next/navigation";
 import { UserButton } from "@/auth/components/auth/user-button";
 import Link from "next/link";
 // import { Notifications } from "@/components/notifications";
 
-interface NavbarProps {}
+interface NavbarProps {
+  tempAccess?: boolean;
+}
 
-export const Navbar = ({}: NavbarProps) => {
+export const Navbar = ({ tempAccess = false }: NavbarProps) => {
   const pathname = usePathname();
+
+  const routes = tempAccess ? navRoutes : tempPatientAccessNavRoutes;
 
   return (
     <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
@@ -24,7 +28,7 @@ export const Navbar = ({}: NavbarProps) => {
       </div>
       <div className="items-center sm:flex hidden">
         <div className="flex items-center sm:flex gap-x-1 lg:gap-x-4">
-          {navRoutes.map((route, index) => (
+          {routes.map((route, index) => (
             <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>
               <div
                 className={cn(

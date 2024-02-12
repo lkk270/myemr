@@ -12,7 +12,7 @@ const AccessHome = async () => {
     return redirect("/");
   }
   const user = session?.user;
-  console.log(user);
+  // console.log(user);
 
   return <p className="text-indigo-700 text-3xl">Hello ACCESS CODE</p>;
 };

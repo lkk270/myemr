@@ -40,7 +40,7 @@ export const accessPatientWithCode = async (
       redirectTo: ACCESS_PATIENT_WITH_CODE_REDIRECT,
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":

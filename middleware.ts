@@ -64,7 +64,11 @@ export default auth(async (req) => {
     // console.log("IN 66");
     // console.log(redirectUrl);
     // console.log(nextUrl);
-    return Response.redirect(new URL("/access-home", nextUrl));
+    console.log("IN 67");
+    console.log(isPatientRoute);
+    console.log(nextUrl.pathname);
+    console.log(patientRoutes);
+    return Response.redirect(new URL(redirectUrl, nextUrl));
   }
   if (isProviderRoute && isLoggedIn && user?.userType !== "PROVIDER") {
     return Response.redirect(new URL(redirectUrl, nextUrl));
@@ -72,6 +76,24 @@ export default auth(async (req) => {
 
   if (isAccessPatientRoute && isLoggedIn && user?.userType !== "PATIENT" && user?.userType !== "PROVIDER") {
     return Response.redirect(new URL(redirectUrl, nextUrl));
+  }
+
+  // if (
+  //   nextUrl.pathname === "/" &&
+  //   isLoggedIn &&
+  //   (user?.role === "FULL_ACCESS" ||
+  //     user?.role === "READ_ONLY" ||
+  //     user?.role === "UPLOAD_FILES_ONLY" ||
+  //     user?.role === "READ_AND_ADD")
+  // ) {
+  //   console.log(redirectUrl);
+  //   return Response.redirect(new URL(ACCESS_PATIENT_WITH_CODE_REDIRECT, nextUrl));
+  // } else
+
+  if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {
+    return Response.redirect(new URL(PATIENT_DEFAULT_LOGIN_REDIRECT, nextUrl));
+  } else if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PROVIDER") {
+    return Response.redirect(new URL(PROVIDER_DEFAULT_LOGIN_REDIRECT, nextUrl));
   }
 
   return null;

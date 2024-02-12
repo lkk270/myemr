@@ -8,10 +8,9 @@ import { newVerification } from "@/auth/actions/new-verification";
 import { CardWrapper } from "./card-wrapper";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
-import { UserType } from "@prisma/client";
 
 interface NewVerificationFormProps {
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 
 export const NewVerificationForm = ({ userType }: NewVerificationFormProps) => {

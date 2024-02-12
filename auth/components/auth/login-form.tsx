@@ -19,13 +19,12 @@ import { UserType } from "@prisma/client";
 import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface LoginFormProps {
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 
 export const LoginForm = ({ userType }: LoginFormProps) => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  console.log(searchParams.get("error"));
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Email is already being used through Google Sign in!"

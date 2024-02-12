@@ -12,7 +12,7 @@ import { Spinner } from "@/components/spinner";
 import { Copy, Check, RefreshCw } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { AccessCodeValidTime, AccessCodeType } from "@prisma/client";
+import { AccessCodeValidTime, UserRole } from "@prisma/client";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
@@ -29,10 +29,10 @@ const validTimes = [
 ];
 
 const accessTypes = [
-  { value: AccessCodeType.READ_ONLY, label: "Read only" },
-  { value: AccessCodeType.UPLOAD_FILES_ONLY, label: "Upload files only" },
-  { value: AccessCodeType.READ_AND_ADD, label: "Read & Add" },
-  { value: AccessCodeType.FULL_ACCESS, label: "Full access" },
+  { value: UserRole.READ_ONLY, label: "Read only" },
+  { value: UserRole.UPLOAD_FILES_ONLY, label: "Upload files only" },
+  { value: UserRole.READ_AND_ADD, label: "Read & Add" },
+  { value: UserRole.FULL_ACCESS, label: "Full access" },
 ];
 
 export const GenerateCode = () => {
@@ -46,7 +46,7 @@ export const GenerateCode = () => {
     resolver: zodResolver(GenerateCodeSchema),
     defaultValues: {
       validFor: AccessCodeValidTime.MINUTE_30,
-      accessType: AccessCodeType.READ_ONLY,
+      accessType: UserRole.READ_ONLY,
     },
   });
 
@@ -57,7 +57,7 @@ export const GenerateCode = () => {
     setValue("validFor", value);
   };
 
-  const handleAccessTypeChange = (value: AccessCodeType) => {
+  const handleAccessTypeChange = (value: "UPLOAD_FILES_ONLY" | "READ_ONLY" | "READ_AND_ADD" | "FULL_ACCESS") => {
     setValue("accessType", value);
   };
 
@@ -107,7 +107,7 @@ export const GenerateCode = () => {
         <div className="py-2">
           <h2 className="text-xl font-bold tracking-tighter sm:text-2xl">Generate a Code</h2>
           <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed dark:text-gray-400">
-            Generate a unique code to grant someone access.
+            Generate a unique code to grant someone temporary access.
           </p>
         </div>
         <FormField

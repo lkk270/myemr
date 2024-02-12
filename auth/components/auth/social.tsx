@@ -11,7 +11,7 @@ import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { UserType } from "@prisma/client";
 
 interface SocialProps {
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 export const Social = ({ userType }: SocialProps) => {
   const searchParams = useSearchParams();

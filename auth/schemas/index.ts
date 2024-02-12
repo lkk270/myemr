@@ -5,7 +5,14 @@ export const SettingsSchema = z
   .object({
     isTwoFactorEnabled: z.optional(z.boolean()),
     userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
-    role: z.enum([UserRole.USER, UserRole.ADMIN]),
+    role: z.enum([
+      UserRole.USER,
+      UserRole.ADMIN,
+      UserRole.UPLOAD_FILES_ONLY,
+      UserRole.READ_ONLY,
+      UserRole.READ_AND_ADD,
+      UserRole.FULL_ACCESS,
+    ]),
     email: z.optional(z.string().email()),
     password: z.optional(z.string().min(6)),
     newPassword: z.optional(z.string().min(6)),
@@ -76,4 +83,10 @@ export const RegisterSchema = z.object({
     message: "Last name is required",
   }),
   userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
+});
+
+export const AccessPatientWithCodeSchema = z.object({
+  code: z.string().min(1, {
+    message: "Access code is required",
+  }),
 });

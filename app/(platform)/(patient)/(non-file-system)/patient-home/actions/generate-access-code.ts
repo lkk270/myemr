@@ -5,7 +5,7 @@ import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { GenerateCodeSchema } from "../schemas";
 import { generateAccessCode } from "@/lib/access-codes";
-import { AccessCodeValidTime, AccessCodeType } from "@prisma/client";
+import { AccessCodeValidTime, UserType } from "@prisma/client";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
   const user = await currentUser();

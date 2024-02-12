@@ -13,6 +13,16 @@ export type ExtendedAccount = Account & {
   userType: string;
 };
 
+// export type CodeUser = {
+//   accessType: AccessCodeType;
+//   patientProfileId: String;
+//   userId: String;
+//   validFor: AccessCodeValidTime;
+//   accessType: AccessCodeType;
+//   token: String;
+//   expires: DateTime;
+// };
+
 declare module "next-auth" {
   interface Session {
     user: ExtendedUser;

@@ -44,6 +44,10 @@ enum OrganizationType {
 enum UserRole {
   USER
   ADMIN
+  UPLOAD_FILES_ONLY
+  READ_ONLY
+  READ_AND_ADD
+  FULL_ACCESS
 }
 
 enum UserType {
@@ -500,7 +504,7 @@ model PatientProfileAccessCode {
   patientProfileId String
   userId           String
   validFor         AccessCodeValidTime
-  accessType       AccessCodeType
+  accessType       UserRole
   token            String              @unique
   expires          DateTime
 }

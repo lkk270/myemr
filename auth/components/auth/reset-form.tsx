@@ -16,7 +16,7 @@ import { reset } from "@/auth/actions/reset";
 import { UserType } from "@prisma/client";
 
 interface ResetFormProps {
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 
 export const ResetForm = ({ userType }: ResetFormProps) => {

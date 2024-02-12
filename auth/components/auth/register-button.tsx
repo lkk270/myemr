@@ -10,7 +10,7 @@ interface LoginButtonProps {
   children: React.ReactNode;
   mode?: "modal" | "redirect";
   asChild?: boolean;
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 
 export const RegisterButton = ({ children, mode = "redirect", asChild, userType }: LoginButtonProps) => {

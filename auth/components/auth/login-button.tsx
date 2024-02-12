@@ -4,13 +4,12 @@ import { useRouter } from "next/navigation";
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { LoginForm } from "./login-form";
-import { UserType } from "@prisma/client";
 
 interface LoginButtonProps {
   children: React.ReactNode;
   mode?: "modal" | "redirect";
   asChild?: boolean;
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 
 export const LoginButton = ({ children, mode = "redirect", asChild, userType }: LoginButtonProps) => {

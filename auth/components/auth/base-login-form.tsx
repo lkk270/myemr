@@ -48,7 +48,7 @@ export const BaseLoginForm = () => {
   const { register, watch, setValue, handleSubmit, control } = form;
   const watchedUserType = watch("userType");
 
-  const handleUserTypeChange = (value: UserType) => {
+  const handleUserTypeChange = (value: "PROVIDER" | "PATIENT") => {
     setValue("userType", value);
   };
 

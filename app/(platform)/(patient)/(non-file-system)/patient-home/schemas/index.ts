@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { AccessCodeType, AccessCodeValidTime } from "@prisma/client";
+import { AccessCodeValidTime, UserRole } from "@prisma/client";
 
 export const GenerateCodeSchema = z.object({
   validFor: z.enum([
@@ -9,10 +9,5 @@ export const GenerateCodeSchema = z.object({
     AccessCodeValidTime.DAY_1,
     AccessCodeValidTime.WEEK_1,
   ]),
-  accessType: z.enum([
-    AccessCodeType.UPLOAD_FILES_ONLY,
-    AccessCodeType.READ_ONLY,
-    AccessCodeType.READ_AND_ADD,
-    AccessCodeType.FULL_ACCESS,
-  ]),
+  accessType: z.enum([UserRole.UPLOAD_FILES_ONLY, UserRole.READ_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
 });

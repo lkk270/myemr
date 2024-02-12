@@ -1,14 +1,22 @@
-import NextAuth from "next-auth";
-import { UserRole, UserType } from "@prisma/client";
+import NextAuth, { Account, User } from "next-auth";
+import { PatientProfileAccessCode, UserRole, UserType } from "@prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "@/lib/encryption";
 import prismadb from "@/lib/prismadb";
 import authConfig from "./auth.config";
-import { getUserById, getUserByEmail } from "@/auth/data/user";
-import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";
-import { getAccountByUserId } from "@/auth/data/account";
 
+import {
+  getAccessPatientCodeById,
+  getUserFromAccessPatientCode,
+  getUserById,
+  getUserByEmail,
+  getTwoFactorConfirmationByUserId,
+  getAccountByUserId,
+} from "@/auth/data";
+import { ExtendedUser } from "./next-auth";
+
+let maxAge = 2 * 24 * 60 * 60;
 export const {
   handlers: { GET, POST },
   auth,
@@ -18,7 +26,7 @@ export const {
 } = NextAuth({
   pages: {
     signIn: "/auth/base-login", //something goes wrong it redirects to this page
-    error: "/auth/error", //if something else goes wrong it redirects to this page
+    error: "/auth/base-login", //if something else goes wrong it redirects to this page
   },
   events: {
     async linkAccount({ user }) {
@@ -29,7 +37,7 @@ export const {
     },
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: { user: User | ExtendedUser | any; account: Account | null }) {
       // Allow OAuth without email verification
       if (account?.provider === "google") {
         const email = user.email;
@@ -84,9 +92,17 @@ export const {
           throw new Error("Email is already being used through email & password sign in!");
         }
       }
+      // else if (user.forCode) {
+      //   console.log("IN HERE");
+      //   const existingCode = await getAccessPatientCode(user.code);
+      //   if (!existingCode) return false;
+      //   return true;
+      // }
       // if (account?.provider !== "credentials") return true;
       else {
-        const existingUser = await getUserById(user.id);
+        let userId = user.id;
+        if (userId.includes("_")) userId = userId.split("_")[0];
+        const existingUser = await getUserById(userId);
 
         // Prevent sign in without email verification
         if (!existingUser?.emailVerified) return false;
@@ -106,8 +122,10 @@ export const {
       return true;
     },
     async session({ token, session }) {
+      // console.log(session);
+      // console.log(token);
       if (token.sub && session.user) {
-        session.user.id = token.sub;
+        session.user.id = token.sub.split("_")[0];
       }
 
       if (token.role && session.user) {
@@ -123,29 +141,41 @@ export const {
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
       }
-
+      // console.log(session);
       return session;
     },
     async jwt({ token }) {
+      // console.log(token);
       if (!token.sub) return token;
+      let tokenSub = token.sub;
+      let userId = tokenSub;
+      let code: PatientProfileAccessCode | undefined | null = undefined;
+      if (tokenSub.includes("_")) {
+        userId = userId.split("_")[0];
+        code = await getAccessPatientCodeById(tokenSub.split("_")[1]);
+      }
 
-      const existingUser = await getUserById(token.sub);
+      const existingUser = await getUserById(userId);
 
-      if (!existingUser) return token;
-
+      if (!existingUser || code === null) return token;
+      if (!!code && !!code.expires) {
+        const expiresTime = new Date(code.expires).getTime();
+        const now = new Date().getTime();
+        maxAge = Math.floor((expiresTime - now) / 1000);
+      }
       const existingAccount = await getAccountByUserId(existingUser.id);
 
       token.isOAuth = !!existingAccount;
       token.email = existingUser.email;
       token.userType = existingUser.type;
-      token.role = existingUser.role;
-      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+      token.role = code ? code.accessType : existingUser.role;
+      token.isTwoFactorEnabled = code ? false : existingUser.isTwoFactorEnabled;
       return token;
     },
     // async signOut() {},
   },
   adapter: PrismaAdapter(prismadb),
-  session: { strategy: "jwt", maxAge: 2 * 24 * 60 * 60 },
+  session: { strategy: "jwt", maxAge: maxAge },
   ...authConfig,
 });
 

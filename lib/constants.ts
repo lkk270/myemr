@@ -38,6 +38,29 @@ export const navRoutes = [
   },
 ];
 
+export const tempPatientAccessNavRoutes = [
+  {
+    icon: Home,
+    href: "/tpa-home",
+    label: "Home",
+  },
+  {
+    icon: FolderClosed,
+    href: "/tpa-files",
+    label: "Files",
+  },
+  {
+    icon: Pill,
+    href: "/tpa-medications",
+    label: "Meds",
+  },
+  {
+    icon: Contact,
+    href: "/tpa-about",
+    label: "About",
+  },
+];
+
 export interface SelectItemType {
   value: string;
   value2?: string;

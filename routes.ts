@@ -31,7 +31,7 @@ export const patientRoutes: string[] = [
   "/patient-home",
   "/files",
   "/about",
-  "/meds",
+  "/medications",
   "/providers",
   "/patient-settings",
 ];
@@ -46,7 +46,7 @@ export const providerRoutes: string[] = ["/provider-home", "/patients", "/provid
  * An array of routes that are patient access specific
  * @type {string[]}
  */
-export const accessPatientRoutes: string[] = ["/access-home"];
+export const accessPatientRoutes: string[] = ["/tpa-home", "/tpa-about", "/tpa-files", "/tpa-medications"];
 
 /**
  * The prefix for API authentication routes
@@ -61,4 +61,4 @@ export const apiAuthPrefix: string = "/api/auth";
  */
 export const PATIENT_DEFAULT_LOGIN_REDIRECT: string = "/patient-home";
 export const PROVIDER_DEFAULT_LOGIN_REDIRECT: string = "/provider-home";
-export const ACCESS_PATIENT_WITH_CODE_REDIRECT: string = "/access-home";
+export const ACCESS_PATIENT_WITH_CODE_REDIRECT: string = "/tpa-home";

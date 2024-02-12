@@ -16,7 +16,6 @@ import {
 } from "@/auth/data";
 import { ExtendedUser } from "./next-auth";
 
-let maxAge = 2 * 24 * 60 * 60;
 export const {
   handlers: { GET, POST },
   auth,
@@ -141,12 +140,17 @@ export const {
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
       }
-      // console.log(session);
+      if (token.customExpiresAt) {
+        // console.log(token.customExpiresAt);
+        session.expires = token.customExpiresAt as string;
+      }
+
       return session;
     },
     async jwt({ token }) {
       // console.log(token);
       if (!token.sub) return token;
+      // console.log(token);
       let tokenSub = token.sub;
       let userId = tokenSub;
       let code: PatientProfileAccessCode | undefined | null = undefined;
@@ -160,9 +164,10 @@ export const {
       if (!existingUser || code === null) return token;
       if (!!code && !!code.expires) {
         const expiresTime = new Date(code.expires).getTime();
-        const now = new Date().getTime();
-        maxAge = Math.floor((expiresTime - now) / 1000);
+        token.customExpiresAt = code.expires.toISOString();
+        token.customExp = Math.round(expiresTime / 1000);
       }
+
       const existingAccount = await getAccountByUserId(existingUser.id);
 
       token.isOAuth = !!existingAccount;
@@ -172,10 +177,9 @@ export const {
       token.isTwoFactorEnabled = code ? false : existingUser.isTwoFactorEnabled;
       return token;
     },
-    // async signOut() {},
   },
   adapter: PrismaAdapter(prismadb),
-  session: { strategy: "jwt", maxAge: maxAge },
+  session: { strategy: "jwt", maxAge: 2 * 24 * 60 * 60 },
   ...authConfig,
 });
 

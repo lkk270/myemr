@@ -18,7 +18,7 @@ interface NavbarProps {
 export const Navbar = ({ tempAccess = false }: NavbarProps) => {
   const pathname = usePathname();
 
-  const routes = tempAccess ? navRoutes : tempPatientAccessNavRoutes;
+  const routes = tempAccess ? tempPatientAccessNavRoutes : navRoutes;
 
   return (
     <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">

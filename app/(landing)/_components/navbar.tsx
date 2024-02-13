@@ -27,9 +27,9 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   const user = sessionData?.user || null;
   // console.log(sessionData);
   // console.log(sessionData?.user.role);
-  console.log(session);
-  console.log(user);
-  console.log(session.status);
+  // console.log(session);
+  // console.log(user);
+  // console.log(session.status);
 
   return (
     <div

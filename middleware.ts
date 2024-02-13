@@ -37,12 +37,23 @@ export default auth(async (req) => {
 
   const user = session?.user;
 
-  const redirectUrl =
-    user?.userType === "PATIENT"
-      ? PATIENT_DEFAULT_LOGIN_REDIRECT
-      : user?.userType === "PROVIDER"
-      ? PROVIDER_DEFAULT_LOGIN_REDIRECT
-      : ACCESS_PATIENT_WITH_CODE_REDIRECT;
+  let redirectUrl = "/";
+
+  const userType = user?.userType;
+  const userRole = user?.role;
+
+  if (userType === "PATIENT" && userRole === "ADMIN") {
+    redirectUrl = PATIENT_DEFAULT_LOGIN_REDIRECT;
+  } else if (
+    (userType === "PATIENT" && userRole === "FULL_ACCESS") ||
+    userRole === "READ_AND_ADD" ||
+    userRole === "READ_ONLY" ||
+    userRole === "UPLOAD_FILES_ONLY"
+  ) {
+    redirectUrl = ACCESS_PATIENT_WITH_CODE_REDIRECT;
+  } else if (userType === "PROVIDER") {
+    redirectUrl = PROVIDER_DEFAULT_LOGIN_REDIRECT;
+  }
   if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(redirectUrl, nextUrl));
@@ -60,21 +71,23 @@ export default auth(async (req) => {
     //TODO change to base-login
     return Response.redirect(new URL(`/auth/base-login?callbackUrl=${encodedCallbackUrl}`, nextUrl));
   }
-  if (isPatientRoute && isLoggedIn && (user?.userType !== "PATIENT" || user?.role !== "ADMIN")) {
-    // console.log("IN 66");
-    // console.log(redirectUrl);
-    // console.log(nextUrl);
-    console.log("IN 67");
-    console.log(isPatientRoute);
-    console.log(nextUrl.pathname);
-    console.log(patientRoutes);
+  if (isPatientRoute && isLoggedIn && (userType !== "PATIENT" || userRole !== "ADMIN")) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
-  if (isProviderRoute && isLoggedIn && user?.userType !== "PROVIDER") {
+  if (isProviderRoute && isLoggedIn && userType !== "PROVIDER") {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
 
-  if (isAccessPatientRoute && isLoggedIn && user?.userType !== "PATIENT" && user?.userType !== "PROVIDER") {
+  if (
+    isAccessPatientRoute &&
+    isLoggedIn &&
+    (userType !== "PATIENT" ||
+      (userType === "PATIENT" &&
+        userRole !== "FULL_ACCESS" &&
+        userRole !== "UPLOAD_FILES_ONLY" &&
+        userRole !== "READ_ONLY" &&
+        userRole !== "READ_AND_ADD"))
+  ) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
 
@@ -90,11 +103,14 @@ export default auth(async (req) => {
   //   return Response.redirect(new URL(ACCESS_PATIENT_WITH_CODE_REDIRECT, nextUrl));
   // } else
 
-  if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {
-    return Response.redirect(new URL(PATIENT_DEFAULT_LOGIN_REDIRECT, nextUrl));
-  } else if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PROVIDER") {
-    return Response.redirect(new URL(PROVIDER_DEFAULT_LOGIN_REDIRECT, nextUrl));
+  if (nextUrl.pathname === "/" && isLoggedIn) {
+    return Response.redirect(new URL(redirectUrl, nextUrl));
   }
+  // if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {
+  //   return Response.redirect(new URL(PATIENT_DEFAULT_LOGIN_REDIRECT, nextUrl));
+  // } else if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PROVIDER") {
+  //   return Response.redirect(new URL(PROVIDER_DEFAULT_LOGIN_REDIRECT, nextUrl));
+  // }
 
   return null;
 });

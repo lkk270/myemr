@@ -71,6 +71,27 @@ export interface SimpleSelectItemsType {
   height: SelectItemType[];
   weight: SelectItemType[];
 }
+interface AccessType {
+  title: string;
+  description: string;
+}
+
+export interface AccessTypeObjectType {
+  [key: string]: AccessType;
+}
+
+export const accessTypeTextObj: AccessTypeObjectType = {
+  READ_ONLY: { title: "read only", description: "can only view records and are unable to make changes of any kind" },
+  READ_AND_ADD: {
+    title: "read and add",
+    description: "can view records and add records i.e. medications and folders/files",
+  },
+  FULL_ACCESS: {
+    title: "full access",
+    description:
+      "can view records, add records i.e. medications and folders/files, and make edits to existing medications and demographics",
+  },
+};
 
 export const simpleSelectItems: SimpleSelectItemsType = {
   height: [

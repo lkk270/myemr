@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-
 import prismadb from "@/lib/prismadb";
-
+import { UserRole } from "@prisma/client";
+import { accessTypeTextObj } from "@/lib/constants";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
+import CountdownTimer from "../_components/countdown-timer";
 
 const AccessHome = async () => {
   const session = await auth();
@@ -12,9 +13,57 @@ const AccessHome = async () => {
     return redirect("/");
   }
   const user = session?.user;
-  // console.log(user);
+  console.log(session.expires);
 
-  return <p className="text-indigo-700 text-3xl">Hello ACCESS CODE</p>;
+  const patient = await prismadb.patientProfile.findUnique({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      symmetricKey: true,
+    },
+  });
+
+  if (!patient) {
+    return <div>something went wrong</div>;
+  }
+  let decryptedPatient;
+  try {
+    const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
+    decryptedPatient = decryptMultiplePatientFields(patient, decryptedSymmetricKey);
+  } catch (e) {
+    return <div>something went wrong decryption</div>;
+  }
+  const accessTypeTitle = accessTypeTextObj[user.role].title;
+  const accessTypeDescription = accessTypeTextObj[user.role].description;
+
+  return (
+    <div className="flex flex-col mx-auto max-w-3xl px-4 pt-2 xs:pt-12 sm:pt-20">
+      <div className="space-y-4 text-center">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl pb-8">Welcome!</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            {`You have temporary access to ${decryptedPatient.firstName} ${decryptedPatient.lastName}'s medical record. Your access type is `}
+            <span className="font-bold italic">{accessTypeTitle}</span>.
+          </p>
+          <p className="text-gray-500 dark:text-gray-400">{`This mean that you ${accessTypeDescription}.`}</p>
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-lg font-bold tracking-tight">Your access expires in:</h2>
+          <CountdownTimer expiredDateTime={new Date(session.expires)} />
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold tracking-tight">Next Steps</h2>
+          <p className="text-gray-500 dark:text-gray-400">
+            Navigate to different pages through the navbar on the top of the page.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AccessHome;

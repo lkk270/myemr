@@ -3,8 +3,8 @@
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 // import { MainNavbar } from "@/components/headers/main-navbar";
-import { Navbar } from "../(patient)/_components/navbar";
-import { Sidebar } from "../(patient)/_components/sidebar";
+import { Navbar } from "../../(patient)/_components/navbar";
+import { Sidebar } from "../../(patient)/_components/sidebar";
 import { logout } from "@/auth/actions/logout";
 
 import { useEffect } from "react";

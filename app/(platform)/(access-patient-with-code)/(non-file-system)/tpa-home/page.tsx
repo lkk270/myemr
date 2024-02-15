@@ -4,7 +4,7 @@ import prismadb from "@/lib/prismadb";
 import { UserRole } from "@prisma/client";
 import { accessTypeTextObj } from "@/lib/constants";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
-import CountdownTimer from "../_components/countdown-timer";
+import CountdownTimer from "./_components/countdown-timer";
 
 const AccessHome = async () => {
   const session = await auth();
@@ -13,7 +13,6 @@ const AccessHome = async () => {
     return redirect("/");
   }
   const user = session?.user;
-  console.log(session.expires);
 
   const patient = await prismadb.patientProfile.findUnique({
     where: {

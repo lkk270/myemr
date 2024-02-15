@@ -9,8 +9,10 @@ import {
   authRoutes,
   publicRoutes,
   patientRoutes,
+  patientDynamicRoutes,
   providerRoutes,
   accessPatientRoutes,
+  accessPatientDynamicRoutes,
 } from "@/routes";
 
 const { auth } = NextAuth(authConfig);
@@ -24,13 +26,19 @@ export default auth(async (req) => {
   const session = await auth2();
   // console.log("IN 24");
   // console.log(session);
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const isPatientRoute = patientRoutes.includes(nextUrl.pathname);
-  const isProviderRoute = providerRoutes.includes(nextUrl.pathname);
-  const isAccessPatientRoute = accessPatientRoutes.includes(nextUrl.pathname);
-
+  const nextUrlPathname = nextUrl.pathname;
+  const isApiAuthRoute = nextUrlPathname.startsWith(apiAuthPrefix);
+  const isPublicRoute = publicRoutes.includes(nextUrlPathname);
+  const isAuthRoute = authRoutes.includes(nextUrlPathname);
+  const isPatientRoute =
+    patientRoutes.includes(nextUrlPathname) || patientDynamicRoutes.some((path) => nextUrlPathname.startsWith(path));
+  const isProviderRoute = providerRoutes.includes(nextUrlPathname);
+  const isAccessPatientRoute =
+    accessPatientRoutes.includes(nextUrlPathname) ||
+    accessPatientDynamicRoutes.some((path) => nextUrlPathname.startsWith(path));
+  console.log(nextUrlPathname);
+  console.log(isPatientRoute);
+  console.log(isAccessPatientRoute);
   if (isApiAuthRoute) {
     return null;
   }
@@ -62,7 +70,7 @@ export default auth(async (req) => {
   }
 
   if (!isLoggedIn && !isPublicRoute) {
-    let callbackUrl = nextUrl.pathname;
+    let callbackUrl = nextUrlPathname;
     if (nextUrl.search) {
       callbackUrl += nextUrl.search;
     }
@@ -92,7 +100,7 @@ export default auth(async (req) => {
   }
 
   // if (
-  //   nextUrl.pathname === "/" &&
+  //   nextUrlPathname === "/" &&
   //   isLoggedIn &&
   //   (user?.role === "FULL_ACCESS" ||
   //     user?.role === "READ_ONLY" ||
@@ -103,12 +111,12 @@ export default auth(async (req) => {
   //   return Response.redirect(new URL(ACCESS_PATIENT_WITH_CODE_REDIRECT, nextUrl));
   // } else
 
-  if (nextUrl.pathname === "/" && isLoggedIn) {
+  if (nextUrlPathname === "/" && isLoggedIn) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
-  // if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {
+  // if (nextUrlPathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {
   //   return Response.redirect(new URL(PATIENT_DEFAULT_LOGIN_REDIRECT, nextUrl));
-  // } else if (nextUrl.pathname === "/" && isLoggedIn && user?.userType === "PROVIDER") {
+  // } else if (nextUrlPathname === "/" && isLoggedIn && user?.userType === "PROVIDER") {
   //   return Response.redirect(new URL(PROVIDER_DEFAULT_LOGIN_REDIRECT, nextUrl));
   // }
 

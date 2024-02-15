@@ -12,7 +12,7 @@ import { ActionDropdown } from "./action-dropdown";
 import { useMenuItems } from "./hooks";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { NodeDataType } from "@/app/types/file-types";
-import Link from "next/link";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useFolderStore } from "../../hooks/use-folders";
 import { usePathnameHook } from "./hooks/use-pathname";
 
@@ -29,6 +29,7 @@ const iconSize = "17px";
 const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const [isMounted, setIsMounted] = useState(false);
   const folderStore = useFolderStore();
   const isMobile = useMediaQuery("(max-width: 450px)");
@@ -325,7 +326,9 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
             >
               {node.data.isFile ? (
                 <>
-                  <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
+                  {currentUserPermissions.showActions && (
+                    <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
+                  )}
                   <span className="w-5 flex-shrink-0 mr-1"></span>
                   <span className="mr-2 flex items-center flex-shrink-0">
                     <CustomIcon size={iconSize} />
@@ -387,7 +390,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               >
                 {node.data.name}
               </div>
-              {!isTrashNode && (
+              {!isTrashNode && currentUserPermissions.showActions && (
                 <div className={cn(isMobile ? "" : "action-button")}>
                   <ActionDropdown
                     nodeData={node.data}
@@ -405,7 +408,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 </div>
               )}
             </div>
-            {!isTrashNode && (
+            {!isTrashNode && currentUserPermissions.showActions && (
               <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
                 <MenuHeader title={node.data.name} icon={CustomIcon} />
                 {menuItems.map((item, index) => {

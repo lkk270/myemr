@@ -12,6 +12,7 @@ import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 interface FileTreeProps {
   width: number;
@@ -155,6 +156,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
+  const currentUserPermissions = useCurrentUserPermissions();
   const { prevPathnameVar, setPrevPathnameVar, pathnameVar, setPathnameVar } = usePathnameHook();
   // const [nodeIdFromPath, setNodeIdFromPath] = useState<string | null>(null);
 
@@ -372,7 +374,13 @@ const FileTree = ({ width }: FileTreeProps) => {
               data={folderStore.folders}
               // initialData={folderStore.folders}
               width={width - 8}
-              height={screenHeight - 180}
+              height={
+                currentUserPermissions.isPatient
+                  ? screenHeight - 180
+                  : currentUserPermissions.showActions
+                  ? screenHeight - 180 + 45
+                  : screenHeight - 180 + 95
+              }
               // rowClassName={"max-w-[200px] w-full"}
               indent={15}
               rowHeight={31}

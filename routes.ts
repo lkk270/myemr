@@ -37,6 +37,12 @@ export const patientRoutes: string[] = [
 ];
 
 /**
+ * An array of routes that are patient specific and are dynamic
+ * @type {string[]}
+ */
+export const patientDynamicRoutes: string[] = ["/files/", "/file/"];
+
+/**
  * An array of routes that are provider specific
  * @type {string[]}
  */
@@ -47,6 +53,12 @@ export const providerRoutes: string[] = ["/provider-home", "/patients", "/provid
  * @type {string[]}
  */
 export const accessPatientRoutes: string[] = ["/tpa-home", "/tpa-about", "/tpa-files", "/tpa-medications"];
+
+/**
+ * An array of routes that are patient access specific and are dynamic
+ * @type {string[]}
+ */
+export const accessPatientDynamicRoutes: string[] = ["/tpa-files/", "/tpa-file/"];
 
 /**
  * The prefix for API authentication routes

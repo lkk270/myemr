@@ -13,7 +13,8 @@ import FileTree from "./file-tree/_components/tree";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
-import { useCurrentUser } from "@/auth/hooks/use-current-user";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
@@ -31,7 +32,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
-  const currentUser = useCurrentUser();
+  const currentUserPermissions = useCurrentUserPermissions();
   // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
@@ -134,9 +135,13 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
           </div>
 
           <FileTree width={sidebarWidth} />
-          <div className="flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10">
-            <NewRootFolderBox />
-            {currentUser?.userType === "PATIENT" && currentUser.role === "ADMIN" && (
+          <div
+            className={cn(
+              currentUserPermissions.showActions && "flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10",
+            )}
+          >
+            {currentUserPermissions.showActions && <NewRootFolderBox />}
+            {currentUserPermissions.isPatient && (
               <>
                 <Separator />
                 <div role="button" className="flex flex-col gap-y-1">

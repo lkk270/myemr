@@ -3,13 +3,12 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useFolderStore } from "./hooks/use-folders";
-import { File, Folder, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { Folder, Trash2 } from "lucide-react";
+import { Card, CardHeader } from "@/components/ui/card";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
-import { getFileIcon, formatFileSize } from "@/lib/utils";
+import { getFileIcon, formatFileSize, cn } from "@/lib/utils";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
   const isFile = record.isFile;
@@ -41,12 +40,20 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
 };
 
 export const RecentRecordsGrid = ({}) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const { singleLayerNodes } = useFolderStore();
   const folders = singleLayerNodes.filter((node) => !node.isFile).slice(0, 12);
   const files = singleLayerNodes.filter((node) => node.isFile).slice(0, 12);
 
   return (
-    <div className="pr-3 pt-4 max-h-[calc(100vh-340px)] xs:max-h-[calc(100vh-206px)] overflow-y-scroll">
+    <div
+      className={cn(
+        "pr-3 pt-4 overflow-y-scroll",
+        currentUserPermissions.canAdd
+          ? "max-h-[calc(100vh-340px)] xs:max-h-[calc(100vh-206px)]"
+          : "max-h-[calc(100vh-274px)] xs:max-h-[calc(100vh-140px)]",
+      )}
+    >
       <div className="text-lg font-bold py-3">Recent Folders</div>
       <div
         className="grid grid-flow-row gap-2 pb-10 auto-cols-max"

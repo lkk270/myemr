@@ -13,7 +13,7 @@ import FileTree from "./file-tree/_components/tree";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
-
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
@@ -31,6 +31,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
+  const currentUser = useCurrentUser();
   // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
@@ -135,17 +136,24 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
           <FileTree width={sidebarWidth} />
           <div className="flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10">
             <NewRootFolderBox />
-            <Separator />
-            <div role="button" className="flex flex-col gap-y-1">
-              <Progress className="h-1" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
-              <div className="flex flex-row justify-between text-xs font-light ">
-                <span className="italic">{`${formatStorageValue(
-                  folderStore.usedFileStorage,
-                )} Gb / ${allotedStorageInGb} Gb`}</span>
+            {currentUser?.userType === "PATIENT" && currentUser.role === "ADMIN" && (
+              <>
+                <Separator />
+                <div role="button" className="flex flex-col gap-y-1">
+                  <Progress
+                    className="h-1"
+                    value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)}
+                  />
+                  <div className="flex flex-row justify-between text-xs font-light ">
+                    <span className="italic">{`${formatStorageValue(
+                      folderStore.usedFileStorage,
+                    )} Gb / ${allotedStorageInGb} Gb`}</span>
 
-                <span role="button">Upgrade</span>
-              </div>
-            </div>
+                    <span role="button">Upgrade</span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           <div
             onMouseDown={handleMouseDown}

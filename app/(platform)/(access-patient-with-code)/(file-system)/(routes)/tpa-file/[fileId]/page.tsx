@@ -2,10 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import { NodePageHeader } from "@/app/(platform)/(patient)/(file-system)/_components/node-page-header";
-import prismadb from "@/lib/prismadb";
 import { Viewer } from "@/app/(platform)/(patient)/(file-system)/_components/file-viewers/file-viewer";
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPresignedUrl } from "@/app/(platform)/(patient)/(file-system)/actions/get-file-psu";
 import { updateRecordViewActivity } from "@/lib/files";
 

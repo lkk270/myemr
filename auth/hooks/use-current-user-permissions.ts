@@ -6,7 +6,7 @@ export const useCurrentUserPermissions = () => {
   const userRole = user?.role;
   const userType = user?.userType;
   const isPatient = userRole === "ADMIN" && userType === "PATIENT";
-  let ret = { canAdd: false, canEdit: false, canDelete: false };
+  let ret = { canAdd: false, canEdit: false, canDelete: false, showActions: false, isPatient: isPatient };
   if (userRole === "FULL_ACCESS" || userRole === "READ_AND_ADD" || isPatient) {
     ret["canAdd"] = true;
   }
@@ -16,5 +16,6 @@ export const useCurrentUserPermissions = () => {
   if (isPatient) {
     ret["canDelete"] = true;
   }
+  ret["showActions"] = ret["canAdd"] || ret["canEdit"] || ret["canDelete"];
   return ret;
 };

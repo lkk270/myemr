@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { GenerateCodePopover } from "./generate-code-popover";
 import { accessCode } from "../actions/generate-access-code";
+import { toast } from "sonner";
 
 const validTimes = [
   { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
@@ -74,7 +75,7 @@ export const GenerateCode = () => {
         .then((data) => {
           if (data?.error) {
             // form.reset();
-            setError(data.error);
+            toast.error(data.error);
           }
 
           if (data?.success) {
@@ -86,7 +87,7 @@ export const GenerateCode = () => {
             setCode(data.code);
           }
         })
-        .catch(() => setError("Something went wrong"));
+        .catch(() => toast.error("Something went wrong"));
     });
   };
 

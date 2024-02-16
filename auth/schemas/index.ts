@@ -66,7 +66,7 @@ export const LoginSchema = z.object({
     message: "Password is required",
   }),
   code: z.optional(z.string()),
-  userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
+  userType: z.enum([UserType.PATIENT, UserType.PROVIDER, "CODE"]),
 });
 
 export const RegisterSchema = z.object({

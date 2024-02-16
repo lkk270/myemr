@@ -18,6 +18,7 @@ import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useNewMedicationModal } from "../_components/hooks/use-new-medication-modal";
 import { cn } from "@/lib/utils";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
@@ -25,6 +26,7 @@ const inputClassName = "bg-secondary border-primary/10";
 
 export const NewMedicationForm = () => {
   let error = "Something went wrong";
+  const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();
   const newMedicationModal = useNewMedicationModal();
   const [medication, setMedication] = useState<NewMedicationType | null>({
@@ -58,6 +60,7 @@ export const NewMedicationForm = () => {
     return null; // All checks passed
   };
   const handleSave = () => {
+    if (!currentUserPermissions.canAdd) return;
     setIsLoading(true);
     const errorMessage = validateMedication();
     if (errorMessage) {
@@ -115,7 +118,7 @@ export const NewMedicationForm = () => {
   return (
     <div className="flex justify-center w-full max-w-[850px]">
       <div className="grid grid-cols-1 w-full">
-        <div className="flex gap-x-4 justify-start pb-3">
+        <div className="flex gap-x-4 justify-start">
           <Button variant="outline" size="sm" className="h-8" disabled={isLoading} onClick={handleSave}>
             Save
           </Button>

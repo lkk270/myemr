@@ -26,6 +26,7 @@ export const AccessPatientWithCodeForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof AccessPatientWithCodeSchema>) => {
+    console.log("IN 29");
     setError("");
     setSuccess("");
 

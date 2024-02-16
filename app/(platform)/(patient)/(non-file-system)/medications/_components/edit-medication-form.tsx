@@ -21,6 +21,7 @@ import { DosageHistoryPopover } from "./dosage-history-popover";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const inputClassName = "bg-secondary border-primary/10";
 
@@ -29,6 +30,7 @@ interface MedicationProps {
 }
 
 export const MedicationForm = ({ medicationParam }: MedicationProps) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();
   const viewMedicationModal = useViewMedicationModal();
 
@@ -47,6 +49,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
     setIsEditing(false);
   };
   const handleSave = () => {
+    if (!currentUserPermissions.canEdit) return;
     setIsLoading(true);
     const changes: Partial<Medication> = {};
     if (medication !== null) {
@@ -146,16 +149,18 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   return (
     <div className="flex justify-center w-full max-w-[850px]">
       <div className="grid grid-cols-1 w-full">
-        <div className="flex gap-x-4 justify-start pb-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8"
-            disabled={isLoading}
-            onClick={isEditing ? handleSave : handleEditToggle}
-          >
-            {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
-          </Button>
+        <div className="flex gap-x-4 justify-start">
+          {currentUserPermissions.canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              disabled={isLoading}
+              onClick={isEditing ? handleSave : handleEditToggle}
+            >
+              {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
+            </Button>
+          )}
           {isEditing && !isLoading && (
             <Button variant="destructive" size="sm" className="h-8" disabled={isLoading} onClick={handleCancel}>
               Cancel

@@ -10,8 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTableRowActionsProps, MedicationType } from "@/app/types";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export function CustomDataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
+  const currentUserPermissions = useCurrentUserPermissions();
   const deleteMedicationModal = useDeleteMedicationModal();
   const viewMedicationModal = useViewMedicationModal();
   return (
@@ -32,19 +34,21 @@ export function CustomDataTableRowActions<TData>({ row }: DataTableRowActionsPro
             }
           }}
         >
-          Edit
+          {currentUserPermissions.canEdit ? "Edit" : "View"}
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={(e) => {
-            // e.preventDefault();
-            e.stopPropagation();
-            if (deleteMedicationModal.onOpen) {
-              deleteMedicationModal.onOpen(row.original as MedicationType);
-            }
-          }}
-        >
-          Delete
-        </DropdownMenuItem>
+        {currentUserPermissions.canDelete && (
+          <DropdownMenuItem
+            onClick={(e) => {
+              // e.preventDefault();
+              e.stopPropagation();
+              if (deleteMedicationModal.onOpen) {
+                deleteMedicationModal.onOpen(row.original as MedicationType);
+              }
+            }}
+          >
+            Delete
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

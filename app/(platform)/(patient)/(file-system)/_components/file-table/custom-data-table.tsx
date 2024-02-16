@@ -41,7 +41,7 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
       // onOpen={onOpen}
       // hiddenColumns={hiddenColumns}
       isLink={true}
-      className={"xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
+      className={"min-h-[300px] xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
       data={data}
       isLoading={false}
       columns={columns}

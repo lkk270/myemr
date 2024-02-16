@@ -170,7 +170,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
         <div
           ref={navbarRef}
           className={cn(
-            "absolute top-0 z-[50] left-[300px] w-[calc(100%-300px)]",
+            "bg-[#f8f7f7] dark:bg-[#1f1f1f] absolute top-0 z-[50] left-[300px] w-[calc(100%-300px)]",
             isResetting && "transition-all ease-in-out duration-300",
             isMobile && "left-0 w-full",
           )}

@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings } from "lucide-react";
 
 export const navRoutes = [
@@ -81,15 +82,19 @@ export interface AccessTypeObjectType {
 }
 
 export const accessTypeTextObj: AccessTypeObjectType = {
-  READ_ONLY: { title: "read only", description: "can only view records and are unable to make changes of any kind" },
+  READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },
+  UPLOAD_FILES_ONLY: {
+    title: "Upload Files Only",
+    description: "can only upload files to a folder of your choosing. Your records will be hidden",
+  },
   READ_AND_ADD: {
-    title: "read and add",
+    title: "Read & Add",
     description: "can view records and add records i.e. medications and folders/files",
   },
   FULL_ACCESS: {
-    title: "full access",
+    title: "Full Access",
     description:
-      "can view records, add records i.e. medications and folders/files, and make edits to existing medications and demographics",
+      "can view records, add records i.e. medications and folders/files, make edits to existing medications and demographics, and rename and move folders & files",
   },
 };
 

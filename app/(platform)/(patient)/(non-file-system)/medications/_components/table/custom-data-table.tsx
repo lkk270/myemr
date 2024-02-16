@@ -32,7 +32,7 @@ export function CustomDataTable({ data }: DataTableProps) {
       data={medicationStore.medications}
       isLoading={!medicationStore.medicationsSet}
       columns={columns}
-      className={"xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
+      // className={"xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
     />
   );
 }

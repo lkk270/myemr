@@ -6,19 +6,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { GenerateCodeSchema } from "../schemas";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+
 import { Spinner } from "@/components/spinner";
 import { Copy, Check, RefreshCw } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { AccessCodeValidTime, UserRole } from "@prisma/client";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem } from "@/components/ui/form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
+import { GenerateCodePopover } from "./generate-code-popover";
 import { accessCode } from "../actions/generate-access-code";
-import { toast } from "sonner";
 
 const validTimes = [
   { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
@@ -101,9 +100,10 @@ export const GenerateCode = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
           isMobile && "min-w-[98vw]",
-          "min-h-[350px] lg:min-h-[200px] shadow-lg flex flex-col justify-between items-center px-2 sm:px-4 py-6 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg", // Added py-6 for padding at the top and bottom
+          "relative min-h-[350px] lg:min-h-[200px] shadow-lg flex flex-col justify-between items-center px-2 sm:px-4 py-6 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
         )}
       >
+        <GenerateCodePopover />
         <div className="py-2">
           <h2 className="text-xl font-bold tracking-tighter sm:text-2xl">Generate a Code</h2>
           <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed dark:text-gray-400">

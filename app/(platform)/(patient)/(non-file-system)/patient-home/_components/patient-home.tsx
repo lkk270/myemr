@@ -10,8 +10,8 @@ import { GenerateCode } from "./generate-code";
 export const PatientHome = () => {
   const isMobile = useMediaQuery("(max-width:640px)");
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2">
-      <div className="grid grid-rows-2 w-full py-4 px-1 sm:px-4 lg:h-[calc(100vh-64px)] gap-y-4 bg-primary/1">
+    <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[728px]">
+      <div className="grid grid-rows-2 w-full py-4 px-1 sm:px-4 gap-y-4 bg-primary/1">
         <GenerateCode />
         <div
           className={cn(
@@ -35,7 +35,7 @@ export const PatientHome = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-rows-1 w-full py-4 px-4 lg:pr-4 lg:pl-0 lg:h-[calc(100vh-64px)] gap-y-4 bg-primary/1">
+      <div className="grid grid-rows-1 w-full py-4 px-4 lg:pr-4 lg:pl-0 gap-y-4 bg-primary/1">
         <div
           className={cn(
             isMobile && "min-w-[90vw]",

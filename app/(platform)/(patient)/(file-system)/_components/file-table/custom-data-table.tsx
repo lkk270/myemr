@@ -5,6 +5,7 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/table/data-table";
 import { useEffect, useState } from "react";
 import { useFolderStore } from "../hooks/use-folders";
+import { cn } from "@/lib/utils";
 interface DataTableProps {
   nodeId: string;
 }
@@ -41,7 +42,11 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
       // onOpen={onOpen}
       // hiddenColumns={hiddenColumns}
       isLink={true}
-      className={"min-h-[300px] xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
+      className={cn(
+        data.length <= 6
+          ? `min-h-[${53 * data.length}px]`
+          : "min-h-[300px]" && "xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll",
+      )}
       data={data}
       isLoading={false}
       columns={columns}

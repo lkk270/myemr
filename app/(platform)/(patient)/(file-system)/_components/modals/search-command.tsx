@@ -13,10 +13,13 @@ import {
 } from "@/components/ui/command";
 import { useSearch } from "../hooks/use-search";
 import Link from "next/link";
-import { getFileIcon } from "@/lib/utils";
+import { getFileIcon, getNodeHref } from "@/lib/utils";
 import { useAddFolderModal } from "../file-tree/_components/hooks";
 import { useUploadFilesModal } from "../file-tree/_components/hooks";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+
 export const SearchCommand = () => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const foldersStore = useFolderStore();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
@@ -74,29 +77,31 @@ export const SearchCommand = () => {
       <CommandInput placeholder={`Search records`} />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Actions">
-          {actionItems.map((item, index) => (
-            <CommandItem
-              className="text-md text-primary/70 hover:text-primary "
-              key={index}
-              title={item.label}
-              onSelect={() => item.action()}
-            >
-              <div className="flex gap-x-4 items-center justify-center">
-                <div className="bg-primary/10 rounded-md p-2">
-                  <item.icon className="flex w-6 h-6" />
+        {currentUserPermissions.canAdd && (
+          <CommandGroup heading="Actions">
+            {actionItems.map((item, index) => (
+              <CommandItem
+                className="text-md text-primary/70 hover:text-primary "
+                key={index}
+                title={item.label}
+                onSelect={() => item.action()}
+              >
+                <div className="flex gap-x-4 items-center justify-center">
+                  <div className="bg-primary/10 rounded-md p-2">
+                    <item.icon className="flex w-6 h-6" />
+                  </div>
+                  {item.label}
                 </div>
-                {item.label}
-              </div>
-            </CommandItem>
-          ))}
-        </CommandGroup>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
         <CommandGroup heading="Recent Records">
           {singleLayerNodes.length === 0 && <div className="text-primary/70 ml-2 text-sm">No records :(</div>}
           {singleLayerNodes?.map((node, index) => (
             <Link
               key={index}
-              href={node.isFile ? `/file/${node.id}` : `/files/${node.id}`}
+              href={getNodeHref(currentUserPermissions.isPatient, node.isFile, node.id)}
               onClick={onClose}
               onDragStart={(e) => e.preventDefault()}
             >

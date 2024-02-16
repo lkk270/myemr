@@ -75,11 +75,6 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  const getHref = (row: any) => {
-    const rowId = row.id;
-    return row.isFile ? `/file/${rowId}` : `/files/${rowId}`;
-  };
-
   return (
     <>
       <div className="space-y-4">
@@ -124,7 +119,8 @@ export function DataTable<TData, TValue>({
                     }}
                     onDoubleClick={() => {
                       if (isLink) {
-                        router.push(getNodeHref(currentUserPermissions.isPatient, (row as any).isFile, row.id));
+                        const rowOriginal = row.original as any;
+                        router.push(getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id));
                       }
                     }}
                     key={row.id}

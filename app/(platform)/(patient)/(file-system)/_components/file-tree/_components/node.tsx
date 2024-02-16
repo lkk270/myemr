@@ -262,7 +262,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }
 
   const nodeOnclick = () => {
-    if (!tree.hasMultipleSelections) {
+    if (tree.hasMultipleSelections <= 1) {
       const basePath = currentUserPermissions.isPatient
         ? node.data.isFile
           ? "/file/"
@@ -323,23 +323,23 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               style={{ lineHeight: "18px", fontSize: "13px" }}
               className={cn(
                 `min-w-[${(tree.width - 100).toString()}px]`,
-                "truncate flex items-center flex-grow cursor-pointer",
+                "truncate flex items-center flex-grow cursor-default",
                 // !node.data.parentId ? "cursor-pointer" : "cursor-grab",
               )}
             >
               {node.data.isFile ? (
                 <>
-                  {currentUserPermissions.showActions && (
+                  {currentUserPermissions.canEdit && (
                     <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
                   )}
-                  <span className="w-5 flex-shrink-0 mr-1"></span>
-                  <span className="mr-2 flex items-center flex-shrink-0">
+                  <span className="w-5 flex-shrink-0 mr-1 cursor-pointer" onClick={nodeOnclick}></span>
+                  <span className="mr-2 flex items-center flex-shrink-0  cursor-pointer" onClick={nodeOnclick}>
                     <CustomIcon size={iconSize} />
                   </span>
                 </>
               ) : (
                 <>
-                  {!node.data.isRoot && (
+                  {!node.data.isRoot && currentUserPermissions.canEdit && (
                     <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
                   )}
                   {!isTrashNode && (
@@ -360,7 +360,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     style={{
                       pointerEvents: tree.hasMultipleSelections > 1 ? "none" : "auto",
                     }}
-                    className="mr-[6px] flex-shrink-0"
+                    className="mr-[6px] flex-shrink-0 cursor-pointer"
                   >
                     <div title={node.data.namePath}>
                       {isTrashNode ? (

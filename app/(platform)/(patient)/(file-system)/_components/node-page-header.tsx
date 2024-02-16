@@ -1,7 +1,7 @@
 "use client";
 
 import { FolderPlus, Upload, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getNodeHref } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useFolderStore } from "./hooks/use-folders";
 import Link from "next/link"; // Assuming you are using Next.js for routing
@@ -13,6 +13,7 @@ import { NodeDataType } from "@/app/types/file-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 interface NodePageHeaderProps {
   nodeId: string;
@@ -20,6 +21,7 @@ interface NodePageHeaderProps {
 }
 
 export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const router = useRouter();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
@@ -49,7 +51,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const foldersLength = folders.length;
   return (
     <div className="pb-4 gap-y-2 flex flex-col">
-      {!isFile && !node.namePath.startsWith("/Trash") && (
+      {!isFile && !node.namePath.startsWith("/Trash") && currentUserPermissions.canAdd && (
         <div className="grid grid-cols-2 gap-y-2 xs:flex-row xs:flex gap-x-2">
           <Button
             disabled={isLoading}
@@ -89,7 +91,10 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             const id = node ? node.id : null;
             return (
               <span key={index} style={{ marginRight: "5px" }}>
-                <Link href={id ? `/files/${id}` : "/files"} onDragStart={(e) => e.preventDefault()}>
+                <Link
+                  href={id ? getNodeHref(currentUserPermissions.isPatient, false, id) : "/files"}
+                  onDragStart={(e) => e.preventDefault()}
+                >
                   <span className="hover:underline cursor-pointer">{folder}</span>
                 </Link>
                 {" / "}
@@ -98,7 +103,10 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
           })
         ) : (
           <span key={0} style={{ marginRight: "5px" }}>
-            <Link href={"/files"} onDragStart={(e) => e.preventDefault()}>
+            <Link
+              href={currentUserPermissions.isPatient ? "/files" : "/tpa-files"}
+              onDragStart={(e) => e.preventDefault()}
+            >
               <span className="hover:underline cursor-pointer whitespace-normal break-all">/</span>
             </Link>
           </span>
@@ -108,19 +116,22 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
       {currentFolder && (
         <div className={cn("flex items-center")}>
           <div className="text-lg font-bold truncate">{currentFolder}</div>
-          <ActionDropdown
-            showMenuHeader={false}
-            nodeData={node}
-            DropdownTriggerComponent={DropdownMenuTrigger}
-            dropdownTriggerProps={{
-              asChild: true,
-              children: (
-                <div role="button" className="ml-2">
-                  <Settings className="w-5 h-5" />
-                </div>
-              ),
-            }}
-          />
+
+          {currentUserPermissions.showActions && (
+            <ActionDropdown
+              showMenuHeader={false}
+              nodeData={node}
+              DropdownTriggerComponent={DropdownMenuTrigger}
+              dropdownTriggerProps={{
+                asChild: true,
+                children: (
+                  <div role="button" className="ml-2">
+                    <Settings className="w-5 h-5" />
+                  </div>
+                ),
+              }}
+            />
+          )}
         </div>
       )}
     </div>

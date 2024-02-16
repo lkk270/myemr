@@ -16,6 +16,6 @@ export const useCurrentUserPermissions = () => {
   if (isPatient) {
     ret["canDelete"] = true;
   }
-  ret["showActions"] = ret["canAdd"] || ret["canEdit"] || ret["canDelete"];
+  ret["showActions"] = ret["canAdd"] || ret["canEdit"] || ret["canDelete"] || isPatient;
   return ret;
 };

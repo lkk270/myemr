@@ -36,9 +36,6 @@ export default auth(async (req) => {
   const isAccessPatientRoute =
     accessPatientRoutes.includes(nextUrlPathname) ||
     accessPatientDynamicRoutes.some((path) => nextUrlPathname.startsWith(path));
-  console.log(nextUrlPathname);
-  console.log(isPatientRoute);
-  console.log(isAccessPatientRoute);
   if (isApiAuthRoute) {
     return null;
   }

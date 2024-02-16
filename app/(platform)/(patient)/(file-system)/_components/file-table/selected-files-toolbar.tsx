@@ -14,7 +14,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useFolderStore } from "../hooks/use-folders";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { useState } from "react";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 interface SelectedFilesToolbarProps<TData> {
   table: Table<TData>;
@@ -30,6 +30,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   const deleteModal = useDeleteModal();
   const downloadModal = useDownloadModal();
   const foldersStore = useFolderStore();
+  const currentUserPermissions = useCurrentUserPermissions();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows as any;
 
@@ -208,20 +209,24 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
 
       {numRowsSelected === 1 && (
         <div className="flex flex-row">
-          {!allAreRootNodes && !inTrash && renameButton}
-          {allAreRootNodes ? restoreRootFolder : moveButton}
-          {!cleanedRows[0].isFile && !inTrash && addSubfolderButton}
+          {!allAreRootNodes && !inTrash && currentUserPermissions.canEdit && renameButton}
+          {allAreRootNodes && currentUserPermissions.isPatient
+            ? restoreRootFolder
+            : currentUserPermissions.canEdit && moveButton}
+          {!cleanedRows[0].isFile && !inTrash && currentUserPermissions.canAdd && addSubfolderButton}
           {exportButton}
-          {trashButton}
+          {currentUserPermissions.isPatient && trashButton}
         </div>
       )}
 
       {/* more than one row selected*/}
       {numRowsSelected > 1 && (
         <div className="flex flex-row">
-          {allAreRootNodes ? restoreRootFolder : allAreNotRootNodes && moveButton}
+          {allAreRootNodes && currentUserPermissions.isPatient
+            ? restoreRootFolder
+            : allAreNotRootNodes && currentUserPermissions.canEdit && moveButton}
           {exportButton}
-          {trashButton}
+          {currentUserPermissions.isPatient && trashButton}
         </div>
       )}
     </div>

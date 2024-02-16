@@ -254,7 +254,7 @@ const FileTree = ({ width }: FileTreeProps) => {
     if (currentAllSelectedHaveSameParent === false) {
       console.log(currentAllSelectedHaveSameParent);
     }
-    return !draggedNode.parentId || !currentAllSelectedHaveSameParent;
+    return !draggedNode.parentId || !currentAllSelectedHaveSameParent || !currentUserPermissions.canEdit;
   };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 
@@ -277,6 +277,7 @@ const FileTree = ({ width }: FileTreeProps) => {
       isReorderingInSameFolder ||
       !hoveredNode.id ||
       !allSelectedHaveSameParent ||
+      !currentUserPermissions.canEdit ||
       hoveredNode.namePath === "/Trash"
     );
   };

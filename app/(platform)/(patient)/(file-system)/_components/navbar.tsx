@@ -1,12 +1,9 @@
 "use client";
 
-import { Folders, Search } from "lucide-react";
-// import { UserButton } from "@clerk/nextjs";
+import { Folders } from "lucide-react";
 import { Logo } from "@/components/logo";
-import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 import { GenericNavigationMenu } from "@/components/generic-navigation-menu";
-import { navRoutes } from "@/lib/constants";
 import { SearchBox } from "./search-box";
 import { UserButton } from "@/auth/components/auth/user-button";
 import { useMediaQuery } from "usehooks-ts";
@@ -43,7 +40,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
 
         {/* <div className="flex-grow"></div> */}
         <div className="flex items-center">
-          <GenericNavigationMenu navRoutes={navRoutes} />
+          <GenericNavigationMenu />
           <ModeToggle />
           <UserButton />
           {/* <UserButton afterSignOutUrl="/" /> */}

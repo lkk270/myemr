@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { ChevronRight, ChevronDown, MoreHorizontal, GripVertical, Trash } from "lucide-react";
 import DragContext from "./drag-context";
-import { cn, getFileIcon } from "@/lib/utils";
+import { cn, getFileIcon, extractNewNodeIdFromPath } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { MenuHeader } from "./menu-header";
 import { useRouter } from "next/navigation";
@@ -81,13 +81,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }
 
   useEffect(() => {
-    let newNodeIdFromPath = "";
     if (!pathnameVar) return;
-    if (pathnameVar.includes("/files/")) {
-      newNodeIdFromPath = pathnameVar.split("/files/")[1];
-    } else if (pathnameVar.includes("/file/")) {
-      newNodeIdFromPath = pathnameVar.split("/file/")[1];
-    }
+    let newNodeIdFromPath = extractNewNodeIdFromPath(pathnameVar);
     const isPathNodeInTrash = folderStore.singleLayerNodes.some((node) => {
       return node.id === newNodeIdFromPath && node.namePath.startsWith("/Trash");
     });
@@ -268,9 +263,17 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
 
   const nodeOnclick = () => {
     if (!tree.hasMultipleSelections) {
-      router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id);
+      const basePath = currentUserPermissions.isPatient
+        ? node.data.isFile
+          ? "/file/"
+          : "/files/"
+        : node.data.isFile
+        ? "/tpa-file/"
+        : "/tpa-files/";
+      router.push(`${basePath}${node.id}`);
     }
   };
+
   return (
     <div className={cn("px-2", isTrashNode && "pt-2")}>
       {isMounted && (

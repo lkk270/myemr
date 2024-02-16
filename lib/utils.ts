@@ -478,3 +478,18 @@ export const isLinkExpired = (url: string) => {
   // Compare with current UTC time in milliseconds
   return expiryTimestamp <= new Date().getTime();
 };
+
+export const extractNewNodeIdFromPath = (pathnameVar: string) => {
+  // Regular expression to match the patterns and capture the ID part
+  const regex = /\/(files|file|tpa-files|tpa-file)\/([^\/]+)/;
+  const match = pathnameVar.match(regex);
+
+  if (match) {
+    return match[2];
+  }
+  return "";
+};
+
+export const getNodeHref = (isPatient: boolean, isFile: boolean, nodeId: string) => {
+  return `${isPatient ? (isFile ? "/file/" : "/files/") : isFile ? "/tpa-file/" : "/tpa-files/"}${nodeId}`;
+};

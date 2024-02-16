@@ -7,10 +7,11 @@ import { useFolderStore } from "./hooks/use-folders";
 import { Folder, Trash2 } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
-import { getFileIcon, formatFileSize, cn } from "@/lib/utils";
+import { getFileIcon, formatFileSize, cn, getNodeHref } from "@/lib/utils";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const isFile = record.isFile;
   const isTrash = record.namePath === "/Trash";
   const RecordIcon = isFile ? getFileIcon(record.type || "") : isTrash ? Trash2 : Folder;
@@ -19,7 +20,10 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
 
   return (
     <Card key={record.name} className={`w-full h-[175px] transition border-0 bg-primary/10 rounded-xl`}>
-      <Link href={isFile ? `/file/${record.id}` : `/files/${record.id}`} onDragStart={(e) => e.preventDefault()}>
+      <Link
+        href={getNodeHref(currentUserPermissions.isPatient, isFile, record.id)}
+        onDragStart={(e) => e.preventDefault()}
+      >
         <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
           {!isFile && !isTrash ? (
             <RecordIcon className="w-16 h-16" color={iconColor} fill={iconColor} />

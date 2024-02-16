@@ -19,12 +19,11 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import { cn } from "@/lib/utils";
+import { cn, getNodeHref } from "@/lib/utils";
 import { SelectedFilesToolbar } from "../../app/(platform)/(patient)/(file-system)/_components/file-table/selected-files-toolbar";
-
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -49,6 +48,7 @@ export function DataTable<TData, TValue>({
   isLink = false,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
+  const currentUserPermissions = useCurrentUserPermissions();
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(hiddenColumns);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
                     }}
                     onDoubleClick={() => {
                       if (isLink) {
-                        router.push(getHref(row.original));
+                        router.push(getNodeHref(currentUserPermissions.isPatient, (row as any).isFile, row.id));
                       }
                     }}
                     key={row.id}

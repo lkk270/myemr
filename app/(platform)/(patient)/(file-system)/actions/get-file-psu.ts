@@ -27,7 +27,7 @@ const getFileName = (fileNameTemp: string, fileType: string) => {
 export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || user.role === "UPLOAD_FILES_ONLY") {
     return { error: "Unauthorized" };
   }
 
@@ -56,7 +56,7 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
 export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload = false) => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || user.role === "UPLOAD_FILES_ONLY") {
     return { error: "Unauthorized" };
   }
 
@@ -91,8 +91,7 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
 
 export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {
   const user = await currentUser();
-  console.log(fileIds);
-  if (!user) {
+  if (!user || user.role === "UPLOAD_FILES_ONLY") {
     return { error: "Unauthorized" };
   }
 

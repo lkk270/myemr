@@ -28,6 +28,8 @@ import {
   deleteS3Objects,
 } from "@/lib/files";
 
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
 const discreteTables = ["addresses", "member"];
@@ -66,10 +68,12 @@ export async function POST(req: Request) {
     const user = session?.user;
     const userId = user?.id;
 
-    if (!userId || !user) {
+    const currentUserPermissions = extractCurrentUserPermissions(user)
+
+    if (!userId || !user || !currentUserPermissions.canEdit) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!patientUpdateVerification(body)) {
+    if (!patientUpdateVerification(body, currentUserPermissions)) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 

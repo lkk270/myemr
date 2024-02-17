@@ -8,7 +8,7 @@ import { File } from "@prisma/client";
 export const updateRegularFileStatus = async (fileId: string) => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || user.role === "READ_ONLY") {
     return { error: "Unauthorized" };
   }
 
@@ -46,7 +46,7 @@ export const updateRegularFileStatus = async (fileId: string) => {
 export const updateInsuranceStatus = async (fileId: string) => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || user.role === "READ_ONLY") {
     return { error: "Unauthorized" };
   }
 
@@ -84,12 +84,13 @@ export const updateInsuranceStatus = async (fileId: string) => {
 export const decrementUsedFileStorage = async (fileId: string) => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || user.role === "READ_ONLY") {
     return { error: "Unauthorized" };
   }
   const file = await prismadb.file.findUnique({
     where: {
       id: fileId,
+      status: "NOT_UPLOADED",
     },
   });
   if (file) {

@@ -24,11 +24,12 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { cn } from "@/lib/utils";
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { ExtendedUser } from "@/next-auth";
 
 export const AddFolderModal = () => {
   const user = useCurrentUser();
-  const currentUserPermissions = useCurrentUserPermissions();
+  const currentUserPermissions = extractCurrentUserPermissions(user);
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const addFolderModal = useAddFolderModal();

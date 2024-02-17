@@ -90,3 +90,5 @@ export type FileWithStatus = {
   controller: AbortController;
   insuranceSide?: "front" | "back";
 };
+
+export type FolderNameType = { name: string; namePath: string };

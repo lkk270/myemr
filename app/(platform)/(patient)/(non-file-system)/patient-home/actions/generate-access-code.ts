@@ -5,13 +5,13 @@ import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { GenerateCodeSchema } from "../schemas";
 import { generateAccessCode } from "@/lib/actions/access-codes";
-import { AccessCodeValidTime, UserType } from "@prisma/client";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
   const user = await currentUser();
   const userId = user?.id;
+  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
 
-  if (!user || !userId) {
+  if (!user || !userId || !isPatient) {
     return { error: "Unauthorized" };
   }
 
@@ -30,7 +30,6 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
   const validatedFields = GenerateCodeSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    console.log("IN HERE ERRROR");
     return { error: "Invalid fields!" };
   }
 
@@ -40,7 +39,10 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     return { error: "Invalid body" };
   }
 
-  const accessCode = await generateAccessCode(patient.id, userId, validFor, accessType);
-
-  return { success: "Confirmation email sent!", code: accessCode.token };
+  const accessCode = await generateAccessCode(patient.id, validFor, accessType);
+  if (accessCode) {
+    return { success: "Confirmation email sent!", code: accessCode.token };
+  } else {
+    return { error: "Unauthorized" };
+  }
 };

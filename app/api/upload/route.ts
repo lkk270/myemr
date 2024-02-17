@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
 import { allotedPatientStorage } from "@/lib/constants";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -19,11 +20,12 @@ export async function POST(request: Request) {
     }
     const user = session?.user;
     const userId = user?.id;
+    const currentUserPermissions = extractCurrentUserPermissions(user);
 
     if (!userId || !user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    if (!patientUpdateVerification({ ...body, updateType: "uploadFiles" })) {
+    if (!patientUpdateVerification({ ...body, updateType: "uploadFiles" }, currentUserPermissions)) {
       return NextResponse.json({ message: "Invalid body" }, { status: 400 });
     }
 

@@ -1,3 +1,5 @@
+import { PermissionsType, PermissionKey } from "@/app/types";
+
 const validUpdateTypes = [
   "demographics",
   "newMedication",
@@ -14,36 +16,56 @@ const validUpdateTypes = [
   "insuranceUpload",
 ];
 const patientConditionals: any = {
-  demographics: { requiredFields: ["fieldsObj"], optionalFields: [] },
-  newMedication: { requiredFields: ["fieldsObj"], optionalFields: [] },
-  editMedication: { requiredFields: ["fieldsObj", "medicationId"], optionalFields: ["dosageHistoryInitialFields"] },
-  deleteMedication: { requiredFields: ["medicationId"], optionalFields: [] },
-  renameNode: { requiredFields: ["nodeId", "isFile", "newName"], optionalFields: [] },
-  moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
-  trashNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [] },
-  restoreRootFolder: { requiredFields: ["selectedId"], optionalFields: [] },
-  deleteNode: { requiredFields: ["nodeId", "isFile", "forEmptyTrash"], optionalFields: [] },
+  demographics: { requiredFields: ["fieldsObj"], optionalFields: [], mandatoryTruePermissions: ["isPatient"] },
+  newMedication: { requiredFields: ["fieldsObj"], optionalFields: [], mandatoryTruePermissions: ["canAdd"] },
+  editMedication: {
+    requiredFields: ["fieldsObj", "medicationId"],
+    optionalFields: ["dosageHistoryInitialFields"],
+    mandatoryTruePermissions: ["canEdit"],
+  },
+  deleteMedication: { requiredFields: ["medicationId"], optionalFields: [], mandatoryTruePermissions: ["canDelete"] },
+  renameNode: {
+    requiredFields: ["nodeId", "isFile", "newName"],
+    optionalFields: [],
+    mandatoryTruePermissions: ["canEdit"],
+  },
+  moveNode: { requiredFields: ["selectedIds", "targetId"], optionalFields: [], mandatoryTruePermissions: ["canEdit"] },
+  trashNode: {
+    requiredFields: ["selectedIds", "targetId"],
+    optionalFields: [],
+    mandatoryTruePermissions: ["canDelete"],
+  },
+  restoreRootFolder: { requiredFields: ["selectedId"], optionalFields: [], mandatoryTruePermissions: ["isPatient"] },
+  deleteNode: {
+    requiredFields: ["nodeId", "isFile", "forEmptyTrash"],
+    optionalFields: [],
+    mandatoryTruePermissions: ["canDelete"],
+  },
   addRootNode: {
     requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],
+    mandatoryTruePermissions: ["canAdd"],
   },
   addSubFolder: {
     requiredFields: ["parentId", "folderName", "addedByUserId", "patientUserId", "addedByName"],
     optionalFields: ["patientProfileId"],
+    mandatoryTruePermissions: ["canAdd"],
   },
   uploadFiles: {
     requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
     optionalFields: ["folderPath"],
+    mandatoryTruePermissions: ["canAdd", "canUploadFiles"],
   },
   insuranceUpload: {
     requiredFields: ["side", "contentType", "size"],
     optionalFields: [],
+    mandatoryTruePermissions: ["isPatient"],
   },
 };
 
 const insuranceFileNames = ["FRONT", "BACK"];
 
-export const patientUpdateVerification = (body: any) => {
+export const patientUpdateVerification = (body: any, currentUserPermissions: PermissionsType) => {
   try {
     // Basic checks
     if (!body || typeof body !== "object" || Object.keys(body).length === 0) {
@@ -58,6 +80,8 @@ export const patientUpdateVerification = (body: any) => {
     const conditionals = patientConditionals[updateType];
     const allFields = [...conditionals.requiredFields, ...conditionals.optionalFields];
 
+    const permissions: PermissionKey[] = conditionals.mandatoryTruePermissions;
+
     // Check if body contains only the allowed fields (required + optional)
     for (const key in body) {
       if (!allFields.includes(key) && key !== "updateType") {
@@ -68,6 +92,12 @@ export const patientUpdateVerification = (body: any) => {
     // Check if required fields are present
     for (const field of conditionals.requiredFields) {
       if (!body.hasOwnProperty(field)) {
+        return false;
+      }
+    }
+    // Check that the user has valid permissions
+    for (const permission of permissions) {
+      if (!currentUserPermissions[permission]) {
         return false;
       }
     }

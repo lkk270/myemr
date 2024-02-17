@@ -6,6 +6,7 @@ import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { InsuranceFile } from "@prisma/client";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -20,10 +21,12 @@ export async function POST(request: Request) {
     const user = session?.user;
     const userId = user?.id;
 
-    if (!userId || !user) {
+    const currentUserPermissions = extractCurrentUserPermissions(user);
+
+    if (!userId || !user || !currentUserPermissions.isPatient) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    if (!patientUpdateVerification({ ...body, updateType: "insuranceUpload" })) {
+    if (!patientUpdateVerification({ ...body, updateType: "insuranceUpload" }, currentUserPermissions)) {
       return NextResponse.json({ message: "Invalid body" }, { status: 400 });
     }
 

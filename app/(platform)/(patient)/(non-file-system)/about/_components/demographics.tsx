@@ -25,7 +25,7 @@ import _ from "lodash";
 import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";
 import { ImageViewer } from "../../../(file-system)/_components/file-viewers/image-viewer";
 import { InsuranceSkeleton } from "./insurance-skeleton";
-import { getInsurance } from "../actions/get-insurance";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const inputClassName = "bg-secondary border-primary/10";
 
@@ -49,6 +49,7 @@ const tabsData = [
 export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
+  const currentUserPermissions = useCurrentUserPermissions();
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,7 +57,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   const [activeTab, setActiveTab] = useState("demographics");
 
   useEffect(() => {
-    console.log(user.insuranceImagesSet);
     const fetchUrls = async () => {
       if (!isMounted) return;
       if (
@@ -75,8 +75,6 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
           const frontUrl = frontUrlData.presignedUrl;
           const backUrl = backUrlData.presignedUrl;
-          console.log(frontUrl);
-          console.log(backUrl);
           setInsuranceImageUrls({ front: frontUrl, back: backUrl });
 
           setIsMounted(true);
@@ -147,6 +145,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     setIsEditing(false);
   };
   const handleSave = () => {
+    if (!currentUserPermissions.isPatient) return;
     setIsLoading(true);
     const changes: Partial<PatientDemographicsType> = {};
 

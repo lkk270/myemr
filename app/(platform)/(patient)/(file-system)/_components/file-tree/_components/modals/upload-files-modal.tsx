@@ -24,8 +24,10 @@ import { Separator } from "@/components/ui/separator";
 import { updateRegularFileStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const UploadFilesModal = () => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const folderStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -72,6 +74,7 @@ export const UploadFilesModal = () => {
   };
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
+    if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }

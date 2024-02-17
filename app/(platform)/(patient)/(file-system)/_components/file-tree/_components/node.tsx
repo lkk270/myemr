@@ -344,7 +344,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   )}
                   {!isTrashNode && (
                     <span
-                      className="mr-2 flex-shrink-0"
+                      className="mr-2 flex-shrink-0 cursor-pointer"
                       onClick={() => {
                         node.isInternal && node.toggle();
                       }}

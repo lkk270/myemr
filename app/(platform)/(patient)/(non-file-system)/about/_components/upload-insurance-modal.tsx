@@ -25,8 +25,10 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";
 import { InsuranceSide } from "@prisma/client";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const UploadInsuranceModal = () => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const isMobile = useMediaQuery("(max-width: 640px)");
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
@@ -89,6 +91,7 @@ export const UploadInsuranceModal = () => {
   };
 
   const handleUpload = async (key: "front" | "back" | null = null, isForRetry = false) => {
+    if (isLoading || !currentUserPermissions.isPatient) return;
     let isError = false;
     if (!files.front || !files.back || !files.front.insuranceSide || !files.back.insuranceSide) return;
     if (!!key && !files[key]) return;

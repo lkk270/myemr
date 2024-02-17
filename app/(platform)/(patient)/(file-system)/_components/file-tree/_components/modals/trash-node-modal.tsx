@@ -21,8 +21,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const TrashModal = () => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const foldersStore = useFolderStore();
@@ -41,6 +43,7 @@ export const TrashModal = () => {
   }
 
   const handleSave = async () => {
+    if (isLoading || !currentUserPermissions.canDelete) return;
     setIsLoading(true);
     for (let trashNode of trashNodes) {
       const promise = axios

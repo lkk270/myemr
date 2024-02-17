@@ -7,7 +7,7 @@ import { Viewer } from "../../../_components/file-viewers/file-viewer";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPresignedUrl } from "../../../actions/get-file-psu";
-import { updateRecordViewActivity } from "@/lib/files";
+import { updateRecordViewActivity } from "@/lib/actions/files";
 
 interface FilePagePageProps {
   params: {

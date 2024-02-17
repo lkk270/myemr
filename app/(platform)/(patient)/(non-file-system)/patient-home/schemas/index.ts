@@ -10,4 +10,5 @@ export const GenerateCodeSchema = z.object({
     AccessCodeValidTime.WEEK_1,
   ]),
   accessType: z.enum([UserRole.UPLOAD_FILES_ONLY, UserRole.READ_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  uploadToId: z.string(),
 });

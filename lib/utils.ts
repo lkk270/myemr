@@ -493,3 +493,26 @@ export const extractNewNodeIdFromPath = (pathnameVar: string) => {
 export const getNodeHref = (isPatient: boolean, isFile: boolean, nodeId: string) => {
   return `${isPatient ? (isFile ? "/file/" : "/files/") : isFile ? "/tpa-file/" : "/tpa-files/"}${nodeId}`;
 };
+
+// function flattenStructure(data: any[]) {
+//   let result: any[] = [];
+
+//   function flattenItem(item: any) {
+//     // Add the current item to the result
+//     result.push({
+//       id: item.id,
+//       path: item.path,
+//       namePath: item.namePath,
+//       name: item.name,
+//       isFile: item.isFile,
+//     });
+
+//     // If the item has children, flatten each child
+//     if (item.children && item.children.length) {
+//       item.children.forEach((child: any) => flattenItem(child));
+//     }
+//   }
+
+//   flattenItem(data); // start with the root item
+//   return result;
+// }

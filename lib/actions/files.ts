@@ -1,5 +1,5 @@
 import { Folder, File, FileStatus } from "@prisma/client";
-import prismadb from "./prismadb";
+import prismadb from "../prismadb";
 import { PrismaClient } from "@prisma/client";
 import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
@@ -395,3 +395,95 @@ export const addSubFolder = async (
     throw new Error("Failed to create folder");
   }
 };
+
+export async function fetchAllFoldersForPatient(parentId: string | null = null, userId: string) {
+  // Fetch folders and their files
+  const folders = (await prismadb.folder.findMany({
+    where: {
+      AND: [{ userId: userId }, { parentId: parentId }],
+    },
+    include: {
+      files: {
+        where: {
+          status: FileStatus.SUCCESS,
+        },
+        include: {
+          recordViewActivity: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              lastViewedAt: true,
+            },
+          },
+        },
+      },
+      recordViewActivity: {
+        where: {
+          userId: userId,
+        },
+        select: {
+          lastViewedAt: true,
+        },
+      },
+    },
+  })) as any[];
+
+  for (const folder of folders) {
+    // Recursively fetch subfolders
+    const subFolders = await fetchAllFoldersForPatient(folder.id, userId);
+
+    // Combine files and subfolders into the children array
+    folder.children = [...folder.files, ...subFolders];
+
+    // Optionally, remove the original files array if you want all children in one array
+    delete folder.files;
+  }
+
+  return folders;
+}
+
+
+  // const singleLayerFolders = await prismadb.folder.findMany({
+  //   where: {
+  //     userId: user.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     path: true,
+  //     parentId: true,
+  //     namePath: true,
+  //     isFile: true,
+  //     recordViewActivity: {
+  //       where: {
+  //         userId: user.id,
+  //       },
+  //       select: {
+  //         lastViewedAt: true,
+  //       },
+  //     },
+  //   },
+  // });
+
+  // const singleLayerFiles = await prismadb.file.findMany({
+  //   where: {
+  //     userId: user.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     parentId: true,
+  //     path: true,
+  //     namePath: true,
+  //     isFile: true,
+  //     recordViewActivity: {
+  //       where: {
+  //         userId: user.id,
+  //       },
+  //       select: {
+  //         lastViewedAt: true,
+  //       },
+  //     },
+  //   },
+  // });

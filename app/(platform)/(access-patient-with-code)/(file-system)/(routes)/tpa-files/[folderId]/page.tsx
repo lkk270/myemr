@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { CustomDataTable } from "@/app/(platform)/(patient)/(file-system)/_components/file-table/custom-data-table";
 import { NodePageHeader } from "@/app/(platform)/(patient)/(file-system)/_components/node-page-header";
-import { updateRecordViewActivity } from "@/lib/files";
+import { updateRecordViewActivity } from "@/lib/actions/files";
 import { redirect } from "next/navigation";
 
 interface FolderPagePageProps {

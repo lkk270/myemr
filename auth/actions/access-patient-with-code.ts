@@ -34,7 +34,6 @@ export const accessPatientWithCode = async (
   //   }
 
   try {
-    console.log("IN aa 37");
     await signIn("credentials", {
       code,
       redirectTo: ACCESS_PATIENT_WITH_CODE_REDIRECT,

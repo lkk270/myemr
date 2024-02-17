@@ -26,7 +26,7 @@ import {
   restoreRootFolder,
   getAllObjectsToDelete,
   deleteS3Objects,
-} from "@/lib/files";
+} from "@/lib/actions/files";
 
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     const user = session?.user;
     const userId = user?.id;
 
-    const currentUserPermissions = extractCurrentUserPermissions(user)
+    const currentUserPermissions = extractCurrentUserPermissions(user);
 
     if (!userId || !user || !currentUserPermissions.canEdit) {
       return new NextResponse("Unauthorized", { status: 401 });

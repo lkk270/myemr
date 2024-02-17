@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { GenerateCodePopover } from "./generate-code-popover";
 import { accessCode } from "../actions/generate-access-code";
+import { ChooseFolderButton } from "./choose-folder-button";
 import { toast } from "sonner";
 
 const validTimes = [
@@ -47,6 +48,7 @@ export const GenerateCode = () => {
     defaultValues: {
       validFor: AccessCodeValidTime.MINUTE_30,
       accessType: UserRole.READ_ONLY,
+      uploadToId: "",
     },
   });
 
@@ -79,7 +81,7 @@ export const GenerateCode = () => {
           }
 
           if (data?.success) {
-            form.reset();
+            // form.reset();
             setSuccess(data.success);
           }
 
@@ -93,6 +95,7 @@ export const GenerateCode = () => {
 
   const watchedValidFor = form.watch("validFor");
   const watchedAccessType = form.watch("accessType");
+  const watchedUploadToId = form.watch("uploadToId");
 
   return (
     <Form {...form}>
@@ -172,7 +175,7 @@ export const GenerateCode = () => {
             </Button>
           </CopyToClipboard>
           <Button
-            disabled={isPending}
+            disabled={isPending || (watchedAccessType === UserRole.UPLOAD_FILES_ONLY && !watchedUploadToId)}
             variant="none"
             type="submit"
             className="hover:font-bold inline-flex items-center text-sm font-semibold py-2 px-4 rounded-r outline-none focus:outline-none border-2 border-transparent transition duration-150 ease-in-out min-w-[130px]" // Apply consistent border and min-width
@@ -184,6 +187,11 @@ export const GenerateCode = () => {
             )}
             Generate
           </Button>
+          {watchedAccessType === UserRole.UPLOAD_FILES_ONLY && (
+            <ChooseFolderButton asChild>
+              <Button variant={"outline"}>Choose folder</Button>
+            </ChooseFolderButton>
+          )}
         </div>
       </form>
     </Form>

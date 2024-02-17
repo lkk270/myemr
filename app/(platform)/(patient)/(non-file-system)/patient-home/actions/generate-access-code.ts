@@ -4,7 +4,7 @@ import * as z from "zod";
 import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { GenerateCodeSchema } from "../schemas";
-import { generateAccessCode } from "@/lib/access-codes";
+import { generateAccessCode } from "@/lib/actions/access-codes";
 import { AccessCodeValidTime, UserType } from "@prisma/client";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
@@ -36,7 +36,7 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
 
   const { validFor, accessType } = validatedFields.data;
 
-  if (!validFor || !accessType) {
+  if (!validFor || !accessType || (accessType === "UPLOAD_FILES_ONLY" && !values.uploadToId)) {
     return { error: "Invalid body" };
   }
 

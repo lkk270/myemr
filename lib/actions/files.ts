@@ -1,3 +1,5 @@
+"use server";
+
 import { Folder, File, FileStatus } from "@prisma/client";
 import prismadb from "../prismadb";
 import { PrismaClient } from "@prisma/client";
@@ -428,7 +430,6 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
       },
     },
   })) as any[];
-
   for (const folder of folders) {
     // Recursively fetch subfolders
     const subFolders = await fetchAllFoldersForPatient(folder.id, userId);
@@ -443,47 +444,46 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
   return folders;
 }
 
+// const singleLayerFolders = await prismadb.folder.findMany({
+//   where: {
+//     userId: user.id,
+//   },
+//   select: {
+//     id: true,
+//     name: true,
+//     path: true,
+//     parentId: true,
+//     namePath: true,
+//     isFile: true,
+//     recordViewActivity: {
+//       where: {
+//         userId: user.id,
+//       },
+//       select: {
+//         lastViewedAt: true,
+//       },
+//     },
+//   },
+// });
 
-  // const singleLayerFolders = await prismadb.folder.findMany({
-  //   where: {
-  //     userId: user.id,
-  //   },
-  //   select: {
-  //     id: true,
-  //     name: true,
-  //     path: true,
-  //     parentId: true,
-  //     namePath: true,
-  //     isFile: true,
-  //     recordViewActivity: {
-  //       where: {
-  //         userId: user.id,
-  //       },
-  //       select: {
-  //         lastViewedAt: true,
-  //       },
-  //     },
-  //   },
-  // });
-
-  // const singleLayerFiles = await prismadb.file.findMany({
-  //   where: {
-  //     userId: user.id,
-  //   },
-  //   select: {
-  //     id: true,
-  //     name: true,
-  //     parentId: true,
-  //     path: true,
-  //     namePath: true,
-  //     isFile: true,
-  //     recordViewActivity: {
-  //       where: {
-  //         userId: user.id,
-  //       },
-  //       select: {
-  //         lastViewedAt: true,
-  //       },
-  //     },
-  //   },
-  // });
+// const singleLayerFiles = await prismadb.file.findMany({
+//   where: {
+//     userId: user.id,
+//   },
+//   select: {
+//     id: true,
+//     name: true,
+//     parentId: true,
+//     path: true,
+//     namePath: true,
+//     isFile: true,
+//     recordViewActivity: {
+//       where: {
+//         userId: user.id,
+//       },
+//       select: {
+//         lastViewedAt: true,
+//       },
+//     },
+//   },
+// });

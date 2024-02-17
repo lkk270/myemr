@@ -45,8 +45,9 @@ export const updateRegularFileStatus = async (fileId: string) => {
 
 export const updateInsuranceStatus = async (fileId: string) => {
   const user = await currentUser();
+  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
 
-  if (!user || user.role === "READ_ONLY") {
+  if (!user || !isPatient) {
     return { error: "Unauthorized" };
   }
 

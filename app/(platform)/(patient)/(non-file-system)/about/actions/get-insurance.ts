@@ -6,7 +6,7 @@ import { currentUser } from "@/auth/lib/auth";
 export const getInsurance = async () => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || user?.role !== "UPLOAD_FILES_ONLY") {
     return { error: "Unauthorized" };
   }
   try {

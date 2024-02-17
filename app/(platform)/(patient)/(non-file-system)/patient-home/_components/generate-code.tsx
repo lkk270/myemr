@@ -20,6 +20,7 @@ import { GenerateCodePopover } from "./generate-code-popover";
 import { accessCode } from "../actions/generate-access-code";
 import { ChooseFolderButton } from "./choose-folder-button";
 import { toast } from "sonner";
+import { FolderNameType } from "@/app/types/file-types";
 
 const validTimes = [
   { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
@@ -40,6 +41,7 @@ export const GenerateCode = () => {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const [chosenFolder, setChosenFolder] = useState<FolderNameType>({ name: "", namePath: "" });
   const [isPending, startTransition] = useTransition();
 
   const [isCopied, setIsCopied] = useState(false);
@@ -61,6 +63,13 @@ export const GenerateCode = () => {
 
   const handleAccessTypeChange = (value: "UPLOAD_FILES_ONLY" | "READ_ONLY" | "READ_AND_ADD" | "FULL_ACCESS") => {
     setValue("accessType", value);
+    setChosenFolder({ name: "", namePath: "" });
+    setValue("uploadToId", "");
+  };
+
+  const handleFolderChange = (folderId: string, folder: FolderNameType) => {
+    setChosenFolder(folder);
+    setValue("uploadToId", folderId);
   };
 
   const onCopy = () => {
@@ -96,6 +105,7 @@ export const GenerateCode = () => {
   const watchedValidFor = form.watch("validFor");
   const watchedAccessType = form.watch("accessType");
   const watchedUploadToId = form.watch("uploadToId");
+  console.log(watchedUploadToId);
 
   return (
     <Form {...form}>
@@ -188,8 +198,20 @@ export const GenerateCode = () => {
             Generate
           </Button>
           {watchedAccessType === UserRole.UPLOAD_FILES_ONLY && (
-            <ChooseFolderButton asChild>
-              <Button variant={"outline"}>Choose folder</Button>
+            <ChooseFolderButton asChild handleChange={handleFolderChange}>
+              <Button variant={"outline"}>
+                {!watchedUploadToId ? (
+                  "Choose folder"
+                ) : (
+                  <div
+                    title={chosenFolder.namePath}
+                    className="flex flex-col flex-grow min-w-0 items-start max-w-[100px]"
+                  >
+                    <span className="truncate text-left w-full">{chosenFolder.name}</span>
+                    <span className="truncate text-left w-full text-xs text-primary/40">{chosenFolder.namePath}</span>
+                  </div>
+                )}
+              </Button>
             </ChooseFolderButton>
           )}
         </div>

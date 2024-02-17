@@ -20,13 +20,16 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useMedicationStore } from "../hooks/use-medications";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const DeleteMedicationModal = () => {
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
+  const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();
   const deleteMedicationModal = useDeleteMedicationModal();
   const deleteMedication = deleteMedicationModal.medication;
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -36,6 +39,7 @@ export const DeleteMedicationModal = () => {
   }
 
   const handleSave = () => {
+    if (isLoading || !currentUserPermissions.canDelete) return;
     setIsLoading(true);
     const promise = axios
       .post("/api/patient-update", { medicationId: deleteMedication.id, updateType: "deleteMedication" })

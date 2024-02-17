@@ -14,13 +14,17 @@ export const GenerateCodePopover = () => {
           <ul className="list-disc space-y-2">
             {Object.entries(accessTypeTextObj).map(([key, { title, description }]) => (
               <li key={key}>
-                <strong>{title}:</strong> {description}
+                <strong>{title}:</strong> {description}.
               </li>
             ))}
           </ul>
           <span className="text-xs gap-y-0 text-left">
-            No matter the access type chosen, the temporary user will <strong>not</strong> have the ability to delete
-            anything.
+            Regardless of the access level granted, temporary-access users will be unable to delete any of your records
+            and will be unable to make modifications to your{" "}
+            <a href="/about" className="italic underline">
+              about
+            </a>{" "}
+            page.
           </span>
         </div>
       </PopoverContent>

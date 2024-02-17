@@ -89,12 +89,12 @@ export const accessTypeTextObj: AccessTypeObjectType = {
   },
   READ_AND_ADD: {
     title: "Read & Add",
-    description: "can view records and add records i.e. medications and folders/files",
+    description: "can view records and add records i.e. medications & folders/files",
   },
   FULL_ACCESS: {
     title: "Full Access",
     description:
-      "can view records, add records i.e. medications and folders/files, make edits to existing medications and demographics, and rename and move folders & files",
+      "can view records, add records i.e. medications & folders/files, make edits to existing medications, and rename & move folders/files",
   },
 };
 

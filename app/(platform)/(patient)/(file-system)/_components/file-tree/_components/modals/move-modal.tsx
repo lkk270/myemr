@@ -20,9 +20,11 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { cn } from "@/lib/utils";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
+  const currentUserPermissions = useCurrentUserPermissions();
   const moveNodes = moveModal.nodeDatas;
   const firstMoveNode = moveNodes ? moveNodes[0] : null;
   const foldersStore = useFolderStore();
@@ -36,7 +38,7 @@ export const MoveModal = () => {
   }, []);
 
   const onSelect = async (id: string) => {
-    if (isLoading) return;
+    if (isLoading || !currentUserPermissions.canEdit) return;
     if (moveNodes) {
       setIsLoading(true);
       for (const moveNode of moveNodes) {

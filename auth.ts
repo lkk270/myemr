@@ -144,6 +144,9 @@ export const {
         // console.log(token.customExpiresAt);
         session.expires = token.customExpiresAt as string;
       }
+      if (token.tempToken) {
+        session.tempToken = token.tempToken as string;
+      }
 
       return session;
     },
@@ -173,6 +176,7 @@ export const {
       token.isOAuth = !!existingAccount;
       token.email = existingUser.email;
       token.userType = existingUser.type;
+      token.tempToken = code ? code.token : undefined;
       token.role = code ? code.accessType : existingUser.role;
       token.isTwoFactorEnabled = code ? false : existingUser.isTwoFactorEnabled;
       return token;

@@ -17,7 +17,7 @@ import { redirect } from "next/navigation";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
-import { allotedPatientStorage } from "@/lib/constants";
+import { allotedPatientStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -66,7 +66,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   const usedFileStorage = patient.usedFileStorage;
-  const allotedStorageInGb = allotedPatientStorage[patient.plan];
+  const allotedStorageInGb = allotedPatientStoragesInGb[patient.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
       <Sidebar

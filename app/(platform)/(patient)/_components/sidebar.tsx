@@ -1,51 +1,24 @@
 "use client";
 
-import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings } from "lucide-react";
+import { navRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
+
 import { usePathname } from "next/navigation";
 import { SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export const Sidebar = () => {
+  const currentUser = useCurrentUser();
+  const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
 
-  const routes = [
-    {
-      icon: Home,
-      href: "/patient-home",
-      label: "Home",
-    },
-    {
-      icon: FolderClosed,
-      href: "/files",
-      label: "Files",
-    },
-    {
-      icon: Pill,
-      href: "/medications",
-      label: "Meds",
-    },
-    {
-      icon: Contact,
-      href: "/about",
-      label: "About",
-    },
-    // {
-    //   icon: ScrollText,
-    //   href: "/notes",
-    //   label: "Notes",
-    // },
-    {
-      icon: Stethoscope,
-      href: "/providers",
-      label: "Providers",
-    },
-    {
-      icon: Settings,
-      href: "/settings",
-      label: "Settings",
-    },
-  ];
+  const routes = currentUserPermissions.isPatient
+    ? navRoutes
+    : currentUser?.role === "UPLOAD_FILES_ONLY"
+    ? tempPatientUploadAccessNavRoutes
+    : tempPatientAccessNavRoutes;
 
   return (
     <>

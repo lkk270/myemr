@@ -147,7 +147,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
                 <div role="button" className="flex flex-col gap-y-1">
                   <Progress
                     className="h-1"
-                    value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)}
+                    value={Number(folderStore.usedFileStorage) / (10_000_000 * allotedStorageInGb)}
                   />
                   <div className="flex flex-row justify-between text-xs font-light ">
                     <span className="italic">{`${formatStorageValue(

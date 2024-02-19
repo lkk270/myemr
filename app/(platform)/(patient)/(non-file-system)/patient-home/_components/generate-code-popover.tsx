@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { accessTypeTextObj } from "@/lib/constants";
+import { accessTypeTextObjForPatient } from "@/lib/constants";
 import { Info } from "lucide-react";
 
 export const GenerateCodePopover = () => {
@@ -12,7 +12,7 @@ export const GenerateCodePopover = () => {
         <strong className="leading-none mb-4">Access Types</strong>
         <div className="grid gap-4 px-4 pt-4 text-left text-sm">
           <ul className="list-disc space-y-2">
-            {Object.entries(accessTypeTextObj).map(([key, { title, description }]) => (
+            {Object.entries(accessTypeTextObjForPatient).map(([key, { title, description }]) => (
               <li key={key}>
                 <strong>{title}:</strong> {description}.
               </li>

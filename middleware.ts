@@ -13,6 +13,7 @@ import {
   providerRoutes,
   accessPatientRoutes,
   accessPatientDynamicRoutes,
+  accessPatientUploadRoutes,
 } from "@/routes";
 
 const { auth } = NextAuth(authConfig);
@@ -36,6 +37,8 @@ export default auth(async (req) => {
   const isAccessPatientRoute =
     accessPatientRoutes.includes(nextUrlPathname) ||
     accessPatientDynamicRoutes.some((path) => nextUrlPathname.startsWith(path));
+  const isAccessPatientUploadRoutes = accessPatientUploadRoutes.includes(nextUrlPathname);
+
   if (isApiAuthRoute) {
     return null;
   }
@@ -86,13 +89,23 @@ export default auth(async (req) => {
   if (
     isAccessPatientRoute &&
     isLoggedIn &&
+    userRole !== "UPLOAD_FILES_ONLY" &&
     (userType !== "PATIENT" ||
-      (userType === "PATIENT" &&
-        userRole !== "FULL_ACCESS" &&
-        userRole !== "UPLOAD_FILES_ONLY" &&
-        userRole !== "READ_ONLY" &&
-        userRole !== "READ_AND_ADD"))
+      (userType === "PATIENT" && userRole !== "FULL_ACCESS" && userRole !== "READ_ONLY" && userRole !== "READ_AND_ADD"))
   ) {
+    return Response.redirect(new URL(redirectUrl, nextUrl));
+  }
+  //because /tpa-home is also included the above used accessPatientRoutes var it is already covered for unauthorized visits
+  if (
+    nextUrlPathname !== "/tpa-home" &&
+    isAccessPatientRoute &&
+    isLoggedIn &&
+    (userRole === "UPLOAD_FILES_ONLY" || userType !== "PATIENT")
+  ) {
+    return Response.redirect(new URL(redirectUrl, nextUrl));
+  }
+
+  if (isAccessPatientUploadRoutes && isLoggedIn && (userRole !== "UPLOAD_FILES_ONLY" || userType !== "PATIENT")) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
 

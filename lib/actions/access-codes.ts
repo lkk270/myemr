@@ -11,6 +11,7 @@ export const generateAccessCode = async (
   patientProfileId: string,
   validFor: AccessCodeValidTime,
   accessType: UserRole,
+  uploadToId: string,
 ) => {
   const user = await currentUser();
   const userId = user?.id;
@@ -29,6 +30,7 @@ export const generateAccessCode = async (
       userId: userId,
       validFor: validFor,
       accessType: accessType,
+      parentFolderId: !!uploadToId ? uploadToId : null,
       token,
       expires,
     },

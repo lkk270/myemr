@@ -4,11 +4,12 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "./mobile-sidebar";
-import { navRoutes, tempPatientAccessNavRoutes } from "@/lib/constants";
-
+import { navRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@/auth/components/auth/user-button";
 import Link from "next/link";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 // import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {
@@ -16,9 +17,15 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ tempAccess = false }: NavbarProps) => {
+  const currentUser = useCurrentUser();
+  const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
 
-  const routes = tempAccess ? tempPatientAccessNavRoutes : navRoutes;
+  const routes = currentUserPermissions.isPatient
+    ? navRoutes
+    : currentUser?.role === "UPLOAD_FILES_ONLY"
+    ? tempPatientUploadAccessNavRoutes
+    : tempPatientAccessNavRoutes;
 
   return (
     <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">

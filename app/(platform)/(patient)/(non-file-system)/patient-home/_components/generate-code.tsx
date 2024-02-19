@@ -59,12 +59,14 @@ export const GenerateCode = () => {
 
   const handleValidForChange = (value: AccessCodeValidTime) => {
     setValue("validFor", value);
+    setCode("");
   };
 
   const handleAccessTypeChange = (value: "UPLOAD_FILES_ONLY" | "READ_ONLY" | "READ_AND_ADD" | "FULL_ACCESS") => {
     setValue("accessType", value);
     setChosenFolder({ name: "", namePath: "" });
     setValue("uploadToId", "");
+    setCode("");
   };
 
   const handleFolderChange = (folderId: string, folder: FolderNameType) => {

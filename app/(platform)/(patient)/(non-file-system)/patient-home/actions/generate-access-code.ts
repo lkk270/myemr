@@ -5,6 +5,7 @@ import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { GenerateCodeSchema } from "../schemas";
 import { generateAccessCode } from "@/lib/actions/access-codes";
+import { allotedPatientStoragesInGb } from "@/lib/constants";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
   const user = await currentUser();
@@ -21,6 +22,8 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     },
     select: {
       id: true,
+      usedFileStorage: true,
+      plan: true,
     },
   });
 
@@ -33,13 +36,20 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     return { error: "Invalid fields!" };
   }
 
-  const { validFor, accessType } = validatedFields.data;
+  const { validFor, accessType, uploadToId } = validatedFields.data;
 
   if (!validFor || !accessType || (accessType === "UPLOAD_FILES_ONLY" && !values.uploadToId)) {
     return { error: "Invalid body" };
   }
 
-  const accessCode = await generateAccessCode(patient.id, validFor, accessType);
+  const allotedStorageInGb = allotedPatientStoragesInGb[patient.plan];
+  if (accessType !== "READ_ONLY" && BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
+    return {
+      error:
+        "Cannot generate a code for the selected access type because it requires you to have 500 Mb of available storage.",
+    };
+  }
+  const accessCode = await generateAccessCode(patient.id, validFor, accessType, uploadToId);
   if (accessCode) {
     return { success: "Confirmation email sent!", code: accessCode.token };
   } else {

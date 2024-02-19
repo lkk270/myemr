@@ -505,6 +505,7 @@ model PatientProfileAccessCode {
   userId           String
   validFor         AccessCodeValidTime
   accessType       UserRole
+  parentFolderId   String?
   token            String              @unique
   expires          DateTime
 }

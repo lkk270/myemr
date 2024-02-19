@@ -61,6 +61,12 @@ export const accessPatientRoutes: string[] = ["/tpa-home", "/tpa-about", "/tpa-f
 export const accessPatientDynamicRoutes: string[] = ["/tpa-files/", "/tpa-file/"];
 
 /**
+ * An array of routes that are patient access for upload specific
+ * @type {string[]}
+ */
+export const accessPatientUploadRoutes: string[] = ["/tpa-home", "/tpa-upload"];
+
+/**
  * The prefix for API authentication routes
  * Routes that start with this prefix are used for API authentication purposes
  * @type {string}

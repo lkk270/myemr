@@ -1,5 +1,5 @@
 import { UserRole } from "@prisma/client";
-import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings } from "lucide-react";
+import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings, Upload } from "lucide-react";
 
 export const navRoutes = [
   {
@@ -34,7 +34,7 @@ export const navRoutes = [
   },
   {
     icon: Settings,
-    href: "/settings",
+    href: "/patient-settings",
     label: "Settings",
   },
 ];
@@ -62,6 +62,19 @@ export const tempPatientAccessNavRoutes = [
   },
 ];
 
+export const tempPatientUploadAccessNavRoutes = [
+  {
+    icon: Home,
+    href: "/tpa-home",
+    label: "Home",
+  },
+  {
+    icon: Upload,
+    href: "/tpa-upload",
+    label: "Upload",
+  },
+];
+
 export interface SelectItemType {
   value: string;
   value2?: string;
@@ -81,11 +94,29 @@ export interface AccessTypeObjectType {
   [key: string]: AccessType;
 }
 
-export const accessTypeTextObj: AccessTypeObjectType = {
+export const accessTypeTextObjForPatient: AccessTypeObjectType = {
   READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },
   UPLOAD_FILES_ONLY: {
     title: "Upload Files Only",
     description: "can only upload files to a folder of your choosing. Your records will be hidden",
+  },
+  READ_AND_ADD: {
+    title: "Read & Add",
+    description: "can view records and add records i.e. medications & folders/files",
+  },
+  FULL_ACCESS: {
+    title: "Full Access",
+    description:
+      "can view records, add records i.e. medications & folders/files, make edits to existing medications, and rename & move folders/files",
+  },
+};
+
+export const accessTypeTextObjForTemp: AccessTypeObjectType = {
+  READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },
+  UPLOAD_FILES_ONLY: {
+    title: "Upload Files Only",
+    description:
+      "can only upload files. A destination folder has already been selected by the patient. You do not have access to any of the patient's records",
   },
   READ_AND_ADD: {
     title: "Read & Add",
@@ -1033,7 +1064,8 @@ export const dosageFrequency = [
   { value: "q24h", label: "Every 24 hours" },
 ];
 
-export const allotedPatientStorage = {
+//IN GB
+export const allotedPatientStoragesInGb = {
   FREE: 1,
   PREMIUM_1: 10,
   PREMIUM_2: 100,

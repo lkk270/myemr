@@ -77,7 +77,7 @@ const PatientDemographics = async () => {
     return <div>something went wrong decryption</div>;
   }
   return (
-    <div className="flex pt-4 px-2 xs:px-10 h-full justify-center">
+    <div className="flex pt-4 pb-6 px-2 xs:px-10 min-h-[calc(100vh-64px)] justify-center">
       <Demographics patientDemographics={decryptedPatientDemographics} />
     </div>
   );

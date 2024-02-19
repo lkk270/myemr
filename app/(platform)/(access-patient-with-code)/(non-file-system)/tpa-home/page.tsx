@@ -47,7 +47,7 @@ const AccessHome = async () => {
             {`You have temporary access to ${decryptedPatient.firstName} ${decryptedPatient.lastName}'s medical record. Your access type is `}
             <span className="font-bold italic">{accessTypeTitle}</span>.
           </p>
-          <p className="text-gray-500 dark:text-gray-400 text-left">{`This mean that you ${accessTypeDescription}.`}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-left">{`This means that you ${accessTypeDescription}.`}</p>
         </div>
         <div className="space-y-2">
           <h2 className="text-lg font-bold tracking-tight">Your access expires in:</h2>

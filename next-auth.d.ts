@@ -26,5 +26,6 @@ export type ExtendedAccount = Account & {
 declare module "next-auth" {
   interface Session {
     user: ExtendedUser;
+    tempToken?: string;
   }
 }

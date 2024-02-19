@@ -259,7 +259,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   return (
     <Tabs orientation="vertical" defaultValue="demographics" className="w-full flex flex-col md:flex-row">
       {/* Sidebar with tabs */}
-      <TabsList className="flex-row md:-mx-4 flex md:flex-col md:w-40 md:px-3 md:py-14 md:mt-2">
+      <TabsList className="flex-row flex md:flex-col md:w-40 md:py-14 md:mt-2">
         {tabsData.map((tab) => (
           <TabsTrigger
             onClick={() => {

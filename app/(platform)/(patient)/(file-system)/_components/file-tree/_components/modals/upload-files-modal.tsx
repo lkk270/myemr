@@ -105,7 +105,7 @@ export const UploadFilesModal = () => {
         try {
           const file = tempFile.file;
 
-          const response = await fetch("/api/upload", {
+          const response = await fetch("/api/file-upload", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

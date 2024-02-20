@@ -40,36 +40,38 @@ export const MoveModal = () => {
   const onSelect = async (id: string) => {
     if (isLoading || !currentUserPermissions.canEdit) return;
     if (moveNodes) {
-      setIsLoading(true);
-      for (const moveNode of moveNodes) {
-        const promise = axios
-          .post("/api/patient-update", {
-            selectedIds: [moveNode.id],
-            targetId: id,
-            updateType: "moveNode",
-          })
-          .then(({ data }) => {
-            foldersStore.moveNodes([moveNode.id], id);
-            // Success handling
-          })
-          .catch((error) => {
-            // Error handling
-            throw error; // Rethrow to allow the toast to catch it
-          });
+      const moveNodesIds = moveNodes.map((obj) => obj.id);
 
-        toast.promise(promise, {
-          loading: "Moving node",
-          success: "Changes saved successfully",
-          error: "Something went wrong",
-          duration: 1250,
+      setIsLoading(true);
+
+      const promise = axios
+        .post("/api/patient-update", {
+          selectedIds: moveNodesIds,
+          targetId: id,
+          updateType: "moveNode",
+        })
+        .then(({ data }) => {
+          foldersStore.moveNodes(moveNodesIds, id);
+          // Success handling
+        })
+        .catch((error) => {
+          // Error handling
+          throw error; // Rethrow to allow the toast to catch it
         });
 
-        try {
-          await promise; // Wait for the current promise to resolve or reject
-        } catch (error) {
-          // Error handling if needed
-        }
+      toast.promise(promise, {
+        loading: moveNodesIds.length === 1 ? "Moving node" : "Moving nodes",
+        success: "Changes saved successfully",
+        error: "Something went wrong",
+        duration: 1250,
+      });
+
+      try {
+        await promise; // Wait for the current promise to resolve or reject
+      } catch (error) {
+        // Error handling if needed
       }
+
       setIsLoading(false);
       moveModal.onClose();
     }

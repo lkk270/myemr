@@ -45,35 +45,36 @@ export const TrashModal = () => {
   const handleSave = async () => {
     if (isLoading || !currentUserPermissions.canDelete) return;
     setIsLoading(true);
-    for (let trashNode of trashNodes) {
-      const promise = axios
-        .post("/api/patient-update", {
-          selectedIds: [trashNode.id],
-          targetId: trashId,
-          updateType: "trashNode",
-        })
-        .then(({ data }) => {
-          foldersStore.moveNodes([trashNode.id], trashId);
-          // Success handling
-        })
-        .catch((error) => {
-          // Error handling
-          throw error; // Rethrow to allow the toast to catch it
-        });
+    const trashNodesIds = trashNodes.map((obj) => obj.id);
 
-      toast.promise(promise, {
-        loading: "Sending node to trash",
-        success: "Changes saved successfully",
-        error: "Something went wrong",
-        duration: 1250,
+    const promise = axios
+      .post("/api/patient-update", {
+        selectedIds: trashNodesIds,
+        targetId: trashId,
+        updateType: "trashNode",
+      })
+      .then(({ data }) => {
+        foldersStore.moveNodes(trashNodesIds, trashId);
+        // Success handling
+      })
+      .catch((error) => {
+        // Error handling
+        throw error; // Rethrow to allow the toast to catch it
       });
 
-      try {
-        await promise; // Wait for the current promise to resolve or reject
-      } catch (error) {
-        // Error handling if needed
-      }
+    toast.promise(promise, {
+      loading: trashNodesIds.length === 1 ? "Sending node to trash" : "Sending nodes to trash",
+      success: "Changes saved successfully",
+      error: "Something went wrong",
+      duration: 1250,
+    });
+
+    try {
+      await promise; // Wait for the current promise to resolve or reject
+    } catch (error) {
+      // Error handling if needed
     }
+
     setIsLoading(false);
     trashModal.onClose();
   };

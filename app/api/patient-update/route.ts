@@ -214,7 +214,7 @@ export async function POST(req: Request) {
             // Pass the transactional Prisma client to the function
             await updateDescendantsForRename(prisma, nodeId, oldNamePath, newNamePath);
           },
-          { timeout: 60000 },
+          { timeout: 20000 },
         );
         await updateRecordViewActivity(userId, nodeId, false);
       }

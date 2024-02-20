@@ -59,7 +59,7 @@ export const UploadFilesModal = () => {
 
   const updateFileStatus = (
     singleFileObj: FileWithStatus | null,
-    status: "uploaded" | "error" | "canceled",
+    status: "uploaded" | "error" | "canceled" | "uploading" | "gotPSU",
     index: number,
   ) => {
     if (singleFileObj) {
@@ -80,29 +80,31 @@ export const UploadFilesModal = () => {
     }
     setIsLoading(true);
 
-    if (singleFileObj) {
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.file === singleFileObj.file ? { ...file, status: "uploading", isRetrying: true } : file,
-        ),
-      );
-    } else {
-      setFiles((prevFiles) =>
-        prevFiles.map((fileObj) => ({
-          ...fileObj,
-          status: fileObj.status == null ? "uploading" : fileObj.status,
-        })),
-      );
-    }
+    // if (singleFileObj) {
+    //   setFiles((prevFiles) =>
+    //     prevFiles.map((file) =>
+    //       file.file === singleFileObj.file ? { ...file, status: "uploading", isRetrying: true } : file,
+    //     ),
+    //   );
+    // } else {
+    //   setFiles((prevFiles) =>
+    //     prevFiles.map((fileObj) => ({
+    //       ...fileObj,
+    //       status: fileObj.status == null ? "uploading" : fileObj.status,
+    //     })),
+    //   );
+    // }
 
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
     const uploadPromises = tempFileList
-      .filter((fileObj) => !fileObj.status || isForRetry)
+      .filter((fileObj) => (!fileObj.status || isForRetry) && fileObj.status !== "canceled")
       .map(async (tempFile, index) => {
         let fileId = null;
         let goodPsuResponse = false;
         try {
+          updateFileStatus(tempFile, "uploading", 0);
+
           const file = tempFile.file;
 
           const response = await fetch("/api/file-upload", {
@@ -118,8 +120,10 @@ export const UploadFilesModal = () => {
               parentNamePath: parentNode?.namePath,
               parentPath: parentNode?.path,
             }),
+            signal: tempFile.controller.signal,
           });
           const responseObj = await response.json();
+          updateFileStatus(tempFile, "gotPSU", 0);
           const { url, fields, fileIdResponse } = responseObj;
 
           if (fields.key) {
@@ -140,7 +144,6 @@ export const UploadFilesModal = () => {
           const uploadResponse = await fetch(url, {
             method: "POST",
             body: formData,
-            signal: tempFile.controller.signal,
           });
 
           if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
@@ -205,6 +208,8 @@ export const UploadFilesModal = () => {
 
   const cancelUpload = (fileObj: FileWithStatus) => {
     fileObj.controller.abort(); // Abort the request for this specific file
+    // updateFileStatus(fileObj, "canceled", 0);
+
     // Update the file's status to reflect the cancellation, if necessary
     // console.log("IN HERE");
     // updateFileStatus(fileObj, "canceled", -1);
@@ -268,7 +273,7 @@ export const UploadFilesModal = () => {
               <div key={index} className="px-4">
                 {/* {isPreviousBatch && <Separator />} */}
                 <div className="flex items-center text-muted-foreground overflow-hidden">
-                  {fileObj.status === "uploading" && (
+                  {(fileObj.status === "uploading" || fileObj.status === "gotPSU") && (
                     <div className="flex-shrink-0 pr-2">
                       <Spinner size="default" loaderType={"loader2"} />
                     </div>

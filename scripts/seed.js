@@ -43,9 +43,6 @@ function deleteAllFiles() {
                 case 0: return [4 /*yield*/, prismadb.file.deleteMany({})];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, prismadb.insuranceFile.deleteMany({})];
-                case 2:
-                    _a.sent();
                     return [2 /*return*/];
             }
         });

@@ -20,7 +20,8 @@ import {
   updateDescendantsForRename,
   updateRecordViewActivity,
   moveNodes,
-  deleteNode,
+  deleteFiles,
+  deleteFolders,
   addRootNode,
   addSubFolder,
   restoreRootFolder,
@@ -230,15 +231,14 @@ export async function POST(req: Request) {
       const selectedId = body.selectedId;
       await restoreRootFolder(selectedId, userId);
     } else if (updateType === "deleteNode") {
-      const isFile = body.isFile;
-      const nodeId = body.nodeId;
+      const selectedIds = body.selectedIds;
       const forEmptyTrash = body.forEmptyTrash;
-      const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(nodeId, isFile, patient.id);
+      const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
+      const selectedFileIds: string[] = rawObjects.map((object) => object.id);
+      const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
 
-      if (convertedObjects.length === 0 && isFile) {
-        return new NextResponse("file not found", { status: 500 });
-      }
-      await deleteNode(nodeId, isFile, forEmptyTrash, totalSize, patient.id);
+      await deleteFiles(selectedFileIds, totalSize, patient.id);
+      await deleteFolders(selectedFolderIds, forEmptyTrash);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
       return new NextResponse(JSON.stringify({ totalSize: totalSize }));
     } else if (updateType === "addRootNode") {

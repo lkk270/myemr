@@ -4,7 +4,7 @@ const prismadb = new PrismaClient();
 
 async function deleteAllFiles() {
   await prismadb.file.deleteMany({});
-  await prismadb.insuranceFile.deleteMany({});
+  // await prismadb.insuranceFile.deleteMany({});
 }
 
 async function main() {

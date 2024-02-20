@@ -45,6 +45,7 @@ export const DeleteModal = () => {
   }
 
   const handleSave = async () => {
+    let deletedSize = 0;
     if (isLoading || !currentUserPermissions.canDelete) return;
     setIsLoading(true);
     for (let deleteNode of deleteNodes) {
@@ -59,11 +60,7 @@ export const DeleteModal = () => {
           foldersStore.deleteNode(deleteNode.id, deleteModal.forEmptyTrash);
           // console.log(BigInt(foldersStore.usedFileStorage));
           // console.log(BigInt(data.totalSize));
-          const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(data.totalSize);
-          foldersStore.setUsedFileStorage(newUsedFileStorage);
-          if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {
-            router.push(`/files/${trashNodeId}`);
-          }
+          deletedSize += data.totalSize;
         })
         .catch((error) => {
           // console.log(error?.response?.data);
@@ -80,6 +77,11 @@ export const DeleteModal = () => {
       });
       try {
         await promise; // Wait for the current promise to resolve or reject
+        const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(deletedSize);
+        foldersStore.setUsedFileStorage(newUsedFileStorage);
+        if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {
+          router.push(`/files/${trashNodeId}`);
+        }
       } catch (error) {
         // Error handling if needed
       }

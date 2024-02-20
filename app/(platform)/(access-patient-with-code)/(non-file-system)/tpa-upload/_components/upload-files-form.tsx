@@ -45,7 +45,8 @@ export const UploadFilesForm = () => {
   };
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
-    if (isLoading || !currentUserPermissions.canAdd) return;
+   console.log(currentUserPermissions.canUploadFiles)
+    if (isLoading || !currentUserPermissions.canUploadFiles) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
@@ -76,7 +77,7 @@ export const UploadFilesForm = () => {
         try {
           const file = tempFile.file;
 
-          const response = await fetch("/api/upload", {
+          const response = await fetch("/api/tpa-file-upload", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -162,7 +163,7 @@ export const UploadFilesForm = () => {
   return (
     <Card className="flex flex-col min-h-[calc(100vh-204px)] max-w-full w-full border border-primary/10 rounded-xl overflow-hidden">
       <div className="flex justify-center w-full">
-        <CardContent className="flex flex-col flex-grow justify-center max-w-[800px]">
+        <CardContent className="flex flex-col flex-grow justify-center max-w-[800px] w-full">
           <CardHeader>
             <Dropzone onChangeMulti={setFiles} className="w-full" />
           </CardHeader>
@@ -170,13 +171,6 @@ export const UploadFilesForm = () => {
           {/* Scrollable File List */}
           <div className="overflow-y-scroll max-h-[45vh] gap-y-2 flex flex-col">
             {files.map((fileObj, index) => {
-              const isPreviousBatch =
-                index > 0 &&
-                !!files[index - 1].status &&
-                files[index - 1].status !== "uploading" &&
-                !fileObj.isRetrying &&
-                (!fileObj.status || fileObj.status === "uploading");
-
               const isEndOfUndefinedBatch =
                 !fileObj.status &&
                 index < files.length - 1 &&
@@ -237,7 +231,7 @@ export const UploadFilesForm = () => {
             })}
           </div>
 
-          <CardFooter>
+          <CardFooter className="pt-10 justify-end">
             <Button
               disabled={isLoading || !files.some((file) => !file.status)}
               onClick={() => {
@@ -247,14 +241,6 @@ export const UploadFilesForm = () => {
             >
               Upload
             </Button>
-            {/* {isLoading && (
-            <AlertDialogAction
-              onClick={cancelUpload}
-              className="w-30 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
-            >
-              Cancel Upload
-            </AlertDialogAction>
-          )} */}
           </CardFooter>
         </CardContent>
       </div>

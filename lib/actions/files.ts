@@ -1,6 +1,6 @@
 "use server";
 
-import { Folder, File, FileStatus } from "@prisma/client";
+import { Folder, File, FileStatus, Prisma } from "@prisma/client";
 import prismadb from "../prismadb";
 import { PrismaClient } from "@prisma/client";
 import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
@@ -73,106 +73,160 @@ export async function updateRecordViewActivity(userId: string, nodeId: string, i
   }
 }
 
-export async function restoreRootFolder(nodeId: string, userId: string) {
-  return await prismadb.$transaction(
-    async (prisma) => {
-      // First, determine if the node is a file or a folder
-      let isFile = false;
-      let node: Folder = (await prisma.folder.findUnique({ where: { id: nodeId } })) as Folder;
-
-      const newPath = `/`;
-      const newNamePath = `/${node.name}`;
-
-      // Update the folder
-      await prisma.folder.update({
-        where: { id: nodeId },
-        data: { parentId: null, path: newPath, namePath: newNamePath },
-      });
-
-      // If the node is a folder, recursively update its descendants
-      await updateDescendantsForMove(prisma, nodeId, newPath, newNamePath);
-
-      await updateRecordViewActivity(userId, nodeId, isFile);
+async function updateRecordViewActivitiesForFiles(userId: string, fileIds: string[]) {
+  // Fetch existing activities to determine which fileIds already have an activity
+  const existingActivities = await prismadb.recordViewActivity.findMany({
+    where: {
+      userId: userId,
+      fileId: { in: fileIds },
     },
-    { timeout: 60000 },
-  );
+    select: { fileId: true },
+  });
+
+  const existingFileIds = new Set(existingActivities.map((activity) => activity.fileId));
+
+  // Separate fileIds into those that need updates and those that need creates
+  const fileIdsToUpdate = fileIds.filter((id) => existingFileIds.has(id));
+  const fileIdsToCreate = fileIds.filter((id) => !existingFileIds.has(id));
+
+  // Perform batch update for existing activities
+  if (fileIdsToUpdate.length > 0) {
+    await prismadb.recordViewActivity.updateMany({
+      where: {
+        userId: userId,
+        fileId: { in: fileIdsToUpdate },
+      },
+      data: {
+        lastViewedAt: new Date(),
+      },
+    });
+  }
+
+  // Perform individual creates for new activities
+  // Note: As of my last update, Prisma does not support batch creation with different data for each record in a single query
+  for (const fileId of fileIdsToCreate) {
+    await prismadb.recordViewActivity.create({
+      data: {
+        userId: userId,
+        fileId: fileId,
+        lastViewedAt: new Date(), // Assuming you want to set this for new records as well
+      },
+    });
+  }
+}
+
+export async function restoreRootFolder(nodeId: string, userId: string) {
+  // First, determine if the node is a file or a folder
+  let isFile = false;
+  let node = await prismadb.folder.findUnique({ where: { id: nodeId } });
+  if (!node) {
+    throw new Error("Node not found");
+  }
+
+  const newPath = `/`;
+  const newNamePath = `/${node.name}`;
+
+  await prismadb.$transaction(async (prisma) => {
+    await prisma.folder.update({
+      where: { id: nodeId },
+      data: { parentId: null, path: newPath, namePath: newNamePath },
+    });
+    await batchUpdateDescendantsForRegularMove(prisma, node!.path, node!.namePath, newPath, newNamePath);
+  });
+  await updateRecordViewActivity(userId, nodeId, isFile);
 }
 
 export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
   if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
-  return await prismadb.$transaction(
-    async (prisma) => {
-      for (const nodeId of selectedIds) {
-        // First, determine if the node is a file or a folder
-        let isFile = false;
-        let node: File | Folder = (await prisma.folder.findUnique({ where: { id: nodeId } })) as Folder;
-        if (!node) {
-          node = (await prisma.file.findUnique({ where: { id: nodeId } })) as File;
-          if (!node) continue; // Skip if node is not found
-          isFile = true;
-        }
 
-        const newPath = `${targetNode.path}${targetNode.id}/`;
-        const newNamePath = `${targetNode.namePath}/${node.name}`;
+  let fileIds = []; // Array to hold file IDs for batch update
 
-        if (isFile) {
-          // Update the file
-          await prisma.file.update({
-            where: { id: nodeId },
-            data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
-          });
-        } else {
-          // Update the folder
-          await prisma.folder.update({
-            where: { id: nodeId },
-            data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
-          });
+  for (const nodeId of selectedIds) {
+    let isFile = false;
+    let node: File | Folder = (await prismadb.folder.findUnique({ where: { id: nodeId } })) as Folder;
+    if (!node) {
+      node = (await prismadb.file.findUnique({ where: { id: nodeId } })) as File;
+      if (!node) continue; // Skip if node is not found
+      isFile = true;
+    }
 
-          // If the node is a folder, recursively update its descendants
-          await updateDescendantsForMove(prisma, nodeId, newPath, newNamePath);
-        }
-        await updateRecordViewActivity(userId, nodeId, isFile);
-      }
-    },
-    { timeout: 60000 },
-  );
-}
+    const newPath = `${targetNode.path}${targetNode.id}/`;
+    const newNamePath = `${targetNode.namePath}/${node.name}`;
 
-// Modified to accept a Prisma client
-async function updateDescendantsForMove(prisma: any, parentId: string, parentPath: string, parentNamePath: string) {
-  const children = await prisma.folder.findMany({
-    where: { parentId: parentId },
-  });
-
-  for (const child of children) {
-    const newPath = `${parentPath}${parentId}/`;
-    const newNamePath = `${parentNamePath}/${child.name}`;
-
-    await prisma.folder.update({
-      where: { id: child.id },
-      data: { path: newPath, namePath: newNamePath },
-    });
-
-    if (!child.isFile) {
-      await updateDescendantsForMove(prisma, child.id, newPath, newNamePath);
+    if (isFile) {
+      // Collect file IDs for batch update
+      fileIds.push(nodeId);
+    } else {
+      // Process folders individually
+      await prismadb.$transaction(async (prisma) => {
+        await prisma.folder.update({
+          where: { id: nodeId },
+          data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
+        });
+        await batchUpdateDescendantsForRegularMove(prisma, node.path, node.namePath, newPath, newNamePath);
+      });
+      await updateRecordViewActivity(userId, nodeId, isFile);
     }
   }
 
-  const files = await prisma.file.findMany({
-    where: { parentId: parentId },
-  });
+  // Perform a batch update for all files at once using dynamic raw SQL
+  if (fileIds.length > 0) {
+    const newPath = `${targetNode.path}${targetNode.id}/`;
+    const newNamePath = `${targetNode.namePath}/`; // Adjust based on your naming convention
 
-  for (const file of files) {
-    const newFilePath = `${parentPath}${parentId}/`;
-    const newFileNamePath = `${parentNamePath}/${file.name}`;
+    await prismadb.$executeRaw`UPDATE \`File\`
+    SET \`parentId\` = ${targetNodeId}, 
+        \`path\` = ${newPath}, 
+        \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, LENGTH(${newNamePath}) + 1))
+    WHERE \`id\` IN (${Prisma.join(fileIds)})`;
 
-    await prisma.file.update({
-      where: { id: file.id },
-      data: { path: newFilePath, namePath: newFileNamePath },
-    });
+    await updateRecordViewActivitiesForFiles(userId, fileIds);
   }
+}
+
+async function batchUpdateDescendantsForRegularMove(
+  prisma: any,
+  originalPath: string,
+  originalNamePath: string,
+  newParentPath: string,
+  newParentNamePath: string,
+) {
+  // Fetch the original node to get its namePath for matching descendants
+  // const originalNode = await prisma.folder.findUnique({
+  //   where: { id: nodeId },
+  //   select: { namePath: true, path: true },
+  // });
+
+  // if (!originalNode) {
+  //   console.error("Original node not found");
+  //   return;
+  // }
+
+  // const originalNamePath = originalNode.namePath;
+  // const originalPath = originalNode.path;
+  console.log("originalPath", originalPath);
+  console.log("originalNamePath", originalNamePath);
+
+  console.log("newParentPath", newParentPath);
+  console.log("newParentNamePath", newParentNamePath);
+
+  // Use tagged template literals for the raw SQL query for updating folder descendants
+  await prisma.$executeRaw`
+  UPDATE \`Folder\`
+  SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
+      \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
+  WHERE \`namePath\` LIKE ${originalNamePath + "%"}
+`;
+
+  // Use tagged template literals for the raw SQL query for updating file descendants
+  await prisma.$executeRaw`
+  UPDATE \`File\`
+  SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
+      \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
+  WHERE \`namePath\` LIKE ${originalNamePath + "%"}
+`;
 }
 
 export async function deleteNode(
@@ -232,10 +286,12 @@ async function deleteSubFolders(prisma: any, parentId: string) {
 }
 
 export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, patientProfileId: string) {
-  const allFilesToDelete = await prismadb.file.findMany({
+  let allFilesToDelete: { id: string; size: number; userId: string }[] = [];
+
+  allFilesToDelete = await prismadb.file.findMany({
     where: isFile
       ? { id: nodeId, status: FileStatus.SUCCESS }
-      : { path: { contains: nodeId }, status: FileStatus.SUCCESS },
+      : { path: { startsWith: `/${nodeId}` }, status: FileStatus.SUCCESS },
     select: {
       id: true,
       size: true,
@@ -245,7 +301,6 @@ export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, pat
 
   const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
   const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
-
   return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
 }
 
@@ -264,11 +319,11 @@ export async function deleteS3Objects(
 
   try {
     const { Deleted } = await client.send(command);
-    // console.log("=============");
-    // console.log(Deleted);
-    // console.log("=============");
+    console.log("=============");
+    console.log(Deleted);
+    console.log("=============");
     if (Deleted) {
-      // console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`);
+      console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`);
       // console.log(Deleted.map((d) => ` • ${d.Key}`).join("\n"));
     } else {
       await createDeadFiles(prismaFileObjects, patientProfileId);
@@ -280,7 +335,7 @@ export async function deleteS3Objects(
 
 const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], patientProfileId: string) => {
   try {
-    console.log(prismaFileObjects);
+    // console.log(prismaFileObjects);
     const updatedArray = prismaFileObjects.map((file) => ({
       awsKey: `${patientProfileId}/${file.id}`,
       userId: file.userId,

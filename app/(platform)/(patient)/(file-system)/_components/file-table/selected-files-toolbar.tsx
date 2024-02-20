@@ -162,6 +162,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
         if (isLoading) {
           return;
         }
+        setIsLoading(true);
         for (const restoreNode of cleanedRows) {
           const promise = axios
             .post("/api/patient-update", {
@@ -169,11 +170,13 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
               updateType: "restoreRootFolder",
             })
             .then(({ data }) => {
+              setIsLoading(false);
               foldersStore.restoreRootNode([restoreNode.id]);
               table.resetRowSelection(true);
               // Success handling
             })
             .catch((error) => {
+              setIsLoading(false);
               // Error handling
               throw error; // Rethrow to allow the toast to catch it
             });
@@ -188,6 +191,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           try {
             await promise; // Wait for the current promise to resolve or reject
           } catch (error) {
+            setIsLoading(false);
             // Error handling if needed
           }
         }

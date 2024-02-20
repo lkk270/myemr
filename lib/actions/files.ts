@@ -296,10 +296,11 @@ export async function getAllObjectsToDelete(selectedIds: string[], patientProfil
     },
   });
 
-
   allFilesToDelete = allFilesToDeleteForFileIds.concat(allFilesToDeleteForFolderIds);
+  console.log("allFilesToDelete.length", allFilesToDelete.length);
   const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
   const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
+  console.log("totalSize.length", totalSize);
   return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
 }
 

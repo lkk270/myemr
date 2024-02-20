@@ -21,7 +21,11 @@ import { FileWithStatus, NodeDataType, SingleLayerNodesType2 } from "@/app/types
 import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { updateRegularFileStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
+import {
+  updateRegularFileStatus,
+  decrementUsedFileStorage,
+  deleteNotUploadedFilesAndDecrement,
+} from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
@@ -74,6 +78,7 @@ export const UploadFilesModal = () => {
   };
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
+    let errorOccurred = false;
     if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
@@ -122,13 +127,13 @@ export const UploadFilesModal = () => {
             }),
             signal: tempFile.controller.signal,
           });
-          const responseObj = await response.json();
           updateFileStatus(tempFile, "gotPSU", 0);
+          const responseObj = await response.json();
           const { url, fields, fileIdResponse } = responseObj;
-
-          if (fields.key) {
-            fileId = fileIdResponse;
-          }
+          fileId = fileIdResponse;
+          // if (fields.key) {
+          //   fileId = fileIdResponse;
+          // }
           if (response.ok) {
             goodPsuResponse = true;
           } else {
@@ -171,12 +176,10 @@ export const UploadFilesModal = () => {
 
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
+          errorOccurred = true;
           // console.error("Upload or status update failed for file", index, error);
           const errorMessage = error as any;
           const errorMessageStr = errorMessage.toString();
-          if (goodPsuResponse) {
-            decrementUsedFileStorage(fileId);
-          }
           if (errorMessageStr.includes("signal is aborted") || errorMessageStr.includes("The user aborted a request")) {
             updateFileStatus(singleFileObj, "canceled", index);
           } else {
@@ -196,9 +199,12 @@ export const UploadFilesModal = () => {
         folderStore.setUsedFileStorage(currentUsedUploadedSize + totalUploadedSize);
       }
     } catch (error) {
+      errorOccurred = false;
       console.error("An unexpected error occurred:", error);
     }
-
+    if (errorOccurred) {
+      await deleteNotUploadedFilesAndDecrement();
+    }
     setIsLoading(false);
   };
 

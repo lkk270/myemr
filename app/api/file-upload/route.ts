@@ -46,6 +46,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Patient not found" }, { status: 400 });
     }
 
+    const parentFolder = await prismadb.folder.findUnique({
+      where: {
+        id: parentId,
+      },
+      select: {
+        id: true,
+        namePath: true,
+      },
+    });
+
+    if (!parentFolder || parentFolder.namePath.startsWith("/Trash")) {
+      return NextResponse.json({ message: "Parent folder not found" }, { status: 400 });
+    }
+
     const usedFileStorageInBytes = patient.usedFileStorage;
     const allotedStorageInBytes = allotedPatientStoragesInGb[patient.plan] * 1000000000;
     if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {

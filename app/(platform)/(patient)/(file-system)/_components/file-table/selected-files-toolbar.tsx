@@ -45,8 +45,8 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
     size: obj.original.size,
   }));
   const numRowsSelected = cleanedRows.length;
-  // const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
-  // const allAreFiles = cleanedRows.every((obj: any) => obj.isFile === true);
+  const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
+  const allAreFiles = cleanedRows.every((obj: any) => obj.isFile === true);
   // const allAreFolders = cleanedRows.every((obj: any) => !obj.isFile);
   const allAreRootNodes = cleanedRows.every((obj: any) => obj.isRoot === true);
   const allAreNotRootNodes = cleanedRows.every((obj: any) => !obj.isRoot);
@@ -68,7 +68,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           return;
         }
         moveModal.onOpen(cleanedRows);
-        table.resetRowSelection(true);
+        // table.resetRowSelection(true);
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
@@ -128,9 +128,9 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           return;
         }
         inTrash ? deleteModal.onOpen(cleanedRows, false) : trashModal.onOpen(cleanedRows);
-        if (!inTrash) {
-          table.resetRowSelection(true);
-        }
+        // if (!inTrash) {
+        //   table.resetRowSelection(true);
+        // }
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
@@ -172,7 +172,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             .then(({ data }) => {
               setIsLoading(false);
               foldersStore.restoreRootNode([restoreNode.id]);
-              table.resetRowSelection(true);
+              // table.resetRowSelection(true);
               // Success handling
             })
             .catch((error) => {
@@ -207,7 +207,12 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
     <div className="px-1 flex items-center z-[999999] h-10 p-0.5 fixed bottom-10 rounded-lg shadow-lg dark:bg-[#303030] bg-[#292929] text-[#f6f6f6] text-sm">
       <div className="flex flex-row px-1 gap-x-2 border-r border-[#434343] pr-2">
         <span>{numRowsSelected} selected</span>
-        {totalSize > 0 && <span className="text-[#9d9d9d]">{formatFileSize(totalSize)}</span>}
+        {totalSize > 0 && (
+          <span className="text-[#9d9d9d]">
+            {formatFileSize(totalSize)}
+            {hasFile && !allAreFiles && cleanedRows.length > 1 && "+"}
+          </span>
+        )}
       </div>
       {/* 1 file or 1 folder selected */}
 

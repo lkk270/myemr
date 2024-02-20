@@ -38,7 +38,7 @@ const patientConditionals: any = {
   },
   restoreRootFolder: { requiredFields: ["selectedId"], optionalFields: [], mandatoryTruePermissions: ["isPatient"] },
   deleteNode: {
-    requiredFields: ["nodeId", "isFile", "forEmptyTrash"],
+    requiredFields: ["selectedIds", "forEmptyTrash"],
     optionalFields: [],
     mandatoryTruePermissions: ["canDelete"],
   },

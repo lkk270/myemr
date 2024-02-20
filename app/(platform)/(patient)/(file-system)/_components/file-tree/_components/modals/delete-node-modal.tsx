@@ -47,45 +47,49 @@ export const DeleteModal = () => {
   const handleSave = async () => {
     let deletedSize = 0;
     if (isLoading || !currentUserPermissions.canDelete) return;
-    setIsLoading(true);
-    for (let deleteNode of deleteNodes) {
-      const promise = axios
-        .post("/api/patient-update", {
-          nodeId: deleteNode.id,
-          isFile: deleteNode.isFile ? true : false,
-          forEmptyTrash: deleteModal.forEmptyTrash,
-          updateType: "deleteNode",
-        })
-        .then(({ data }) => {
-          foldersStore.deleteNode(deleteNode.id, deleteModal.forEmptyTrash);
-          // console.log(BigInt(foldersStore.usedFileStorage));
-          // console.log(BigInt(data.totalSize));
-          deletedSize += data.totalSize;
-        })
-        .catch((error) => {
-          // console.log(error?.response?.data);
-          // error = error?.response?.data || "Something went wrong";
-          // console.log(error);
-          throw error;
-        });
+    const deleteNodesIds = deleteNodes.map((obj) => obj.id);
 
-      toast.promise(promise, {
-        loading: deleteModal.forEmptyTrash ? "Emptying trash..." : "Deleting node...",
-        success: "Node deleted successfully!",
-        error: "Something went wrong",
-        duration: 1250,
+    setIsLoading(true);
+    const promise = axios
+      .post("/api/patient-update", {
+        selectedIds: deleteNodesIds,
+        forEmptyTrash: deleteModal.forEmptyTrash,
+        updateType: "deleteNode",
+      })
+      .then(({ data }) => {
+        foldersStore.deleteNode(deleteNodesIds, deleteModal.forEmptyTrash);
+        // console.log(BigInt(foldersStore.usedFileStorage));
+        // console.log(BigInt(data.totalSize));
+        deletedSize += data.totalSize;
+      })
+      .catch((error) => {
+        // console.log(error?.response?.data);
+        // error = error?.response?.data || "Something went wrong";
+        // console.log(error);
+        throw error;
       });
-      try {
-        await promise; // Wait for the current promise to resolve or reject
-        const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(deletedSize);
-        foldersStore.setUsedFileStorage(newUsedFileStorage);
-        if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {
-          router.push(`/files/${trashNodeId}`);
-        }
-      } catch (error) {
-        // Error handling if needed
+
+    toast.promise(promise, {
+      loading: deleteModal.forEmptyTrash
+        ? "Emptying trash..."
+        : deleteNodesIds.length === 1
+        ? "Deleting node..."
+        : "Deleting nodes...",
+      success: "Node deleted successfully!",
+      error: "Something went wrong",
+      duration: 1250,
+    });
+    try {
+      await promise; // Wait for the current promise to resolve or reject
+      const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(deletedSize);
+      foldersStore.setUsedFileStorage(newUsedFileStorage);
+      if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {
+        router.push(`/files/${trashNodeId}`);
       }
+    } catch (error) {
+      // Error handling if needed
     }
+
     setIsLoading(false);
     deleteModal.onClose();
   };

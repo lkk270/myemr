@@ -131,7 +131,7 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
       where: { id: nodeId },
       data: { parentId: null, path: newPath, namePath: newNamePath },
     });
-    await batchUpdateDescendantsForRegularMove(prisma, node!.path, node!.namePath, newPath, newNamePath);
+    await batchUpdateDescendants(prisma, node!.path, node!.namePath, newPath, newNamePath);
   });
   await updateRecordViewActivity(userId, nodeId, isFile);
 }
@@ -165,7 +165,7 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
           where: { id: nodeId },
           data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
         });
-        await batchUpdateDescendantsForRegularMove(prisma, node.path, node.namePath, newPath, newNamePath);
+        await batchUpdateDescendants(prisma, node.path, node.namePath, newPath, newNamePath);
       });
       await updateRecordViewActivity(userId, nodeId, isFile);
     }
@@ -186,32 +186,13 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
   }
 }
 
-async function batchUpdateDescendantsForRegularMove(
+async function batchUpdateDescendants(
   prisma: any,
   originalPath: string,
   originalNamePath: string,
   newParentPath: string,
   newParentNamePath: string,
 ) {
-  // Fetch the original node to get its namePath for matching descendants
-  // const originalNode = await prisma.folder.findUnique({
-  //   where: { id: nodeId },
-  //   select: { namePath: true, path: true },
-  // });
-
-  // if (!originalNode) {
-  //   console.error("Original node not found");
-  //   return;
-  // }
-
-  // const originalNamePath = originalNode.namePath;
-  // const originalPath = originalNode.path;
-  console.log("originalPath", originalPath);
-  console.log("originalNamePath", originalNamePath);
-
-  console.log("newParentPath", newParentPath);
-  console.log("newParentNamePath", newParentNamePath);
-
   // Use tagged template literals for the raw SQL query for updating folder descendants
   await prisma.$executeRaw`
   UPDATE \`Folder\`
@@ -229,35 +210,16 @@ async function batchUpdateDescendantsForRegularMove(
 `;
 }
 
-export async function deleteNode(
-  nodeId: string,
-  isFile: boolean,
-  forEmptyTrash = false,
-  totalSize: number,
-  patientProfileId: string,
-) {
+export async function deleteFiles(selectedFileIds: string[], totalSize: number, patientProfileId: string) {
   return await prismadb.$transaction(
     async (prisma) => {
-      if (isFile) {
-        // Delete the file and its associated RecordViewActivity
-        await prisma.recordViewActivity.deleteMany({ where: { fileId: nodeId } });
-        await prisma.file.delete({ where: { id: nodeId } });
-      } else {
-        // Depth-first recursive deletion of subfolders
-        await deleteSubFolders(prisma, nodeId);
+      await prisma.file.deleteMany({
+        where: {
+          id: { in: selectedFileIds },
+        },
+      });
+      // await prisma.recordViewActivity.deleteMany({ where: { fileId: { in: selectedFileIds } } });
 
-        // Delete all files in the current folder
-        await prisma.file.deleteMany({ where: { parentId: nodeId } });
-
-        if (!forEmptyTrash) {
-          // Delete the folder's associated RecordViewActivity
-
-          await prisma.recordViewActivity.deleteMany({ where: { folderId: nodeId } });
-
-          // Finally, delete the folder itself
-          await prisma.folder.delete({ where: { id: nodeId } });
-        }
-      }
       await prisma.patientProfile.update({
         where: {
           id: patientProfileId,
@@ -271,6 +233,21 @@ export async function deleteNode(
   );
 }
 
+export async function deleteFolders(selectedFolderIds: string[], forEmptyTrash: boolean) {
+  for (const folderId of selectedFolderIds) {
+    await deleteSubFolders(prisma, folderId);
+    if (!forEmptyTrash) {
+      // Delete the folder's associated RecordViewActivity
+
+      // await prismadb.recordViewActivity.deleteMany({ where: { folderId: { in: selectedFolderIds } } });
+
+      // Finally, delete the folder itself
+      await prismadb.folder.delete({ where: { id: folderId } });
+    }
+  }
+}
+
+// Depth-first recursive deletion of subfolders
 async function deleteSubFolders(prisma: any, parentId: string) {
   const subFolders = await prisma.folder.findMany({
     where: { parentId: parentId },
@@ -285,13 +262,16 @@ async function deleteSubFolders(prisma: any, parentId: string) {
   }
 }
 
-export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, patientProfileId: string) {
+export async function getAllObjectsToDelete(selectedIds: string[], patientProfileId: string) {
   let allFilesToDelete: { id: string; size: number; userId: string }[] = [];
-
-  allFilesToDelete = await prismadb.file.findMany({
-    where: isFile
-      ? { id: nodeId, status: FileStatus.SUCCESS }
-      : { path: { startsWith: `/${nodeId}` }, status: FileStatus.SUCCESS },
+  const allFilesToDeleteForFileIds = await prismadb.file.findMany({
+    where: {
+      id: {
+        in: selectedIds,
+      },
+      status: FileStatus.SUCCESS,
+      namePath: { startsWith: "/Trash" },
+    },
     select: {
       id: true,
       size: true,
@@ -299,6 +279,25 @@ export async function getAllObjectsToDelete(nodeId: string, isFile: boolean, pat
     },
   });
 
+  const allFilesToDeleteForFolderIds = await prismadb.file.findMany({
+    where: {
+      OR: selectedIds.map((selectedId) => ({
+        path: {
+          contains: `/${selectedId}`,
+        },
+        namePath: { startsWith: "/Trash" },
+      })),
+      status: FileStatus.SUCCESS,
+    },
+    select: {
+      id: true,
+      size: true,
+      userId: true,
+    },
+  });
+
+
+  allFilesToDelete = allFilesToDeleteForFileIds.concat(allFilesToDeleteForFolderIds);
   const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
   const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
   return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
@@ -319,13 +318,7 @@ export async function deleteS3Objects(
 
   try {
     const { Deleted } = await client.send(command);
-    console.log("=============");
-    console.log(Deleted);
-    console.log("=============");
-    if (Deleted) {
-      console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`);
-      // console.log(Deleted.map((d) => ` • ${d.Key}`).join("\n"));
-    } else {
+    if (!Deleted) {
       await createDeadFiles(prismaFileObjects, patientProfileId);
     }
   } catch (err) {

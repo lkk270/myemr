@@ -1,28 +1,24 @@
 "use client";
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { useState, useEffect, useRef } from "react";
-import { toast } from "sonner";
-import { useCurrentUser } from "@/auth/hooks/use-current-user";
+import { useState } from "react";
 import { Trash, RefreshCw, XCircle } from "lucide-react";
 import { Dropzone } from "@/components/files/dropzone";
 import _ from "lodash";
-import { FileWithStatus, NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { FileWithStatus } from "@/app/types/file-types";
 import { Spinner } from "@/components/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import {
   updateRegularFileStatus,
-  decrementUsedFileStorage,
+  deleteNotUploadedFilesAndDecrement,
 } from "@/app/(platform)/(patient)/(file-system)/actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { GenericCombobox } from "@/components/generic-combobox";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 export const UploadFilesForm = () => {
-  const session = useSession();
   const currentUserPermissions = useCurrentUserPermissions();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const { isLoading, setIsLoading } = useIsLoading();
@@ -30,7 +26,7 @@ export const UploadFilesForm = () => {
   // console.log(session);
   const updateFileStatus = (
     singleFileObj: FileWithStatus | null,
-    status: "uploaded" | "error" | "canceled",
+    status: "uploaded" | "error" | "canceled" | "uploading" | "gotPSU",
     index: number,
   ) => {
     if (singleFileObj) {
@@ -45,27 +41,12 @@ export const UploadFilesForm = () => {
   };
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
-   console.log(currentUserPermissions.canUploadFiles)
+    let errorOccurred = false;
     if (isLoading || !currentUserPermissions.canUploadFiles) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
     setIsLoading(true);
-
-    if (singleFileObj) {
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.file === singleFileObj.file ? { ...file, status: "uploading", isRetrying: true } : file,
-        ),
-      );
-    } else {
-      setFiles((prevFiles) =>
-        prevFiles.map((fileObj) => ({
-          ...fileObj,
-          status: fileObj.status == null ? "uploading" : fileObj.status,
-        })),
-      );
-    }
 
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
@@ -75,6 +56,8 @@ export const UploadFilesForm = () => {
         let fileId = null;
         let goodPsuResponse = false;
         try {
+          updateFileStatus(tempFile, "uploading", 0);
+
           const file = tempFile.file;
 
           const response = await fetch("/api/tpa-file-upload", {
@@ -87,13 +70,14 @@ export const UploadFilesForm = () => {
               contentType: file.type,
               size: file.size,
             }),
+            signal: tempFile.controller.signal,
           });
+
+          updateFileStatus(tempFile, "gotPSU", 0);
           const responseObj = await response.json();
           const { url, fields, fileIdResponse } = responseObj;
+          fileId = fileIdResponse;
 
-          if (fields.key) {
-            fileId = fileIdResponse;
-          }
           if (response.ok) {
             goodPsuResponse = true;
           } else {
@@ -109,7 +93,6 @@ export const UploadFilesForm = () => {
           const uploadResponse = await fetch(url, {
             method: "POST",
             body: formData,
-            signal: tempFile.controller.signal,
           });
 
           if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
@@ -118,18 +101,14 @@ export const UploadFilesForm = () => {
 
           if (!data.success) throw new Error(data.error || "Status update failed");
 
-          const createdFile = data.file; // Assuming this is the file information returned from updateStatus
-
           updateFileStatus(singleFileObj, "uploaded", index);
 
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
+          errorOccurred = true;
           // console.error("Upload or status update failed for file", index, error);
           const errorMessage = error as any;
           const errorMessageStr = errorMessage.toString();
-          if (goodPsuResponse) {
-            decrementUsedFileStorage(fileId);
-          }
           if (errorMessageStr.includes("signal is aborted") || errorMessageStr.includes("The user aborted a request")) {
             updateFileStatus(singleFileObj, "canceled", index);
           } else {
@@ -143,7 +122,12 @@ export const UploadFilesForm = () => {
     try {
       const sizes = await Promise.all(uploadPromises);
     } catch (error) {
+      errorOccurred = false;
       console.error("An unexpected error occurred:", error);
+    }
+
+    if (errorOccurred) {
+      await deleteNotUploadedFilesAndDecrement();
     }
 
     setIsLoading(false);
@@ -182,7 +166,7 @@ export const UploadFilesForm = () => {
                 <div key={index} className="px-4">
                   {/* {isPreviousBatch && <Separator />} */}
                   <div className="flex items-center text-muted-foreground overflow-hidden">
-                    {fileObj.status === "uploading" && (
+                    {(fileObj.status === "uploading" || fileObj.status === "gotPSU") && (
                       <div className="flex-shrink-0 pr-2">
                         <Spinner size="default" loaderType={"loader2"} />
                       </div>

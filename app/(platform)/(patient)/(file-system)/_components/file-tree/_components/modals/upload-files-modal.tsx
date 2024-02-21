@@ -103,7 +103,7 @@ export const UploadFilesModal = () => {
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
     const uploadPromises = tempFileList
-      .filter((fileObj) => (!fileObj.status || isForRetry) && fileObj.status !== "canceled")
+      .filter((fileObj) => !fileObj.status || isForRetry)
       .map(async (tempFile, index) => {
         let fileId = null;
         let goodPsuResponse = false;

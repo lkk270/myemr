@@ -283,15 +283,16 @@ const FileTree = ({ width }: FileTreeProps) => {
   };
 
   const onMove = ({ dragIds, parentId, index }: any) => {
-    console.log(parentId);
+    const tempParentNode = treeRef.current.get(parentId).data;
+    const targetId = tempParentNode.isFile ? tempParentNode.parentId : parentId;
     setIsLoading(true);
     const originalFolders = _.cloneDeep(folderStore.folders);
-    folderStore.moveNodes(dragIds, parentId);
+    folderStore.moveNodes(dragIds, targetId);
     setContextDisableDrop(true);
     const promise = axios
       .post("/api/patient-update", {
         selectedIds: dragIds,
-        targetId: parentId,
+        targetId: targetId,
         updateType: "moveNode",
       })
       .then(({ data }) => {})

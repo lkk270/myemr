@@ -359,6 +359,21 @@ export const addRootNode = async (
   patientProfileId: string,
   addedByName: string,
 ) => {
+  const existingRoot = await prismadb.folder.findFirst({
+    where: {
+      isRoot: true,
+      name: folderName,
+      namePath: `/${folderName}`,
+      path: "/",
+      userId: patientUserId,
+      patientProfileId: patientProfileId,
+    },
+  });
+
+  if (existingRoot) {
+    throw new Error("Root folder with same name already exists!");
+  }
+
   let folder: Folder | undefined;
 
   await prismadb.$transaction(

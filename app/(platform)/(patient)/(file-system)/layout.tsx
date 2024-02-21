@@ -53,6 +53,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     const trashFolder = await prismadb.folder.create({
       data: {
         name: "Trash",
+        path: "/",
         namePath: "/Trash",
         isRoot: true,
         addedByUserId: user.id,

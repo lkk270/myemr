@@ -47,12 +47,14 @@ export const useDownloadFile = () => {
 };
 
 export const useDownloadZip = () => {
+  console.log("50000");
   // const { isLoading, setIsLoading } = useIsLoading();
 
   const downloadZip = useCallback(async (fileIds: string[], parentNamePath: string, parentName: string) => {
+    console.log("54444");
     // Example fileIds could be an array of IDs or keys that identify what you want to download
     const filesData = await getPresignedUrls(fileIds, parentNamePath);
-
+    console.log(filesData);
     if (!Array.isArray(filesData)) {
       // Since it's not an array, we now assume it's the error object - handle the error
       console.error(filesData.error || "An unknown error occurred");
@@ -66,7 +68,7 @@ export const useDownloadZip = () => {
     }
     const zip = new JSZip();
     const filteredFilesData = filesData.filter(isNotNull);
-
+    console.log(filteredFilesData);
     // Load files and add them to the zip with their full paths
     const filePromises = filteredFilesData.map(async ({ presignedUrl, path }) => {
       try {

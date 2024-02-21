@@ -218,8 +218,8 @@ model RecordViewActivity {
 model Folder {
   id            String   @id @default(cuid())
   name          String
-  path          String   @default("/")
-  namePath      String
+  path          String   @db.LongText
+  namePath      String   @db.LongText
   isFile        Boolean  @default(false)
   isRoot        Boolean  @default(false)
   addedByUserId String?
@@ -239,7 +239,7 @@ model Folder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, namePath])
+  // @@unique([userId, namePath])
   @@index([parentId])
   @@index([patientProfileId])
 }
@@ -268,8 +268,8 @@ model File {
   id               String     @id @default(cuid())
   name             String
   isFile           Boolean    @default(true)
-  path             String
-  namePath         String
+  path             String     @db.LongText
+  namePath         String     @db.LongText
   parentId         String
   uploadedByUserId String?
   uploadedByName   String     @default("Charli Dog")

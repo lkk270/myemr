@@ -137,6 +137,7 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
 }
 
 export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
+  console.log(targetNodeId);
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
   if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
@@ -175,11 +176,13 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
   if (fileIds.length > 0) {
     const newPath = `${targetNode.path}${targetNode.id}/`;
     const newNamePath = `${targetNode.namePath}/`; // Adjust based on your naming convention
-
+    // console.log("newPath", newPath);
+    // console.log("newNamePath", newNamePath);
     await prismadb.$executeRaw`UPDATE \`File\`
     SET \`parentId\` = ${targetNodeId}, 
         \`path\` = ${newPath}, 
-        \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, LENGTH(${newNamePath}) + 1))
+        // Update the CONCAT function to correctly handle the new namePath
+        \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, CHAR_LENGTH(\`namePath\`) - LOCATE('/', REVERSE(\`namePath\`)) + 2))
     WHERE \`id\` IN (${Prisma.join(fileIds)})`;
 
     await updateRecordViewActivitiesForFiles(userId, fileIds);
@@ -193,12 +196,19 @@ async function batchUpdateDescendants(
   newParentPath: string,
   newParentNamePath: string,
 ) {
+  // console.log("originalPath", originalPath);
+  // console.log("originalNamePath", originalNamePath);
+
+  // console.log("newParentPath", newParentPath);
+
+  // console.log("newParentNamePath", newParentNamePath);
+
   // Use tagged template literals for the raw SQL query for updating folder descendants
   await prisma.$executeRaw`
   UPDATE \`Folder\`
   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`namePath\` LIKE ${originalNamePath + "%"}
+  WHERE \`path\` LIKE ${originalPath + "%"}
 `;
 
   // Use tagged template literals for the raw SQL query for updating file descendants
@@ -206,7 +216,7 @@ async function batchUpdateDescendants(
   UPDATE \`File\`
   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`namePath\` LIKE ${originalNamePath + "%"}
+  WHERE \`path\` LIKE ${originalPath + "%"}
 `;
 }
 

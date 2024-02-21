@@ -15,7 +15,7 @@ const getFileName = (fileNameTemp: string, fileType: string) => {
   const newExtension = mime.extension(fileType);
 
   if (!newExtension) {
-    console.error("Unsupported file type");
+    console.error("Unsupported file type", fileNameTemp, fileType);
     return fileNameTemp; // Or handle this case as needed
   }
   if (currentMimeType === fileType) {

@@ -24,6 +24,7 @@ import { DataTableToolbar } from "./data-table-toolbar";
 import { cn, getNodeHref } from "@/lib/utils";
 import { SelectedFilesToolbar } from "../../app/(platform)/(patient)/(file-system)/_components/file-table/selected-files-toolbar";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { toast } from "sonner";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -113,30 +114,48 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ) : data.length > 0 ? (
                 // When there are rows, render them
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    className="hover:cursor-pointer"
-                    onClick={() => {
-                      if (onOpen) {
-                        onOpen(row.original, true);
-                      }
-                    }}
-                    onDoubleClick={() => {
-                      if (isLink) {
-                        const rowOriginal = row.original as any;
-                        router.push(getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id));
-                      }
-                    }}
-                    key={row.id}
-                    data-state={row.getIsSelected() ? "selected" : undefined}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell className="max-w-[325px]" key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  // Declare rowOriginal here
+                  const rowOriginal = row.original as any;
+
+                  // Now return your JSX
+                  return (
+                    <TableRow
+                      className={cn(
+                        rowOriginal.restricted
+                          ? "opacity-40 cursor-not-allowed hover:bg-transparent"
+                          : "cursor-pointer",
+                      )}
+                      onClick={() => {
+                        if (onOpen) {
+                          onOpen(row.original, true);
+                        }
+                      }}
+                      onDoubleClick={() => {
+                        if (isLink && rowOriginal.restricted) {
+                          toast.warning(
+                            "You are out of storage, so this file is hidden. Please upgrade your plan to access it.",
+                            {
+                              duration: 3500,
+                            },
+                          );
+                        } else if (isLink && !rowOriginal.restricted) {
+                          router.push(
+                            getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id),
+                          );
+                        }
+                      }}
+                      key={row.id}
+                      data-state={row.getIsSelected() ? "selected" : undefined}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell className="max-w-[325px]" key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })
               ) : (
                 // When rows are empty, display "No results."
                 <TableRow>

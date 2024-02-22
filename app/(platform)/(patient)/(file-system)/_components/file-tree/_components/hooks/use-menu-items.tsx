@@ -31,6 +31,7 @@ export const useMenuItems = (nodeData: any) => {
 
   const inTrash = nodeData.namePath.startsWith("/Trash");
   const isTrashNode = nodeData.namePath === "/Trash";
+  const isRestricted = nodeData.restricted;
   // const trashHasContents = isTrashNode
   //   ? foldersStore.singleLayerNodes.some((node) => node.namePath.startsWith("/Trash") && !node.isRoot)
   //   : undefined;
@@ -206,9 +207,10 @@ export const useMenuItems = (nodeData: any) => {
         return false;
       }
     }
-    // if (item.isFile && itemLabel === "Export") {
-    //   return true;
-    // }
+    if (isRestricted && itemLabel === "Export") {
+      console.log("211");
+      return false;
+    }
     // if (!item.isFile && itemLabel === "Export" && (!folderHasContents || !folderHasFileDescendants)) {
     //   return false;
     // }

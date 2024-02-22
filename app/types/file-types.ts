@@ -17,6 +17,7 @@ export type NodeDataType = {
   isFile: boolean;
   isRoot?: boolean;
   size?: number;
+  restricted?: boolean;
 };
 
 export type NodeData2Type = {
@@ -71,6 +72,7 @@ export type SingleLayerNodesType2 = {
   addedByName: string;
   userId: string;
   patientProfileId: string;
+  restricted?: boolean;
   updatedAt?: Date;
   children?: undefined | any[];
 };

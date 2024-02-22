@@ -74,6 +74,7 @@ export async function POST(request: Request) {
           },
           data: {
             usedFileStorage: { increment: size },
+            unrestrictedUsedFileStorage: { increment: size },
           },
         });
 
@@ -102,37 +103,38 @@ export async function POST(request: Request) {
       { timeout: 20000 },
     );
 
-    try {
-      if (file) {
-        const client = new S3Client({ region: process.env.AWS_REGION });
-        const key = `${patient.id}/${file.id}`;
-        const { url, fields } = await createPresignedPost(client, {
-          Bucket: process.env.AWS_BUCKET_NAME as string,
-          Key: key,
-          Conditions: [
-            ["content-length-range", 0, 10485760], // up to 10 MB
-            ["starts-with", "$Content-Type", contentType],
-          ],
-          Fields: {
-            "Content-Type": contentType,
-          },
-          Expires: 600, // Seconds before the presigned post expires. 3600 by default.
-        });
-        return Response.json({ url, fields, fileIdResponse: file.id });
-      } else {
-        return Response.json({ error: "No file made" });
-      }
-    } catch (error) {
-      await prismadb.patientProfile
-        .update({
-          where: { userId: userId },
-          data: { usedFileStorage: { decrement: size } },
-        })
-        .catch((decrementError) => console.error("Failed to decrement storage", decrementError));
-      throw error;
+    // try {
+    if (file) {
+      const client = new S3Client({ region: process.env.AWS_REGION });
+      const key = `${patient.id}/${file.id}`;
+      const { url, fields } = await createPresignedPost(client, {
+        Bucket: process.env.AWS_BUCKET_NAME as string,
+        Key: key,
+        Conditions: [
+          ["content-length-range", 0, 10485760], // up to 10 MB
+          ["starts-with", "$Content-Type", contentType],
+        ],
+        Fields: {
+          "Content-Type": contentType,
+        },
+        Expires: 600, // Seconds before the presigned post expires. 3600 by default.
+      });
+      return Response.json({ url, fields, fileIdResponse: file.id });
+    } else {
+      return Response.json({ error: "No file made" }, { status: 500 });
     }
+    // }
+    // catch (error) {
+    //   await prismadb.patientProfile
+    //     .update({
+    //       where: { userId: userId },
+    //       data: { usedFileStorage: { decrement: size } },
+    //     })
+    //     .catch((decrementError) => console.error("Failed to decrement storage", decrementError));
+    //   throw error;
+    // }
   } catch (error: any) {
     const errorMessage = !!error && error.message ? error.message : "Something went wrong";
-    return Response.json({ error: errorMessage });
+    return Response.json({ error: errorMessage }, { status: 500 });
   }
 }

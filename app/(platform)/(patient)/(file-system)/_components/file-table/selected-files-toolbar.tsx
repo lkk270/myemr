@@ -43,6 +43,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
     isFile: obj.original.isFile,
     isRoot: obj.original.isRoot,
     size: obj.original.size,
+    restricted: obj.original.restricted,
   }));
   const numRowsSelected = cleanedRows.length;
   const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
@@ -51,6 +52,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   const allAreRootNodes = cleanedRows.every((obj: any) => obj.isRoot === true);
   const allAreNotRootNodes = cleanedRows.every((obj: any) => !obj.isRoot);
   const inTrash = cleanedRows.some((obj: any) => obj.namePath.startsWith("/Trash"));
+  const hasUnrestrictedNode = cleanedRows.some((obj: any) => !obj.restricted);
 
   let totalSize = cleanedRows.reduce((acc, obj) => {
     return acc + (obj.size || 0);
@@ -223,7 +225,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
             ? restoreRootFolder
             : currentUserPermissions.canEdit && moveButton}
           {!cleanedRows[0].isFile && !inTrash && currentUserPermissions.canAdd && addSubfolderButton}
-          {exportButton}
+          {hasUnrestrictedNode && exportButton}
           {currentUserPermissions.isPatient && trashButton}
         </div>
       )}
@@ -234,7 +236,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           {allAreRootNodes && currentUserPermissions.isPatient
             ? restoreRootFolder
             : allAreNotRootNodes && currentUserPermissions.canEdit && moveButton}
-          {exportButton}
+          {hasUnrestrictedNode && exportButton}
           {currentUserPermissions.isPatient && trashButton}
         </div>
       )}

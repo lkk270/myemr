@@ -9,6 +9,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { getFileIcon, formatFileSize, cn, getNodeHref } from "@/lib/utils";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { toast } from "sonner";
 
 const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
   const currentUserPermissions = useCurrentUserPermissions();
@@ -18,27 +19,47 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
   const iconColor = record.isRoot ? "#8d4fff" : !isTrash && !isFile ? "#4f5eff" : "";
   const pathSegments = record.namePath.split("/").filter((segment) => segment !== ""); // Split and filter out any empty segments
 
-  return (
-    <Card key={record.name} className={`w-full h-[175px] transition border-0 bg-primary/10 rounded-xl`}>
-      <Link
-        href={getNodeHref(currentUserPermissions.isPatient, isFile, record.id)}
-        onDragStart={(e) => e.preventDefault()}
-      >
-        <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
-          {!isFile && !isTrash ? (
-            <RecordIcon className="w-16 h-16" color={iconColor} fill={iconColor} />
-          ) : (
-            <RecordIcon className="w-16 h-16" color={iconColor} />
-          )}
-          <div className="p-2 flex flex-col gap-y-1 max-w-[175px] text-xs truncate">
-            <p className="truncate font-bold">{record.name}</p>
+  const CardContent = ({ record }: { record: SingleLayerNodesType2 }) => {
+    return (
+      <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
+        {!isFile && !isTrash ? (
+          <RecordIcon className="w-16 h-16" color={iconColor} fill={iconColor} />
+        ) : (
+          <RecordIcon className="w-16 h-16" color={iconColor} />
+        )}
+        <div className="p-2 flex flex-col gap-y-1 max-w-[175px] text-xs truncate">
+          <p className="truncate font-bold">{record.name}</p>
+          <p className="truncate">{record.isRoot ? "Root folder" : "In " + pathSegments.slice(-2, -1)}</p>
+          {typeof record.size === "number" && <p className="truncate"> {formatFileSize(record.size)}</p>}
+        </div>
+      </CardHeader> // Fixed the closing tag here
+    );
+  };
 
-            <p className="truncate">{record.isRoot ? "Root folder" : "In " + pathSegments.slice(-2, -1)}</p>
-            {typeof record.size === "number" && <p className="truncate"> {formatFileSize(record.size)}</p>}
-          </div>
-        </CardHeader>
-        {/* <CardFooter className="flex items-center justify-between text-xs text-muted-foreground"></CardFooter> */}
-      </Link>
+  return (
+    <Card
+      onClick={() => {
+        if (record.restricted)
+          toast.warning("You are out of storage, so this file is hidden. Please upgrade your plan to access it.", {
+            duration: 3500,
+          });
+      }}
+      key={record.name}
+      className={cn(
+        "w-full h-[175px] transition border-0 bg-primary/10 rounded-xl",
+        record.restricted && "opacity-60 cursor-not-allowed",
+      )}
+    >
+      {record.restricted ? (
+        <CardContent record={record} />
+      ) : (
+        <Link
+          href={getNodeHref(currentUserPermissions.isPatient, isFile, record.id)}
+          onDragStart={(e) => e.preventDefault()}
+        >
+          <CardContent record={record} />
+        </Link>
+      )}
     </Card>
   );
 };

@@ -27,6 +27,7 @@ import {
   restoreRootFolder,
   getAllObjectsToDelete,
   deleteS3Objects,
+  unrestrictFiles,
 } from "@/lib/actions/files";
 
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
@@ -236,11 +237,16 @@ export async function POST(req: Request) {
       const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
       const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
-
-      await deleteFiles(selectedFileIds, totalSize, patient.id);
+      const totalSizeOfUnrestrictedFiles = rawObjects.reduce((accumulator, currentValue) => {
+        return accumulator + (!currentValue.restricted ? currentValue.size : 0);
+      }, 0);
+      await deleteFiles(selectedFileIds, totalSizeOfUnrestrictedFiles, totalSize, patient.id);
       await deleteFolders(selectedFolderIds, forEmptyTrash);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
-      return new NextResponse(JSON.stringify({ totalSize: totalSize }));
+      const newlyUnrestrictedFileIds = await unrestrictFiles(patient.id);
+      return new NextResponse(
+        JSON.stringify({ totalSize: totalSize, newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
+      );
     } else if (updateType === "addRootNode") {
       const folderId = await addRootNode(
         body.folderName,

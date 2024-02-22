@@ -2,13 +2,20 @@
 
 import { Folder, File, FileStatus, Prisma } from "@prisma/client";
 import prismadb from "../prismadb";
+import { allotedPatientStoragesInGb } from "../constants";
 import { PrismaClient } from "@prisma/client";
 import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
 type PrismaDeleteFileObject = {
   id: string;
   size: number;
+  restricted: boolean;
   userId: string;
+};
+
+type FileToUnrestrict = {
+  id: string;
+  size: number;
 };
 
 export async function updateDescendantsForRename(
@@ -137,7 +144,6 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
 }
 
 export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
-  console.log(targetNodeId);
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
   if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
@@ -220,7 +226,12 @@ async function batchUpdateDescendants(
 `;
 }
 
-export async function deleteFiles(selectedFileIds: string[], totalSize: number, patientProfileId: string) {
+export async function deleteFiles(
+  selectedFileIds: string[],
+  totalSizeOfUnrestrictedFiles: number,
+  totalSize: number,
+  patientProfileId: string,
+) {
   return await prismadb.$transaction(
     async (prisma) => {
       await prisma.file.deleteMany({
@@ -236,10 +247,11 @@ export async function deleteFiles(selectedFileIds: string[], totalSize: number, 
         },
         data: {
           usedFileStorage: { decrement: totalSize },
+          unrestrictedUsedFileStorage: { decrement: totalSizeOfUnrestrictedFiles },
         },
       });
     },
-    { timeout: 60000 },
+    { timeout: 20000 },
   );
 }
 
@@ -273,7 +285,7 @@ async function deleteSubFolders(prisma: any, parentId: string) {
 }
 
 export async function getAllObjectsToDelete(selectedIds: string[], patientProfileId: string) {
-  let allFilesToDelete: { id: string; size: number; userId: string }[] = [];
+  let allFilesToDelete: PrismaDeleteFileObject[] = [];
   const allFilesToDeleteForFileIds = await prismadb.file.findMany({
     where: {
       id: {
@@ -286,6 +298,7 @@ export async function getAllObjectsToDelete(selectedIds: string[], patientProfil
       id: true,
       size: true,
       userId: true,
+      restricted: true,
     },
   });
 
@@ -303,14 +316,13 @@ export async function getAllObjectsToDelete(selectedIds: string[], patientProfil
       id: true,
       size: true,
       userId: true,
+      restricted: true,
     },
   });
 
   allFilesToDelete = allFilesToDeleteForFileIds.concat(allFilesToDeleteForFolderIds);
-  console.log("allFilesToDelete.length", allFilesToDelete.length);
   const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
   const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
-  console.log("totalSize.length", totalSize);
   return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
 }
 
@@ -339,7 +351,6 @@ export async function deleteS3Objects(
 
 const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], patientProfileId: string) => {
   try {
-    // console.log(prismaFileObjects);
     const updatedArray = prismaFileObjects.map((file) => ({
       awsKey: `${patientProfileId}/${file.id}`,
       userId: file.userId,
@@ -350,6 +361,107 @@ const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], pati
   } catch (err) {
     console.log("OH NO");
   }
+};
+
+const getMaxRestrictedFiles = (
+  restrictedFiles: FileToUnrestrict[],
+  unrestrictedUsedFileStorage: bigint,
+  allotedStorageInBytes: number,
+) => {
+  const remainingStorage = BigInt(allotedStorageInBytes) - unrestrictedUsedFileStorage;
+  let subset: FileToUnrestrict[] = [];
+  let totalSize = 0;
+  for (const file of restrictedFiles) {
+    if (totalSize + file.size <= remainingStorage) {
+      subset.push(file);
+      totalSize += file.size;
+    } else {
+      break;
+    }
+  }
+
+  return subset;
+};
+
+const unrestrictFilesTransaction = async (restrictedFiles: FileToUnrestrict[], patientProfileId: string) => {
+  const totalSizeOfRestrictedFiles = restrictedFiles.reduce((accumulator, currentValue) => {
+    return accumulator + currentValue.size;
+  }, 0);
+
+  const restrictedFilesIds = restrictedFiles.map((file) => file.id);
+
+  await prismadb.$transaction(
+    async (prisma) => {
+      await prisma.file.updateMany({
+        where: {
+          id: { in: restrictedFilesIds },
+        },
+        data: {
+          restricted: false,
+        },
+      });
+      await prisma.patientProfile.update({
+        where: {
+          id: patientProfileId,
+        },
+        data: {
+          unrestrictedUsedFileStorage: { increment: totalSizeOfRestrictedFiles },
+        },
+      });
+    },
+    { timeout: 20000 },
+  );
+  return restrictedFilesIds;
+};
+
+export const unrestrictFiles = async (patientProfileId: string) => {
+  let filesToUnrestrict: FileToUnrestrict[] = [];
+  const restrictedFiles = await prismadb.file.findMany({
+    where: {
+      patientProfileId,
+      status: "SUCCESS",
+      restricted: true,
+    },
+    select: {
+      id: true,
+      size: true,
+    },
+    orderBy: { size: "asc" },
+  });
+  let restrictedFilesIds: string[] = [];
+  if (restrictedFiles.length > 0) {
+    const totalSizeOfRestrictedFiles = restrictedFiles.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.size;
+    }, 0);
+
+    const patient = await prismadb.patientProfile.findUnique({
+      where: {
+        id: patientProfileId,
+      },
+      select: {
+        usedFileStorage: true,
+        unrestrictedUsedFileStorage: true,
+        plan: true,
+      },
+    });
+    if (!patient) {
+      return;
+    }
+    const unrestrictedUsedFileStorage = patient.unrestrictedUsedFileStorage;
+    const allotedStorageInBytes = allotedPatientStoragesInGb[patient.plan] * 1_000_000_000;
+    //first conditional if the usedFileStorage (total used storage) is less than the allotedStorageInBytes then any restricted files should change to restricted:false
+    if (patient.usedFileStorage < allotedStorageInBytes) {
+      filesToUnrestrict = restrictedFiles;
+      // restrictedFilesIds = await unrestrictFilesTransaction(restrictedFiles, patientProfileId);
+    }
+    //otherwise and if the  unrestrictedUsedFileStorage is less than the allotedStorageInBytes loop through the files and unrestrict one if its size + unrestrictedUsedFileStorage will be less than the allotedStorageInBytes
+    //the first file to not exceed will break the loop since the files are sorted by ascending size.
+    else if (unrestrictedUsedFileStorage < allotedStorageInBytes) {
+      filesToUnrestrict = getMaxRestrictedFiles(restrictedFiles, unrestrictedUsedFileStorage, allotedStorageInBytes);
+    }
+    restrictedFilesIds = await unrestrictFilesTransaction(filesToUnrestrict, patientProfileId);
+  }
+  return restrictedFilesIds;
 };
 
 export const addRootNode = async (

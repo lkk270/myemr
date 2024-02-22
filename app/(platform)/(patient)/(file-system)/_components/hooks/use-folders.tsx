@@ -26,6 +26,7 @@ interface FolderStore {
   restoreRootNode: (selectedIds: string[]) => void;
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
   deleteNode: (selectedNodeIds: string[], forEmptyTrash: boolean) => void;
+  updateRestrictedStatus: (nodeIds: string[]) => void;
   addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => void;
   addSubFolder: (
     folderId: string,
@@ -636,6 +637,39 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       return {
         singleLayerNodes: sortedNodes,
       };
+    });
+  },
+
+  updateRestrictedStatus: (nodeIds: string[]) => {
+    set((state) => {
+      const nodeIdsSet = new Set(nodeIds);
+
+      // Recursive function to update the restricted field in folders
+      const updateFolders = (folders: any[]): any[] => {
+        return folders.map((folder) => {
+          if (nodeIdsSet.has(folder.id)) {
+            folder = { ...folder, restricted: false };
+          }
+          if (folder.children) {
+            folder.children = updateFolders(folder.children);
+          }
+          return folder;
+        });
+      };
+
+      // Update singleLayerNodes
+      const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
+        if (nodeIdsSet.has(node.id)) {
+          return { ...node, restricted: false };
+        }
+        return node;
+      });
+
+      // Update folders
+      const updatedFolders = updateFolders(state.folders);
+
+      // Return the updated state
+      return { ...state, folders: updatedFolders, singleLayerNodes: updatedSingleLayerNodes };
     });
   },
 }));

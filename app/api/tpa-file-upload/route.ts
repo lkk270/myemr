@@ -48,6 +48,7 @@ export async function POST(request: Request) {
         firstName: true,
         lastName: true,
         usedFileStorage: true,
+        unrestrictedUsedFileStorage: true,
         plan: true,
       },
     });
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
     }
     let restricted = false;
     const usedFileStorageInBytes = patient.usedFileStorage;
-    const allotedStorageInBytes = allotedPatientStoragesInGb[patient.plan] * 1000000000;
+    const allotedStorageInBytes = allotedPatientStoragesInGb[patient.plan] * 1_000_000_000;
     if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
       restricted = true;
     }

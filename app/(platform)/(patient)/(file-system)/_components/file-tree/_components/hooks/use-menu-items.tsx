@@ -208,7 +208,6 @@ export const useMenuItems = (nodeData: any) => {
       }
     }
     if (isRestricted && itemLabel === "Export") {
-      console.log("211");
       return false;
     }
     // if (!item.isFile && itemLabel === "Export" && (!folderHasContents || !folderHasFileDescendants)) {

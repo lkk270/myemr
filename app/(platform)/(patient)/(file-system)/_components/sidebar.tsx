@@ -38,7 +38,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
 
   useEffect(() => {
     setIsMounted(true);
-    console.log(data);
+    // console.log(data);
     // console.log(singleLayerNodes);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);

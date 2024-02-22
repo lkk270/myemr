@@ -2,8 +2,7 @@
 
 import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
-import { FileStatus, InsuranceSide } from "@prisma/client";
-import { File } from "@prisma/client";
+import { InsuranceSide } from "@prisma/client";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isViewableFile } from "@/lib/utils";
@@ -34,6 +33,8 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   const file = await prismadb.file.findUnique({
     where: {
       id: fileId,
+      status: "SUCCESS",
+      restricted: false,
     },
   });
   if (!file) {
@@ -100,6 +101,8 @@ export const getPresignedUrls = async (fileIds: string[], parentNamePath: string
       id: {
         in: fileIds,
       },
+      status: "SUCCESS",
+      restricted: false,
     },
   });
 

@@ -137,6 +137,10 @@ export const UploadFilesModal = () => {
           if (response.ok) {
             goodPsuResponse = true;
           } else {
+            const errorMessage = responseObj.message;
+            if (errorMessage && errorMessage.includes("Out of storage")) {
+              toast.error(responseObj.message || "Upload failed", { duration: 3000 });
+            }
             throw new Error(responseObj.message || "Upload failed");
           }
 

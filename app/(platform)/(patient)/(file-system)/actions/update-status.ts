@@ -130,7 +130,10 @@ export const deleteNotUploadedFilesAndDecrement = async () => {
       if (!!totalSize._sum.size && totalSize?._sum.size > 0) {
         await prisma.patientProfile.update({
           where: { userId: user.id },
-          data: { usedFileStorage: { decrement: totalSize._sum.size } },
+          data: {
+            usedFileStorage: { decrement: totalSize._sum.size },
+            unrestrictedUsedFileStorage: { decrement: totalSize._sum.size },
+          },
         });
       }
     },

@@ -47,11 +47,9 @@ export const useDownloadFile = () => {
 };
 
 export const useDownloadZip = () => {
-  console.log("50000");
   // const { isLoading, setIsLoading } = useIsLoading();
 
   const downloadZip = useCallback(async (fileIds: string[], parentNamePath: string, parentName: string) => {
-    console.log("54444");
     // Example fileIds could be an array of IDs or keys that identify what you want to download
     const filesData = await getPresignedUrls(fileIds, parentNamePath);
     console.log(filesData);

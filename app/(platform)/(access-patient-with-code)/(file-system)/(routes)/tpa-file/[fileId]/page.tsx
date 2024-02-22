@@ -22,7 +22,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   const user = session?.user;
   const userId = user?.id;
 
-  if (!user || !userId) {
+  if (!user || !userId || user.role === "UPLOAD_FILES_ONLY") {
     return redirect("/");
   }
 
@@ -38,6 +38,9 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   // });
   // const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
   const response = await getPresignedUrl(fileId);
+  if (response.error === "File not found") {
+    return redirect("/files");
+  }
   try {
     updateRecordViewActivity(user.id, fileId, true);
   } catch (error) {

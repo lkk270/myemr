@@ -15,6 +15,7 @@ import { NodeDataType } from "@/app/types/file-types";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useFolderStore } from "../../hooks/use-folders";
 import { usePathnameHook } from "./hooks/use-pathname";
+import { toast } from "sonner";
 
 type NodeProps = {
   node: any;
@@ -57,6 +58,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     path: nodeData.path,
     namePath: nodeData.namePath,
     isFile: nodeData.isFile,
+    restricted: nodeData.restricted,
   };
 
   const menuItems = useMenuItems(customNodeData);
@@ -262,7 +264,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }
 
   const nodeOnclick = () => {
-    if (tree.hasMultipleSelections <= 1) {
+    if (node.data.restricted) {
+      toast.warning("You are out of storage, so this file is hidden. Please upgrade your plan to access it.", {
+        duration: 3500,
+      });
+    } else if (tree.hasMultipleSelections <= 1) {
       const basePath = currentUserPermissions.isPatient
         ? node.data.isFile
           ? "/file/"
@@ -287,12 +293,13 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 !node.state.isDragging &&
                 !node.isEditing &&
                 !draggedNode.id &&
+                !node.data.restricted &&
                 "hover:bg-primary/10 py-[6.45px] hover:text-primary",
               node.state.isSelected &&
                 !node.state.isDragging &&
                 !node.isEditing &&
                 !draggedNode.id &&
-                "bg-primary/10 py-[6.45px] text-primary",
+                "bg-primary/10 py-[6.45px]",
               // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
               draggedNode.id &&
@@ -306,8 +313,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               //   node.id !== draggedNode.id &&
               //   node.id !== draggedNode.parentId &&
               //   "bg-blue-300",
-
-              nodeIdFromPath === node.id && "border-[1px] border-[#4f5eff]",
+              node.data.restricted && "text-primary/30",
+              nodeIdFromPath === node.id && "border-[1px] border-[#4f5eff] text-primary",
             )}
             style={style}
             // style={{ ...style, paddingRight: "20px" }}
@@ -332,8 +339,20 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                   {currentUserPermissions.canEdit && (
                     <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
                   )}
-                  <span className="w-5 flex-shrink-0 mr-1 cursor-pointer" onClick={nodeOnclick}></span>
-                  <span className="mr-2 flex items-center flex-shrink-0  cursor-pointer" onClick={nodeOnclick}>
+                  <span
+                    className={cn(
+                      "w-5 flex-shrink-0 mr-1",
+                      node.data.restricted ? "cursor-not-allowed" : "cursor-pointer",
+                    )}
+                    onClick={nodeOnclick}
+                  ></span>
+                  <span
+                    className={cn(
+                      "mr-2 flex items-center flex-shrink-0",
+                      node.data.restricted ? "cursor-not-allowed" : "cursor-pointer",
+                    )}
+                    onClick={nodeOnclick}
+                  >
                     <CustomIcon size={iconSize} />
                   </span>
                 </>
@@ -389,7 +408,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 title={node.data.namePath}
                 // href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                 //!node.data.parentId ? "cursor-pointer" : "cursor-grab"
-                className={cn("truncate flex-grow cursor-pointer")}
+                className={cn("truncate flex-grow", node.data.restricted ? "cursor-not-allowed" : "cursor-pointer")}
               >
                 {node.data.name}
               </div>

@@ -107,7 +107,6 @@ export const GenerateCode = () => {
   const watchedValidFor = form.watch("validFor");
   const watchedAccessType = form.watch("accessType");
   const watchedUploadToId = form.watch("uploadToId");
-  console.log(watchedUploadToId);
 
   return (
     <Form {...form}>

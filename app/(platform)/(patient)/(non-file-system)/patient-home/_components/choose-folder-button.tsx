@@ -61,14 +61,14 @@ export const ChooseFolderButton = ({ children, asChild, handleChange }: ChooseFo
         });
     });
   };
-
+  console.log(items);
   return (
     <Dialog>
       <DialogTrigger onClick={openDialog} asChild={asChild}>
         {children}
       </DialogTrigger>
       <DialogContent className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px]">
-        {isPending ? (
+        {isPending || !items ? (
           <div className="rounded-lg border border-primary/1 px-[138px] py-2">Loading...</div>
         ) : (
           <GenericCombobox

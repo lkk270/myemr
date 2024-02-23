@@ -47,6 +47,10 @@ export const GenericCombobox = ({
   const initialLoadHandled = useRef(false);
 
   useEffect(() => {
+    setNewItems(items);
+  }, []);
+
+  useEffect(() => {
     if (!initialLoadHandled.current && valueParam) {
       const foundItem = newItems.find((item) => item.value === valueParam);
       if (!foundItem) {

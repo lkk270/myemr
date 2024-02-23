@@ -34,7 +34,9 @@ export const PatientHome = () => {
           </div>
         </div>
       </div>
-      <RequestRecord />
+      <div className="grid grid-rows-1 w-full py-4 px-1 sm:px-4 gap-y-4 bg-primary/1">
+        <RequestRecord />
+      </div>
     </div>
   );
 };

@@ -12,3 +12,15 @@ export const GenerateCodeSchema = z.object({
   accessType: z.enum([UserRole.UPLOAD_FILES_ONLY, UserRole.READ_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   uploadToId: z.string(),
 });
+
+export const RequestRecordsSchema = z.object({
+  providerEmail: z.string().email({
+    message: "Provider email is required",
+  }),
+  uploadToId: z.string().min(1, {
+    message: "upload folder is required.",
+  }),
+  signature: z.string().min(1, {
+    message: "signature is required.",
+  }),
+});

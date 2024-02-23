@@ -34,7 +34,7 @@ export const PatientHome = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-rows-1 w-full py-4 px-1 sm:px-4 gap-y-4 bg-primary/1">
+      <div className="w-full h-full flex flex-col justify-center py-4 px-1 sm:px-4 gap-y-4 bg-primary/1">
         <RequestRecord />
       </div>
     </div>

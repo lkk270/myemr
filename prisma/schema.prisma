@@ -510,3 +510,12 @@ model PatientProfileAccessCode {
   token            String              @unique
   expires          DateTime
 }
+
+model RequestRecordsToken {
+  id             String   @id @default(cuid())
+  userId         String
+  providerEmail  String
+  parentFolderId String
+  token          String   @unique
+  expires        DateTime
+}

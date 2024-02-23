@@ -5,3 +5,4 @@ export * from "./two-factor-confirmation";
 export * from "./two-factor-token";
 export * from "./user";
 export * from "./verification-token";
+export * from "./request-records-token";

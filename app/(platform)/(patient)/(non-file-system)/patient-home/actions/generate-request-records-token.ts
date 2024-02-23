@@ -36,16 +36,21 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
     return { error: "You have already sent a request to this provider that has not yet expired." };
   }
 
-  const requestRecordsToken = await prismadb.requestRecordsToken.create({
-    data: {
-      userId,
-      parentFolderId: uploadToId,
-      providerEmail: providerEmail.toLowerCase(),
-      token,
-      expires,
-    },
-  });
+  // const requestRecordsToken = await prismadb.requestRecordsToken.create({
+  //   data: {
+  //     userId,
+  //     parentFolderId: uploadToId,
+  //     providerEmail: providerEmail.toLowerCase(),
+  //     token,
+  //     expires,
+  //   },
+  // });
 
-  await sendRequestRecordsEmail(requestRecordsToken.providerEmail, requestRecordsToken.token);
-  return { success: "Email sent!" };
+  try {
+    await sendRequestRecordsEmail("leekk270@gmail.com", "wewerewr");
+    return { success: "Email sent!" };
+  } catch (error) {
+    console.log(error);
+    return { error: "Something wrong" };
+  }
 };

@@ -60,6 +60,7 @@ export const RequestRecord = () => {
     startTransition(() => {
       generateRequestRecordsToken(values)
         .then((data) => {
+          console.log(data);
           if (data?.error) {
             toast.error(data.error);
           }
@@ -111,6 +112,7 @@ export const RequestRecord = () => {
                     <FormItem className="flex flex-col space-y-2">
                       <FormLabel htmlFor="provider-email">Provider's email</FormLabel>
                       <Input
+                        disabled={isPending}
                         onChange={(e) => {
                           setValue("providerEmail", e.target.value);
                         }}
@@ -128,7 +130,7 @@ export const RequestRecord = () => {
                     <FormItem className="flex flex-col space-y-2">
                       <FormLabel htmlFor="destination-folder">Destination folder</FormLabel>
                       <ChooseFolderButton asChild handleChange={handleFolderChange}>
-                        <Button variant={"outline"} className="justify-start">
+                        <Button disabled={isPending} variant={"outline"} className="justify-start">
                           {!watchedUploadToId ? (
                             "Choose folder"
                           ) : (

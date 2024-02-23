@@ -1,61 +1,170 @@
 "use client";
-import { useState, useRef } from "react";
+
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RequestRecordsSchema } from "../schemas";
+import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
+
+import { useState, useRef, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useMediaQuery } from "usehooks-ts";
 import SignaturePad from "react-signature-canvas";
-
+import { ChooseFolderButton } from "./choose-folder-button";
+import { FolderNameType } from "@/app/types/file-types";
 export const RequestRecord = () => {
-  const [imageURL, setImageURL] = useState(null);
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [isPending, startTransition] = useTransition();
+  const [chosenFolder, setChosenFolder] = useState<FolderNameType>({ name: "", namePath: "" });
+
+  const form = useForm<z.infer<typeof RequestRecordsSchema>>({
+    resolver: zodResolver(RequestRecordsSchema),
+    defaultValues: {
+      providerEmail: "",
+      signature: "",
+      uploadToId: "",
+    },
+  });
+
+  const { setValue, control } = form;
 
   const sigCanvas = useRef<any>({});
   const isMobile = useMediaQuery("(max-width:640px)");
 
-  const onSignatureClear = () => sigCanvas.current.clear();
+  const onSignatureClear = () => {
+    sigCanvas.current.clear();
+    setValue("signature", "");
+  };
 
-  /* a function that uses the canvas ref to trim the canvas 
-  from white spaces via a method given by react-signature-canvas
-  then saves it in our state */
-  const onSignatureSave = () => setImageURL(sigCanvas.current.getTrimmedCanvas().toDataURL("image/png"));
+  const onSignatureSave = () => {
+    setValue("signature", sigCanvas.current.getTrimmedCanvas().toDataURL("image/png"));
+  };
+
+  const handleFolderChange = (folderId: string, folder: FolderNameType) => {
+    setChosenFolder(folder);
+    setValue("uploadToId", folderId);
+  };
+
+  const onSubmit = (values: z.infer<typeof RequestRecordsSchema>) => {
+    setError("");
+    setSuccess("");
+    console.log(values);
+
+    startTransition(() => {
+      //   accessCode(values)
+      //     .then((data) => {
+      //       if (data?.error) {
+      //         // form.reset();
+      //         toast.error(data.error);
+      //       }
+      //       if (data?.success) {
+      //         // form.reset();
+      //         setSuccess(data.success);
+      //       }
+      //       if (data?.success && data?.code) {
+      //         setCode(data.code);
+      //       }
+      //     })
+      //     .catch(() => toast.error("Something went wrong"));
+    });
+  };
+
+  const watchedSignature = form.watch("signature");
+  const watchedUploadToId = form.watch("uploadToId");
 
   return (
-    <div
-      className={cn(
-        isMobile && "min-w-[90vw]",
-        "shadow-lg px-4 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
-      )}
-    >
-      <div className="space-y-3 pt-10">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Request Your Records</h2>
-        <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-          Enter your information below to request your records.
-        </p>
-      </div>
-      <div className="space-y-4 pt-10">
-        <div className="grid grid-cols-1">
-          <div className="space-y-2">
-            <Label htmlFor="provider-email">Provider's email</Label>
-            <Input id="provider-email" placeholder="Provider's email" />
-          </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn(
+          isMobile && "min-w-[90vw]",
+          "shadow-lg px-4 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
+        )}
+      >
+        <div className="space-y-3 pt-10">
+          <h2 className="text-xl font-bold tracking-tighter sm:text-2xl">Request Your Records</h2>
+          <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed dark:text-gray-400">
+            Fill out the form below to request your records. We'll send a notarized document to your provider, giving
+            them 30 days to upload your records through a secure link. You won't be able to send another request to this
+            provider until they complete the upload or the link expires.
+          </p>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="signature">Signature</Label>
-          <div className="border-primary/50 border rounded-md">
-            <SignaturePad
-              penColor="#4f5eff"
-              onEnd={onSignatureSave}
-              ref={sigCanvas}
-              canvasProps={{ className: "sigCanvas" }}
+        <div className="space-y-4 pt-10">
+          <div className="grid grid-cols-2 gap-x-2">
+            <FormField
+              control={control}
+              name="providerEmail"
+              render={({ field }) => (
+                <FormItem className="flex flex-col space-y-2">
+                  <FormLabel htmlFor="provider-email">Provider's email</FormLabel>
+                  <Input
+                    onChange={(e) => {
+                      setValue("providerEmail", e.target.value);
+                    }}
+                    id="provider-email"
+                    placeholder="Provider's email"
+                  />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="uploadToId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col space-y-2">
+                  <FormLabel htmlFor="destination-folder">Destination folder</FormLabel>
+                  <ChooseFolderButton asChild handleChange={handleFolderChange}>
+                    <Button variant={"outline"} className="justify-start">
+                      {!watchedUploadToId ? (
+                        "Choose folder"
+                      ) : (
+                        <div
+                          title={chosenFolder.namePath}
+                          className="flex flex-col flex-grow min-w-0 items-start justify-start max-w-[100px]"
+                        >
+                          <span className="truncate text-left w-full">{chosenFolder.name}</span>
+                          <span className="truncate text-left w-full text-xs text-primary/40">
+                            {chosenFolder.namePath}
+                          </span>
+                        </div>
+                      )}
+                    </Button>
+                  </ChooseFolderButton>
+                </FormItem>
+              )}
             />
           </div>
+          <FormField
+            control={control}
+            name="signature"
+            render={({ field }) => (
+              <FormItem className="flex flex-col space-y-2">
+                <FormLabel htmlFor="signature">Signature</FormLabel>
+                <div className="border-[#d6d6d6] dark:border-[#474747] border rounded-md dark:bg-[#1f1f1f] bg-[#f8f7f7]">
+                  <SignaturePad
+                    penColor="#4f5eff"
+                    onEnd={onSignatureSave}
+                    ref={sigCanvas}
+                    canvasProps={{ className: "sigCanvas" }}
+                  />
+                </div>
+                {watchedSignature && (
+                  <Button variant={"outline"} className="w-20 text-center" onClick={onSignatureClear}>
+                    Clear
+                  </Button>
+                )}
+              </FormItem>
+            )}
+          />
+          <Button className="w-full" size="lg">
+            Submit
+          </Button>
         </div>
-        <Button className="w-full" size="lg">
-          Submit
-        </Button>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
 };

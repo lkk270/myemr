@@ -84,18 +84,18 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
     lastName: decryptedPatientFields.lastName,
   };
 
-  // const requestRecordsToken = await prismadb.requestRecordsToken.create({
-  //   data: {
-  //     userId,
-  //     parentFolderId: uploadToId,
-  //     providerEmail: providerEmail.toLowerCase(),
-  //     token,
-  //     expires,
-  //   },
-  // });
+  const requestRecordsToken = await prismadb.requestRecordsToken.create({
+    data: {
+      userId,
+      parentFolderId: uploadToId,
+      providerEmail: providerEmail.toLowerCase(),
+      token,
+      expires,
+    },
+  });
 
   try {
-    await sendRequestRecordsEmail(providerEmail, "requestRecordsToken.token", dataForLetter);
+    await sendRequestRecordsEmail(providerEmail, requestRecordsToken.token, dataForLetter);
     return { success: "Email sent!" };
   } catch (error) {
     console.log(error);

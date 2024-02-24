@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "usehooks-ts";
 import SignaturePad from "react-signature-canvas";
 import { ChooseFolderButton } from "./choose-folder-button";
+import { RequestRecordsButton } from "./request-records-button";
 import { FolderNameType } from "@/app/types/file-types";
 import { generateRequestRecordsToken } from "../actions/generate-request-records-token";
 import { toast } from "sonner";
@@ -175,13 +176,13 @@ export const RequestRecord = () => {
               <Button disabled={isPending} className="w-full" size="lg">
                 Submit
               </Button>
-              <p className="text-xs text-muted-foreground">
-                By clicking submit you agree to the{" "}
-                <a className="underline" href="/terms">
-                  terms
-                </a>
+              <div className="text-xs text-muted-foreground">
+                By clicking "Submit," you agree to be bound by these{" "}
+                <RequestRecordsButton>
+                  <a className="underline">terms</a>
+                </RequestRecordsButton>
                 .
-              </p>
+              </div>
             </div>
           </div>
         </div>

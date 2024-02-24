@@ -175,6 +175,13 @@ export const RequestRecord = () => {
               <Button disabled={isPending} className="w-full" size="lg">
                 Submit
               </Button>
+              <p className="text-xs text-primary/70">
+                By clicking submit you agree to the{" "}
+                <a className="underline" href="/terms">
+                  terms
+                </a>
+                .
+              </p>
             </div>
           </div>
         </div>

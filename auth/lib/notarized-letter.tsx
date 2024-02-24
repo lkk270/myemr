@@ -92,11 +92,11 @@ const NotarizedLetter = ({ data }: NotarizedLetterProps) => (
       <Text style={styles.text}>Date: {formatDate(new Date())}</Text>
       <Text style={styles.text}>To Whom It May Concern,</Text>
       <Text style={styles.text}>
-        This letter, sent by {data.firstName} {data.lastName} (DOB: {data.dateOfBirth}) through their MyEmr account, is
-        a formal request for the medical records of {data.firstName} {data.lastName} (DOB: {data.dateOfBirth}), to be
-        uploaded using the link provided below. This request is made so that the patient can gather and add to their
-        personal medical records, a right that is legally protected and facilitates patient empowerment in managing
-        their own healthcare.
+        This letter, sent by your patient {data.firstName} {data.lastName} (DOB: {data.dateOfBirth}) through their MyEmr
+        account, is a formal request for the medical records of {data.firstName} {data.lastName} (DOB:{" "}
+        {data.dateOfBirth}), to be uploaded using the link provided below. This request is made so that the patient can
+        gather and add to their personal medical records, a right that is legally protected and facilitates patient
+        empowerment in managing their own healthcare.
       </Text>
       <Text style={styles.text}>
         Please use the following link to upload the records at your earliest convenience. Note that this link expires on{" "}
@@ -104,8 +104,8 @@ const NotarizedLetter = ({ data }: NotarizedLetterProps) => (
       </Text>
       <Text style={styles.text}>{data.requestRecordsLink}</Text>
       <Text style={styles.text}>
-        If you have any questions or require further information, please do not hesitate to contact me [the patient] at{" "}
-        {data.email} or MyEmr at support@myemr.io
+        If you have any questions, require further information, or believe this request is a mistake, please do not
+        hesitate to contact me [the patient] at {data.email} or MyEmr at support@myemr.io.
       </Text>
       <Text style={styles.text}>Thank you for your prompt attention to this matter.</Text>
       <Text style={styles.text}>Sincerely,</Text>

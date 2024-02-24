@@ -1,7 +1,6 @@
 import { UserType } from "@prisma/client";
 import resendClient from "./resendClient";
 import { getBuffer } from "./notarized-letter";
-import ReactPDF from "@react-pdf/renderer";
 
 const domain = process.env.NEXT_PUBLIC_APP_URL;
 

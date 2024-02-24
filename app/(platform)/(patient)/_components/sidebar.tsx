@@ -42,7 +42,7 @@ export const Sidebar = () => {
                 </Link>
               </SheetClose>
             ))}
-            <div className="px-2 text-xs text-center text-primary/40">myemr © 2023</div>
+            <div className="px-2 text-xs text-center text-primary/40">myemr © 2024</div>
           </div>
         </div>
       </div>

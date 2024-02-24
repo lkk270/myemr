@@ -37,13 +37,23 @@ export const sendVerificationEmail = async (email: string, token: string, userTy
   });
 };
 
-export const sendRequestRecordsEmail = async (email: string, token: string) => {
+export const sendRequestRecordsEmail = async (
+  email: string,
+  token: string,
+  dataForLetter: {
+    signature: string;
+    email: string;
+    dateOfBirth: string;
+    expires: Date;
+    firstName: string;
+    lastName: string;
+  },
+) => {
   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
   const requestRecordsLink = `http://localhost:3000/request-records?token=${token}`;
-  console.log(requestRecordsLink);
   let buffer = null;
   try {
-    buffer = await getBuffer("");
+    buffer = await getBuffer({ data: { ...dataForLetter, requestRecordsLink } });
   } catch {
     throw new Error("Something went wrong on email send");
   }
@@ -53,6 +63,7 @@ export const sendRequestRecordsEmail = async (email: string, token: string) => {
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
     to: email.toLowerCase(),
+    cc: dataForLetter.email,
     subject: "Request for records",
     attachments: [{ filename: "letter.pdf", content: buffer }],
     html: `<p>Click <a href="${requestRecordsLink}">here</a> to upload patient's records.</p>`,

@@ -14,10 +14,11 @@ import { toast } from "sonner";
 interface ChooseFolderButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
+  unMount?: boolean;
   handleChange: (value: any, folder: FolderNameType) => void;
 }
 
-export const ChooseFolderButton = ({ children, asChild, handleChange }: ChooseFolderButtonProps) => {
+export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = false }: ChooseFolderButtonProps) => {
   const currentUser = useCurrentUser();
   const { isLoading } = useIsLoading();
   const folderStore = useFolderStore();
@@ -33,6 +34,12 @@ export const ChooseFolderButton = ({ children, asChild, handleChange }: ChooseFo
     }
   };
   useEffect(() => {}, [folderStore.singleLayerNodes]);
+
+  useEffect(() => {
+    if (unMount) {
+      setParentNode(null);
+    }
+  }, [unMount]);
 
   const openDialog = () => {
     if (!currentUser) return;

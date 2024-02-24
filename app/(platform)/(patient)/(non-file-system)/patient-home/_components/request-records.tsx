@@ -21,6 +21,7 @@ import { toast } from "sonner";
 export const RequestRecord = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const [unMountGenericCombobox, setUnMountGenericCombobox] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [chosenFolder, setChosenFolder] = useState<FolderNameType>({ name: "", namePath: "" });
 
@@ -55,18 +56,17 @@ export const RequestRecord = () => {
   const onSubmit = (values: z.infer<typeof RequestRecordsSchema>) => {
     setError("");
     setSuccess("");
-    console.log(values);
-
+    setUnMountGenericCombobox(false);
     startTransition(() => {
       generateRequestRecordsToken(values)
         .then((data) => {
-          console.log(data);
           if (data?.error) {
             toast.error(data.error);
           }
           if (data?.success) {
             setValue("providerEmail", "");
             onSignatureClear();
+            setUnMountGenericCombobox(true);
             setValue("uploadToId", "");
 
             toast.success("Request sent. You have been CCed on the email.", { duration: 3500 });
@@ -129,7 +129,7 @@ export const RequestRecord = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-col space-y-2">
                       <FormLabel htmlFor="destination-folder">Destination folder</FormLabel>
-                      <ChooseFolderButton asChild handleChange={handleFolderChange}>
+                      <ChooseFolderButton unMount={unMountGenericCombobox} asChild handleChange={handleFolderChange}>
                         <Button disabled={isPending} variant={"outline"} className="justify-start">
                           {!watchedUploadToId ? (
                             "Choose folder"

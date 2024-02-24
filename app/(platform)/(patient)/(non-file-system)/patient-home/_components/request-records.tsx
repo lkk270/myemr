@@ -177,7 +177,7 @@ export const RequestRecord = () => {
                 Submit
               </Button>
               <div className="text-xs text-muted-foreground">
-                By clicking "Submit," you agree to be bound by these{" "}
+                By clicking "Submit," you agree to be bounded by these{" "}
                 <RequestRecordsButton>
                   <a className="underline">terms</a>
                 </RequestRecordsButton>

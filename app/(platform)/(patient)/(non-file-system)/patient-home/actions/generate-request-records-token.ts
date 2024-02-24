@@ -95,7 +95,7 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
   // });
 
   try {
-    await sendRequestRecordsEmail("leekk270@gmail.com", "wewerewr", dataForLetter);
+    await sendRequestRecordsEmail(providerEmail, "requestRecordsToken.token", dataForLetter);
     return { success: "Email sent!" };
   } catch (error) {
     console.log(error);

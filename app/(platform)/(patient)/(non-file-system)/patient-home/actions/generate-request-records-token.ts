@@ -9,11 +9,10 @@ import { RequestRecordsSchema } from "../schemas";
 import { z } from "zod";
 import { currentUser } from "@/auth/lib/auth";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/utils";
+import { allotedPatientStoragesInGb } from "@/lib/constants";
 
 export const generateRequestRecordsToken = async (values: z.infer<typeof RequestRecordsSchema>) => {
-  console.log("hell");
   const user = await currentUser();
-  console.log(user);
   const userId = user?.id;
   const userEmail = user?.email;
   const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
@@ -37,23 +36,34 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
       lastName: true,
       dateOfBirth: true,
       symmetricKey: true,
+      usedFileStorage: true,
+      plan: true,
     },
   });
   if (!patient) {
     return { error: "Patient not found!" };
   }
+  // const allotedStorageInGb = allotedPatientStoragesInGb[patient.plan];
+  // if (BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
+  //   return {
+  //     error: "Cannot send a request for records, as it requires you to have 500 Mb of available storage.",
+  //   };
+  // }
   let decryptedPatientFields;
   try {
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-    decryptedPatientFields = decryptMultiplePatientFields(patient, decryptedSymmetricKey);
+    decryptedPatientFields = decryptMultiplePatientFields(
+      { firstName: patient.firstName, lastName: patient.lastName, dateOfBirth: patient.dateOfBirth },
+      decryptedSymmetricKey,
+    );
   } catch (e) {
+    console.log(e);
     return { error: "Something went wrong" };
   }
 
   if (!decryptedPatientFields.dateOfBirth) {
     return { error: "You must select your date of birth in the About page before requesting your records." };
   }
-  console.log(decryptedPatientFields);
   const { providerEmail, signature, uploadToId } = validatedFields.data;
 
   const token = uuidv4();

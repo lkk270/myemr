@@ -68,7 +68,7 @@ export const sendRequestRecordsEmail = async (
     html: `<p>Click <a href="${requestRecordsLink}">here</a> to upload patient's records.</p>`,
   });
   if (response.error) {
-    console.log(response);
+    // console.log(response);
     throw new Error("Something went wrong on email send");
   }
 };

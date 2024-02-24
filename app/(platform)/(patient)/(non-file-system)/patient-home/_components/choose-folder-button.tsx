@@ -63,12 +63,10 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
           }
         })
         .catch((error) => {
-          console.log(error);
           toast.error("something went wrong");
         });
     });
   };
-  console.log(items);
   return (
     <Dialog>
       <DialogTrigger onClick={openDialog} asChild={asChild}>

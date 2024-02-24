@@ -121,7 +121,6 @@ const NotarizedLetter = ({ data }: NotarizedLetterProps) => (
   </Document>
 );
 export async function getBuffer({ data }: NotarizedLetterProps): Promise<Buffer> {
-  console.log(data);
   const readableStream = await renderToStream(<NotarizedLetter data={data} />);
 
   // Return a new Promise that resolves with the buffer or rejects with an error

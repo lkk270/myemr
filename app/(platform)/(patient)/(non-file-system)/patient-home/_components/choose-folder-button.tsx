@@ -10,6 +10,7 @@ import { useEffect, useState, useTransition } from "react";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { toast } from "sonner";
+import { BeatLoader } from "react-spinners";
 
 interface ChooseFolderButtonProps {
   children: React.ReactNode;
@@ -73,8 +74,8 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
         {children}
       </DialogTrigger>
       <DialogContent className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px]">
-        {isPending || !items ? (
-          <div className="rounded-lg border border-primary/1 px-[138px] py-2">Loading...</div>
+        {isPending || !items || items.length === 0 ? (
+          <BeatLoader color="#4b59f0" />
         ) : (
           <GenericCombobox
             valueParam={parentNode?.namePath}

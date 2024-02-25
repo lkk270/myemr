@@ -284,11 +284,17 @@ model File {
   patientProfileId String
   PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt                     DateTime                  @default(now())
+  updatedAt                     DateTime                  @updatedAt
+  requestRecordsToken           RequestRecordsToken?      @relation(fields: [requestRecordsTokenId], references: [id])
+  requestRecordsTokenId         String?
+  patientProfileAccessCode      PatientProfileAccessCode? @relation(fields: [patientProfileAccessCodeToken], references: [token])
+  patientProfileAccessCodeToken String?
 
   @@index([parentId])
   @@index([patientProfileId])
+  @@index([requestRecordsTokenId])
+  @@index([patientProfileAccessCodeToken])
 }
 
 model DeadFile {
@@ -509,6 +515,7 @@ model PatientProfileAccessCode {
   parentFolderId   String?
   token            String              @unique
   expires          DateTime
+  files            File[]
 }
 
 model RequestRecordsToken {
@@ -518,4 +525,5 @@ model RequestRecordsToken {
   parentFolderId String
   token          String   @unique
   expires        DateTime
+  files          File[]
 }

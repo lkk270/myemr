@@ -1066,7 +1066,7 @@ export const dosageFrequency = [
 
 //IN GB
 export const allotedPatientStoragesInGb = {
-  FREE: 0.01,
+  FREE: 1,
   PREMIUM_1: 10,
   PREMIUM_2: 100,
 };

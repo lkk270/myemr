@@ -16,7 +16,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     <div className="flex overflow-auto h-screen">
       <Navbar />
       <UploadInsuranceModal />
-      <main className="border-primary/10 pt-16 flex-1 overflow-y-auto">{children}</main>
+      <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 };

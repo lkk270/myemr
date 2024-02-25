@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
-interface RequestRecordsButtonProps {
+interface RequestRecordsAboutButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
 }
@@ -112,7 +112,7 @@ const paragraphs: ParagraphComponentProps[] = [
   },
 ];
 
-export const RequestRecordsButton = ({ children, asChild }: RequestRecordsButtonProps) => {
+export const RequestRecordsAboutButton = ({ children, asChild }: RequestRecordsAboutButtonProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>

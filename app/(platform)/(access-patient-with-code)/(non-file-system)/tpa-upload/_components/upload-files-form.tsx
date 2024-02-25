@@ -17,6 +17,7 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { ViewUploadHistoryButton } from "./view-upload-history-button";
 
 export const UploadFilesForm = () => {
   const currentUserPermissions = useCurrentUserPermissions();
@@ -146,6 +147,9 @@ export const UploadFilesForm = () => {
 
   return (
     <Card className="flex flex-col min-h-[calc(100vh-204px)] max-w-full w-full border border-primary/10 rounded-xl overflow-hidden">
+      <ViewUploadHistoryButton asChild>
+        <Button variant={"outline"}>View upload history</Button>
+      </ViewUploadHistoryButton>
       <div className="flex justify-center w-full">
         <CardContent className="flex flex-col flex-grow justify-center max-w-[800px] w-full">
           <CardHeader>

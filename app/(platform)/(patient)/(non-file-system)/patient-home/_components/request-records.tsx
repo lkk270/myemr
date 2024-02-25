@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "usehooks-ts";
 import SignaturePad from "react-signature-canvas";
 import { ChooseFolderButton } from "./choose-folder-button";
-import { RequestRecordsButton } from "./request-records-button";
+import { RequestRecordsAboutButton } from "./request-records-about-button";
 import { FolderNameType } from "@/app/types/file-types";
 import { generateRequestRecordsToken } from "../actions/generate-request-records-token";
 import { toast } from "sonner";
@@ -178,9 +178,9 @@ export const RequestRecord = () => {
               </Button>
               <div className="text-xs text-muted-foreground">
                 By clicking "Submit," you agree to be bounded by these{" "}
-                <RequestRecordsButton>
+                <RequestRecordsAboutButton>
                   <a className="underline">terms</a>
-                </RequestRecordsButton>
+                </RequestRecordsAboutButton>
                 .
               </div>
             </div>

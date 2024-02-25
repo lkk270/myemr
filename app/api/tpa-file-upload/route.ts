@@ -103,6 +103,7 @@ export async function POST(request: Request) {
             userId: userId,
             patientProfileId: patient.id,
             restricted: restricted,
+            patientProfileAccessCodeToken: accessToken,
             recordViewActivity: {
               create: [
                 {

@@ -286,14 +286,14 @@ model File {
 
   createdAt                     DateTime                  @default(now())
   updatedAt                     DateTime                  @updatedAt
-  requestRecordsToken           RequestRecordsToken?      @relation(fields: [requestRecordsTokenId], references: [id])
-  requestRecordsTokenId         String?
+  requestRecordsCode            RequestRecordsCode?       @relation(fields: [requestRecordsCodeToken], references: [token])
+  requestRecordsCodeToken       String?
   patientProfileAccessCode      PatientProfileAccessCode? @relation(fields: [patientProfileAccessCodeToken], references: [token])
   patientProfileAccessCodeToken String?
 
   @@index([parentId])
   @@index([patientProfileId])
-  @@index([requestRecordsTokenId])
+  @@index([requestRecordsCodeToken])
   @@index([patientProfileAccessCodeToken])
 }
 
@@ -518,7 +518,7 @@ model PatientProfileAccessCode {
   files            File[]
 }
 
-model RequestRecordsToken {
+model RequestRecordsCode {
   id             String   @id @default(cuid())
   userId         String
   providerEmail  String

@@ -84,7 +84,7 @@ export const sendRequestRecordsEmail = async (
   });
   if (response.error) {
     console.log(response);
-    // await prismadb.requestRecordsToken.delete({
+    // await prismadb.requestRecordsCode.delete({
     //   where: {
     //     token,
     //   },

@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState, useTransition } from "react";
-import { getFilesByToken } from "../data/get-files";
+import { getFilesByToken } from "../../data/temp-upload/get-files";
 import { toast } from "sonner";
 import { BeatLoader } from "react-spinners";
 import { useSession } from "next-auth/react";
@@ -23,7 +23,7 @@ export const ViewUploadHistoryButton = ({ children, asChild }: ViewUploadHistory
   const openDialog = () => {
     if (!tempToken) return;
     startTransition(() => {
-      getFilesByToken(tempToken)
+      getFilesByToken(tempToken, "patientProfileAccessCodeToken")
         .then((data) => {
           setFiles(data);
         })

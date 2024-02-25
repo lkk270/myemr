@@ -84,7 +84,7 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
     lastName: decryptedPatientFields.lastName,
   };
 
-  const requestRecordsToken = await prismadb.requestRecordsToken.create({
+  const requestRecordsToken = await prismadb.requestRecordsCode.create({
     data: {
       userId,
       parentFolderId: uploadToId,

@@ -515,6 +515,7 @@ model PatientProfileAccessCode {
   parentFolderId   String?
   token            String              @unique
   expires          DateTime
+  isValid          Boolean             @default(true)
   files            File[]
 }
 
@@ -525,5 +526,6 @@ model RequestRecordsCode {
   parentFolderId String
   token          String   @unique
   expires        DateTime
+  isValid        Boolean  @default(true)
   files          File[]
 }

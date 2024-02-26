@@ -83,5 +83,3 @@ export const CountdownTimer = ({ expiredDateTime, textSize = "text-sm" }: Countd
     </div>
   );
 };
-
-export default CountdownTimer;

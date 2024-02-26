@@ -18,13 +18,13 @@ import { cn, getTimeUntil } from "@/lib/utils";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { Spinner } from "@/components/spinner";
 
-interface ViewUploadHistoryButtonProps {
+interface ViewActiveCodesButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
   codeType: accessCodeType;
 }
 
-export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewUploadHistoryButtonProps) => {
+export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiveCodesButtonProps) => {
   const { isLoading, setIsLoading } = useIsLoading();
   const [loadingCodeId, setLoadingCodeId] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 550px)");
@@ -124,7 +124,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewUploa
                     <TableCell className="flex flex-row items-center gap-x-2">
                       {code.isValid && code.id !== loadingCodeId && !isLoading && (
                         <InvalidateCodeButton codeId={code.id} codeType={codeType} onInvalidate={onInvalidateCode}>
-                          <div role="button">
+                          <div role="button" title="Invalidate Code">
                             <Ban className="w-3 h-3 text-amber-500 hover:text-amber-600" />
                           </div>
                         </InvalidateCodeButton>
@@ -160,7 +160,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewUploa
                     <TableCell className="flex flex-row items-center gap-x-2">
                       {code.isValid && code.id !== loadingCodeId && !isLoading && (
                         <InvalidateCodeButton codeId={code.id} codeType={codeType} onInvalidate={onInvalidateCode}>
-                          <div role="button">
+                          <div role="button" title="Invalidate Code">
                             <Ban className="w-3 h-3 text-amber-500 hover:text-amber-600" />
                           </div>
                         </InvalidateCodeButton>

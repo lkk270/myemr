@@ -133,7 +133,10 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewUploa
 
                       {code.providerEmail}
                     </TableCell>
-                    <TableCell>{getTimeUntil(code.expires)}</TableCell>
+                    <TableCell>
+                      {"< "}
+                      {getTimeUntil(code.expires)}
+                    </TableCell>
                     <TableCell>{code.createdAt.toISOString().split("T")[0]}</TableCell>
                   </TableRow>
                 );
@@ -169,7 +172,10 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewUploa
                     <TableCell>
                       {accessTypesText.find((obj) => obj.value === code.accessType)?.label ?? "oh oh"}
                     </TableCell>
-                    <TableCell>{getTimeUntil(code.expires)}</TableCell>
+                    <TableCell>
+                      {"< "}
+                      {getTimeUntil(code.expires)}
+                    </TableCell>
                     {!isMobile && <TableCell>{code.createdAt.toISOString().split("T")[0]}</TableCell>}
                   </TableRow>
                 );

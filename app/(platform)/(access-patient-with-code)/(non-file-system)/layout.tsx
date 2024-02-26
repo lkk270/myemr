@@ -2,16 +2,17 @@
 
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { getAccessPatientCodeByToken } from "@/auth/data";
 // import { MainNavbar } from "@/components/headers/main-navbar";
 import { Navbar } from "../../(patient)/_components/navbar";
-import { Sidebar } from "../../(patient)/_components/sidebar";
 import { logout } from "@/auth/actions/logout";
 
-import { useEffect } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const sessionObj = useSession();
   const session = sessionObj.data;
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -19,6 +20,22 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       logout();
     }
   }, [session]);
+
+  useEffect(() => {
+    const checkValidCode = () => {
+      startTransition(() => {
+        if (!session) {
+          logout();
+        }
+        getAccessPatientCodeByToken(session?.tempToken).then((data) => {
+          if (!data) {
+            logout();
+          }
+        });
+      });
+    };
+    checkValidCode();
+  }, []);
 
   if (!session) {
     return redirect("/");

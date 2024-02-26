@@ -9,7 +9,7 @@ import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useState, useRef, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
+import { History } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "usehooks-ts";
 import SignaturePad from "react-signature-canvas";
@@ -18,6 +18,7 @@ import { RequestRecordsAboutButton } from "./request-records-about-button";
 import { FolderNameType } from "@/app/types/file-types";
 import { generateRequestRecordsToken } from "../actions/generate-request-records-token";
 import { toast } from "sonner";
+import { ViewActiveCodesButton } from "./view-active-codes-button";
 
 export const RequestRecord = () => {
   const [error, setError] = useState<string | undefined>("");
@@ -91,9 +92,14 @@ export const RequestRecord = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
           isMobile && "min-w-[98vw]",
-          "py-8 shadow-lg px-4 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
+          "relative py-8 shadow-lg px-4 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
         )}
       >
+        <ViewActiveCodesButton asChild codeType="requestRecordsCode">
+          <div role="button" className="absolute right-0 top-0 mr-2 mt-2 items-center">
+            <History />
+          </div>
+        </ViewActiveCodesButton>
         <div className="mx-auto max-w-[750px] justify-between items-center">
           <div className="justify-between items-center">
             <div className="space-y-3">

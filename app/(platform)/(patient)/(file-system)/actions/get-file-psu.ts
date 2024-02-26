@@ -1,12 +1,15 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
-import { currentUser } from "@/auth/lib/auth";
 import { InsuranceSide } from "@prisma/client";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isViewableFile } from "@/lib/utils";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import * as mime from "mime-types";
+import { getAccessPatientCodeByToken } from "@/auth/data";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 const getFileName = (fileNameTemp: string, fileType: string) => {
   const currentMimeType = mime.lookup(fileNameTemp);
@@ -24,10 +27,23 @@ const getFileName = (fileNameTemp: string, fileType: string) => {
 };
 
 export const getPresignedUrl = async (fileId: string, forDownload = false) => {
-  const user = await currentUser();
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
+  }
+  const user = session.user;
+  const currentUserPermissions = extractCurrentUserPermissions(user);
 
   if (!user || user.role === "UPLOAD_FILES_ONLY") {
-    return { error: "Unauthorized" };
+    return redirect("/");
+  }
+
+  if (!currentUserPermissions.isPatient) {
+    const code = await getAccessPatientCodeByToken(session.tempToken);
+    if (!code) {
+      return redirect("/");
+    }
   }
 
   const file = await prismadb.file.findUnique({
@@ -55,10 +71,23 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
 };
 
 export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload = false) => {
-  const user = await currentUser();
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
+  }
+  const user = session.user;
+  const currentUserPermissions = extractCurrentUserPermissions(user);
 
   if (!user || user.role === "UPLOAD_FILES_ONLY") {
-    return { error: "Unauthorized" };
+    return redirect("/");
+  }
+
+  if (!currentUserPermissions.isPatient) {
+    const code = await getAccessPatientCodeByToken(session.tempToken);
+    if (!code) {
+      return redirect("/");
+    }
   }
 
   const file = await prismadb.insuranceFile.findFirst({
@@ -91,9 +120,23 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
 };
 
 export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {
-  const user = await currentUser();
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
+  }
+  const user = session.user;
+  const currentUserPermissions = extractCurrentUserPermissions(user);
+
   if (!user || user.role === "UPLOAD_FILES_ONLY") {
-    return { error: "Unauthorized" };
+    return redirect("/");
+  }
+
+  if (!currentUserPermissions.isPatient) {
+    const code = await getAccessPatientCodeByToken(session.tempToken);
+    if (!code) {
+      return redirect("/");
+    }
   }
 
   const files = await prismadb.file.findMany({

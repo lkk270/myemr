@@ -117,9 +117,10 @@ export const RequestRecordsAboutButton = ({ children, asChild }: RequestRecordsA
     <Dialog>
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent className="overflow-y-scroll h-5/6 xs:h-3/5 max-w-[850px] w-full">
-        {paragraphs.map((paragraph) => {
+        {paragraphs.map((paragraph, index) => {
           return (
             <ParagraphComponent
+              key={index}
               title={paragraph.title}
               headerClassName={paragraph.headerClassName}
               description={paragraph.description}

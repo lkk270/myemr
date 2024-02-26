@@ -9,7 +9,7 @@ import { RequestRecord } from "./request-records";
 export const PatientHome = () => {
   const isMobile = useMediaQuery("(max-width:640px)");
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[728px]">
+    <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[728px] xs:pb-0 pb-28">
       <div className="grid grid-rows-2 w-full py-4 px-1 sm:px-4 gap-y-4 bg-primary/1">
         <GenerateCode />
         <div

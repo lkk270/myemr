@@ -8,7 +8,7 @@ import { GenerateCodeSchema } from "../schemas";
 import { Button } from "@/components/ui/button";
 
 import { Spinner } from "@/components/spinner";
-import { Copy, Check, RefreshCw } from "lucide-react";
+import { Copy, Check, RefreshCw, History } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { AccessCodeValidTime, UserRole } from "@prisma/client";
@@ -20,7 +20,9 @@ import { GenerateCodePopover } from "./generate-code-popover";
 import { accessCode } from "../actions/generate-access-code";
 import { ChooseFolderButton } from "./choose-folder-button";
 import { toast } from "sonner";
+import { ViewActiveCodesButton } from "./view-active-codes-button";
 import { FolderNameType } from "@/app/types/file-types";
+import { accessTypesText } from "@/lib/constants";
 
 const validTimes = [
   { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
@@ -28,13 +30,6 @@ const validTimes = [
   { value: AccessCodeValidTime.HOUR_12, label: "12 hours" },
   { value: AccessCodeValidTime.DAY_1, label: "1 day" },
   { value: AccessCodeValidTime.WEEK_1, label: "1 week" },
-];
-
-const accessTypes = [
-  { value: UserRole.READ_ONLY, label: "Read only" },
-  { value: UserRole.UPLOAD_FILES_ONLY, label: "Upload files only" },
-  { value: UserRole.READ_AND_ADD, label: "Read & Add" },
-  { value: UserRole.FULL_ACCESS, label: "Full access" },
 ];
 
 export const GenerateCode = () => {
@@ -118,7 +113,15 @@ export const GenerateCode = () => {
           "relative min-h-[350px] lg:min-h-[200px] shadow-lg flex flex-col justify-between items-center px-2 sm:px-4 py-6 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
         )}
       >
-        <GenerateCodePopover />
+        <div className="absolute right-0 top-0 mr-2 mt-2 flex items-center gap-x-2">
+          <ViewActiveCodesButton asChild codeType="patientProfileAccessCode">
+            <div role="button">
+              <History />
+            </div>
+          </ViewActiveCodesButton>
+          <GenerateCodePopover />
+        </div>
+
         <div className="py-2">
           <h2 className="text-xl font-bold tracking-tighter sm:text-2xl">Generate a Code</h2>
           <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed dark:text-gray-400">
@@ -153,7 +156,7 @@ export const GenerateCode = () => {
           render={({ field }) => (
             <FormItem className="text-xs lg:text-md">
               <ToggleGroup {...field} type="single" onValueChange={handleAccessTypeChange}>
-                {accessTypes.map((obj, index) => (
+                {accessTypesText.map((obj, index) => (
                   <ToggleGroupItem
                     key={obj.value}
                     className={cn(

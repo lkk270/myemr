@@ -1078,3 +1078,10 @@ export const accessCodeValidTimeObj = {
   DAY_1: 86400,
   WEEK_1: 604800,
 };
+
+export const accessTypesText = [
+  { value: UserRole.READ_ONLY, label: "Read only" },
+  { value: UserRole.UPLOAD_FILES_ONLY, label: "Upload files only" },
+  { value: UserRole.READ_AND_ADD, label: "Read & Add" },
+  { value: UserRole.FULL_ACCESS, label: "Full access" },
+];

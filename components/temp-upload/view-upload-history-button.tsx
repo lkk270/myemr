@@ -41,7 +41,9 @@ export const ViewUploadHistoryButton = ({ children, asChild }: ViewUploadHistory
       <DialogContent className="overflow-y-scroll max-h-[calc(100vh-200px)] max-w-[850px] w-full">
         <DialogTitle className="text-md">
           Your upload history
-          <span className="font-normal ml-2">{files && files.length > 0 && `(Total: ${files.length} files)`}</span>
+          <span className="font-normal ml-2">
+            {files && files.length > 0 && `(Total: ${files.length} ${files.length === 1 ? "file" : "files"})`}
+          </span>
         </DialogTitle>
 
         {isPending ? (

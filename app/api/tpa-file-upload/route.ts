@@ -32,10 +32,13 @@ export async function POST(request: Request) {
     const accessCode = await prismadb.patientProfileAccessCode.findUnique({
       where: {
         token: accessToken,
+        isValid: true,
       },
     });
-
-    if (!accessCode || !accessCode.parentFolderId) {
+    if (!accessCode) {
+      return redirect("/");
+    }
+    if (!accessCode.parentFolderId) {
       return NextResponse.json({ message: "Parent folder not found" }, { status: 400 });
     }
 

@@ -517,6 +517,7 @@ model PatientProfileAccessCode {
   expires          DateTime
   isValid          Boolean             @default(true)
   files            File[]
+  createdAt        DateTime            @default(now())
 }
 
 model RequestRecordsCode {
@@ -528,4 +529,5 @@ model RequestRecordsCode {
   expires        DateTime
   isValid        Boolean  @default(true)
   files          File[]
+  createdAt      DateTime @default(now())
 }

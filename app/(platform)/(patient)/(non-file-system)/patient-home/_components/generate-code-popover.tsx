@@ -5,7 +5,7 @@ import { Info } from "lucide-react";
 export const GenerateCodePopover = () => {
   return (
     <Popover>
-      <PopoverTrigger className="absolute right-0 top-0 mr-2 mt-2">
+      <PopoverTrigger>
         <Info />
       </PopoverTrigger>
       <PopoverContent className="w-80">

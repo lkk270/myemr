@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { auth2 } from "@/auth";
+import { auth2, signOut } from "@/auth";
 import authConfig from "@/auth.config";
 import {
   PATIENT_DEFAULT_LOGIN_REDIRECT,
@@ -15,6 +15,7 @@ import {
   accessPatientDynamicRoutes,
   accessPatientUploadRoutes,
 } from "@/routes";
+import { getAccessPatientCodeByToken } from "./auth/data";
 
 const { auth } = NextAuth(authConfig);
 export default auth(async (req) => {
@@ -25,6 +26,7 @@ export default auth(async (req) => {
   // console.log("isLoggedIn", isLoggedIn);
 
   const session = await auth2();
+
   // console.log("IN 24");
   // console.log(session);
   const nextUrlPathname = nextUrl.pathname;
@@ -96,6 +98,7 @@ export default auth(async (req) => {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
   //because /tpa-home is also included the above used accessPatientRoutes var it is already covered for unauthorized visits
+  //this if restricts an UPLOAD_FILES_ONLY temp user to only their routes and not the other tpa routes
   if (
     nextUrlPathname !== "/tpa-home" &&
     isAccessPatientRoute &&
@@ -105,9 +108,22 @@ export default auth(async (req) => {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
 
-  if (isAccessPatientUploadRoutes && isLoggedIn && (userRole !== "UPLOAD_FILES_ONLY" || userType !== "PATIENT")) {
+  if (
+    nextUrlPathname !== "/tpa-home" &&
+    isAccessPatientUploadRoutes &&
+    isLoggedIn &&
+    (userRole !== "UPLOAD_FILES_ONLY" || userType !== "PATIENT")
+  ) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
+
+  // if ((!!session && isAccessPatientUploadRoutes) || isAccessPatientUploadRoutes) {
+  //   const code = await getAccessPatientCodeByToken(session?.tempToken);
+  //   if (!code) {
+  //     console.log("SCINANARA BITCH");
+  //     await signOut({ redirect: true, redirectTo: "/" });
+  //   }
+  // }
 
   // if (
   //   nextUrlPathname === "/" &&

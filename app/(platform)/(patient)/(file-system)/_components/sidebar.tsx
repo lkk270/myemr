@@ -14,6 +14,9 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { getAccessPatientCodeByToken } from "@/auth/data";
+import { useSession } from "next-auth/react";
+import { logout } from "@/auth/actions/logout";
 
 interface SidebarProps {
   data: any[];
@@ -33,6 +36,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
   const currentUserPermissions = useCurrentUserPermissions();
+  const session = useSession();
   // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
@@ -43,6 +47,18 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
     folderStore.setUsedFileStorage(usedFileStorage);
+  }, []);
+
+  useEffect(() => {
+    const checkValidCode = async () => {
+      if (!currentUserPermissions.isPatient) {
+        const code = await getAccessPatientCodeByToken(session?.data?.tempToken);
+        if (!code) {
+          logout();
+        }
+      }
+    };
+    checkValidCode();
   }, []);
 
   useEffect(() => {

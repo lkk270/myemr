@@ -30,6 +30,7 @@ export const getFilesByToken = async (
         size: true,
         status: true,
       },
+      orderBy: { createdAt: "desc" },
     });
     return files;
   } catch (error) {

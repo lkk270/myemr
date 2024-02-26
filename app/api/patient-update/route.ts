@@ -30,6 +30,7 @@ import {
   unrestrictFiles,
 } from "@/lib/actions/files";
 
+import { getAccessPatientCodeByToken } from "@/auth/data";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
@@ -77,6 +78,13 @@ export async function POST(req: Request) {
     }
     if (!patientUpdateVerification(body, currentUserPermissions)) {
       return new NextResponse("Invalid body", { status: 400 });
+    }
+
+    if (!currentUserPermissions.isPatient) {
+      const code = await getAccessPatientCodeByToken(session.tempToken);
+      if (!code) {
+        return redirect("/");
+      }
     }
 
     const patient = await prismadb.patientProfile.findUnique({

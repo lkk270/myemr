@@ -1,14 +1,16 @@
+"use server";
+
 import prismadb from "@/lib/prismadb";
 import { getUserById } from ".";
 
 export const getUserFromAccessPatientCode = async (token: string) => {
   try {
-    console.log(token);
     const currentDate = new Date();
 
     const code = await prismadb.patientProfileAccessCode.findUnique({
       where: {
         token,
+        isValid: true,
         expires: {
           gt: currentDate,
         },
@@ -36,6 +38,7 @@ export const getAccessPatientCodeById = async (id: string) => {
     const code = await prismadb.patientProfileAccessCode.findUnique({
       where: {
         id,
+        isValid: true,
         expires: {
           gt: currentDate,
         },
@@ -49,4 +52,22 @@ export const getAccessPatientCodeById = async (id: string) => {
     // console.error(error);
     return null;
   }
+};
+
+export const getAccessPatientCodeByToken = async (token?: string | null) => {
+  if (!token) return null;
+
+  const currentDate = new Date();
+  const code = await prismadb.patientProfileAccessCode.findUnique({
+    where: {
+      token,
+      isValid: true,
+      expires: {
+        gt: currentDate,
+      },
+    },
+  });
+  console.log(code);
+  return code;
+  // return { accessType: "READ_ONLY" };
 };

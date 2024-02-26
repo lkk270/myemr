@@ -9,7 +9,6 @@ import { RequestRecordsSchema } from "../schemas";
 import { z } from "zod";
 import { currentUser } from "@/auth/lib/auth";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/utils";
-import { allotedPatientStoragesInGb } from "@/lib/constants";
 
 export const generateRequestRecordsToken = async (values: z.infer<typeof RequestRecordsSchema>) => {
   const user = await currentUser();

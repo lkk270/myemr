@@ -494,6 +494,24 @@ export const getNodeHref = (isPatient: boolean, isFile: boolean, nodeId: string)
   return `${isPatient ? (isFile ? "/file/" : "/files/") : isFile ? "/tpa-file/" : "/tpa-files/"}${nodeId}`;
 };
 
+export function getTimeUntil(date: Date): string {
+  const now = new Date();
+  const diffInSeconds = Math.floor((date.getTime() - now.getTime()) / 1000); // Convert milliseconds to seconds
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} second${diffInSeconds === 1 ? "" : "s"}`;
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.ceil(diffInSeconds / 60);
+    return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.ceil(diffInSeconds / 3600);
+    return `${hours} hour${hours === 1 ? "" : "s"}`;
+  } else {
+    const days = Math.ceil(diffInSeconds / 86400);
+    return `${days} day${days === 1 ? "" : "s"}`;
+  }
+}
+
 // function flattenStructure(data: any[]) {
 //   let result: any[] = [];
 

@@ -15,9 +15,8 @@ import {
 } from "@/app/(platform)/(patient)/(file-system)/actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { ViewUploadHistoryButton } from "../../../../../../components/temp-upload/view-upload-history-button";
+import { ViewUploadHistoryButton } from "@/components/temp-upload/view-upload-history-button";
 
 export const UploadFilesForm = () => {
   const currentUserPermissions = useCurrentUserPermissions();

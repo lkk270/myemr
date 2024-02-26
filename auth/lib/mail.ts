@@ -59,7 +59,7 @@ export const sendRequestRecordsEmail = async (
   },
 ) => {
   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
-  const requestRecordsLink = `http://localhost:3000/upload-records?token=${token}`;
+  const requestRecordsLink = `http://localhost:3000/upload-records/${token}`;
   let buffer = null;
   try {
     buffer = await getBuffer({ data: { ...dataForLetter, requestRecordsLink } });

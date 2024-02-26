@@ -8,6 +8,7 @@ import {
   apiAuthPrefix,
   authRoutes,
   publicRoutes,
+  dynamicPublicRoutes,
   patientRoutes,
   patientDynamicRoutes,
   providerRoutes,
@@ -31,14 +32,21 @@ export default auth(async (req) => {
   // console.log(session);
   const nextUrlPathname = nextUrl.pathname;
   const isApiAuthRoute = nextUrlPathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrlPathname);
+
+  const dynamicPublicRoutesRegex = new RegExp(`^(?:${dynamicPublicRoutes.join("|")})[^/]+/?$`);
+  const isDynamicPublicRoute = dynamicPublicRoutesRegex.test(nextUrlPathname);
+  const isPublicRoute = publicRoutes.includes(nextUrlPathname) || isDynamicPublicRoute;
   const isAuthRoute = authRoutes.includes(nextUrlPathname);
-  const isPatientRoute =
-    patientRoutes.includes(nextUrlPathname) || patientDynamicRoutes.some((path) => nextUrlPathname.startsWith(path));
+
+  const patientDynamicRoutesRegex = new RegExp(`^(?:${patientDynamicRoutes.join("|")})[^/]+/?$`);
+  const isPatientDynamicRoute = patientDynamicRoutesRegex.test(nextUrlPathname);
+  const isPatientRoute = patientRoutes.includes(nextUrlPathname) || isPatientDynamicRoute;
+
   const isProviderRoute = providerRoutes.includes(nextUrlPathname);
-  const isAccessPatientRoute =
-    accessPatientRoutes.includes(nextUrlPathname) ||
-    accessPatientDynamicRoutes.some((path) => nextUrlPathname.startsWith(path));
+
+  const accessPatientDynamicRoutesRegex = new RegExp(`^(?:${accessPatientDynamicRoutes.join("|")})[^/]+/?$`);
+  const isAccessPatientDynamicRoute = accessPatientDynamicRoutesRegex.test(nextUrlPathname);
+  const isAccessPatientRoute = accessPatientRoutes.includes(nextUrlPathname) || isAccessPatientDynamicRoute;
   const isAccessPatientUploadRoutes = accessPatientUploadRoutes.includes(nextUrlPathname);
 
   if (isApiAuthRoute) {
@@ -137,7 +145,7 @@ export default auth(async (req) => {
   //   return Response.redirect(new URL(ACCESS_PATIENT_WITH_CODE_REDIRECT, nextUrl));
   // } else
 
-  if (nextUrlPathname === "/" && isLoggedIn) {
+  if (isPublicRoute && isLoggedIn) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
   // if (nextUrlPathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {

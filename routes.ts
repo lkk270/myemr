@@ -6,6 +6,13 @@
 export const publicRoutes: string[] = ["/", "/auth/patient-new-verification", "/auth/provider-new-verification"];
 
 /**
+ * An array of dynamic routes that are accessible to the public
+ * These routes do not require authentication
+ * @type {string[]}
+ */
+export const dynamicPublicRoutes: string[] = ["/upload-records/"];
+
+/**
  * An array of routes that are used for authentication
  * These routes will redirect logged in users to their respective home page
  * @type {string[]}

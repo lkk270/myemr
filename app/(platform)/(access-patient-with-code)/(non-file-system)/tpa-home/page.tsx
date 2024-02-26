@@ -4,7 +4,7 @@ import prismadb from "@/lib/prismadb";
 import { UserRole } from "@prisma/client";
 import { accessTypeTextObjForTemp } from "@/lib/constants";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
-import CountdownTimer from "./_components/countdown-timer";
+import { CountdownTimer } from "./_components/countdown-timer";
 
 const AccessHome = async () => {
   const session = await auth();

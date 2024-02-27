@@ -8,22 +8,30 @@ import { BeatLoader } from "react-spinners";
 import { useSession } from "next-auth/react";
 import { FileStatus } from "@prisma/client";
 import { formatFileSize } from "@/lib/utils";
+import { accessCodeType } from "@/app/types";
 
 interface ViewUploadHistoryButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
+  token?: string;
 }
 
-export const ViewUploadHistoryButton = ({ children, asChild }: ViewUploadHistoryButtonProps) => {
-  const session = useSession();
-  const sessionData = session.data;
-  const tempToken = sessionData?.tempToken;
+export const ViewUploadHistoryButton = ({ children, asChild, token }: ViewUploadHistoryButtonProps) => {
+  let tempToken = token;
+  let type = "requestRecordsCode";
+  if (!token) {
+    type = "patientProfileAccessCode";
+    const session = useSession();
+    const sessionData = session.data;
+    tempToken = sessionData?.tempToken;
+  }
+
   const [files, setFiles] = useState<{ id: string; name: string; size: number; status: FileStatus }[] | null>([]);
   const [isPending, startTransition] = useTransition();
   const openDialog = () => {
     if (!tempToken) return;
     startTransition(() => {
-      getFilesByToken(tempToken, "patientProfileAccessCodeToken")
+      getFilesByToken(tempToken!, type as accessCodeType)
         .then((data) => {
           setFiles(data);
         })
@@ -53,11 +61,11 @@ export const ViewUploadHistoryButton = ({ children, asChild }: ViewUploadHistory
         ) : !files || files.length === 0 ? (
           <div>🫀No file history. You have not uploaded any files for this access session🫀</div>
         ) : (
-          <ul className="list-decimal overflow-hidden max-w-full">
+          <ul className="list-decimal overflow-hidden max-w-full text-sm">
             {files.map((file, index) => (
               <li key={index} className={`flex ${file.status === "SUCCESS" ? "text-green-600" : "text-red-500"}`}>
                 <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm">
+                  <p className="truncate">
                     {index + 1}.{"  "}
                     {file.name}
                   </p>

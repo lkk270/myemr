@@ -12,14 +12,30 @@ import { Separator } from "@/components/ui/separator";
 import {
   updateRegularFileStatus,
   deleteNotUploadedFilesAndDecrement,
+  setHasUploadedToTrue,
 } from "@/app/(platform)/(patient)/(file-system)/actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { Button } from "@/components/ui/button";
 import { ViewUploadHistoryButton } from "@/components/temp-upload/view-upload-history-button";
+import { EndSessionButton } from "@/app/(public-routes)/upload-records/[token]/_components/end-session-button";
 
-export const UploadFilesForm = () => {
+interface UploadFilesFormProps {
+  requestRecordsCode?: {
+    id: string;
+    userId: string;
+    createdAt: Date;
+    parentFolderId: string;
+    hasUploaded: boolean;
+    token: string;
+    expires: Date;
+    isValid: boolean;
+  };
+}
+
+export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) => {
   const currentUserPermissions = useCurrentUserPermissions();
+  const [calledSetHasUploadToTrue, setCalledSetHasUploadToTrue] = useState(requestRecordsCode?.hasUploaded);
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const { isLoading, setIsLoading } = useIsLoading();
 
@@ -42,7 +58,9 @@ export const UploadFilesForm = () => {
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
     let errorOccurred = false;
-    if (isLoading || !currentUserPermissions.canUploadFiles) return;
+    if (isLoading || (!currentUserPermissions.canUploadFiles && !requestRecordsCode)) {
+      return;
+    }
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
@@ -60,16 +78,20 @@ export const UploadFilesForm = () => {
 
           const file = tempFile.file;
 
-          const response = await fetch("/api/tpa-file-upload", {
+          let body: { fileName: string; contentType: string; size: number; accessToken?: string } = {
+            fileName: file.name,
+            contentType: file.type,
+            size: file.size,
+          };
+          if (!!requestRecordsCode) {
+            body.accessToken = requestRecordsCode?.token;
+          }
+          const response = await fetch(!!requestRecordsCode ? "/api/rr-file-upload" : "/api/tpa-file-upload", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              fileName: file.name,
-              contentType: file.type,
-              size: file.size,
-            }),
+            body: JSON.stringify(body),
             signal: tempFile.controller.signal,
           });
 
@@ -97,10 +119,14 @@ export const UploadFilesForm = () => {
 
           if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
 
-          const data = await updateRegularFileStatus(fileId);
+          const data = await updateRegularFileStatus(fileId, !!requestRecordsCode);
 
           if (!data.success) throw new Error(data.error || "Status update failed");
-
+          if (!!requestRecordsCode && !calledSetHasUploadToTrue) {
+            console.log("IN 128");
+            await setHasUploadedToTrue(requestRecordsCode.id);
+            setCalledSetHasUploadToTrue(true);
+          }
           updateFileStatus(singleFileObj, "uploaded", index);
 
           return BigInt(file.size); // Return the file size on successful upload
@@ -127,7 +153,7 @@ export const UploadFilesForm = () => {
     }
 
     if (errorOccurred) {
-      await deleteNotUploadedFilesAndDecrement();
+      await deleteNotUploadedFilesAndDecrement(requestRecordsCode?.userId);
     }
 
     setIsLoading(false);
@@ -146,9 +172,18 @@ export const UploadFilesForm = () => {
 
   return (
     <Card className="flex flex-col min-h-[calc(100vh-204px)] max-w-full w-full border border-primary/10 rounded-xl overflow-hidden">
-      <ViewUploadHistoryButton asChild>
-        <Button variant={"outline"}>View upload history</Button>
-      </ViewUploadHistoryButton>
+      <div
+        className={cn("w-full grid", requestRecordsCode && calledSetHasUploadToTrue ? "grid-cols-2" : "grid-cols-1")}
+      >
+        <ViewUploadHistoryButton asChild token={requestRecordsCode?.token}>
+          <Button variant={"outline"}>View upload history</Button>
+        </ViewUploadHistoryButton>
+        {requestRecordsCode && calledSetHasUploadToTrue && (
+          <EndSessionButton asChild codeId={requestRecordsCode?.id}>
+            <Button variant={"outline"}>Complete Upload?</Button>
+          </EndSessionButton>
+        )}
+      </div>
       <div className="flex justify-center w-full">
         <CardContent className="flex flex-col flex-grow justify-center max-w-[800px] w-full">
           <CardHeader>

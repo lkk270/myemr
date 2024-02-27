@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Inbox } from "lucide-react";
 import { FileWithStatus } from "@/app/types/file-types";
+import { useIsLoading } from "@/hooks/use-is-loading";
 import { cn } from "@/lib/utils";
 
 // Define the props expected by the Dropzone component
@@ -17,6 +18,7 @@ interface DropzoneProps {
 
 // Create the Dropzone component receiving props
 export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSide, ...props }: DropzoneProps) {
+  const { isLoading } = useIsLoading();
   // Initialize state variables using the useState hook
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isOverArea, setIsOverArea] = useState(false);
@@ -40,6 +42,10 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSi
 
   // Function to handle drop event
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (isLoading) {
+      toast.warning("Must wait for loading to state to finish");
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     const { files } = e.dataTransfer;
@@ -80,6 +86,10 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSi
 
   // Function to simulate a click on the file input element
   const handleButtonClick = () => {
+    if (isLoading) {
+      toast.warning("Must wait for loading to state to finish");
+      return;
+    }
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }

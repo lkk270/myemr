@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { auth2, signOut } from "@/auth";
+import { auth2 } from "@/auth";
 import authConfig from "@/auth.config";
 import {
   PATIENT_DEFAULT_LOGIN_REDIRECT,
@@ -16,7 +16,6 @@ import {
   accessPatientDynamicRoutes,
   accessPatientUploadRoutes,
 } from "@/routes";
-import { getAccessPatientCodeByToken } from "./auth/data";
 
 const { auth } = NextAuth(authConfig);
 export default auth(async (req) => {
@@ -80,6 +79,7 @@ export default auth(async (req) => {
   }
 
   if (!isLoggedIn && !isPublicRoute) {
+    console.log("IN 82222");
     let callbackUrl = nextUrlPathname;
     if (nextUrl.search) {
       callbackUrl += nextUrl.search;

@@ -87,7 +87,7 @@ export const {
             },
             { timeout: 20000 },
           );
-        } else {
+        } else if (existingUser.accountType === "CREDENTIALS") {
           throw new Error("Email is already being used through email & password sign in!");
         }
       }

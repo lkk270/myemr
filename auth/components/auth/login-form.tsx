@@ -25,12 +25,18 @@ interface LoginFormProps {
 export const LoginForm = ({ userType }: LoginFormProps) => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Email is already being used through Google Sign in!"
-      : searchParams.get("error") === "AuthorizedCallbackError"
-      ? "Email is already being used through email & password sign in!"
-      : "";
+  let urlError = "";
+  const searchParamError = searchParams.get("error");
+  if (searchParamError) {
+    if (searchParamError === "OAuthAccountNotLinked") {
+      urlError = "Email is already being used through Google Sign in!";
+    } else if (searchParamError === "AuthorizedCallbackError") {
+      urlError =
+        "Oops something went wrong - it's possible this email is already being used through traditional password sign in!";
+    } else {
+      urlError = "Oops something went wrong";
+    }
+  }
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -50,8 +56,11 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
     setSuccess("");
 
     startTransition(() => {
+      console.log("In 57");
+
       login(values, callbackUrl)
         .then((data) => {
+          console.log(data);
           if (data?.error) {
             // form.reset();
             setError(data.error);
@@ -66,7 +75,10 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
             setShowTwoFactor(true);
           }
         })
-        .catch(() => setError("Something went wrong"));
+        .catch(() => {
+          console.log("IN HERE");
+          setError("Something went wrong");
+        });
     });
   };
 

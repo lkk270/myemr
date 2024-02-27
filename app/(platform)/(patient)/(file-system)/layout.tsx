@@ -5,6 +5,8 @@ import { MoveModal } from "./_components/file-tree/_components/modals/move-modal
 import { TrashModal } from "./_components/file-tree/_components/modals/trash-node-modal";
 import { AddFolderModal } from "./_components/file-tree/_components/modals/add-folder-modal";
 import { UploadFilesModal } from "./_components/file-tree/_components/modals/upload-files-modal";
+import { PatientManageAccountModal } from "@/components/modals/patient-manage-account-modal";
+
 import { Sidebar } from "./_components/sidebar";
 
 import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
@@ -83,6 +85,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       <MoveModal />
       <AddFolderModal />
       <UploadFilesModal />
+      <PatientManageAccountModal />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />

@@ -5,7 +5,7 @@ import { Logo } from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { GenericNavigationMenu } from "@/components/generic-navigation-menu";
 import { SearchBox } from "./search-box";
-import { UserButton } from "@/auth/components/auth/user-button";
+import { UserButton } from "@/components/user-button";
 import { useMediaQuery } from "usehooks-ts";
 
 interface NavbarProps {

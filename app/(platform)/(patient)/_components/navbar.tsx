@@ -7,7 +7,7 @@ import { MobileSidebar } from "./mobile-sidebar";
 import { navRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@/auth/components/auth/user-button";
+import { UserButton } from "@/components/user-button";
 import Link from "next/link";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 // import { Notifications } from "@/components/notifications";

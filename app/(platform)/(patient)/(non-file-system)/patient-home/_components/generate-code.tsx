@@ -109,6 +109,7 @@ export const GenerateCode = () => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
+          //dark:bg-[#161616]
           isMobile && "min-w-[98vw]",
           "relative min-h-[350px] lg:min-h-[200px] shadow-lg flex flex-col justify-between items-center px-2 sm:px-4 py-6 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
         )}

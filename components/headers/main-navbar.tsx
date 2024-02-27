@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Ban, Bell } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";
-import { UserButton } from "@/auth/components/auth/user-button";
+import { UserButton } from "@/components/user-button";
 // import { MobileSidebar } from "@/components/headers/mobile-sidebar";
 // import { Notifications } from "@/components/notifications";
 

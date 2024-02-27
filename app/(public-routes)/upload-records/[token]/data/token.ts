@@ -12,11 +12,14 @@ export const getCodeByToken = async (token: string) => {
   const code = await prismadb.requestRecordsCode.findUnique({
     where: {
       token,
+      isValid: true,
     },
     select: {
       id: true,
+      userId: true,
       parentFolderId: true,
       token: true,
+      hasUploaded: true,
       expires: true,
       isValid: true,
       createdAt: true,

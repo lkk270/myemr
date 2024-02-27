@@ -5,10 +5,10 @@ import { currentUser } from "@/auth/lib/auth";
 import { FileStatus, InsuranceFile } from "@prisma/client";
 import { File } from "@prisma/client";
 
-export const updateRegularFileStatus = async (fileId: string) => {
+export const updateRegularFileStatus = async (fileId: string, forRR = false) => {
   const user = await currentUser();
 
-  if (!user || user.role === "READ_ONLY") {
+  if (!forRR && (!user || user.role === "READ_ONLY")) {
     return { error: "Unauthorized" };
   }
 
@@ -82,10 +82,10 @@ export const updateInsuranceStatus = async (fileId: string) => {
   return { success: "Settings Updated!", file: file };
 };
 
-export const decrementUsedFileStorage = async (fileId: string) => {
+export const decrementUsedFileStorage = async (fileId: string, forRR = false) => {
   const user = await currentUser();
 
-  if (!user || user.role === "READ_ONLY") {
+  if (!forRR && (!user || user.role === "READ_ONLY")) {
     return { error: "Unauthorized" };
   }
   const file = await prismadb.file.findUnique({
@@ -96,25 +96,25 @@ export const decrementUsedFileStorage = async (fileId: string) => {
   });
   if (file) {
     await prismadb.patientProfile.update({
-      where: { userId: user.id },
+      where: { userId: file.userId },
       data: { usedFileStorage: { decrement: file.size } },
     });
   }
 };
 
-export const deleteNotUploadedFilesAndDecrement = async () => {
+export const deleteNotUploadedFilesAndDecrement = async (userIdParam: string | null = null) => {
   const user = await currentUser();
 
-  if (!user || user.role === "READ_ONLY") {
+  if (!userIdParam && (!user || user.role === "READ_ONLY")) {
     return { error: "Unauthorized" };
   }
-
+  const userId = userIdParam ? userIdParam : user?.id;
   const totalSize = await prismadb.file.aggregate({
     _sum: {
       size: true,
     },
     where: {
-      userId: user.id,
+      userId,
       status: "NOT_UPLOADED",
     },
   });
@@ -123,13 +123,13 @@ export const deleteNotUploadedFilesAndDecrement = async () => {
     async (prisma) => {
       await prisma.file.deleteMany({
         where: {
-          userId: user.id,
+          userId: userId,
           status: "NOT_UPLOADED",
         },
       });
       if (!!totalSize._sum.size && totalSize?._sum.size > 0) {
         await prisma.patientProfile.update({
-          where: { userId: user.id },
+          where: { userId },
           data: {
             usedFileStorage: { decrement: totalSize._sum.size },
             unrestrictedUsedFileStorage: { decrement: totalSize._sum.size },
@@ -139,4 +139,17 @@ export const deleteNotUploadedFilesAndDecrement = async () => {
     },
     { timeout: 20000 },
   );
+};
+
+export const setHasUploadedToTrue = async (requestRecordsCodeId: string) => {
+  await prismadb.requestRecordsCode.update({
+    where: {
+      id: requestRecordsCodeId,
+    },
+    data: {
+      hasUploaded: true,
+    },
+  });
+
+  return { success: "hasUploaded set to true!" };
 };

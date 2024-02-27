@@ -521,13 +521,15 @@ model PatientProfileAccessCode {
 }
 
 model RequestRecordsCode {
-  id             String   @id @default(cuid())
-  userId         String
-  providerEmail  String
-  parentFolderId String
-  token          String   @unique
-  expires        DateTime
-  isValid        Boolean  @default(true)
-  files          File[]
-  createdAt      DateTime @default(now())
+  id               String   @id @default(cuid())
+  userId           String
+  providerEmail    String
+  parentFolderId   String
+  patientProfileId String
+  hasUploaded      Boolean  @default(false)
+  token            String   @unique
+  expires          DateTime
+  isValid          Boolean  @default(true)
+  files            File[]
+  createdAt        DateTime @default(now())
 }

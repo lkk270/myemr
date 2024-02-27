@@ -3,7 +3,12 @@
  * These routes do not require authentication
  * @type {string[]}
  */
-export const publicRoutes: string[] = ["/", "/auth/patient-new-verification", "/auth/provider-new-verification"];
+export const publicRoutes: string[] = [
+  "/",
+  "/auth/patient-new-verification",
+  "/auth/provider-new-verification",
+  "/api/rr-file-upload",
+];
 
 /**
  * An array of dynamic routes that are accessible to the public

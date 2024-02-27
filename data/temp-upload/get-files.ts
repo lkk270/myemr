@@ -2,21 +2,23 @@
 
 import prismadb from "@/lib/prismadb";
 import { auth } from "@/auth";
+import { accessCodeType } from "@/app/types";
 
-export const getFilesByToken = async (
-  token: string,
-  type: "patientProfileAccessCodeToken" | "requestRecordsCodeToken",
-) => {
+export const getFilesByToken = async (token: string, type: accessCodeType) => {
   const session = await auth();
-  if (!session || !session.tempToken || session.user.role !== "UPLOAD_FILES_ONLY") {
+  if (
+    (type === "patientProfileAccessCode" &&
+      (!session || !session.tempToken || session.user.role !== "UPLOAD_FILES_ONLY")) ||
+    (type === "requestRecordsCode" && !token)
+  ) {
     return null;
   }
   try {
     // Construct the where object conditionally based on the type
     let whereCondition = {};
-    if (type === "patientProfileAccessCodeToken") {
+    if (type === "patientProfileAccessCode") {
       whereCondition = { patientProfileAccessCodeToken: token };
-    } else if (type === "requestRecordsCodeToken") {
+    } else if (type === "requestRecordsCode") {
       whereCondition = { requestRecordsCodeToken: token };
     } else {
       return null;

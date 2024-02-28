@@ -1080,3 +1080,5 @@ export const accessTypesText = [
   { value: UserRole.READ_AND_ADD, label: "Read & Add" },
   { value: UserRole.FULL_ACCESS, label: "Full access" },
 ];
+
+export const profileImageUrlPrefix = "https://myemrpps3.s3.us-east-2.amazonaws.com/";

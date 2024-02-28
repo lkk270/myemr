@@ -59,6 +59,7 @@ export const {
                     create: {
                       firstName: encryptPatientRecord(safeName[0], symmetricKey),
                       lastName: encryptPatientRecord(safeName[1], symmetricKey),
+                      imageUrl: user.image,
                       email: encryptPatientRecord(email, symmetricKey),
                       publicKey: encryptKey(publicKey, "patientPublicKey"),
                       privateKey: encryptKey(privateKey, "patientPrivateKey"),

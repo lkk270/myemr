@@ -16,6 +16,7 @@ const validUpdateTypes = [
   "insuranceUpload",
   "tpaUploadFiles",
   "rrUploadFiles",
+  "ppUpload",
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [], mandatoryTruePermissions: ["isPatient"] },
@@ -72,6 +73,11 @@ const patientConditionals: any = {
     requiredFields: ["fileName", "contentType", "size", "accessToken"],
     optionalFields: [],
     mandatoryTruePermissions: ["canUploadFiles"],
+  },
+  ppUpload: {
+    requiredFields: ["contentType"],
+    optionalFields: [],
+    mandatoryTruePermissions: ["canUploadFiles", "hasAccount"],
   },
 };
 

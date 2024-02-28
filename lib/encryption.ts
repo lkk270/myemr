@@ -22,6 +22,8 @@ const exemptFields = [
   "createdAt",
   "updatedAt",
   "usedFileStorage",
+  "plan",
+  "imageUrl",
 ];
 // Function to convert key objects to PEM formatted strings
 function convertKeyToString(key: KeyObject) {

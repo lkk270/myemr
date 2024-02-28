@@ -31,6 +31,7 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
       userId: userId,
     },
     select: {
+      id: true,
       firstName: true,
       lastName: true,
       dateOfBirth: true,
@@ -86,6 +87,7 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
   const requestRecordsToken = await prismadb.requestRecordsCode.create({
     data: {
       userId,
+      patientProfileId: patient.id,
       parentFolderId: uploadToId,
       providerEmail: providerEmail.toLowerCase(),
       token,

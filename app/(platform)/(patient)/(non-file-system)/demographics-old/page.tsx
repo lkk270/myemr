@@ -56,9 +56,11 @@ const PatientDemographics = async () => {
   } catch (e) {
     return <div>something went wrong decryption</div>;
   }
+  const { symmetricKey, ...safeObject } = decryptedPatientDemographics;
+
   return (
     <div className="flex pt-10 px-10 h-full justify-center">
-      <Demographics patientDemographics={decryptedPatientDemographics} />
+      <Demographics patientDemographics={safeObject} />
     </div>
   );
 };

@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
 import { allotedPatientStoragesInGb } from "@/lib/constants";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { getAccessPatientCodeByToken } from "@/auth/data";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -28,13 +27,6 @@ export async function POST(request: Request) {
     }
     if (!patientUpdateVerification({ ...body, updateType: "uploadFiles" }, currentUserPermissions)) {
       return NextResponse.json({ message: "Invalid body" }, { status: 400 });
-    }
-
-    if (!currentUserPermissions.isPatient) {
-      const code = await getAccessPatientCodeByToken(session.tempToken);
-      if (!code) {
-        return redirect("/");
-      }
     }
 
     const patient = await prismadb.patientProfile.findUnique({

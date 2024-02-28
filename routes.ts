@@ -45,7 +45,6 @@ export const patientRoutes: string[] = [
   "/about",
   "/medications",
   "/providers",
-  "/patient-settings",
 ];
 
 /**

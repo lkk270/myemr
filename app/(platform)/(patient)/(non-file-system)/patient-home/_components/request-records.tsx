@@ -92,7 +92,7 @@ export const RequestRecord = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
           isMobile && "min-w-[98vw]",
-          "relative py-8 shadow-lg px-4 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
+          "h-full justify-center flex flex-col relative py-8 shadow-lg px-4 text-center md:px-6 bg-primary/5 dark:bg-[#161616] rounded-lg",
         )}
       >
         <ViewActiveCodesButton asChild codeType="requestRecordsCode">

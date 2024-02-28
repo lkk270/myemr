@@ -12,12 +12,20 @@ import { cn } from "@/lib/utils";
 interface DropzoneProps {
   onChangeMulti?: React.Dispatch<React.SetStateAction<FileWithStatus[]>>;
   onChangeSingle?: (key: "front" | "back", file: FileWithStatus | null) => void;
+  onChangeSingleFile?: (file: FileWithStatus | null) => void;
   className?: string;
   insuranceSide?: "front" | "back";
 }
 
 // Create the Dropzone component receiving props
-export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSide, ...props }: DropzoneProps) {
+export function Dropzone({
+  onChangeMulti,
+  onChangeSingle,
+  onChangeSingleFile,
+  className,
+  insuranceSide,
+  ...props
+}: DropzoneProps) {
   const { isLoading } = useIsLoading();
   // Initialize state variables using the useState hook
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -78,8 +86,21 @@ export function Dropzone({ onChangeMulti, onChangeSingle, className, insuranceSi
       if (file.file.type !== "image/png" && file.file.type !== "image/jpeg") {
         toast.error("Invalid file type. Must be a PNG or JPEG file!", { duration: 3000 });
         return;
+      } else if (file.file.size > 10_000_000) {
+        toast.error("File cannot be greater than 10 Mb", { duration: 3000 });
+        return;
       }
       onChangeSingle(insuranceSide, file);
+    } else if (onChangeSingleFile) {
+      const file = newFiles[0];
+      if (file.file.type !== "image/png" && file.file.type !== "image/jpeg") {
+        toast.error("Invalid file type. Must be a PNG or JPEG file!", { duration: 3000 });
+        return;
+      } else if (file.file.size > 10_000_000) {
+        toast.error("File cannot be greater than 10 Mb", { duration: 3000 });
+        return;
+      }
+      onChangeSingleFile(file);
     }
     setError(null);
   };

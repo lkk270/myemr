@@ -18,6 +18,7 @@ export const extractCurrentUserPermissions = (user: ExtendedUser | undefined) =>
     canUploadFiles: false,
     showActions: false,
     isPatient: isPatient,
+    hasAccount: userRole === "ADMIN" || userRole === "USER",
   };
   if (userRole === "FULL_ACCESS" || userRole === "READ_AND_ADD" || isPatient) {
     ret["canAdd"] = true;

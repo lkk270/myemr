@@ -35,6 +35,8 @@ const AccessHome = async () => {
   } catch (e) {
     return <div>something went wrong decryption</div>;
   }
+  const { symmetricKey, ...safeObject } = decryptedPatient;
+
   const accessTypeTitle = accessTypeTextObjForTemp[user.role].title;
   const accessTypeDescription = accessTypeTextObjForTemp[user.role].description;
 
@@ -44,7 +46,7 @@ const AccessHome = async () => {
         <div className="space-y-2">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl pb-8">Welcome!</h1>
           <p className="text-gray-500 dark:text-gray-400 text-left">
-            {`You have temporary access to ${decryptedPatient.firstName} ${decryptedPatient.lastName}'s medical records. Your access type is `}
+            {`You have temporary access to ${safeObject.firstName} ${safeObject.lastName}'s medical records. Your access type is `}
             <span className="font-bold italic">{accessTypeTitle}</span>.
           </p>
           <p className="text-gray-500 dark:text-gray-400 text-left">{`This means that you ${accessTypeDescription}.`}</p>

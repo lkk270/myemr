@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-manage-account-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { User, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { useSession } from "next-auth/react";
 import { Button } from "../../ui/button";
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
@@ -14,10 +14,13 @@ import { Separator } from "../../ui/separator";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { AvatarButton } from "./avatar-button";
 import { SettingsForm } from "./settings-form";
+import { getPatient } from "@/data/user-for-profile";
+import { usePatientForManageAccount } from "@/auth/hooks/use-patient-for-manage-account";
+
 export const PatientManageAccountModal = () => {
+  const { data: session } = useSession();
   const user = useCurrentUser();
-  console.log(user);
-  const currentUserPermissions = useCurrentUserPermissions();
+  const { patient, setPatient } = usePatientForManageAccount();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
 
@@ -38,6 +41,23 @@ export const PatientManageAccountModal = () => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    const getPatientProfile = () => {
+      if (!isOpen) return;
+      startTransition(() => {
+        getPatient().then((data) => {
+          if (data) {
+            setPatient(data);
+            if (!!session && !!session.user && !session.user.image) {
+              localStorage.setItem(`myEmrImageUrl${session.user?.id}`, data.imageUrl);
+            }
+          }
+        });
+      });
+    };
+    getPatientProfile();
+  }, [isOpen]);
 
   if (!isMounted) {
     return null;
@@ -92,8 +112,9 @@ export const PatientManageAccountModal = () => {
                     <h3 className="font-semibold pb-1">Profile</h3>
                     <Separator />
                   </div>
-                  <div className="flex">
+                  <div className="flex items-center gap-x-3">
                     <AvatarButton />
+                    {patient && `${patient?.firstName} ${patient?.lastName}`}
                   </div>
                   {!user?.isOAuth && (
                     <div>

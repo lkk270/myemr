@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePatientManageAccountModal } from "../../auth/hooks/use-patient-manage-account-modal";
+import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-manage-account-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { User, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
-import { Separator } from "../ui/separator";
+import { Separator } from "../../ui/separator";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
-
+import { AvatarButton } from "./avatar-button";
+import { SettingsForm } from "./settings-form";
 export const PatientManageAccountModal = () => {
   const user = useCurrentUser();
   console.log(user);
@@ -46,7 +47,7 @@ export const PatientManageAccountModal = () => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         ref={scrollContainerRef}
-        className="dark:bg-[#19191a] dark:border-none shadow-md overflow-y-scroll max-h-[650px] max-w-[850px] w-full h-full flex"
+        className="dark:bg-[#19191a] shadow-md overflow-y-scroll max-h-[650px] max-w-[850px] w-full h-full flex"
       >
         {!isMobile && (
           <div className="w-[175px] flex flex-col gap-y-4 pr-6 sticky top-0 border-r border-secondary">
@@ -80,26 +81,40 @@ export const PatientManageAccountModal = () => {
         )}
         <div className="w-[675px]">
           <div className="flex flex-col gap-x-4 pl-2">
-            <div id="account" style={{ height: "550px" }} className="flex flex-col pt-5 gap-y-4">
+            <div id="account" style={{ height: "1250px" }} className="flex flex-col pt-5 gap-y-4">
               <div className="flex flex-col space-y-1.5">
                 <h1 className="text-4xl font-bold">Account</h1>
                 <h3 className="text-md text-muted-foreground">Manage your account information</h3>
               </div>
-              <div>
-                <div>
-                  <h3 className="font-semibold pb-1">Profile</h3>
-                  <Separator />
-                </div>
-                <div>
-                  <h3 className="font-semibold pb-1">Email Address</h3>
-                  <Separator />
-                </div>
-                <div>
-                  <h3 className="font-semibold pb-1">Danger</h3>
-                  <Separator />
+              <div className="flex flex-col gap-y-5">
+                <div className="flex flex-col gap-y-8">
+                  <div>
+                    <h3 className="font-semibold pb-1">Profile</h3>
+                    <Separator />
+                  </div>
+                  <div className="flex">
+                    <AvatarButton />
+                  </div>
+                  {!user?.isOAuth && (
+                    <div>
+                      <div>
+                        <h3 className="font-semibold">Security</h3>
+                        <Separator />
+                      </div>
+
+                      <div className="flex pt-2">
+                        <SettingsForm />
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex flex-col justify-center">
+                    <h3 className="font-semibold pb-1">Danger</h3>
+                    <Separator />
+                  </div>
                 </div>
               </div>
             </div>
+
             <div id="billing-plan" style={{ height: "500px" }}>
               Billing/Plan section content
             </div>

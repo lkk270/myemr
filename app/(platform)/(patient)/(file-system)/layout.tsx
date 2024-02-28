@@ -5,7 +5,7 @@ import { MoveModal } from "./_components/file-tree/_components/modals/move-modal
 import { TrashModal } from "./_components/file-tree/_components/modals/trash-node-modal";
 import { AddFolderModal } from "./_components/file-tree/_components/modals/add-folder-modal";
 import { UploadFilesModal } from "./_components/file-tree/_components/modals/upload-files-modal";
-import { PatientManageAccountModal } from "@/components/modals/patient-manage-account-modal";
+import { PatientManageAccountModal } from "@/components/modals/patient-manage-account/patient-manage-account-modal";
 
 import { Sidebar } from "./_components/sidebar";
 

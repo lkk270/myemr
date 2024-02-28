@@ -32,11 +32,6 @@ export const navRoutes = [
     href: "/providers",
     label: "Providers",
   },
-  {
-    icon: Settings,
-    href: "/patient-settings",
-    label: "Settings",
-  },
 ];
 
 export const tempPatientAccessNavRoutes = [

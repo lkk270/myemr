@@ -16,6 +16,7 @@ import { capitalizeFirstLetter, cn } from "@/lib/utils";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { Separator } from "@/components/ui/separator";
 import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
+import { AvatarComponent } from "./avatar-component";
 
 export const UserButton = () => {
   const { onOpen } = usePatientManageAccountModal();
@@ -23,27 +24,10 @@ export const UserButton = () => {
   const currentUserPermissions = extractCurrentUserPermissions(user);
   const isValidPatient = user?.email && currentUserPermissions.isPatient;
 
-  const AvatarComponent = ({
-    image,
-    avatarClassName = "w-8 h-8",
-  }: {
-    image?: string | null;
-    avatarClassName?: string;
-  }) => {
-    return (
-      <Avatar className={avatarClassName}>
-        <AvatarImage src={image || ""} />
-        <AvatarFallback className="bg-sky-500">
-          <FaUser className="text-white" />
-        </AvatarFallback>
-      </Avatar>
-    );
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <AvatarComponent image={user?.image} />
+        <AvatarComponent />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className={cn(
@@ -54,7 +38,7 @@ export const UserButton = () => {
       >
         {isValidPatient && (
           <div className="flex flex-row gap-x-2 mb-4 items-center">
-            <AvatarComponent image={user?.image} avatarClassName="w-10 h-10" />
+            <AvatarComponent avatarClassName="w-10 h-10" />
             <span className="break-all whitespace-normal text-sm font-semibold">
               {capitalizeFirstLetter(user.email!)}
             </span>

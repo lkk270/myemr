@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-manage-account-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { User, Landmark } from "lucide-react";
@@ -11,10 +11,7 @@ import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
 import { Separator } from "../../ui/separator";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
-import { AvatarButton } from "./avatar-button";
 import { SettingsForm } from "./settings-form";
-import { getPatient } from "@/data/user-for-profile";
-import { usePatientForManageAccount } from "@/auth/hooks/use-patient-for-manage-account";
 import { UploadProfilePictureButton } from "./upload-profile-picture-button";
 import { DeleteProfilePictureButton } from "./delete-profile-picture-button";
 import { Button } from "@/components/ui/button";
@@ -23,7 +20,6 @@ import { AvatarComponent } from "@/components/avatar-component";
 export const PatientManageAccountModal = () => {
   const { data: session } = useSession();
   const user = useCurrentUser();
-  const { patient, setPatient } = usePatientForManageAccount();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
 
@@ -44,23 +40,6 @@ export const PatientManageAccountModal = () => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    const getPatientProfile = () => {
-      if (!isOpen) return;
-      startTransition(() => {
-        getPatient().then((data) => {
-          if (data) {
-            setPatient(data);
-            if (!!session && !!session.user && !session.user.image) {
-              localStorage.setItem(`myEmrImageUrl${session.user?.id}`, data.imageUrl);
-            }
-          }
-        });
-      });
-    };
-    getPatientProfile();
-  }, [isOpen]);
 
   if (!isMounted) {
     return null;
@@ -117,7 +96,7 @@ export const PatientManageAccountModal = () => {
                   </div>
                   <div className="flex items-center gap-x-3">
                     <AvatarComponent avatarClassName="w-16 h-16" />
-                    <div>{patient && `${patient?.firstName} ${patient?.lastName}`}</div>
+                    <div>{user?.email}</div>
                     <div className="flex flex-col gap-y-2">
                       <UploadProfilePictureButton asChild>
                         <Button variant={"secondary"} className="w-20 h-8">

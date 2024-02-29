@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { usePatientForManageAccount } from "@/auth/hooks/use-patient-for-manage-account";
 import { useSession } from "next-auth/react";
 import { deleteProfilePicture } from "@/lib/actions/delete-profile-picture";
 
@@ -22,12 +21,10 @@ interface DeleteProfilePictureButtonProps {
 
 export const DeleteProfilePictureButton = ({ children, asChild }: DeleteProfilePictureButtonProps) => {
   const { update } = useSession();
-  const { patient, setPatient } = usePatientForManageAccount();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
     startTransition(() => {
-      if (!patient) return;
       deleteProfilePicture()
         .then((data) => {
           if (data?.error) {

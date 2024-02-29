@@ -5,7 +5,7 @@ import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { GenerateCodeSchema } from "../schemas";
 import { generateAccessCode } from "@/lib/actions/access-codes";
-import { allotedPatientStoragesInGb } from "@/lib/constants";
+import { allotedStoragesInGb } from "@/lib/constants";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
   const user = await currentUser();
@@ -42,7 +42,7 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     return { error: "Invalid body" };
   }
 
-  const allotedStorageInGb = allotedPatientStoragesInGb[patient.plan];
+  const allotedStorageInGb = allotedStoragesInGb[user.plan];
   if (accessType !== "READ_ONLY" && BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
     return {
       error:

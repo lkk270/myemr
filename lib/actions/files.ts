@@ -2,7 +2,7 @@
 
 import { Folder, File, FileStatus, Prisma } from "@prisma/client";
 import prismadb from "../prismadb";
-import { allotedPatientStoragesInGb } from "../constants";
+import { allotedStoragesInGb } from "../constants";
 import { PrismaClient } from "@prisma/client";
 import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
@@ -448,7 +448,7 @@ export const unrestrictFiles = async (patientProfileId: string) => {
       return;
     }
     const unrestrictedUsedFileStorage = patient.unrestrictedUsedFileStorage;
-    const allotedStorageInBytes = allotedPatientStoragesInGb[patient.plan] * 1_000_000_000;
+    const allotedStorageInBytes = allotedStoragesInGb[patient.plan] * 1_000_000_000;
     //first conditional if the usedFileStorage (total used storage) is less than the allotedStorageInBytes then any restricted files should change to restricted:false
     if (patient.usedFileStorage < allotedStorageInBytes) {
       filesToUnrestrict = restrictedFiles;

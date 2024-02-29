@@ -12,7 +12,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
-import { allotedPatientStoragesInGb } from "@/lib/constants";
+import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -40,7 +40,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const allNodesArray = Array.from(allNodesMap.values());
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
   const usedFileStorage = patient.usedFileStorage;
-  const allotedStorageInGb = allotedPatientStoragesInGb[patient.plan];
+  const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
       <Sidebar

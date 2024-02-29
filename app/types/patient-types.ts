@@ -1,4 +1,4 @@
-import { Unit, PatientAddress, DosageHistory, UserRole, PatientPlan } from "@prisma/client";
+import { Unit, PatientAddress, DosageHistory, UserRole, Plan } from "@prisma/client";
 
 export type PatientDemographicsType = {
   imageUrl: string;
@@ -77,7 +77,7 @@ export type genericPatientAccessCodeType = {
 export type patientForManageAccountType = {
   firstName: string;
   lastName: string;
-  plan: PatientPlan;
+  plan: Plan;
 };
 
 export type accessCodeType = "patientProfileAccessCode" | "requestRecordsCode";

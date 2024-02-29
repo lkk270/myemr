@@ -7,7 +7,6 @@ import { useTransition, useState } from "react";
 import { useSession } from "next-auth/react";
 
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SettingsSchema } from "@/auth/schemas";
 import { Button } from "@/components/ui/button";
 import { settings } from "@/auth/actions/settings";
@@ -57,9 +56,7 @@ export const SettingsForm = () => {
   const watchedPassword = form.watch("password");
   const watchedNewPassword = form.watch("newPassword");
   const watchedIsTwoFactorEnabled = form.watch("isTwoFactorEnabled");
-  console.log(watchedPassword);
-  console.log(watchedNewPassword);
-  console.log(watchedIsTwoFactorEnabled);
+  
   return (
     <Form {...form}>
       <form className="space-y-6 w-full" onSubmit={form.handleSubmit(onSubmit)}>

@@ -77,7 +77,6 @@ export type genericPatientAccessCodeType = {
 export type patientForManageAccountType = {
   firstName: string;
   lastName: string;
-  imageUrl: string | null;
   plan: PatientPlan;
 };
 

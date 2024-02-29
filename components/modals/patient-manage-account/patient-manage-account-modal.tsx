@@ -7,7 +7,6 @@ import { User, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useSession } from "next-auth/react";
-import { Button } from "../../ui/button";
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
 import { Separator } from "../../ui/separator";
@@ -16,6 +15,10 @@ import { AvatarButton } from "./avatar-button";
 import { SettingsForm } from "./settings-form";
 import { getPatient } from "@/data/user-for-profile";
 import { usePatientForManageAccount } from "@/auth/hooks/use-patient-for-manage-account";
+import { UploadProfilePictureButton } from "./upload-profile-picture-button";
+import { DeleteProfilePictureButton } from "./delete-profile-picture-button";
+import { Button } from "@/components/ui/button";
+import { AvatarComponent } from "@/components/avatar-component";
 
 export const PatientManageAccountModal = () => {
   const { data: session } = useSession();
@@ -113,8 +116,22 @@ export const PatientManageAccountModal = () => {
                     <Separator />
                   </div>
                   <div className="flex items-center gap-x-3">
-                    <AvatarButton />
-                    {patient && `${patient?.firstName} ${patient?.lastName}`}
+                    <AvatarComponent avatarClassName="w-16 h-16" />
+                    <div>{patient && `${patient?.firstName} ${patient?.lastName}`}</div>
+                    <div className="flex flex-col gap-y-2">
+                      <UploadProfilePictureButton asChild>
+                        <Button variant={"secondary"} className="w-20 h-8">
+                          Upload
+                        </Button>
+                      </UploadProfilePictureButton>
+                      {user?.image && (
+                        <DeleteProfilePictureButton asChild>
+                          <Button className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]">
+                            Delete
+                          </Button>
+                        </DeleteProfilePictureButton>
+                      )}
+                    </div>
                   </div>
                   {!user?.isOAuth && (
                     <div>

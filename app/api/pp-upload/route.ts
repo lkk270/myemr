@@ -42,29 +42,28 @@ export async function POST(request: Request) {
     if (!patient) {
       return NextResponse.json({ message: "Patient not found" }, { status: 400 });
     }
-    const imageUrl = `${profileImageUrlPrefix}${userId}`;
-    if (!patient.imageUrl || !patient.imageUrl.startsWith(profileImageUrlPrefix))
-      await prismadb.$transaction(
-        async (prisma) => {
-          await prisma.patientProfile.update({
-            where: {
-              userId: userId,
-            },
-            data: {
-              imageUrl: imageUrl,
-            },
-          });
-          await prisma.user.update({
-            where: {
-              id: userId,
-            },
-            data: {
-              image: imageUrl,
-            },
-          });
-        },
-        { timeout: 20000 },
-      );
+    const imageUrl = `${profileImageUrlPrefix}${userId}?${new Date().getTime()}`;
+    await prismadb.$transaction(
+      async (prisma) => {
+        await prisma.patientProfile.update({
+          where: {
+            userId: userId,
+          },
+          data: {
+            imageUrl: imageUrl,
+          },
+        });
+        await prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            image: imageUrl,
+          },
+        });
+      },
+      { timeout: 20000 },
+    );
 
     const client = new S3Client({ region: process.env.AWS_REGION });
     const key = `${user.id}`;

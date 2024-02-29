@@ -21,7 +21,6 @@ export const getPatient = async () => {
         firstName: true,
         lastName: true,
         plan: true,
-        imageUrl: true,
         symmetricKey: true,
       },
     });

@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { profileImageUrlPrefix } from "@/lib/constants";
+import { update } from "@/auth";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -79,6 +80,12 @@ export async function POST(request: Request) {
       },
       Expires: 600, // Seconds before the presigned post expires. 3600 by default.
     });
+    update({
+      user: {
+        image: `${imageUrl}?${new Date().getTime()}`,
+      },
+    });
+
     return Response.json({ url, fields, imageUrl });
   } catch (error: any) {
     const errorMessage = !!error && error.message ? error.message : "Something went wrong";

@@ -133,6 +133,7 @@ export const {
       }
 
       if (session.user) {
+        session.user.image = token.image as string;
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
       }
 
@@ -180,6 +181,7 @@ export const {
       token.tempToken = code ? code.token : undefined;
       token.role = code ? code.accessType : existingUser.role;
       token.isTwoFactorEnabled = code ? false : existingUser.isTwoFactorEnabled;
+      token.image = existingUser.image;
       return token;
     },
   },

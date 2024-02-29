@@ -24,7 +24,7 @@ interface UploadProfilePictureButtonProps {
 }
 
 export const UploadProfilePictureButton = ({ children, asChild }: UploadProfilePictureButtonProps) => {
-  const { data: session } = useSession();
+  const { update } = useSession();
   const [file, setFile] = useState<FileWithStatus | null>(null);
   const { patient, setPatient } = usePatientForManageAccount();
   const { isLoading, setIsLoading } = useIsLoading();
@@ -69,14 +69,7 @@ export const UploadProfilePictureButton = ({ children, asChild }: UploadProfileP
       if (!uploadResponse.ok) {
         throw new Error(`File upload to storage failed.`);
       } else {
-        if (
-          !!session &&
-          !!session.user &&
-          (!session.user.image || (!!session.user.image && !session.user.image.startsWith(profileImageUrlPrefix)))
-        ) {
-          localStorage.setItem(`myEmrImageUrl${session.user?.id}`, imageUrl);
-        }
-        setPatient({ ...patient, imageUrl: `${imageUrl}?${new Date().getTime()}` });
+        await update();
       }
     } catch (error) {
       setFile(null);

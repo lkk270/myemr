@@ -15,6 +15,7 @@ import {
   getAccountByUserId,
 } from "@/auth/data";
 import { ExtendedUser } from "./next-auth";
+import { setScheduledToDelete } from "./auth/actions/set-scheduled-to-delete";
 
 export const {
   handlers: { GET, POST },
@@ -90,6 +91,8 @@ export const {
           );
         } else if (existingUser.accountType === "CREDENTIALS") {
           throw new Error("Email is already being used through email & password sign in!");
+        } else if (existingUser.scheduledToDelete) {
+          await setScheduledToDelete("PATIENT", false, existingUser.id);
         }
       }
       // else if (user.forCode) {

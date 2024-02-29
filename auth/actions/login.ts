@@ -13,6 +13,7 @@ import { PATIENT_DEFAULT_LOGIN_REDIRECT, PROVIDER_DEFAULT_LOGIN_REDIRECT } from 
 import { generateVerificationToken, generateTwoFactorToken } from "@/auth/lib/tokens";
 import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";
 import { AccountType, UserType } from "@prisma/client";
+import { setScheduledToDelete } from "./set-scheduled-to-delete";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
   console.log(" INE HERE");
@@ -86,6 +87,9 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
 
       return { twoFactor: true };
     }
+  }
+  if (existingUser.scheduledToDelete) {
+    await setScheduledToDelete(existingUser.type, false, existingUser.id);
   }
 
   try {

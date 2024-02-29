@@ -19,3 +19,11 @@ export type PermissionsType = {
 };
 
 export type PermissionKey = keyof PermissionsType;
+
+export type SubscriptionTierType = {
+  id: string;
+  title: string;
+  priceText: string;
+  featured: boolean;
+  items: string[];
+};

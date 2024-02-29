@@ -18,6 +18,7 @@ import { DeleteAccountButton } from "./delete-account-button";
 
 import { Button } from "@/components/ui/button";
 import { AvatarComponent } from "@/components/avatar-component";
+import { PatientSubscriptionTiers } from "@/components/subscription-tiers/patient-subscription-tiers";
 
 export const PatientManageAccountModal = () => {
   const { data: session } = useSession();
@@ -99,7 +100,7 @@ export const PatientManageAccountModal = () => {
                     </div>
                     <div className="flex items-center gap-x-3">
                       <AvatarComponent avatarClassName="w-16 h-16" />
-                      <div>{user?.email}</div>
+                      <div className="hidden xs:flex">{user?.email}</div>
                       <div className="flex flex-col gap-y-2">
                         <UploadProfilePictureButton asChild>
                           <Button variant={"secondary"} className="w-20 h-8">
@@ -134,15 +135,13 @@ export const PatientManageAccountModal = () => {
                       <Separator />
                     </div>
                     <div className="justify-between text-sm flex items-center gap-x-3">
-                      <div className="flex flex-col">
+                      <div className="flex flex-col break-words whitespace-normal">
                         <div className="font-semibold">Delete Account</div>
                         <div className="text-muted-foreground">Delete your account and all its associated data</div>
                       </div>
                       <div className="flex flex-col gap-y-2">
                         <DeleteAccountButton asChild>
-                          <Button className="w-40 h-12 bg-[#f04337] hover:bg-[#d92d21] text-[#ffff]">
-                            Delete Account
-                          </Button>
+                          <Button className=" bg-[#f04337] hover:bg-[#d92d21] text-[#ffff]">Delete Account</Button>
                         </DeleteAccountButton>
                       </div>
                     </div>
@@ -151,13 +150,15 @@ export const PatientManageAccountModal = () => {
               </div>
             </div>
 
-            <div id="billing-plan" style={{ height: "850px" }}>
+            <div id="billing-plan" style={{ height: "600px" }}>
               <div className="flex flex-col space-y-1.5">
                 <h1 className="text-4xl font-bold">Billing & Plan</h1>
                 <h3 className="text-md text-muted-foreground">Manage your banking information and subscription</h3>
               </div>
+              <PatientSubscriptionTiers />
             </div>
           </div>
+          <div className="text-center items-center text-sm font-semibold pb-2">myemr © 2024 | made with ❤️</div>
         </div>
       </DialogContent>
     </Dialog>

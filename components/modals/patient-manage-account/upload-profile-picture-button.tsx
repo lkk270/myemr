@@ -14,9 +14,7 @@ import { toast } from "sonner";
 import { Dropzone } from "@/components/files/dropzone";
 import { FileWithStatus } from "@/app/types/file-types";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { usePatientForManageAccount } from "@/auth/hooks/use-patient-for-manage-account";
 import { useSession } from "next-auth/react";
-import { profileImageUrlPrefix } from "@/lib/constants";
 
 interface UploadProfilePictureButtonProps {
   children: React.ReactNode;
@@ -26,13 +24,12 @@ interface UploadProfilePictureButtonProps {
 export const UploadProfilePictureButton = ({ children, asChild }: UploadProfilePictureButtonProps) => {
   const { update } = useSession();
   const [file, setFile] = useState<FileWithStatus | null>(null);
-  const { patient, setPatient } = usePatientForManageAccount();
   const { isLoading, setIsLoading } = useIsLoading();
 
   const handleUpload = async () => {
     if (isLoading) return;
     let isError = false;
-    if (!file || !patient) return;
+    if (!file) return;
     setIsLoading(true);
 
     let goodPsuResponse = false;

@@ -1,5 +1,5 @@
 import NextAuth, { Account, User } from "next-auth";
-import { PatientProfileAccessCode, UserRole, UserType } from "@prisma/client";
+import { PatientProfileAccessCode, Plan, UserRole, UserType } from "@prisma/client";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPatientRecord } from "@/lib/encryption";
@@ -135,13 +135,12 @@ export const {
       if (session.user) {
         session.user.image = token.image as string;
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
-      }
-
-      if (session.user) {
         session.user.email = token.email;
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
+        session.user.plan = token.plan as Plan;
       }
+
       if (token.customExpiresAt) {
         // console.log(token.customExpiresAt);
         session.expires = token.customExpiresAt as string;
@@ -177,6 +176,7 @@ export const {
 
       token.isOAuth = !!existingAccount;
       token.email = existingUser.email;
+      token.plan = existingUser.plan;
       token.userType = existingUser.type;
       token.tempToken = code ? code.token : undefined;
       token.role = code ? code.accessType : existingUser.role;

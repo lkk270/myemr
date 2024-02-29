@@ -78,6 +78,15 @@ enum DoctorPlan {
   PREMIUM_2
 }
 
+enum Plan {
+  PATIENT_FREE
+  PATIENT_PREMIUM_1
+  PATIENT_PREMIUM_2
+  PROVIDER_FREE
+  PROVIDER_PREMIUM_1
+  PROVIDER_PREMIUM_2
+}
+
 enum InsuranceSide {
   FRONT
   BACK
@@ -366,6 +375,7 @@ model User {
   email              String?
   emailVerified      DateTime?
   image              String?
+  plan               Plan                 @default(PATIENT_FREE)
   password           String?
   role               UserRole             @default(USER)
   type               UserType             @default(PATIENT)
@@ -387,11 +397,11 @@ model User {
 }
 
 model PatientProfile {
-  id                          String      @id @default(cuid())
-  userId                      String      @unique
+  id                          String  @id @default(cuid())
+  userId                      String  @unique
   firstName                   String
   lastName                    String
-  email                       String      @unique
+  email                       String  @unique
   imageUrl                    String?
   gender                      String?
   dateOfBirth                 String?
@@ -400,19 +410,19 @@ model PatientProfile {
   height                      String?
   weight                      String?
   allergies                   String?
-  unit                        Unit        @default(IMPERIAL)
+  unit                        Unit    @default(IMPERIAL)
   mobilePhone                 String?
   homePhone                   String?
-  insuranceImagesSet          Boolean     @default(false)
+  insuranceImagesSet          Boolean @default(false)
   insuranceProvider           String?
   policyNumber                String?
   groupNumber                 String?
-  publicKey                   String      @db.Text
-  privateKey                  String      @db.Text
-  symmetricKey                String      @db.Text
-  plan                        PatientPlan @default(FREE)
-  usedFileStorage             BigInt      @default(0)
-  unrestrictedUsedFileStorage BigInt      @default(0)
+  publicKey                   String  @db.Text
+  privateKey                  String  @db.Text
+  symmetricKey                String  @db.Text
+  plan                        Plan    @default(PATIENT_FREE)
+  usedFileStorage             BigInt  @default(0)
+  unrestrictedUsedFileStorage BigInt  @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

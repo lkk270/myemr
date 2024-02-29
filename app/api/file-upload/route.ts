@@ -6,7 +6,7 @@ import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
-import { allotedPatientStoragesInGb } from "@/lib/constants";
+import { allotedStoragesInGb } from "@/lib/constants";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export async function POST(request: Request) {
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const usedFileStorageInBytes = patient.usedFileStorage;
-    const allotedStorageInBytes = allotedPatientStoragesInGb[patient.plan] * 1000000000;
+    const allotedStorageInBytes = allotedStoragesInGb[user.plan] * 1000000000;
     if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
       return NextResponse.json({ message: "Out of storage! Please upgrade your plan" }, { status: 400 });
     }

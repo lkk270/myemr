@@ -43,7 +43,7 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
   if (!patient) {
     return { error: "Patient not found!" };
   }
-  // const allotedStorageInGb = allotedPatientStoragesInGb[patient.plan];
+  // const allotedStorageInGb = allotedStoragesInGb[patient.plan];
   // if (BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
   //   return {
   //     error: "Cannot send a request for records, as it requires you to have 500 Mb of available storage.",

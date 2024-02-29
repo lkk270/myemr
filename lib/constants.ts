@@ -1060,10 +1060,13 @@ export const dosageFrequency = [
 ];
 
 //IN GB
-export const allotedPatientStoragesInGb = {
-  FREE: 1,
-  PREMIUM_1: 10,
-  PREMIUM_2: 100,
+export const allotedStoragesInGb = {
+  PATIENT_FREE: 1,
+  PATIENT_PREMIUM_1: 10,
+  PATIENT_PREMIUM_2: 100,
+  PROVIDER_FREE: 1,
+  PROVIDER_PREMIUM_1: 10,
+  PROVIDER_PREMIUM_2: 100,
 };
 
 export const accessCodeValidTimeObj = {

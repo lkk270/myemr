@@ -383,6 +383,7 @@ model User {
   providerProfile    ProviderProfile?
   accountType        AccountType          @default(OAUTH)
   recordViewActivity RecordViewActivity[]
+  scheduledToDelete  Boolean              @default(false)
 
   accounts                Account[]
   isTwoFactorEnabled      Boolean                @default(false)
@@ -423,6 +424,7 @@ model PatientProfile {
   plan                        Plan    @default(PATIENT_FREE)
   usedFileStorage             BigInt  @default(0)
   unrestrictedUsedFileStorage BigInt  @default(0)
+  scheduledToDelete           Boolean @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -439,20 +441,21 @@ model PatientProfile {
 }
 
 model ProviderProfile {
-  id            String            @id @default(cuid())
-  userId        String            @unique
-  firstName     String
-  lastName      String
-  email         String            @unique
-  imageUrl      String?
-  publicKey     String            @db.Text
-  privateKey    String            @db.Text
-  plan          DoctorPlan        @default(FREE)
-  organizations Organization[]
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addresses     ProviderAddress[]
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  firstName         String
+  lastName          String
+  email             String            @unique
+  imageUrl          String?
+  publicKey         String            @db.Text
+  privateKey        String            @db.Text
+  scheduledToDelete Boolean           @default(false)
+  plan              DoctorPlan        @default(FREE)
+  organizations     Organization[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses         ProviderAddress[]
 
   @@index([userId])
 }

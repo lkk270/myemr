@@ -67,6 +67,7 @@ export const UploadProfilePictureButton = ({ children, asChild }: UploadProfileP
         throw new Error(`File upload to storage failed.`);
       } else {
         await update();
+        setFile(null);
       }
     } catch (error) {
       setFile(null);

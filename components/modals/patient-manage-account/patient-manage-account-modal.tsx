@@ -28,7 +28,7 @@ export const PatientManageAccountModal = () => {
   const { isOpen, onClose, defaultScrollTo } = usePatientManageAccountModal();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  let activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan", "feedback-form"], isOpen);
+  const activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan", "feedback-form"]);
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);

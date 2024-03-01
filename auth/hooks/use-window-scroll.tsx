@@ -1,32 +1,61 @@
 import { useState, useEffect } from "react";
+import { usePatientManageAccountModal } from "./use-patient-manage-account-modal";
+// Debounce function to limit the rate at which a function is executed
+// A generic type that allows us to specify the function's argument and return types dynamically
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
 
-export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: string[]) => {
+  return function executedFunction(...args: Parameters<T>): void {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+    if (timeout !== null) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(later, wait);
+  };
+}
+
+export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: string[], isMounted: boolean) => {
   const [activeSection, setActiveSection] = useState<string | null>("account");
-
+  const { isOpen } = usePatientManageAccountModal();
   useEffect(() => {
-    const handleScroll = () => {
-      if (!ref.current) return;
+    if (!isOpen) {
+      setActiveSection(null);
+    }
+  }, [isOpen]);
+  useEffect(() => {
+    const handleScroll = debounce(() => {
+      // console.log("IN 30");
+      if (!ref.current) {
+        console.log("Ref not available");
+        return;
+      }
+      if (!isOpen) {
+        return;
+      }
 
       let currentActiveSection = null;
       const currentScroll = ref.current.scrollTop;
+      console.log("Scrolling, current scroll:", currentScroll);
 
-      // Loop through each section to find which is currently active
       for (const sectionId of sectionIds) {
         const sectionElement = document.getElementById(sectionId);
         if (sectionElement) {
-          const sectionTop = sectionElement.offsetTop - 500;
+          const sectionTop = sectionElement.offsetTop - 250;
           const sectionBottom = sectionTop + sectionElement.offsetHeight;
 
-          // Check if currentScroll is within the bounds of this section
           if (currentScroll >= sectionTop && currentScroll < sectionBottom) {
             currentActiveSection = sectionId;
-            break; // Stop the loop once the active section is found
+            // console.log("Active section:", currentActiveSection);
+            break;
           }
         }
       }
 
       setActiveSection(currentActiveSection);
-    };
+    }, 200); // Debounce scroll events by 100ms
 
     const element = ref.current;
     if (element) {
@@ -38,7 +67,8 @@ export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: s
         element.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [ref, sectionIds]); // Depend on ref and sectionIds to re-attach event listener if they change
+    // Ensure the effect runs only when ref or sectionIds change
+  }, [ref, sectionIds, isOpen, isMounted]);
 
   return activeSection;
 };

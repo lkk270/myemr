@@ -1069,6 +1069,15 @@ export const allotedStoragesInGb = {
   PROVIDER_PREMIUM_2: 100,
 };
 
+export const planNames = {
+  PATIENT_FREE: { title: "Basic", level: 0 },
+  PATIENT_PREMIUM_1: { title: "Pro", level: 1 },
+  PATIENT_PREMIUM_2: { title: "Pro+", level: 2 },
+  PROVIDER_FREE: { title: "Basic", level: 0 },
+  PROVIDER_PREMIUM_1: { title: "Pro", level: 1 },
+  PROVIDER_PREMIUM_2: { title: "Pro+", level: 2 },
+};
+
 export const accessCodeValidTimeObj = {
   MINUTE_30: 1800,
   HOUR_1: 3600,

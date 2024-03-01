@@ -1,3 +1,5 @@
+import { Plan } from "@prisma/client";
+
 // types/index.ts
 export * from "./patient-types";
 export * from "./table-types";
@@ -21,7 +23,7 @@ export type PermissionsType = {
 export type PermissionKey = keyof PermissionsType;
 
 export type SubscriptionTierType = {
-  id: string;
+  id: Plan;
   title: string;
   priceText: string;
   featured: boolean;

@@ -19,7 +19,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
 
 export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: string[]) => {
   const [activeSection, setActiveSection] = useState<string | null>("account");
-  const { isOpen } = usePatientManageAccountModal();
+  const { isOpen, defaultScrollTo } = usePatientManageAccountModal();
   console.log(isOpen);
   useEffect(() => {
     if (!isOpen) {
@@ -69,7 +69,7 @@ export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: s
       }
     };
     // Ensure the effect runs only when ref or sectionIds change
-  }, [ref, sectionIds, isOpen]);
+  }, [ref, sectionIds, isOpen, defaultScrollTo]);
 
   return activeSection;
 };

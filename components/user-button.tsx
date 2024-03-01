@@ -45,7 +45,7 @@ export const UserButton = () => {
           </div>
         )}
         {isValidPatient && (
-          <DropdownMenuItem className="py-3" onClick={() => onOpen("account")}>
+          <DropdownMenuItem className="py-3" onClick={() => onOpen()}>
             <Settings className="h-4 w-4 mr-6" />
             Manage account
           </DropdownMenuItem>

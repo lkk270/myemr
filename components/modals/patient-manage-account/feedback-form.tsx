@@ -4,12 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
+import { sendFeedback } from "@/auth/lib/mail";
 
 const formSchema = z.object({
   feedback: z.string().min(2, {
@@ -30,15 +31,17 @@ export const FeedbackForm = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const feedbackText = values.feedback;
+    console.log(feedbackText);
+    startTransition(() => {
+      sendFeedback(feedbackText)
+        .then(() => {
+          toast.success("Feedback sent");
+        })
+        .catch(() => toast.error("Something went wrong"));
+    });
   };
   return (
-    <div className="flex flex-col items-center h-full p-4">
-      {/* <div className="mb-4 text-sm text-center text-primary/50">
-        <h1 className="text-4xl font-bold">Feedback</h1>
-        <div className="max-w-lg mt-4 text-left">
-          <p>If you&apos;d like to suggest features and/or improvements you can do so here anonymously.</p>
-        </div>
-      </div> */}
+    <div className="flex flex-col items-center h-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
           <FormField
@@ -48,7 +51,7 @@ export const FeedbackForm = () => {
               <FormItem>
                 {/* <FormLabel>Feedback</FormLabel> */}
                 <FormControl>
-                  <Textarea className="h-[250px]" placeholder="Don't hold back, we can take it." {...field} />
+                  <Textarea className="h-[200px]" placeholder="Don't hold back, we can take it." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

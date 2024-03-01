@@ -43,7 +43,7 @@ const tiers: SubscriptionTierType[] = [
 ];
 export const PatientSubscriptionTiers = () => {
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+    <div className="grid grid-cols-1 pb-6 gap-6 sm:gap-2 sm:grid-cols-3 sm:pb-0">
       {tiers.map((tier, index) => {
         return <SubscriptionTier tier={tier} key={tier.id} />;
       })}

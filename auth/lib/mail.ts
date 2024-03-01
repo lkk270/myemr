@@ -1,3 +1,5 @@
+"use server";
+
 import { UserType } from "@prisma/client";
 import resendClient from "./resendClient";
 import { getBuffer, logoBase64Url } from "./notarized-letter";
@@ -89,6 +91,19 @@ export const sendRequestRecordsEmail = async (
     //     token,
     //   },
     // });
+    throw new Error("Something went wrong on email send");
+  }
+};
+
+export const sendFeedback = async (text: string) => {
+  const response = await resendClient.emails.send({
+    from: "onboarding@resend.dev",
+    to: "leekk270@gmail.com",
+    subject: "Feedback",
+    html: `<div><p>Here's some feedback</p><p>${text}</p></div>`,
+  });
+
+  if (response.error) {
     throw new Error("Something went wrong on email send");
   }
 };

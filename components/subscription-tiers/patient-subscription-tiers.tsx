@@ -17,7 +17,7 @@ const tiers: SubscriptionTierType[] = [
     ],
   },
   {
-    id: "PATIENT_PREMIUM1",
+    id: "PATIENT_PREMIUM_1",
     title: "Pro",
     priceText: "$5",
     featured: true,
@@ -29,7 +29,7 @@ const tiers: SubscriptionTierType[] = [
     ],
   },
   {
-    id: "PATIENT_PREMIUM2",
+    id: "PATIENT_PREMIUM_2",
     title: "Pro+",
     priceText: "$12",
     featured: false,
@@ -43,7 +43,7 @@ const tiers: SubscriptionTierType[] = [
 ];
 export const PatientSubscriptionTiers = () => {
   return (
-    <div className="grid grid-cols-1 gap-2 mt-8 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
       {tiers.map((tier, index) => {
         return <SubscriptionTier tier={tier} key={tier.id} />;
       })}

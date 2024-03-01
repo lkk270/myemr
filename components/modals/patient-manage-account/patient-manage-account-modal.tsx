@@ -3,10 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-manage-account-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { User, Landmark } from "lucide-react";
+import { User, Landmark, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { useSession } from "next-auth/react";
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
 import { Separator } from "../../ui/separator";
@@ -19,19 +18,17 @@ import { DeleteAccountButton } from "./delete-account-button";
 import { Button } from "@/components/ui/button";
 import { AvatarComponent } from "@/components/avatar-component";
 import { PatientSubscriptionTiers } from "@/components/subscription-tiers/patient-subscription-tiers";
+import { planNames } from "@/lib/constants";
+import { FeedbackForm } from "./feedback-form";
 
 export const PatientManageAccountModal = () => {
-  const { data: session } = useSession();
   const user = useCurrentUser();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
-
-  const toggle = usePatientManageAccountModal((store) => store.toggle);
-  const isOpen = usePatientManageAccountModal((store) => store.isOpen);
-  const onClose = usePatientManageAccountModal((store) => store.onClose);
+  const { isOpen, onClose, defaultScrollTo } = usePatientManageAccountModal();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan"]);
+  let activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan", "feedback-form"], isOpen);
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -41,12 +38,35 @@ export const PatientManageAccountModal = () => {
   };
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    if (isOpen) {
+      // console.log("IN HERE");
+      setIsMounted(true);
+    }
+  }, [isOpen]);
 
-  if (!isMounted) {
+  useEffect(() => {
+    if (isOpen && isMounted && !!defaultScrollTo) {
+      // console.log("IN HERE");
+      setTimeout(() => {
+        scrollToSection(defaultScrollTo);
+      }, 500);
+    }
+  }, [isOpen, isMounted]);
+
+  // useEffect(() => {
+  //   if (!isOpen) {
+  //     console.log("IN 55");
+  //     activeSection = "account";
+  //   }
+  // }, [isOpen]);
+  // console.log(isMounted);
+  // console.log(isOpen);
+  if (!isMounted || !scrollContainerRef) {
     return null;
   }
+
+  // console.log(!!scrollContainerRef);
+  // console.log(activeSection);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -80,6 +100,19 @@ export const PatientManageAccountModal = () => {
               <div className="flex items-center gap-x-2">
                 <Landmark />
                 <span>Billing/Plan</span>
+              </div>
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => scrollToSection("feedback-form")}
+              className={cn(
+                "transition-colors flex items-center justify-start",
+                activeSection === "feedback-form" ? "bg-secondary" : "bg-transparent",
+              )}
+            >
+              <div className="flex items-center gap-x-2">
+                <MessageCircle />
+                <span>Feedback</span>
               </div>
             </Button>
           </div>
@@ -141,7 +174,7 @@ export const PatientManageAccountModal = () => {
                       </div>
                       <div className="flex flex-col gap-y-2">
                         <DeleteAccountButton asChild>
-                          <Button className=" bg-[#f04337] hover:bg-[#d92d21] text-[#ffff]">Delete Account</Button>
+                          <Button className="bg-[#f04337] hover:bg-[#d92d21] text-[#ffff]">Delete Account</Button>
                         </DeleteAccountButton>
                       </div>
                     </div>
@@ -150,15 +183,34 @@ export const PatientManageAccountModal = () => {
               </div>
             </div>
 
-            <div id="billing-plan" style={{ height: "600px" }}>
+            <div className="flex flex-col gap-y-5" id="billing-plan" style={{ minHeight: "600px" }}>
               <div className="flex flex-col space-y-1.5">
                 <h1 className="text-4xl font-bold">Billing & Plan</h1>
                 <h3 className="text-md text-muted-foreground">Manage your banking information and subscription</h3>
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 items-center">
+                {user?.plan && (
+                  <div>
+                    Your current plan is: <strong>{planNames[user.plan].title}</strong>
+                  </div>
+                )}
+                {!user?.plan.includes("FREE") && <Button className="w-48 h-12">Manage subscription</Button>}
+              </div>
               <PatientSubscriptionTiers />
             </div>
+            <div className="flex flex-col gap-y-5" id="feedback-form" style={{ minHeight: "600px" }}>
+              <div className="flex flex-col space-y-1.5">
+                <h1 className="text-4xl font-bold">Feedback</h1>
+                <h3 className="text-md text-muted-foreground">
+                  If you&apos;d like to suggest features, improvements, or report a bug you can do so here anonymously.
+                </h3>
+              </div>
+              <FeedbackForm />
+            </div>
           </div>
-          <div className="text-center items-center text-sm font-semibold pb-2">myemr © 2024 | made with ❤️</div>
+          <div className="text-center items-center text-sm font-semibold pb-2 text-muted-foreground">
+            myemr © 2024 | made with ❤️
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -17,7 +17,7 @@ import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permiss
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { useSession } from "next-auth/react";
 import { logout } from "@/auth/actions/logout";
-
+import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
@@ -37,6 +37,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
   const currentUserPermissions = useCurrentUserPermissions();
   const session = useSession();
+  const { onOpen } = usePatientManageAccountModal();
   // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
 
@@ -170,7 +171,9 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
                       folderStore.usedFileStorage,
                     )} Gb / ${allotedStorageInGb} Gb`}</span>
 
-                    <span role="button">Upgrade</span>
+                    <span role="button" onClick={() => onOpen("billing-plan")}>
+                      Upgrade
+                    </span>
                   </div>
                 </div>
               </>

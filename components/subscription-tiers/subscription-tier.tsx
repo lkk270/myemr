@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
+import { planNames } from "@/lib/constants";
 
 export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
   const currentUser = useCurrentUser();
@@ -12,8 +13,8 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
     <div
       className={cn(
         "flex flex-col p-5 shadow-lg rounded-lg justify-between border bg-primary/5",
-        tier.featured ? "relative border-purple-500" : "border-secondary",
-        isCurrentTier && "relative",
+        tier.featured && !isCurrentTier ? "relative border-purple-500" : "border-secondary",
+        isCurrentTier && "border-[0.1px] relative border-green-500",
       )}
     >
       {tier.featured && !isCurrentTier && (
@@ -22,7 +23,7 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
         </div>
       )}
       {isCurrentTier && (
-        <div className="px-2 py-[3px] text-sm sm:text-xs bg-secondary rounded-full inline-block absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="border border-green-500 px-2 py-[3px] text-sm sm:text-xs bg-secondary rounded-full inline-block absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           Current
         </div>
       )}
@@ -43,14 +44,16 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
           })}
         </ul>
       </div>
-      {!tier.id.includes("FREE") && (
+      {currentUser?.plan && !tier.id.includes("FREE") && (
         <div className="mt-6">
           {currentUser?.plan === tier.id ? (
             <Button variant={"outline"} className="w-full">
               Manage
             </Button>
           ) : (
-            <Button className="w-full text-sm">Switch</Button>
+            <Button className="w-full text-sm">
+              {planNames[tier.id].level > planNames[currentUser.plan].level ? "Upgrade" : "Downgrade"}
+            </Button>
           )}
         </div>
       )}

@@ -46,7 +46,7 @@ export const UserButton = () => {
               {plan && !plan.includes("FREE") && (
                 <span className="bg-gradient-to-r from-violet-400 to-[#4f5eff] bg-clip-text text-transparent">
                   {" "}
-                  {planNames[plan].title} subscriber
+                  {planNames[plan].title}
                 </span>
               )}
             </span>

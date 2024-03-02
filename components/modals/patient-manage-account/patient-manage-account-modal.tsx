@@ -20,9 +20,18 @@ import { AvatarComponent } from "@/components/avatar-component";
 import { PatientSubscriptionTiers } from "@/components/subscription-tiers/patient-subscription-tiers";
 import { planNames } from "@/lib/constants";
 import { FeedbackForm } from "./feedback-form";
+import axios from "axios";
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { toast } from "sonner";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export const PatientManageAccountModal = () => {
+  const { update } = useSession();
   const user = useCurrentUser();
+  const pathname = usePathname();
+  const { isLoading, setIsLoading } = useIsLoading();
+
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
   const { isOpen, onClose, defaultScrollTo } = usePatientManageAccountModal();
@@ -67,6 +76,25 @@ export const PatientManageAccountModal = () => {
 
   // console.log(!!scrollContainerRef);
   // console.log(activeSection);
+
+  const onManageSubscriptionClick = async () => {
+    try {
+      if (!user || !user.plan) return;
+      setIsLoading(true);
+      const response = await axios.post("/api/stripe", {
+        redirectUrl: pathname,
+        plan: user.plan,
+      });
+
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      await update();
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -188,13 +216,17 @@ export const PatientManageAccountModal = () => {
                 <h1 className="text-4xl font-bold">Billing & Plan</h1>
                 <h3 className="text-md text-muted-foreground">Manage your banking information and subscription</h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 items-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 items-center pb-10">
                 {user?.plan && (
                   <div>
                     Your current plan is: <strong>{planNames[user.plan].title}</strong>
                   </div>
                 )}
-                {!user?.plan.includes("FREE") && <Button className="w-48 h-12">Manage subscription</Button>}
+                {!user?.plan.includes("FREE") && (
+                  <Button disabled={isLoading} onClick={onManageSubscriptionClick} className="w-[180px] h-10">
+                    Manage subscription
+                  </Button>
+                )}
               </div>
               <PatientSubscriptionTiers />
             </div>

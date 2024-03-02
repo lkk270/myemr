@@ -4,10 +4,39 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { planNames } from "@/lib/constants";
+import axios from "axios";
+import { useIsLoading } from "@/hooks/use-is-loading";
+import { toast } from "sonner";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
+  const { update } = useSession();
   const currentUser = useCurrentUser();
+  const pathname = usePathname();
+  const { isLoading, setIsLoading } = useIsLoading();
   const isCurrentTier = currentUser?.plan === tier.id;
+
+  const onClick = async (forSubscriptionChange: boolean) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post("/api/stripe", {
+        redirectUrl: pathname,
+        plan: tier.id,
+      });
+      if (!currentUser?.plan.includes("FREE") && forSubscriptionChange) {
+        toast.success("Subscription successfully changed!");
+      } else {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      await update();
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div
@@ -47,12 +76,12 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
       {currentUser?.plan && !tier.id.includes("FREE") && (
         <div className="mt-6">
           {currentUser?.plan === tier.id ? (
-            <Button variant={"outline"} className="w-full">
+            <Button disabled={isLoading} onClick={() => onClick(false)} variant={"outline"} className="w-full">
               Manage
             </Button>
           ) : (
-            <Button className="w-full text-sm">
-              {planNames[tier.id].level > planNames[currentUser.plan].level ? "Upgrade" : "Downgrade"}
+            <Button disabled={isLoading} className="w-full text-sm" onClick={() => onClick(true)}>
+              {planNames[tier.id].stripe.price > planNames[currentUser.plan].stripe.price ? "Upgrade" : "Downgrade"}
             </Button>
           )}
         </div>

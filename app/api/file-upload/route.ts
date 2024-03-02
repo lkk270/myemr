@@ -38,7 +38,6 @@ export async function POST(request: Request) {
         firstName: true,
         lastName: true,
         usedFileStorage: true,
-        plan: true,
       },
     });
 

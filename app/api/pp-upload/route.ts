@@ -3,11 +3,10 @@ import { S3Client } from "@aws-sdk/client-s3";
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server";
 import { patientUpdateVerification } from "@/lib/utils";
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { profileImageUrlPrefix } from "@/lib/constants";
-import { update } from "@/auth";
+import { update, auth } from "@/auth";
 
 export async function POST(request: Request) {
   const body = await request.json();

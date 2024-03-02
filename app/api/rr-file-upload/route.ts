@@ -6,6 +6,7 @@ import { patientUpdateVerification } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
 import { allotedStoragesInGb } from "@/lib/constants";
+import { getSubscriptionRigorous } from "@/lib/stripe/subscription";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -65,7 +66,6 @@ export async function POST(request: Request) {
         lastName: true,
         usedFileStorage: true,
         unrestrictedUsedFileStorage: true,
-        plan: true,
       },
     });
 
@@ -87,9 +87,12 @@ export async function POST(request: Request) {
     if (!parentFolder) {
       return NextResponse.json({ message: "parentFolder not found" }, { status: 400 });
     }
+
+    const subscription = await getSubscriptionRigorous(patient.userId);
+    const plan = subscription ? subscription.plan : "PATIENT_FREE";
     let restricted = false;
     const usedFileStorageInBytes = patient.usedFileStorage;
-    const allotedStorageInBytes = allotedStoragesInGb[patient.plan] * 1_000_000_000;
+    const allotedStorageInBytes = allotedStoragesInGb[plan] * 1_000_000_000;
     if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
       restricted = true;
     }

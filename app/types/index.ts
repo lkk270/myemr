@@ -26,6 +26,7 @@ export type SubscriptionTierType = {
   id: Plan;
   title: string;
   priceText: string;
+  stripePrice: number;
   featured: boolean;
   items: string[];
 };

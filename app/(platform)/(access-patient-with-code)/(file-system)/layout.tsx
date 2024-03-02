@@ -28,7 +28,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({
     where: { userId: user.id },
-    select: { id: true, usedFileStorage: true, plan: true },
+    select: { id: true, usedFileStorage: true },
   });
 
   if (!sortedFolders || !patient) {

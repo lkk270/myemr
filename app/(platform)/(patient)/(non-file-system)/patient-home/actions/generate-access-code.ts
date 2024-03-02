@@ -23,7 +23,6 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     select: {
       id: true,
       usedFileStorage: true,
-      plan: true,
     },
   });
 

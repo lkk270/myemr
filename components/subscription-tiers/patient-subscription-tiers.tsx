@@ -8,6 +8,7 @@ const tiers: SubscriptionTierType[] = [
     id: "PATIENT_FREE",
     title: "Basic",
     priceText: "Free",
+    stripePrice: 0,
     featured: false,
     items: [
       "1 GB of file storage",
@@ -20,6 +21,7 @@ const tiers: SubscriptionTierType[] = [
     id: "PATIENT_PREMIUM_1",
     title: "Pro",
     priceText: "$5",
+    stripePrice: 500,
     featured: true,
     items: [
       "10 GB of file storage",
@@ -32,6 +34,7 @@ const tiers: SubscriptionTierType[] = [
     id: "PATIENT_PREMIUM_2",
     title: "Pro+",
     priceText: "$12",
+    stripePrice: 1200,
     featured: false,
     items: [
       "50 GB of file storage",

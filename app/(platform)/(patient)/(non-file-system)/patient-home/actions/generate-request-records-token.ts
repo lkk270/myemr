@@ -9,6 +9,7 @@ import { RequestRecordsSchema } from "../schemas";
 import { z } from "zod";
 import { currentUser } from "@/auth/lib/auth";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/utils";
+import { allotedStoragesInGb } from "@/lib/constants";
 
 export const generateRequestRecordsToken = async (values: z.infer<typeof RequestRecordsSchema>) => {
   const user = await currentUser();
@@ -37,18 +38,17 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
       dateOfBirth: true,
       symmetricKey: true,
       usedFileStorage: true,
-      plan: true,
     },
   });
   if (!patient) {
     return { error: "Patient not found!" };
   }
-  // const allotedStorageInGb = allotedStoragesInGb[patient.plan];
-  // if (BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
-  //   return {
-  //     error: "Cannot send a request for records, as it requires you to have 500 Mb of available storage.",
-  //   };
-  // }
+  const allotedStorageInGb = allotedStoragesInGb[user.plan];
+  if (BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
+    return {
+      error: "Cannot send a request for records, as it requires you to have 500 Mb of available storage.",
+    };
+  }
   let decryptedPatientFields;
   try {
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");

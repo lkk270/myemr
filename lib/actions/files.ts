@@ -5,6 +5,7 @@ import prismadb from "../prismadb";
 import { allotedStoragesInGb } from "../constants";
 import { PrismaClient } from "@prisma/client";
 import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { auth } from "@/auth";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -441,14 +442,17 @@ export const unrestrictFiles = async (patientProfileId: string) => {
       select: {
         usedFileStorage: true,
         unrestrictedUsedFileStorage: true,
-        plan: true,
       },
     });
-    if (!patient) {
+    //only patient can delete so this is safe to use session to get the patient's plan
+    const session = await auth();
+
+    if (!patient || !session || !session.user) {
       return;
     }
+
     const unrestrictedUsedFileStorage = patient.unrestrictedUsedFileStorage;
-    const allotedStorageInBytes = allotedStoragesInGb[patient.plan] * 1_000_000_000;
+    const allotedStorageInBytes = allotedStoragesInGb[session.user.plan] * 1_000_000_000;
     //first conditional if the usedFileStorage (total used storage) is less than the allotedStorageInBytes then any restricted files should change to restricted:false
     if (patient.usedFileStorage < allotedStorageInBytes) {
       filesToUnrestrict = restrictedFiles;

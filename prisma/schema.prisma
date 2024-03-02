@@ -375,7 +375,6 @@ model User {
   email              String?
   emailVerified      DateTime?
   image              String?
-  plan               Plan                 @default(PATIENT_FREE)
   password           String?
   role               UserRole             @default(USER)
   type               UserType             @default(PATIENT)
@@ -393,7 +392,7 @@ model User {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   // @@index([twoFactorConfirmationId])
-  UserSubscription UserSubscription?
+  userSubscription UserSubscription?
 
   @@unique([email, type])
 }

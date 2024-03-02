@@ -17,6 +17,7 @@ import {
 import { ExtendedUser } from "./next-auth";
 import { setScheduledToDelete } from "./auth/actions/set-scheduled-to-delete";
 import { getSubscription, getSubscriptionRigorous } from "./lib/stripe/subscription";
+import { extractCurrentUserPermissions } from "./auth/hooks/use-current-user-permissions";
 
 const DAY_IN_MS = 86_400_000;
 
@@ -106,17 +107,20 @@ export const {
       // }
       // if (account?.provider !== "credentials") return true;
       else {
+        const userPermissions = extractCurrentUserPermissions(user);
         let userId = user.id;
         if (userId.includes("_")) userId = userId.split("_")[0];
         const existingUser = await getUserById(userId);
-
         // Prevent sign in without email verification
-        if (!existingUser?.emailVerified) return false;
-
-        if (existingUser.isTwoFactorEnabled) {
+        if (!existingUser?.emailVerified) {
+          return false;
+        }
+        if (existingUser.isTwoFactorEnabled && userPermissions.hasAccount) {
           const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
 
-          if (!twoFactorConfirmation) return false;
+          if (!twoFactorConfirmation) {
+            return false;
+          }
 
           // Delete two factor confirmation for next sign in
           await prismadb.twoFactorConfirmation.delete({

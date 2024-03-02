@@ -157,7 +157,11 @@ export const PatientManageAccountModal = () => {
         )}
         <div className="w-[675px]">
           <div className="flex flex-col gap-x-4 pl-2">
-            <div id="account" style={{ height: "875px" }} className="flex flex-col pt-5 gap-y-4">
+            <div
+              id="account"
+              style={{ height: user?.isOAuth ? "420px" : "875px" }}
+              className="flex flex-col pt-5 gap-y-4"
+            >
               <div className="flex flex-col space-y-1.5">
                 <h1 className="text-4xl font-bold">Account</h1>
                 <h3 className="text-md text-muted-foreground">Manage your account information</h3>

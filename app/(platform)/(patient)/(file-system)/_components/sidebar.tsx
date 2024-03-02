@@ -18,13 +18,13 @@ import { getAccessPatientCodeByToken } from "@/auth/data";
 import { useSession } from "next-auth/react";
 import { logout } from "@/auth/actions/logout";
 import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
+import { allotedStoragesInGb } from "@/lib/constants";
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
   usedFileStorage: bigint;
-  allotedStorageInGb: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorageInGb }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, usedFileStorage }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
@@ -41,7 +41,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const { onOpen } = usePatientManageAccountModal();
   // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
-
+  const allotedStorageInGb = !!session && !!session.data ? allotedStoragesInGb[session.data.user.plan] : 1;
   useEffect(() => {
     setIsMounted(true);
     // console.log(data);

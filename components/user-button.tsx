@@ -17,10 +17,12 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 import { Separator } from "@/components/ui/separator";
 import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
 import { AvatarComponent } from "./avatar-component";
+import { planNames } from "@/lib/constants";
 
 export const UserButton = () => {
   const { onOpen } = usePatientManageAccountModal();
   const user = useCurrentUser();
+  const plan = user?.plan;
   const currentUserPermissions = extractCurrentUserPermissions(user);
   const isValidPatient = user?.email && currentUserPermissions.isPatient;
 
@@ -37,10 +39,16 @@ export const UserButton = () => {
         align="end"
       >
         {isValidPatient && (
-          <div className="flex flex-row gap-x-2 mb-4 items-center">
+          <div className="flex flex-row gap-x-2 mb-4 items-center max-w-[375px]">
             <AvatarComponent avatarClassName="w-10 h-10" />
-            <span className="break-all whitespace-normal text-sm font-semibold">
+            <span className=" text-sm font-semibold break-all whitespace-normal">
               {capitalizeFirstLetter(user.email!)}
+              {plan && !plan.includes("FREE") && (
+                <span className="bg-gradient-to-r from-violet-400 to-[#4f5eff] bg-clip-text text-transparent">
+                  {" "}
+                  {planNames[plan].title} subscriber
+                </span>
+              )}
             </span>
           </div>
         )}

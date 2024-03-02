@@ -1064,10 +1064,10 @@ export const dosageFrequency = [
 export const allotedStoragesInGb = {
   PATIENT_FREE: 1,
   PATIENT_PREMIUM_1: 10,
-  PATIENT_PREMIUM_2: 100,
+  PATIENT_PREMIUM_2: 50,
   PROVIDER_FREE: 1,
   PROVIDER_PREMIUM_1: 10,
-  PROVIDER_PREMIUM_2: 100,
+  PROVIDER_PREMIUM_2: 50,
 };
 
 export const planNames = {

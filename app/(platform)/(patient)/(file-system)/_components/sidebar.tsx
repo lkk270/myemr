@@ -37,6 +37,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
   const currentUserPermissions = useCurrentUserPermissions();
   const session = useSession();
+  const plan = session?.data?.user?.plan;
   const { onOpen } = usePatientManageAccountModal();
   // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
   // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
@@ -171,9 +172,11 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
                       folderStore.usedFileStorage,
                     )} Gb / ${allotedStorageInGb} Gb`}</span>
 
-                    <span role="button" onClick={() => onOpen("billing-plan")}>
-                      Upgrade
-                    </span>
+                    {plan && !plan.includes("_PREMIUM_2") && (
+                      <span role="button" onClick={() => onOpen("billing-plan")}>
+                        Upgrade
+                      </span>
+                    )}
                   </div>
                 </div>
               </>

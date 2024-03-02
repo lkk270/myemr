@@ -127,7 +127,15 @@ export const patientUpdateVerification = (body: any, currentUserPermissions: Per
     if (updateType === "insuranceUpload" && !insuranceFileNames.includes(body.side)) {
       return false;
     }
-
+    if (
+      updateType === "stripe" &&
+      body.plan !== "PATIENT_PREMIUM_1" &&
+      body.plan !== "PATIENT_PREMIUM_2" &&
+      body.plan !== "PROVIDER_PREMIUM_1" &&
+      body.plan !== "PROVIDER_PREMIUM_2"
+    ) {
+      return false;
+    }
     return true;
   } catch (error: any) {
     console.log(error);

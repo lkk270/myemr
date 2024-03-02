@@ -390,19 +390,20 @@ model User {
   twoFactorConfirmation   TwoFactorConfirmation?
   twoFactorConfirmationId String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   // @@index([twoFactorConfirmationId])
+  UserSubscription UserSubscription?
 
   @@unique([email, type])
 }
 
 model PatientProfile {
-  id                          String  @id @default(cuid())
-  userId                      String  @unique
+  id                          String           @id @default(cuid())
+  userId                      String           @unique
   firstName                   String
   lastName                    String
-  email                       String  @unique
+  email                       String           @unique
   imageUrl                    String?
   gender                      String?
   dateOfBirth                 String?
@@ -411,31 +412,28 @@ model PatientProfile {
   height                      String?
   weight                      String?
   allergies                   String?
-  unit                        Unit    @default(IMPERIAL)
+  unit                        Unit             @default(IMPERIAL)
   mobilePhone                 String?
   homePhone                   String?
-  insuranceImagesSet          Boolean @default(false)
+  insuranceImagesSet          Boolean          @default(false)
   insuranceProvider           String?
   policyNumber                String?
   groupNumber                 String?
-  publicKey                   String  @db.Text
-  privateKey                  String  @db.Text
-  symmetricKey                String  @db.Text
-  plan                        Plan    @default(PATIENT_FREE)
-  usedFileStorage             BigInt  @default(0)
-  unrestrictedUsedFileStorage BigInt  @default(0)
-  scheduledToDelete           Boolean @default(false)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  member        Member[]
-  addresses     PatientAddress[]
-  medications   Medication[]
-  folders       Folder[]
-  files         File[]
-  InsuranceFile InsuranceFile[]
+  publicKey                   String           @db.Text
+  privateKey                  String           @db.Text
+  symmetricKey                String           @db.Text
+  usedFileStorage             BigInt           @default(0)
+  unrestrictedUsedFileStorage BigInt           @default(0)
+  scheduledToDelete           Boolean          @default(false)
+  user                        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
+  member                      Member[]
+  addresses                   PatientAddress[]
+  medications                 Medication[]
+  folders                     Folder[]
+  files                       File[]
+  InsuranceFile               InsuranceFile[]
 
   @@index([userId])
 }
@@ -450,7 +448,6 @@ model ProviderProfile {
   publicKey         String            @db.Text
   privateKey        String            @db.Text
   scheduledToDelete Boolean           @default(false)
-  plan              DoctorPlan        @default(FREE)
   organizations     Organization[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -545,4 +542,17 @@ model RequestRecordsCode {
   isValid          Boolean  @default(true)
   files            File[]
   createdAt        DateTime @default(now())
+}
+
+model UserSubscription {
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  plan                   Plan
+  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?   @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  user                   User      @relation(fields: [userId], references: [id])
 }

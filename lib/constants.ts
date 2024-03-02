@@ -1,3 +1,4 @@
+import { SubscriptionTierType } from "@/app/types";
 import { UserRole } from "@prisma/client";
 import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings, Upload } from "lucide-react";
 
@@ -1070,12 +1071,18 @@ export const allotedStoragesInGb = {
 };
 
 export const planNames = {
-  PATIENT_FREE: { title: "Basic", level: 0 },
-  PATIENT_PREMIUM_1: { title: "Pro", level: 1 },
-  PATIENT_PREMIUM_2: { title: "Pro+", level: 2 },
-  PROVIDER_FREE: { title: "Basic", level: 0 },
-  PROVIDER_PREMIUM_1: { title: "Pro", level: 1 },
-  PROVIDER_PREMIUM_2: { title: "Pro+", level: 2 },
+  PATIENT_FREE: { title: "Basic", stripe: { id: "", price: 0, name: "MyEmr Patient Basic" } },
+  PATIENT_PREMIUM_1: {
+    title: "Pro",
+    stripe: { id: "price_1Opg0XE2jPbkyOVrg8JcnSHZ", price: 500, name: "MyEmr Patient Pro" },
+  },
+  PATIENT_PREMIUM_2: {
+    title: "Pro+",
+    stripe: { id: "price_1Opg0mE2jPbkyOVrYuIXGhiY", price: 1200, name: "MyEmr Patient Pro+" },
+  },
+  PROVIDER_FREE: { title: "Basic", stripe: { id: "", price: 0, name: "MyEmr Provider Basic" } },
+  PROVIDER_PREMIUM_1: { title: "Pro", stripe: { id: "", price: 500, name: "MyEmr Provider Pro" } },
+  PROVIDER_PREMIUM_2: { title: "Pro+", stripe: { id: "", price: 1200, name: "MyEmr Provider Pro+" } },
 };
 
 export const accessCodeValidTimeObj = {

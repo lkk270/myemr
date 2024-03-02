@@ -534,3 +534,7 @@ export function getTimeUntil(date: Date): string {
 //   flattenItem(data); // start with the root item
 //   return result;
 // }
+
+export function absoluteUrl(path: string) {
+  return `${process.env.NEXT_PUBLIC_URL}${path}`;
+}

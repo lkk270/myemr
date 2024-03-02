@@ -16,6 +16,9 @@ import {
 } from "@/auth/data";
 import { ExtendedUser } from "./next-auth";
 import { setScheduledToDelete } from "./auth/actions/set-scheduled-to-delete";
+import { getSubscription, getSubscriptionRigorous } from "./lib/stripe/subscription";
+
+const DAY_IN_MS = 86_400_000;
 
 export const {
   handlers: { GET, POST },
@@ -176,10 +179,17 @@ export const {
       }
 
       const existingAccount = await getAccountByUserId(existingUser.id);
+      const existingSubscription = await getSubscriptionRigorous(userId);
+      // console.log(existingSubscription);
+      let plan = existingUser.type === "PATIENT" ? "PATIENT_FREE" : "PROVIDER_FREE";
+
+      if (!!existingSubscription) {
+        plan = existingSubscription.plan;
+      }
 
       token.isOAuth = !!existingAccount;
       token.email = existingUser.email;
-      token.plan = existingUser.plan;
+      token.plan = plan;
       token.userType = existingUser.type;
       token.tempToken = code ? code.token : undefined;
       token.role = code ? code.accessType : existingUser.role;

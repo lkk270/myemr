@@ -20,7 +20,6 @@ export const getPatient = async () => {
       select: {
         firstName: true,
         lastName: true,
-        plan: true,
         symmetricKey: true,
       },
     });

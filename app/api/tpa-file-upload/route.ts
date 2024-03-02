@@ -52,7 +52,6 @@ export async function POST(request: Request) {
         lastName: true,
         usedFileStorage: true,
         unrestrictedUsedFileStorage: true,
-        plan: true,
       },
     });
 

@@ -8,6 +8,7 @@ export const publicRoutes: string[] = [
   "/auth/patient-new-verification",
   "/auth/provider-new-verification",
   "/api/rr-file-upload",
+  "/api/webhook",
 ];
 
 /**
@@ -39,13 +40,7 @@ export const authRoutes: string[] = [
  * An array of routes that are patient specific
  * @type {string[]}
  */
-export const patientRoutes: string[] = [
-  "/patient-home",
-  "/files",
-  "/about",
-  "/medications",
-  "/providers",
-];
+export const patientRoutes: string[] = ["/patient-home", "/files", "/about", "/medications", "/providers"];
 
 /**
  * An array of routes that are patient specific and are dynamic

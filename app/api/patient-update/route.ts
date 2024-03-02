@@ -95,6 +95,8 @@ export async function POST(req: Request) {
         id: true,
         symmetricKey: true,
         addresses: true,
+        usedFileStorage: true,
+        unrestrictedUsedFileStorage: true,
       },
     });
     if (!patient || !patient.symmetricKey) {
@@ -251,7 +253,12 @@ export async function POST(req: Request) {
       await deleteFiles(selectedFileIds, totalSizeOfUnrestrictedFiles, totalSize, patient.id);
       await deleteFolders(selectedFolderIds, forEmptyTrash);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
-      const newlyUnrestrictedFileIds = await unrestrictFiles(patient.id);
+      const newlyUnrestrictedFileIds = await unrestrictFiles({
+        id: patient.id,
+        usedFileStorage: patient.usedFileStorage,
+        unrestrictedUsedFileStorage: patient.unrestrictedUsedFileStorage,
+        plan: user.plan,
+      });
       return new NextResponse(
         JSON.stringify({ totalSize: totalSize, newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
       );

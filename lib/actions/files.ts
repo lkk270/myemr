@@ -1,6 +1,6 @@
 "use server";
 
-import { Folder, File, FileStatus, Prisma } from "@prisma/client";
+import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
 import { allotedStoragesInGb } from "../constants";
 import { PrismaClient } from "@prisma/client";
@@ -415,11 +415,16 @@ const unrestrictFilesTransaction = async (restrictedFiles: FileToUnrestrict[], p
   return restrictedFilesIds;
 };
 
-export const unrestrictFiles = async (patientProfileId: string) => {
+export const unrestrictFiles = async (patient: {
+  id: string;
+  usedFileStorage: bigint;
+  unrestrictedUsedFileStorage: bigint;
+  plan: Plan;
+}) => {
   let filesToUnrestrict: FileToUnrestrict[] = [];
   const restrictedFiles = await prismadb.file.findMany({
     where: {
-      patientProfileId,
+      patientProfileId: patient.id,
       status: "SUCCESS",
       restricted: true,
     },
@@ -431,28 +436,28 @@ export const unrestrictFiles = async (patientProfileId: string) => {
   });
   let restrictedFilesIds: string[] = [];
   if (restrictedFiles.length > 0) {
-    const totalSizeOfRestrictedFiles = restrictedFiles.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.size;
-    }, 0);
+    // const totalSizeOfRestrictedFiles = restrictedFiles.reduce((accumulator, currentValue) => {
+    //   return accumulator + currentValue.size;
+    // }, 0);
 
-    const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        id: patientProfileId,
-      },
-      select: {
-        usedFileStorage: true,
-        unrestrictedUsedFileStorage: true,
-      },
-    });
+    // const patient = await prismadb.patientProfile.findUnique({
+    //   where: {
+    //     id: patientProfileId,
+    //   },
+    //   select: {
+    //     usedFileStorage: true,
+    //     unrestrictedUsedFileStorage: true,
+    //   },
+    // });
     //only patient can delete so this is safe to use session to get the patient's plan
-    const session = await auth();
+    // const session = await auth();
 
-    if (!patient || !session || !session.user) {
-      return;
-    }
+    // if (!session || !session.user) {
+    //   return;
+    // }
 
     const unrestrictedUsedFileStorage = patient.unrestrictedUsedFileStorage;
-    const allotedStorageInBytes = allotedStoragesInGb[session.user.plan] * 1_000_000_000;
+    const allotedStorageInBytes = allotedStoragesInGb[patient.plan] * 1_000_000_000;
     //first conditional if the usedFileStorage (total used storage) is less than the allotedStorageInBytes then any restricted files should change to restricted:false
     if (patient.usedFileStorage < allotedStorageInBytes) {
       filesToUnrestrict = restrictedFiles;
@@ -461,9 +466,13 @@ export const unrestrictFiles = async (patientProfileId: string) => {
     //otherwise and if the  unrestrictedUsedFileStorage is less than the allotedStorageInBytes loop through the files and unrestrict one if its size + unrestrictedUsedFileStorage will be less than the allotedStorageInBytes
     //the first file to not exceed will break the loop since the files are sorted by ascending size.
     else if (unrestrictedUsedFileStorage < allotedStorageInBytes) {
-      filesToUnrestrict = getMaxRestrictedFiles(restrictedFiles, unrestrictedUsedFileStorage, allotedStorageInBytes);
+      filesToUnrestrict = getMaxRestrictedFiles(
+        restrictedFiles,
+        patient.unrestrictedUsedFileStorage,
+        allotedStorageInBytes,
+      );
     }
-    restrictedFilesIds = await unrestrictFilesTransaction(filesToUnrestrict, patientProfileId);
+    restrictedFilesIds = await unrestrictFilesTransaction(filesToUnrestrict, patient.id);
   }
   return restrictedFilesIds;
 };

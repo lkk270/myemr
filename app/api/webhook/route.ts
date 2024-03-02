@@ -1,11 +1,12 @@
 import Stripe from "stripe";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-
+import { getPatient } from "@/lib/stripe/subscription";
 import prismadb from "@/lib/prismadb";
 import { stripe } from "@/lib/stripe/stripe";
 import { Plan } from "@prisma/client";
 import { update } from "@/auth";
+import { unrestrictFiles } from "@/lib/actions/files";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -30,6 +31,10 @@ export async function POST(req: Request) {
     if (!session?.metadata?.planName) {
       return new NextResponse("planName is required", { status: 400 });
     }
+    const patient = await getPatient(session?.metadata?.userId);
+    if (!patient) {
+      return new NextResponse("patient is required", { status: 400 });
+    }
     await prismadb.userSubscription.create({
       data: {
         userId: session?.metadata?.userId,
@@ -40,10 +45,10 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
       },
     });
+    await unrestrictFiles({ ...patient, plan: session?.metadata?.planName as Plan });
   }
 
   if (event.type === "invoice.payment_succeeded") {
-    console.log("IN 46: invoice.payment_succeeded");
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
     await prismadb.userSubscription.update({

@@ -70,3 +70,18 @@ export const getSubscriptionRigorous = async (userId: string) => {
   });
   return userSubscription;
 };
+
+export const getPatient = async (userId: string) => {
+  const patient = await prismadb.patientProfile.findUnique({
+    where: {
+      userId: userId,
+    },
+    select: {
+      id: true,
+      usedFileStorage: true,
+      unrestrictedUsedFileStorage: true,
+    },
+  });
+
+  return patient;
+};

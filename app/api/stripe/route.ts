@@ -1,11 +1,14 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import prismadb from "@/lib/prismadb";
+import { getPatient } from "@/lib/stripe/subscription";
 import { stripe } from "@/lib/stripe/stripe";
 import { absoluteUrl } from "@/lib/utils";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { planNames } from "@/lib/constants";
 import { StipePostSchema } from "@/lib/schemas/stripe";
+
+import { unrestrictFiles } from "@/lib/actions/files";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -56,6 +59,11 @@ export async function POST(request: Request) {
           },
         ],
       });
+      const patient = await getPatient(userId);
+      if (!patient) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+      await unrestrictFiles({ ...patient, plan: user.plan });
       await prismadb.userSubscription.update({
         where: {
           stripeSubscriptionId: userSubscription.stripeSubscriptionId,

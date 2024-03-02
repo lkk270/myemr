@@ -5,6 +5,7 @@ import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-ma
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { User, Landmark, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
@@ -28,13 +29,14 @@ import { useSession } from "next-auth/react";
 
 export const PatientManageAccountModal = () => {
   const { update } = useSession();
+  const searchParams = useSearchParams();
   const user = useCurrentUser();
   const pathname = usePathname();
   const { isLoading, setIsLoading } = useIsLoading();
 
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
-  const { isOpen, onClose, defaultScrollTo } = usePatientManageAccountModal();
+  const { isOpen, onOpen, onClose, defaultScrollTo } = usePatientManageAccountModal();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan", "feedback-form"]);
@@ -45,6 +47,14 @@ export const PatientManageAccountModal = () => {
       section.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // Effect to open the modal if the URL query parameter `MyModal` is present
+  useEffect(() => {
+    if (searchParams.get("manage-account-billing-plan") !== null) {
+      onOpen("billing-plan"); // Open the modal programmatically
+    }
+    // This effect should run whenever the search parameters change, hence the dependency on `searchParams`
+  }, [searchParams, onOpen]);
 
   useEffect(() => {
     if (isOpen) {

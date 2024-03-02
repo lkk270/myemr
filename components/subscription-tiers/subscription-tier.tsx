@@ -17,6 +17,8 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
   const { isLoading, setIsLoading } = useIsLoading();
   const isCurrentTier = currentUser?.plan === tier.id;
 
+  const tierIsUpgrade = currentUser && planNames[tier.id].stripe.price > planNames[currentUser.plan].stripe.price;
+
   const onClick = async (forSubscriptionChange: boolean) => {
     try {
       setIsLoading(true);
@@ -42,7 +44,7 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
     <div
       className={cn(
         "flex flex-col p-5 shadow-lg rounded-lg justify-between border bg-primary/5",
-        tier.featured && !isCurrentTier ? "relative border-purple-500" : "border-secondary",
+        tier.featured && !isCurrentTier && tierIsUpgrade ? "relative border-purple-500" : "border-secondary",
         isCurrentTier && "border-[0.1px] relative border-green-500",
       )}
     >
@@ -81,7 +83,7 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
             </Button>
           ) : (
             <Button disabled={isLoading} className="w-full text-sm" onClick={() => onClick(true)}>
-              {planNames[tier.id].stripe.price > planNames[currentUser.plan].stripe.price ? "Upgrade" : "Downgrade"}
+              {tierIsUpgrade ? "Upgrade" : "Downgrade"}
             </Button>
           )}
         </div>

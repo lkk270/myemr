@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const redirectUrl = `${absoluteUrl(validatedRedirectUrlField)}?manage-account-billing-plan`;
+    const redirectUrl = `${absoluteUrl(validatedRedirectUrlField)}?manage-account-billing-plan=refresh`;
 
     const userSubscription = await prismadb.userSubscription.findUnique({
       where: {

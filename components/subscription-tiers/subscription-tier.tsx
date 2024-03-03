@@ -9,6 +9,7 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useFolderStore } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-folders";
 
 export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
   const { update } = useSession();
@@ -16,7 +17,7 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
   const pathname = usePathname();
   const { isLoading, setIsLoading } = useIsLoading();
   const isCurrentTier = currentUser?.plan === tier.id;
-
+  const { updateRestrictedStatus } = useFolderStore();
   const tierIsUpgrade = currentUser && planNames[tier.id].stripe.price > planNames[currentUser.plan].stripe.price;
 
   const onClick = async (forSubscriptionChange: boolean) => {
@@ -27,6 +28,10 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
         plan: tier.id,
       });
       if (!currentUser?.plan.includes("FREE") && forSubscriptionChange) {
+        if (tierIsUpgrade) {
+          const newlyUnrestrictedFileIds = response.data.newlyUnrestrictedFileIds;
+          updateRestrictedStatus(newlyUnrestrictedFileIds);
+        }
         toast.success("Subscription successfully changed!");
       } else {
         window.location.href = response.data.url;

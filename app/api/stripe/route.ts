@@ -27,6 +27,7 @@ export async function POST(request: Request) {
 
     const planObj = planNames[planName];
     const productName = planObj.stripe.name;
+    const validatedRedirectUrlField = validatedFields.data.redirectUrl;
 
     const currentUserPermissions = extractCurrentUserPermissions(user);
 
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const redirectUrl = `${absoluteUrl(validatedFields.data.redirectUrl)}?manage-account-billing-plan`;
+    const redirectUrl = `${absoluteUrl(validatedRedirectUrlField)}?manage-account-billing-plan`;
 
     const userSubscription = await prismadb.userSubscription.findUnique({
       where: {
@@ -48,6 +49,8 @@ export async function POST(request: Request) {
       !!userSubscription.stripeCustomerId &&
       userSubscription?.plan !== validatedFields.data.plan
     ) {
+      const tierIsUpgrade = planObj.stripe.price > planNames[user.plan].stripe.price;
+      console.log("tierIsUpgrade", tierIsUpgrade);
       const subscriptions = await stripe.subscriptions.list({
         customer: userSubscription.stripeCustomerId,
       });
@@ -60,10 +63,13 @@ export async function POST(request: Request) {
         ],
       });
       const patient = await getPatient(userId);
+      let newlyUnrestrictedFileIds: string[] = [];
       if (!patient) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
-      await unrestrictFiles({ ...patient, plan: user.plan });
+      if (tierIsUpgrade) {
+        newlyUnrestrictedFileIds = await unrestrictFiles({ ...patient, plan: user.plan });
+      }
       await prismadb.userSubscription.update({
         where: {
           stripeSubscriptionId: userSubscription.stripeSubscriptionId,
@@ -73,6 +79,9 @@ export async function POST(request: Request) {
           stripePriceId: planObj.stripe.id,
         },
       });
+      if (tierIsUpgrade && validatedRedirectUrlField.startsWith("/file")) {
+        return new NextResponse(JSON.stringify({ newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }));
+      }
       return new NextResponse("Success", { status: 200 });
     } else if (userSubscription && userSubscription.stripeCustomerId) {
       const stripeSession = await stripe.billingPortal.sessions.create({

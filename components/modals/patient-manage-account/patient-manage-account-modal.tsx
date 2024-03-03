@@ -5,7 +5,6 @@ import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-ma
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { User, Landmark, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
 
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
@@ -24,12 +23,13 @@ import { FeedbackForm } from "./feedback-form";
 import axios from "axios";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { toast } from "sonner";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 export const PatientManageAccountModal = () => {
   const { update } = useSession();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const user = useCurrentUser();
   const pathname = usePathname();
   const { isLoading, setIsLoading } = useIsLoading();
@@ -50,8 +50,11 @@ export const PatientManageAccountModal = () => {
 
   // Effect to open the modal if the URL query parameter `MyModal` is present
   useEffect(() => {
-    if (searchParams.get("manage-account-billing-plan") !== null) {
-      onOpen("billing-plan"); // Open the modal programmatically
+    if (searchParams.get("manage-account-billing-plan-inter") !== null) {
+      router.refresh();
+      router.push(pathname + "?manage-account-billing-plan");
+    } else if (searchParams.get("manage-account-billing-plan") !== null) {
+      onOpen("billing-plan");
     }
     // This effect should run whenever the search parameters change, hence the dependency on `searchParams`
   }, [searchParams, onOpen]);

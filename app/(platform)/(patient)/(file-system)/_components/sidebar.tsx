@@ -1,11 +1,10 @@
 "use client";
 
 import { ChevronsLeft } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { ElementRef, useEffect, useRef, useState } from "react";
+import { ElementRef, useEffect, useRef, useState, useTransition } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Logo } from "@/components/logo";
-import { cn } from "@/lib/utils";
+import { addLastViewedAtAndSort, cn, extractNodes, sortFolderChildren, sortRootNodes } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
@@ -19,6 +18,9 @@ import { useSession } from "next-auth/react";
 import { logout } from "@/auth/actions/logout";
 import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
 import { allotedStoragesInGb } from "@/lib/constants";
+import { usePathname, useSearchParams } from "next/navigation";
+import { fetchAllFoldersForPatient } from "@/lib/actions/files";
+
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
@@ -27,7 +29,10 @@ interface SidebarProps {
 export const Sidebar = ({ data, singleLayerNodes, usedFileStorage }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
+
+  const searchParams = useSearchParams();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -76,6 +81,38 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage }: SidebarProp
       collapse();
     }
   }, [pathname, isMobile]);
+
+  useEffect(() => {
+    const fetchFiles = () => {
+      startTransition(() => {
+        const userId = session?.data?.user.id;
+        if (!userId) return;
+        fetchAllFoldersForPatient(null, userId)
+          .then((data) => {
+            if (!!data) {
+              const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));
+              const sortedFolders = sortRootNodes(sortedFoldersTemp);
+
+              let rawAllNodes = extractNodes(data);
+              const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
+              const allNodesArray = Array.from(allNodesMap.values());
+
+              const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
+
+              folderStore.setFolders(sortedFolders);
+              folderStore.setSingleLayerNodes(singleLayerNodes);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    };
+    if (searchParams.get("manage-account-billing-plan") === "refresh") {
+      fetchFiles();
+    }
+  }, [searchParams]);
+
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.preventDefault();
     event.stopPropagation();

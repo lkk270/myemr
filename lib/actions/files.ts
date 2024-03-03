@@ -3,9 +3,7 @@
 import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
 import { allotedStoragesInGb } from "../constants";
-import { PrismaClient } from "@prisma/client";
-import { DeleteObjectCommand, S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
-import { auth } from "@/auth";
+import { S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
 type PrismaDeleteFileObject = {
   id: string;

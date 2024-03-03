@@ -7,6 +7,7 @@ import { stripe } from "@/lib/stripe/stripe";
 import { Plan } from "@prisma/client";
 import { update } from "@/auth";
 import { unrestrictFiles } from "@/lib/actions/files";
+import { redirect } from "next/navigation";
 
 export async function POST(req: Request) {
   const body = await req.text();

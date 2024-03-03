@@ -1,3 +1,5 @@
+"use server";
+
 import { DeleteModal } from "./_components/file-tree/_components/modals/delete-node-modal";
 import { DownloadModal } from "./_components/file-tree/_components/modals/download-modal";
 import { RenameModal } from "./_components/file-tree/_components/modals/rename-modal";
@@ -68,15 +70,12 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     sortedFolders.push(trashFolder);
   }
 
+  // console.log(singleLayerNodes.find((node) => node.id === "clsxjojl9002uwo9vzcujf3ag"));
   const usedFileStorage = patient.usedFileStorage;
   // const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar
-        usedFileStorage={usedFileStorage}
-        data={sortedFolders}
-        singleLayerNodes={singleLayerNodes}
-      />
+      <Sidebar usedFileStorage={usedFileStorage} data={sortedFolders} singleLayerNodes={singleLayerNodes} />
       <DeleteModal />
       <TrashModal />
       <DownloadModal />

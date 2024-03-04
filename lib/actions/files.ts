@@ -475,6 +475,78 @@ export const unrestrictFiles = async (patient: {
   return restrictedFilesIds;
 };
 
+const restrictFilesTransaction = async (filesToRestrict: FileToUnrestrict[], patientProfileId: string) => {
+  const totalSizeOfFilesToRestrict = filesToRestrict.reduce((accumulator, currentValue) => {
+    return accumulator + currentValue.size;
+  }, 0);
+
+  const filesToRestrictIds = filesToRestrict.map((file) => file.id);
+
+  await prismadb.$transaction(
+    async (prisma) => {
+      await prisma.file.updateMany({
+        where: {
+          id: { in: filesToRestrictIds },
+        },
+        data: {
+          restricted: true,
+        },
+      });
+      await prisma.patientProfile.update({
+        where: {
+          id: patientProfileId,
+        },
+        data: {
+          unrestrictedUsedFileStorage: { decrement: totalSizeOfFilesToRestrict },
+        },
+      });
+    },
+    { timeout: 20000 },
+  );
+  return filesToRestrictIds;
+};
+
+export const restrictFiles = async (patient: {
+  id: string;
+  usedFileStorage: bigint;
+  unrestrictedUsedFileStorage: bigint;
+  plan: Plan;
+}) => {
+  let filesToRestrict = [];
+  const unrestrictedFiles = await prismadb.file.findMany({
+    where: {
+      patientProfileId: patient.id,
+      status: "SUCCESS",
+      restricted: false,
+    },
+    select: {
+      id: true,
+      size: true,
+    },
+    orderBy: { size: "asc" },
+  });
+
+  if (unrestrictedFiles.length > 0) {
+    const unrestrictedUsedFileStorage = patient.unrestrictedUsedFileStorage;
+    const allotedStorageInBytes = allotedStoragesInGb[patient.plan] * 1_000_000_000;
+    let cumulativeSize = 0;
+
+    for (const file of unrestrictedFiles) {
+      if (cumulativeSize + file.size > allotedStorageInBytes) {
+        // Once adding the next file's size exceeds allotted storage, start restricting files.
+        filesToRestrict.push(file);
+      } else {
+        cumulativeSize += file.size;
+      }
+    }
+
+    if (filesToRestrict.length > 0) {
+      return await restrictFilesTransaction(filesToRestrict, patient.id);
+    }
+  }
+  return []; // If no files need to be restricted, return an empty array.
+};
+
 export const addRootNode = async (
   folderName: string,
   addedByUserId: string,

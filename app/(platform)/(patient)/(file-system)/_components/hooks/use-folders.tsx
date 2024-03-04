@@ -26,7 +26,7 @@ interface FolderStore {
   restoreRootNode: (selectedIds: string[]) => void;
   moveNodes: (selectedNodeIds: string[], targetNodeId: string) => void;
   deleteNode: (selectedNodeIds: string[], forEmptyTrash: boolean) => void;
-  updateRestrictedStatus: (nodeIds: string[]) => void;
+  updateRestrictedStatus: (nodeIds: string[], newRestrictedValue: boolean) => void;
   addRootNode: (folderName: string, folderId: string, userId: string | null, userName: string) => void;
   addSubFolder: (
     folderId: string,
@@ -640,7 +640,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
     });
   },
 
-  updateRestrictedStatus: (nodeIds: string[]) => {
+  updateRestrictedStatus: (nodeIds: string[], newRestrictedValue: boolean) => {
     set((state) => {
       const nodeIdsSet = new Set(nodeIds);
 
@@ -648,7 +648,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       const updateFolders = (folders: any[]): any[] => {
         return folders.map((folder) => {
           if (nodeIdsSet.has(folder.id)) {
-            folder = { ...folder, restricted: false };
+            folder = { ...folder, restricted: newRestrictedValue };
           }
           if (folder.children) {
             folder.children = updateFolders(folder.children);
@@ -660,7 +660,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       // Update singleLayerNodes
       const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
         if (nodeIdsSet.has(node.id)) {
-          return { ...node, restricted: false };
+          return { ...node, restricted: newRestrictedValue };
         }
         return node;
       });

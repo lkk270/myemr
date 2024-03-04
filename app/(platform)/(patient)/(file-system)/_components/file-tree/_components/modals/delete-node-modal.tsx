@@ -59,7 +59,7 @@ export const DeleteModal = () => {
       .then(({ data }) => {
         foldersStore.deleteNode(deleteNodesIds, deleteModal.forEmptyTrash);
         const newlyUnrestrictedFileIds = data.newlyUnrestrictedFileIds;
-        foldersStore.updateRestrictedStatus(newlyUnrestrictedFileIds);
+        foldersStore.updateRestrictedStatus(newlyUnrestrictedFileIds, false);
         // console.log(BigInt(foldersStore.usedFileStorage));
         // console.log(BigInt(data.totalSize));
         deletedSize += data.totalSize;

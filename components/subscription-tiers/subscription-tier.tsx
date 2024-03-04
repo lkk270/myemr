@@ -28,9 +28,12 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
         plan: tier.id,
       });
       if (!currentUser?.plan.includes("FREE") && forSubscriptionChange) {
-        if (tierIsUpgrade) {
+        if (tierIsUpgrade && pathname.startsWith("/file")) {
           const newlyUnrestrictedFileIds = response.data.newlyUnrestrictedFileIds;
-          updateRestrictedStatus(newlyUnrestrictedFileIds);
+          updateRestrictedStatus(newlyUnrestrictedFileIds, false);
+        } else if (!tierIsUpgrade && pathname.startsWith("/file")) {
+          const newlyRestrictedFileIds = response.data.newlyRestrictedFileIds;
+          updateRestrictedStatus(newlyRestrictedFileIds, true);
         }
         toast.success("Subscription successfully changed!");
       } else {

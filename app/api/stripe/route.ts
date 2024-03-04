@@ -8,7 +8,7 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 import { planNames } from "@/lib/constants";
 import { StipePostSchema } from "@/lib/schemas/stripe";
 
-import { unrestrictFiles } from "@/lib/actions/files";
+import { unrestrictFiles, restrictFiles } from "@/lib/actions/files";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -64,11 +64,14 @@ export async function POST(request: Request) {
       });
       const patient = await getPatient(userId);
       let newlyUnrestrictedFileIds: string[] = [];
+      let newlyRestrictedFileIds: string[] = [];
       if (!patient) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
       if (tierIsUpgrade) {
-        newlyUnrestrictedFileIds = await unrestrictFiles({ ...patient, plan: user.plan });
+        newlyUnrestrictedFileIds = await unrestrictFiles({ ...patient, plan: planName });
+      } else {
+        newlyRestrictedFileIds = await restrictFiles({ ...patient, plan: planName });
       }
       await prismadb.userSubscription.update({
         where: {
@@ -81,6 +84,9 @@ export async function POST(request: Request) {
       });
       if (tierIsUpgrade && validatedRedirectUrlField.startsWith("/file")) {
         return new NextResponse(JSON.stringify({ newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }));
+      }
+      if (!tierIsUpgrade && validatedRedirectUrlField.startsWith("/file")) {
+        return new NextResponse(JSON.stringify({ newlyRestrictedFileIds: newlyRestrictedFileIds }));
       }
       return new NextResponse("Success", { status: 200 });
     } else if (userSubscription && userSubscription.stripeCustomerId) {

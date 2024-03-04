@@ -48,7 +48,7 @@ interface FolderStore {
     uploadedByUserId: string | null,
     uploadedByName: string,
     type: string,
-    size: number,
+    size: bigint,
   ) => void;
 }
 
@@ -578,7 +578,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
     uploadedByUserId: string | null,
     uploadedByName: string,
     type: string,
-    size: number,
+    size: bigint,
   ) => {
     set((state) => {
       const newFile = {

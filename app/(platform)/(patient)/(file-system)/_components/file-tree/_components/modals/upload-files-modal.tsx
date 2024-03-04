@@ -79,10 +79,13 @@ export const UploadFilesModal = () => {
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
     let errorOccurred = false;
+    console.log("IN 82");
     if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
+
+    console.log("IN 88");
     setIsLoading(true);
 
     // if (singleFileObj) {
@@ -173,7 +176,7 @@ export const UploadFilesModal = () => {
               createdFile.uploadedByUserId,
               createdFile.uploadedByName,
               createdFile.type || "",
-              createdFile.size,
+              BigInt(createdFile.size),
             );
           }
           updateFileStatus(singleFileObj, "uploaded", index);
@@ -184,6 +187,7 @@ export const UploadFilesModal = () => {
           // console.error("Upload or status update failed for file", index, error);
           const errorMessage = error as any;
           const errorMessageStr = errorMessage.toString();
+          console.log(errorMessageStr);
           if (errorMessageStr.includes("signal is aborted") || errorMessageStr.includes("The user aborted a request")) {
             updateFileStatus(singleFileObj, "canceled", index);
           } else {
@@ -310,7 +314,7 @@ export const UploadFilesModal = () => {
                     >
                       {fileObj.file.name}
                     </p>
-                    <span className="flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
+                    <span className="flex-shrink-0 pl-2">({formatFileSize(BigInt(fileObj.file.size))})</span>
                   </div>
                   {!fileObj.status && (
                     <div role="button" className="flex-shrink-0 pl-2" onClick={() => handleRemoveFile(fileObj.file)}>

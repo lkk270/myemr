@@ -30,7 +30,7 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
         <div className="p-2 flex flex-col gap-y-1 max-w-[175px] text-xs truncate">
           <p className="truncate font-bold">{record.name}</p>
           <p className="truncate">{record.isRoot ? "Root folder" : "In " + pathSegments.slice(-2, -1)}</p>
-          {typeof record.size === "number" && <p className="truncate"> {formatFileSize(record.size)}</p>}
+          {typeof record.size === "number" && <p className="truncate"> {formatFileSize(BigInt(record.size))}</p>}
         </div>
       </CardHeader> // Fixed the closing tag here
     );

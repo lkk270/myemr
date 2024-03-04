@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { InsuranceFile } from "@prisma/client";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { maxSystemFileSize } from "@/lib/constants";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
         Bucket: process.env.AWS_BUCKET_NAME as string,
         Key: key,
         Conditions: [
-          ["content-length-range", 0, 10485760], // up to 10 MB
+          ["content-length-range", 0, maxSystemFileSize], // up to 10 MB
           ["starts-with", "$Content-Type", contentType],
         ],
         Fields: {

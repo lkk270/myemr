@@ -1062,12 +1062,24 @@ export const dosageFrequency = [
 
 //IN GB
 export const allotedStoragesInGb = {
-  PATIENT_FREE: 0.005,
-  PATIENT_PREMIUM_1: 0.01,
-  PATIENT_PREMIUM_2: 0.02,
+  PATIENT_FREE: 1,
+  PATIENT_PREMIUM_1: 10,
+  PATIENT_PREMIUM_2: 50,
   PROVIDER_FREE: 1,
   PROVIDER_PREMIUM_1: 10,
   PROVIDER_PREMIUM_2: 50,
+};
+
+export const maxFileUploadSize = 5368709120; //5 GB in bytes
+export const maxSystemFileSize = 10485760; //10 Mb in bytes
+
+export const maxFileUploadSizes = {
+  PATIENT_FREE: maxSystemFileSize,
+  PATIENT_PREMIUM_1: maxFileUploadSize,
+  PATIENT_PREMIUM_2: maxFileUploadSize,
+  PROVIDER_FREE: maxSystemFileSize,
+  PROVIDER_PREMIUM_1: maxFileUploadSize,
+  PROVIDER_PREMIUM_2: maxFileUploadSize,
 };
 
 export const planNames = {

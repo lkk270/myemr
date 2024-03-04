@@ -248,8 +248,9 @@ export async function POST(req: Request) {
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
       const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
       const totalSizeOfUnrestrictedFiles = rawObjects.reduce((accumulator, currentValue) => {
-        return accumulator + (!currentValue.restricted ? currentValue.size : 0);
-      }, 0);
+        return BigInt(accumulator) + (!currentValue.restricted ? BigInt(currentValue.size) : 0n);
+      }, 0n); // Initialize with a bigint literal
+
       await deleteFiles(selectedFileIds, totalSizeOfUnrestrictedFiles, totalSize, patient.id);
       await deleteFolders(selectedFolderIds, forEmptyTrash);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);

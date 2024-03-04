@@ -451,12 +451,17 @@ export function sortSingleLayerNodes(array: SingleLayerNodesType2[]): SingleLaye
   return sortedItems;
 }
 
-export function formatFileSize(bytes: number) {
-  if (bytes < 1000) return bytes + " Bytes";
-  else if (bytes < 1000000) return (bytes / 1000).toFixed(1) + " KB";
-  else if (bytes < 1000000000) return (bytes / 1000000).toFixed(1) + " MB";
-  else if (bytes < 1000000000000) return (bytes / 1000000000).toFixed(2) + " GB";
-  return (bytes / 1000000000000).toFixed(2) + " TB";
+export function formatFileSize(bytes: bigint) {
+  const KB = 1000n;
+  const MB = 1000000n;
+  const GB = 1000000000n;
+  const TB = 1000000000000n;
+
+  if (bytes < KB) return bytes + " Bytes";
+  else if (bytes < MB) return Number(bytes / KB).toFixed(1) + " KB";
+  else if (bytes < GB) return Number(bytes / MB).toFixed(1) + " MB";
+  else if (bytes < TB) return Number(bytes / GB).toFixed(2) + " GB";
+  return Number(bytes / TB).toFixed(2) + " TB";
 }
 
 // Assuming amzDate is a string like "20240205T235432Z"

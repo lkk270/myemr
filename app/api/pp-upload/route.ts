@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { patientUpdateVerification } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { profileImageUrlPrefix } from "@/lib/constants";
+import { profileImageUrlPrefix, maxSystemFileSize } from "@/lib/constants";
 import { update, auth } from "@/auth";
 
 export async function POST(request: Request) {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       Bucket: process.env.AWS_PROFILE_PICS_BUCKET_NAME as string,
       Key: key,
       Conditions: [
-        ["content-length-range", 0, 10485760], // up to 10 MB
+        ["content-length-range", 0, maxSystemFileSize], // up to 10 MB
         ["starts-with", "$Content-Type", contentType],
       ],
       Fields: {

@@ -7,14 +7,14 @@ import { S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
 type PrismaDeleteFileObject = {
   id: string;
-  size: number;
+  size: bigint;
   restricted: boolean;
   userId: string;
 };
 
 type FileToUnrestrict = {
   id: string;
-  size: number;
+  size: bigint;
 };
 
 export async function updateDescendantsForRename(
@@ -227,8 +227,8 @@ async function batchUpdateDescendants(
 
 export async function deleteFiles(
   selectedFileIds: string[],
-  totalSizeOfUnrestrictedFiles: number,
-  totalSize: number,
+  totalSizeOfUnrestrictedFiles: bigint,
+  totalSize: bigint,
   patientProfileId: string,
 ) {
   return await prismadb.$transaction(
@@ -321,7 +321,7 @@ export async function getAllObjectsToDelete(selectedIds: string[], patientProfil
 
   allFilesToDelete = allFilesToDeleteForFileIds.concat(allFilesToDeleteForFolderIds);
   const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
-  const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0);
+  const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0n);
   return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
 }
 
@@ -369,7 +369,7 @@ const getMaxRestrictedFiles = (
 ) => {
   const remainingStorage = BigInt(allotedStorageInBytes) - unrestrictedUsedFileStorage;
   let subset: FileToUnrestrict[] = [];
-  let totalSize = 0;
+  let totalSize = 0n;
   for (const file of restrictedFiles) {
     if (totalSize + file.size <= remainingStorage) {
       subset.push(file);
@@ -385,7 +385,7 @@ const getMaxRestrictedFiles = (
 const unrestrictFilesTransaction = async (restrictedFiles: FileToUnrestrict[], patientProfileId: string) => {
   const totalSizeOfRestrictedFiles = restrictedFiles.reduce((accumulator, currentValue) => {
     return accumulator + currentValue.size;
-  }, 0);
+  }, 0n);
 
   const restrictedFilesIds = restrictedFiles.map((file) => file.id);
 
@@ -478,7 +478,7 @@ export const unrestrictFiles = async (patient: {
 const restrictFilesTransaction = async (filesToRestrict: FileToUnrestrict[], patientProfileId: string) => {
   const totalSizeOfFilesToRestrict = filesToRestrict.reduce((accumulator, currentValue) => {
     return accumulator + currentValue.size;
-  }, 0);
+  }, 0n);
 
   const filesToRestrictIds = filesToRestrict.map((file) => file.id);
 
@@ -529,7 +529,7 @@ export const restrictFiles = async (patient: {
   if (unrestrictedFiles.length > 0) {
     const unrestrictedUsedFileStorage = patient.unrestrictedUsedFileStorage;
     const allotedStorageInBytes = allotedStoragesInGb[patient.plan] * 1_000_000_000;
-    let cumulativeSize = 0;
+    let cumulativeSize = 0n;
 
     for (const file of unrestrictedFiles) {
       if (cumulativeSize + file.size > allotedStorageInBytes) {

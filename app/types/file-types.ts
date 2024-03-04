@@ -40,7 +40,7 @@ type SingleLayerNodeBaseType = {
   isFile: boolean;
   parentId?: string | null;
   type?: string;
-  size?: number;
+  size?: bigint;
   isRoot?: boolean;
   createdAt: Date;
   addedByUserId?: string | null;
@@ -65,7 +65,7 @@ export type SingleLayerNodesType2 = {
   parentId?: string | null;
   lastViewedAt?: Date;
   type?: string;
-  size?: number;
+  size?: bigint;
   isRoot?: boolean;
   createdAt?: Date;
   addedByUserId?: string | null;

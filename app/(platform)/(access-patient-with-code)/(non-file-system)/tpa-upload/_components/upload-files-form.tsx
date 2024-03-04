@@ -234,7 +234,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
                       >
                         {fileObj.file.name}
                       </p>
-                      <span className="flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
+                      <span className="flex-shrink-0 pl-2">({formatFileSize(BigInt(fileObj.file.size))})</span>
                     </div>
                     {!fileObj.status && (
                       <div role="button" className="flex-shrink-0 pl-2" onClick={() => handleRemoveFile(fileObj.file)}>

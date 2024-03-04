@@ -25,7 +25,7 @@ const tiers: SubscriptionTierType[] = [
     featured: true,
     items: [
       "10 GB of file storage",
-      "No max file size",
+      "5 GB max file size",
       "10 request records per month",
       `Generate unlimited access codes of ALL types`,
     ],
@@ -38,7 +38,7 @@ const tiers: SubscriptionTierType[] = [
     featured: false,
     items: [
       "50 GB of file storage",
-      "No max file size",
+      "5 GB max file size",
       "Unlimited request records per month",
       `Generate unlimited access codes of ALL types`,
     ],

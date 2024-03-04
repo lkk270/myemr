@@ -6,7 +6,7 @@ import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
-import { allotedStoragesInGb } from "@/lib/constants";
+import { allotedStoragesInGb, maxFileUploadSizes } from "@/lib/constants";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export async function POST(request: Request) {
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
         Bucket: process.env.AWS_BUCKET_NAME as string,
         Key: key,
         Conditions: [
-          ["content-length-range", 0, 10485760], // up to 10 MB
+          ["content-length-range", 0, maxFileUploadSizes[user.plan]], // up to 10 MB
           ["starts-with", "$Content-Type", contentType],
         ],
         Fields: {

@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { patientUpdateVerification } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
-import { allotedStoragesInGb } from "@/lib/constants";
+import { allotedStoragesInGb, maxFileUploadSize } from "@/lib/constants";
 import { getSubscriptionRigorous } from "@/lib/stripe/subscription";
 
 export async function POST(request: Request) {
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
         Bucket: process.env.AWS_BUCKET_NAME as string,
         Key: key,
         Conditions: [
-          ["content-length-range", 0, 10485760], // up to 10 MB
+          ["content-length-range", 0, maxFileUploadSize], // up to 10 MB
           ["starts-with", "$Content-Type", contentType],
         ],
         Fields: {

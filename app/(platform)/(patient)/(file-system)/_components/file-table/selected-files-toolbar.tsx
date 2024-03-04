@@ -211,7 +211,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
         <span>{numRowsSelected} selected</span>
         {totalSize > 0 && (
           <span className="text-[#9d9d9d]">
-            {formatFileSize(totalSize)}
+            {formatFileSize(BigInt(totalSize))}
             {hasFile && !allAreFiles && cleanedRows.length > 1 && "+"}
           </span>
         )}

@@ -26,7 +26,7 @@ export const ViewUploadHistoryButton = ({ children, asChild, token }: ViewUpload
     tempToken = sessionData?.tempToken;
   }
 
-  const [files, setFiles] = useState<{ id: string; name: string; size: number; status: FileStatus }[] | null>([]);
+  const [files, setFiles] = useState<{ id: string; name: string; size: bigint; status: FileStatus }[] | null>([]);
   const [isPending, startTransition] = useTransition();
   const openDialog = () => {
     if (!tempToken) return;

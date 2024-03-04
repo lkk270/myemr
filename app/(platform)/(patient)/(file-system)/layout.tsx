@@ -72,6 +72,52 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
 
   // console.log(singleLayerNodes.find((node) => node.id === "clsxjojl9002uwo9vzcujf3ag"));
   const usedFileStorage = patient.usedFileStorage;
+
+  // const totalSizeAll = await prismadb.file.aggregate({
+  //   _sum: {
+  //     size: true,
+  //   },
+  //   where: {
+  //     userId: user.id,
+  //   },
+  // });
+  // console.log(totalSizeAll);
+
+  // const totalSizeSuccess = await prismadb.file.aggregate({
+  //   _sum: {
+  //     size: true,
+  //   },
+  //   where: {
+  //     userId: user.id,
+  //     status: "SUCCESS",
+  //   },
+  // });
+
+  // console.log(totalSizeSuccess);
+
+  // const totalSizeUnRestricted = await prismadb.file.aggregate({
+  //   _sum: {
+  //     size: true,
+  //   },
+  //   where: {
+  //     userId: user.id,
+  //     restricted: false,
+  //   },
+  // });
+
+  // console.log(totalSizeUnRestricted);
+
+  // const totalSizeRestricted = await prismadb.file.aggregate({
+  //   _sum: {
+  //     size: true,
+  //   },
+  //   where: {
+  //     userId: user.id,
+  //     restricted: true,
+  //   },
+  // });
+
+  // console.log(totalSizeRestricted);
   // const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">

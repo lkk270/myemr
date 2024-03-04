@@ -38,7 +38,6 @@ export const checkSubscription = async () => {
 };
 
 export const getSubscription = async (userId: string) => {
-  console.log("IN HERE 41");
   const session = await auth();
   const user = session?.user;
 
@@ -57,7 +56,6 @@ export const getSubscription = async (userId: string) => {
 };
 
 export const getSubscriptionRigorous = async (userId: string) => {
-  console.log("IN HERE 60 from subscription");
 
   let currentDatePlusOne = new Date();
   currentDatePlusOne.setDate(currentDatePlusOne.getDate() + 1);

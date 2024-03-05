@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   deletePasswordResetTokens,
   deletePatientProfileAccessCodes,
-  deletePatient,
+  deletePatients,
   deleteRequestRecordsCodes,
   deleteTwoFactorTokens,
   deleteVerificationTokens,
@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
     }
     await restrictFilesCron(authHeader);
 
-    await deletePatient(authHeader);
-    
+    await deletePatients(authHeader);
+
     await deletePasswordResetTokens(authHeader);
     await deletePatientProfileAccessCodes(authHeader);
     await deleteRequestRecordsCodes(authHeader);

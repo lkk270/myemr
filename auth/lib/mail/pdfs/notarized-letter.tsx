@@ -48,6 +48,15 @@ const styles = StyleSheet.create({
     textAlign: "justify",
     fontFamily: "Times-Roman",
   },
+  legalText: {
+    position: "absolute",
+    fontSize: 10,
+    bottom: 45,
+    left: 0,
+    right: 0,
+    textAlign: "left",
+    color: "grey",
+  },
   image: {
     width: 42,
     height: 42,
@@ -72,10 +81,12 @@ const styles = StyleSheet.create({
   footer: {
     position: "absolute",
     fontSize: 10,
-    bottom: 25,
+    bottom: 40,
     left: 0,
     right: 0,
-    textAlign: "center",
+    paddingRight: 4,
+    paddingLeft: 4,
+    textAlign: "left",
     color: "grey",
   },
 });
@@ -115,9 +126,11 @@ const NotarizedLetter = ({ data }: NotarizedLetterProps) => (
       <Text style={styles.text}>
         {data.firstName} {data.lastName}
       </Text>
+      {/* <Text style={styles.legalText}></Text> */}
       <Text style={styles.footer}>
-        This is a notarized document and is legally binding. Any modifications or falsifications of this document are
-        subject to legal penalty.
+        This process, including the request for and subsequent uploading of the patient's medical records, adheres to
+        HIPAA regulations to ensure the protection of patient privacy and confidentiality. This is a notarized document
+        and is legally binding. Any modifications or falsifications of this document are subject to legal penalty.
       </Text>
     </Page>
   </Document>

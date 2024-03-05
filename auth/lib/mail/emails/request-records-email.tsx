@@ -58,8 +58,9 @@ export const RequestRecordsEmail = ({ dataForLetter, requestRecordsLink }: Reque
             <Text className="text-black text-[14px] leading-[24px]">
               This letter, sent by your patient {dataForLetter.firstName} {dataForLetter.lastName} (DOB{" "}
               {dataForLetter.dateOfBirth}) through their MyEmr account, is a formal request for their medical records.
-              Attached, you will find a notarized document that provides further details and ensures the legitimacy of
-              the request on the patient's behalf. Please save the notarized document in your records.
+              Attached, you will find a notarized document that provides further details and ensures the legitimacy and
+              HIPAA compliance of the request on the patient's behalf. Please save the notarized document in your
+              records.
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
               Use the upload button or link (found below or in the attached pdf) to upload the patient's records. The
@@ -99,6 +100,10 @@ export const RequestRecordsEmail = ({ dataForLetter, requestRecordsLink }: Reque
               (DOB {dataForLetter.dateOfBirth}), email: {dataForLetter.email}. If you were not expecting this
               invitation, you can ignore this email. As stated if you have any questions, please reply to this email to
               get in touch with us and/or the patient.
+            </Text>
+            <Text className="text-[#666666] text-[12px] leading-[24px]">
+              This process, including the request for and subsequent uploading of the patient's medical records, adheres
+              to HIPAA regulations to ensure the protection of patient privacy and confidentiality.
             </Text>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Section className="text-[#bdbdbd] text-[12px]">

@@ -2,9 +2,9 @@
 
 import { UserType } from "@prisma/client";
 import resendClient from "./resendClient";
-import { getBuffer, logoBase64Url } from "./notarized-letter";
-import { RequestRecordsEmail } from "./request-records-email";
-import prismadb from "@/lib/prismadb";
+import { getBuffer } from "./pdfs/notarized-letter";
+import { RequestRecordsEmail, TwoFactorConfirmationEmail, MagicLinkEmail } from "./emails";
+
 const domain = process.env.NEXT_PUBLIC_APP_URL;
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
@@ -12,7 +12,7 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
     from: "onboarding@resend.dev",
     to: email.toLowerCase(),
     subject: "2FA Code",
-    html: `<p>Your 2FA code: ${token}</p>`,
+    react: TwoFactorConfirmationEmail({ verificationToken: token }),
   });
   if (response.error) {
     throw new Error("Something went wrong on email send");
@@ -26,7 +26,7 @@ export const sendPasswordResetEmail = async (email: string, token: string, userT
     from: "onboarding@resend.dev",
     to: email.toLowerCase(),
     subject: "Reset your password",
-    html: `<p>Click <a href="${resetLink}">here</a> to reset password.</p>`,
+    react: MagicLinkEmail({ magicLink: resetLink, type: "passwordReset" }),
   });
   if (response.error) {
     throw new Error("Something went wrong on email send");
@@ -41,7 +41,7 @@ export const sendVerificationEmail = async (email: string, token: string, userTy
     from: "onboarding@resend.dev",
     to: email.toLowerCase(),
     subject: "Confirm your email",
-    html: `<p>Click <a href="${confirmLink}">here</a> to confirm email.</p>`,
+    react: MagicLinkEmail({ magicLink: confirmLink, type: "emailConfirmation" }),
   });
   if (response.error) {
     throw new Error("Something went wrong on email send");
@@ -82,7 +82,10 @@ export const sendRequestRecordsEmail = async (
         content: buffer,
       },
     ],
-    react: RequestRecordsEmail({ dataForLetter: dataForLetter, requestRecordsLink: requestRecordsLink }),
+    react: RequestRecordsEmail({
+      dataForLetter: { ...dataForLetter, providerEmail },
+      requestRecordsLink: requestRecordsLink,
+    }),
   });
   if (response.error) {
     console.log(response);

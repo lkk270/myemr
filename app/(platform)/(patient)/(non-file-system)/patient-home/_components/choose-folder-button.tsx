@@ -74,7 +74,7 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
         {children}
       </DialogTrigger>
       <DialogContent className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px]">
-        {isPending || !items || items.length === 0 ? (
+        {isPending || !items ? (
           <BeatLoader color="#4b59f0" />
         ) : (
           <GenericCombobox

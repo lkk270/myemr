@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
-import { sendFeedback } from "@/auth/lib/mail";
+import { sendFeedback } from "@/auth/lib/mail/mail";
 
 const formSchema = z.object({
   feedback: z.string().min(2, {

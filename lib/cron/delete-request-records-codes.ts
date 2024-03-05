@@ -9,7 +9,7 @@ export const deleteRequestRecordsCodes = async (authHeader: string) => {
 
   await prismadb.requestRecordsCode.deleteMany({
     where: {
-      OR: [{ expires: { lt: new Date() } }, { isValid: false }],
+      expires: { lt: new Date() },
     },
   });
 };

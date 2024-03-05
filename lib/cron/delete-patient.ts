@@ -2,6 +2,7 @@
 
 import prismadb from "@/lib/prismadb";
 import { deleteS3Objects, getAllFilesToDeleteForDeleteAccount } from "../actions/files";
+import { stripe } from "../stripe/stripe";
 
 export const deletePatient = async (authHeader: string) => {
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -20,14 +21,23 @@ export const deletePatient = async (authHeader: string) => {
     },
   });
 
-//   const allUserIdsToDelete = patientUsersToDelete.map((user) => user.id);
+  //   const allUserIdsToDelete = patientUsersToDelete.map((user) => user.id);
 
   for (const user of patientUsersToDelete) {
     if (!user || !user.patientProfile) continue;
     const patientProfileId = user.patientProfile.id;
     const { rawObjects, convertedObjects } = await getAllFilesToDeleteForDeleteAccount(patientProfileId);
     try {
+      const userSubscription = await prismadb.userSubscription.findUnique({
+        where: {
+          userId: user.id,
+        },
+      });
+      if (!!userSubscription && !!userSubscription.stripeSubscriptionId) {
+        const subscription = await stripe.subscriptions.cancel(userSubscription.stripeSubscriptionId);
+      }
       await deleteS3Objects(convertedObjects, rawObjects, patientProfileId);
+
       await prismadb.user.delete({
         where: {
           id: user.id,

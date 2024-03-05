@@ -44,7 +44,7 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
   if ((accessType === "FULL_ACCESS" || accessType === "READ_AND_ADD") && (!user.plan || user.plan.includes("_FREE"))) {
     return {
       error:
-        "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan.",
+        "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan or select a different access type.",
     };
   }
   const allotedStorageInGb = allotedStoragesInGb[user.plan];

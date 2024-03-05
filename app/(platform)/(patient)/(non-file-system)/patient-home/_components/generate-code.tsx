@@ -167,7 +167,7 @@ export const GenerateCode = () => {
                       onClick={() => {
                         if (restrict) {
                           toast.warning(
-                            "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan",
+                            "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan or select a different access type",
                           );
                           return;
                         }

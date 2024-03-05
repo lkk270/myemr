@@ -83,7 +83,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
       </DialogTrigger>
       <DialogContent className="overflow-y-scroll max-h-[calc(100vh-200px)] max-w-[850px] w-full">
         <DialogTitle className="text-md">
-          Active codes
+          {codeType === "requestRecordsCode" ? "Requests within the last 30 days" : "Active codes"}
           <span className="font-normal ml-2">
             {(() => {
               if (!activeCodes) return;
@@ -94,7 +94,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
               if (activeCodesLocal && !isPending && activeCodesLocal.length > 0) {
                 return (
                   <span>
-                    Total: {activeCodesLocal.length} active {activeCodesLocal.length === 1 ? "code" : "codes"}
+                    Total: {activeCodesLocal.length} {activeCodesLocal.length === 1 ? "code" : "codes"}
                   </span>
                 );
               }

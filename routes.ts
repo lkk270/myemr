@@ -9,6 +9,7 @@ export const publicRoutes: string[] = [
   "/auth/provider-new-verification",
   "/api/rr-file-upload",
   "/api/webhook",
+  "/api/cron",
 ];
 
 /**

@@ -3,7 +3,7 @@
 import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
 import { allotedStoragesInGb } from "../constants";
-import { S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -775,3 +775,12 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
 //     },
 //   },
 // });
+
+export const deleteS3ProfilePicture = async (userId: string) => {
+  const client = new S3Client({ region: process.env.AWS_REGION });
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.AWS_PROFILE_PICS_BUCKET_NAME as string,
+    Key: userId,
+  });
+  await client.send(command);
+};

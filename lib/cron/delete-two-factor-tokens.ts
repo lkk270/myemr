@@ -1,0 +1,15 @@
+"use server";
+
+import prismadb from "@/lib/prismadb";
+
+export const deleteTwoFactorTokens = async (authHeader: string) => {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return { error: "unauthorized" };
+  }
+
+  await prismadb.twoFactorToken.deleteMany({
+    where: {
+      expires: { lt: new Date() },
+    },
+  });
+};

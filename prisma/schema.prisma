@@ -567,5 +567,6 @@ model FailedDeleteS3FilesOnAccountDelete {
   id               String   @id @default(cuid())
   userId           String
   patientProfileId String
+  reason           String?
   createdAt        DateTime @default(now())
 }

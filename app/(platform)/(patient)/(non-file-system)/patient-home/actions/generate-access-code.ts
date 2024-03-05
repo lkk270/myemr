@@ -31,7 +31,7 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
   }
   const validatedFields = GenerateCodeSchema.safeParse(values);
 
-  if (!validatedFields.success) {
+  if (!validatedFields.success || !validatedFields.data.accessType) {
     return { error: "Invalid fields!" };
   }
 
@@ -41,11 +41,17 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     return { error: "Invalid body" };
   }
 
+  if ((accessType === "FULL_ACCESS" || accessType === "READ_AND_ADD") && (!user.plan || user.plan.includes("_FREE"))) {
+    return {
+      error:
+        "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan.",
+    };
+  }
   const allotedStorageInGb = allotedStoragesInGb[user.plan];
   if (accessType !== "READ_ONLY" && BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
     return {
       error:
-        "Cannot generate a code for the selected access type because it requires you to have 500 Mb of available storage.",
+        "We're unable to generate a code for the selected access type because it requires you to have 500 Mb of available storage.",
     };
   }
   const accessCode = await generateAccessCode(patient.id, validFor, accessType, uploadToId);

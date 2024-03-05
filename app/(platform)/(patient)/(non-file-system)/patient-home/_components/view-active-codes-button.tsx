@@ -120,7 +120,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
             <TableBody>
               {activeCodes.map((code, i) => {
                 return (
-                  <TableRow key={i}>
+                  <TableRow key={i} className={cn(!code.isValid && "text-amber-500")}>
                     <TableCell className="flex flex-row items-center gap-x-2">
                       {code.isValid && code.id !== loadingCodeId && !isLoading && (
                         <InvalidateCodeButton codeId={code.id} codeType={codeType} onInvalidate={onInvalidateCode}>

@@ -6,7 +6,7 @@ import { generateAsymmetricKeyPairs, generateSymmetricKey, encryptKey, encryptPa
 import prismadb from "@/lib/prismadb";
 import { RegisterSchema } from "@/auth/schemas";
 import { getUserByEmail } from "@/auth/data/user";
-import { sendVerificationEmail } from "@/auth/lib/mail";
+import { sendVerificationEmail } from "@/auth/lib/mail/mail";
 import { generateVerificationToken } from "@/auth/lib/tokens";
 import { AccountType, UserType } from "@prisma/client";
 

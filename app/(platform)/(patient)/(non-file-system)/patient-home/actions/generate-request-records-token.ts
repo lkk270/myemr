@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import prismadb from "@/lib/prismadb";
 import { getRequestRecordsTokenByEmail } from "@/auth/data";
-import { sendRequestRecordsEmail } from "@/auth/lib/mail";
+import { sendRequestRecordsEmail } from "@/auth/lib/mail/mail";
 import { RequestRecordsSchema } from "../schemas";
 import { z } from "zod";
 import { currentUser } from "@/auth/lib/auth";

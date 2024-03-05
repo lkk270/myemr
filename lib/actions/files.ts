@@ -688,6 +688,7 @@ export const addSubFolder = async (
 
 export async function fetchAllFoldersForPatient(parentId: string | null = null, userId: string) {
   // Fetch folders and their files
+  console.log("IN HERE");
   const folders = (await prismadb.folder.findMany({
     where: {
       AND: [{ userId: userId }, { parentId: parentId }],

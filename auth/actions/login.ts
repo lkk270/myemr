@@ -8,7 +8,7 @@ import { signIn } from "@/auth";
 import { LoginSchema } from "@/auth/schemas";
 import { getUserByEmail } from "@/auth/data/user";
 import { getTwoFactorTokenByEmail } from "@/auth/data/two-factor-token";
-import { sendVerificationEmail, sendTwoFactorTokenEmail } from "@/auth/lib/mail";
+import { sendVerificationEmail, sendTwoFactorTokenEmail } from "@/auth/lib/mail/mail";
 import { PATIENT_DEFAULT_LOGIN_REDIRECT, PROVIDER_DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { generateVerificationToken, generateTwoFactorToken } from "@/auth/lib/tokens";
 import { getTwoFactorConfirmationByUserId } from "@/auth/data/two-factor-confirmation";

@@ -21,6 +21,7 @@ export const restrictFilesCron = async (authHeader: string) => {
       userId: true,
     },
   });
+  // console.log("len of expired subscriptions: " + expiredSubscriptions.length);
   const userIdsOfExpiredSubscriptions = expiredSubscriptions.map((obj) => obj.userId);
 
   for (const userId of userIdsOfExpiredSubscriptions) {

@@ -3,7 +3,7 @@
 import prismadb from "@/lib/prismadb";
 import { update } from "@/auth";
 import { currentUser } from "@/auth/lib/auth";
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { deleteS3ProfilePicture } from "./files";
 
 export const deleteProfilePicture = async () => {
   const user = await currentUser();
@@ -14,14 +14,8 @@ export const deleteProfilePicture = async () => {
     return { error: "Unauthorized" };
   }
 
-  const client = new S3Client({ region: process.env.AWS_REGION });
-  const command = new DeleteObjectCommand({
-    Bucket: process.env.AWS_PROFILE_PICS_BUCKET_NAME as string,
-    Key: userId,
-  });
-
   try {
-    await client.send(command);
+    await deleteS3ProfilePicture(userId);
   } catch (err) {
     return { error: "something went wrong" };
   }

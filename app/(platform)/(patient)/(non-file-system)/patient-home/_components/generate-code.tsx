@@ -7,7 +7,7 @@ import { GenerateCodeSchema } from "../schemas";
 
 import { Button } from "@/components/ui/button";
 
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 import { Copy, Check, RefreshCw, History } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";

@@ -7,6 +7,7 @@ import { GenericNavigationMenu } from "@/components/generic-navigation-menu";
 import { SearchBox } from "./search-box";
 import { UserButton } from "@/components/user-button";
 import { useMediaQuery } from "usehooks-ts";
+import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {
   isCollapsed: boolean;
@@ -39,8 +40,9 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
         )}
 
         {/* <div className="flex-grow"></div> */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-x-2">
           <GenericNavigationMenu />
+          <Notifications numOfUnreadNotificationsParam={4} />
           <ModeToggle />
           <UserButton />
           {/* <UserButton afterSignOutUrl="/" /> */}

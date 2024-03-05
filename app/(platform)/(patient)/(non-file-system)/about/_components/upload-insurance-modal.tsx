@@ -20,7 +20,7 @@ import { FileWithStatus } from "@/app/types/file-types";
 import Image from "next/image";
 import { updateInsuranceStatus } from "../../../(file-system)/actions/update-status";
 import { Trash, RefreshCw, XCircle } from "lucide-react";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";

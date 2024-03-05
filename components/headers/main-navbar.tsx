@@ -6,6 +6,7 @@ import { Ban, Bell } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";
 import { UserButton } from "@/components/user-button";
+import { Notifications } from "../notifications";
 // import { MobileSidebar } from "@/components/headers/mobile-sidebar";
 // import { Notifications } from "@/components/notifications";
 
@@ -22,6 +23,8 @@ export const MainNavbar = () => {
         <div className="flex items-center sm:flex gap-x-4">
           <ModeToggle />
           <UserButton />
+          <Notifications numOfUnreadNotificationsParam={4} />
+
           {/* <UserButton afterSignOutUrl="/" /> */}
         </div>
       </div>

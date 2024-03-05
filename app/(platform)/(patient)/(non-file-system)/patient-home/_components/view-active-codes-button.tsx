@@ -16,7 +16,7 @@ import { accessTypesText } from "@/lib/constants";
 import { InvalidateCodeButton } from "./invalidate-code-button";
 import { cn, getTimeUntil } from "@/lib/utils";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 
 interface ViewActiveCodesButtonProps {
   children: React.ReactNode;

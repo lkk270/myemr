@@ -97,9 +97,8 @@ export const RequestRecordsEmail = ({ dataForLetter, requestRecordsLink }: Reque
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This request is intended for <span className="text-black">{dataForLetter.providerEmail}</span>. This
               request was sent from the MyEmr account of patient: {dataForLetter.firstName} {dataForLetter.lastName}{" "}
-              (DOB {dataForLetter.dateOfBirth}), email: {dataForLetter.email}. If you were not expecting this
-              invitation, you can ignore this email. As stated if you have any questions, please reply to this email to
-              get in touch with us and/or the patient.
+              (DOB {dataForLetter.dateOfBirth}), email: {dataForLetter.email}. As stated if you have any questions,
+              please reply to this email to get in touch with us and/or the patient.
             </Text>
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This process, including the request for and subsequent uploading of the patient's medical records, adheres

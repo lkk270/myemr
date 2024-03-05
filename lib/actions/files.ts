@@ -283,6 +283,25 @@ async function deleteSubFolders(prisma: any, parentId: string) {
   }
 }
 
+export async function getAllFilesToDeleteForDeleteAccount(patientProfileId: string) {
+  const allFilesToDelete = await prismadb.file.findMany({
+    where: {
+      patientProfileId: patientProfileId,
+      status: FileStatus.SUCCESS,
+    },
+    select: {
+      id: true,
+      size: true,
+      userId: true,
+      restricted: true,
+    },
+  });
+
+  const convertedObjects = allFilesToDelete.map((obj) => ({ Key: `${patientProfileId}/${obj.id}` }));
+  const totalSize = allFilesToDelete.reduce((sum, file) => sum + file.size, 0n);
+  return { rawObjects: allFilesToDelete, convertedObjects: convertedObjects, totalSize: totalSize };
+}
+
 export async function getAllObjectsToDelete(selectedIds: string[], patientProfileId: string) {
   let allFilesToDelete: PrismaDeleteFileObject[] = [];
   const allFilesToDeleteForFileIds = await prismadb.file.findMany({

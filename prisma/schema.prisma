@@ -563,7 +563,7 @@ model FailedRestrictFilesUserId {
   createdAt DateTime @default(now())
 }
 
-model FailedDeleteS3FilesOnAccountDelete {
+model FailedAccountDelete {
   id               String   @id @default(cuid())
   userId           String
   patientProfileId String

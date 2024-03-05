@@ -4,8 +4,9 @@ import prismadb from "@/lib/prismadb";
 import { deleteS3ProfilePicture } from "../actions/files";
 import { stripe } from "../stripe/stripe";
 import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { sendSuccessfullyDeletedAccountEmail } from "@/auth/lib/mail/mail";
 
-export const deletePatient = async (authHeader: string) => {
+export const deletePatients = async (authHeader: string) => {
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return { error: "unauthorized" };
   }
@@ -43,6 +44,7 @@ export const deletePatient = async (authHeader: string) => {
     where: { scheduledToDelete: true, type: "PATIENT" },
     select: {
       id: true,
+      email: true,
       patientProfile: {
         select: {
           id: true,
@@ -54,11 +56,17 @@ export const deletePatient = async (authHeader: string) => {
   //   const allUserIdsToDelete = patientUsersToDelete.map((user) => user.id);
   let reason = "";
   for (const user of patientUsersToDelete) {
-    if (!user || !user.patientProfile) {
+    if (!user || !user.email || !user.patientProfile) {
       continue;
     }
     const patientProfileId = user.patientProfile.id;
     try {
+      const patientFile = await prismadb.file.findFirst({
+        where: { patientProfileId: patientProfileId },
+        select: {
+          id: true,
+        },
+      });
       reason = "failed on: userSubscription get";
       const userSubscription = await prismadb.userSubscription.findUnique({
         where: {
@@ -74,8 +82,10 @@ export const deletePatient = async (authHeader: string) => {
       reason = "failed on: deleteS3ProfilePicture";
       await deleteS3ProfilePicture(user.id);
 
-      reason = "failed on: deleteS3Objects";
-      await deleteFolderContents(`${patientProfileId}/`);
+      if (!!patientFile) {
+        reason = "failed on: deleteS3Objects";
+        await deleteFolderContents(`${patientProfileId}/`);
+      }
 
       reason = "failed on:  prismadb.user.delete";
       await prismadb.user.delete({
@@ -97,9 +107,11 @@ export const deletePatient = async (authHeader: string) => {
           userId: user.id,
         },
       });
+      reason = "failed on: sendSuccessfullyDeletedAccountEmail";
+      await sendSuccessfullyDeletedAccountEmail(user.email, "Patient");
     } catch (error) {
       //   console.log("error");
-      await prismadb.failedDeleteS3FilesOnAccountDelete.create({
+      await prismadb.failedAccountDelete.create({
         data: {
           userId: user.id,
           patientProfileId: patientProfileId,

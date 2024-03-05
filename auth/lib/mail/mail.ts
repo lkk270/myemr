@@ -3,7 +3,12 @@
 import { UserType } from "@prisma/client";
 import resendClient from "./resendClient";
 import { getBuffer } from "./pdfs/notarized-letter";
-import { RequestRecordsEmail, TwoFactorConfirmationEmail, MagicLinkEmail } from "./emails";
+import {
+  MagicLinkEmail,
+  RequestRecordsEmail,
+  SuccessfullyDeletedAccountEmail,
+  TwoFactorConfirmationEmail,
+} from "./emails";
 
 const domain = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -13,6 +18,18 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
     to: email.toLowerCase(),
     subject: "2FA Code",
     react: TwoFactorConfirmationEmail({ verificationToken: token }),
+  });
+  if (response.error) {
+    throw new Error("Something went wrong on email send");
+  }
+};
+
+export const sendSuccessfullyDeletedAccountEmail = async (email: string, accountType: "Patient" | "Provider") => {
+  const response = await resendClient.emails.send({
+    from: "onboarding@resend.dev",
+    to: email.toLowerCase(),
+    subject: `MyEmr ${accountType} Successfully Deleted`,
+    react: SuccessfullyDeletedAccountEmail({ email, accountType }),
   });
   if (response.error) {
     throw new Error("Something went wrong on email send");

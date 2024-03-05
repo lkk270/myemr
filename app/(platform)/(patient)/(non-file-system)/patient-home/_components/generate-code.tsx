@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { ViewActiveCodesButton } from "./view-active-codes-button";
 import { FolderNameType } from "@/app/types/file-types";
 import { accessTypesText } from "@/lib/constants";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 const validTimes = [
   { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
@@ -33,7 +34,9 @@ const validTimes = [
 ];
 
 export const GenerateCode = () => {
+  const currentUser = useCurrentUser();
   const [code, setCode] = useState("");
+  const [accessType, setAccessType] = useState(UserRole.READ_ONLY);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [chosenFolder, setChosenFolder] = useState<FolderNameType>({ name: "", namePath: "" });
@@ -157,18 +160,31 @@ export const GenerateCode = () => {
           render={({ field }) => (
             <FormItem className="text-xs lg:text-md">
               <ToggleGroup {...field} type="single" onValueChange={handleAccessTypeChange}>
-                {accessTypesText.map((obj, index) => (
-                  <ToggleGroupItem
-                    key={obj.value}
-                    className={cn(
-                      "text-xs lg:text-md hover:bg-primary/10",
-                      obj.value === watchedAccessType && "data-[state=on]:bg-primary/10",
-                    )}
-                    value={obj.value}
-                  >
-                    {obj.label}
-                  </ToggleGroupItem>
-                ))}
+                {accessTypesText.map((obj, index) => {
+                  const restrict = !currentUser || (obj.requiresSubscription && currentUser.plan.includes("_FREE"));
+                  return (
+                    <ToggleGroupItem
+                      onClick={() => {
+                        if (restrict) {
+                          toast.warning(
+                            "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan",
+                          );
+                          return;
+                        }
+                      }}
+                      key={obj.value}
+                      className={cn(
+                        "text-xs lg:text-md",
+                        !restrict && "hover:bg-primary/10",
+                        restrict && "cursor-not-allowed text-muted-foreground",
+                        obj.value === watchedAccessType && "data-[state=on]:bg-primary/10",
+                      )}
+                      value={restrict ? "" : obj.value}
+                    >
+                      {obj.label}
+                    </ToggleGroupItem>
+                  );
+                })}
               </ToggleGroup>
             </FormItem>
           )}
@@ -190,7 +206,12 @@ export const GenerateCode = () => {
             </Button>
           </CopyToClipboard>
           <Button
-            disabled={isPending || (watchedAccessType === UserRole.UPLOAD_FILES_ONLY && !watchedUploadToId)}
+            disabled={
+              isPending ||
+              (watchedAccessType === UserRole.UPLOAD_FILES_ONLY && !watchedUploadToId) ||
+              !watchedAccessType ||
+              !watchedValidFor
+            }
             variant="none"
             type="submit"
             className="hover:font-bold inline-flex items-center text-sm font-semibold py-2 px-4 rounded-r outline-none focus:outline-none border-2 border-transparent transition duration-150 ease-in-out min-w-[130px]" // Apply consistent border and min-width

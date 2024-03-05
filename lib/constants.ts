@@ -1106,10 +1106,10 @@ export const accessCodeValidTimeObj = {
 };
 
 export const accessTypesText = [
-  { value: UserRole.READ_ONLY, label: "Read only" },
-  { value: UserRole.UPLOAD_FILES_ONLY, label: "Upload files only" },
-  { value: UserRole.READ_AND_ADD, label: "Read & Add" },
-  { value: UserRole.FULL_ACCESS, label: "Full access" },
+  { value: UserRole.READ_ONLY, label: "Read only", requiresSubscription: false },
+  { value: UserRole.UPLOAD_FILES_ONLY, label: "Upload files only", requiresSubscription: false },
+  { value: UserRole.READ_AND_ADD, label: "Read & Add", requiresSubscription: true },
+  { value: UserRole.FULL_ACCESS, label: "Full access", requiresSubscription: true },
 ];
 
 export const profileImageUrlPrefix = "https://myemrpps3.s3.us-east-2.amazonaws.com/";

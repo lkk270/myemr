@@ -37,7 +37,6 @@ export const getActiveCodes = async (codeType: "patientProfileAccessCode" | "req
     const activeCodes = await prismadb.requestRecordsCode.findMany({
       where: {
         userId,
-        isValid: true,
         expires: { gt: new Date() },
       },
       select: {

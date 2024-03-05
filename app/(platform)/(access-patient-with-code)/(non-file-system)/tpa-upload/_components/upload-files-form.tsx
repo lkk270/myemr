@@ -6,7 +6,7 @@ import { Trash, RefreshCw, XCircle } from "lucide-react";
 import { Dropzone } from "@/components/files/dropzone";
 import _ from "lodash";
 import { FileWithStatus } from "@/app/types/file-types";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import {

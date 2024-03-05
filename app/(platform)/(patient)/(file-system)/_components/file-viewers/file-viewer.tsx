@@ -5,7 +5,7 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 // import Viewer from "react-viewer";
 import Image from "next/image";
 import { ImageViewer } from "./image-viewer";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 import { useFolderStore } from "../hooks/use-folders";
 import { isLinkExpired, isViewableFile, cn } from "@/lib/utils";
 import { getPresignedUrl } from "../../actions/get-file-psu";

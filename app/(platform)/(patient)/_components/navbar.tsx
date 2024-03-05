@@ -10,13 +10,15 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@/components/user-button";
 import Link from "next/link";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { Notifications } from "@/components/notifications";
 // import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {
   tempAccess?: boolean;
+  numOfUnreadNotifications?: number;
 }
 
-export const Navbar = ({ tempAccess = false }: NavbarProps) => {
+export const Navbar = ({ tempAccess = false, numOfUnreadNotifications }: NavbarProps) => {
   const currentUser = useCurrentUser();
   const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
@@ -57,6 +59,9 @@ export const Navbar = ({ tempAccess = false }: NavbarProps) => {
           {/* {typeof userValues.numOfUnreadNotifications === "number" && (
 						<Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
 					)} */}
+          {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
+            <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
+          )}
           <ModeToggle />
           {/* <UserButton afterSignOutUrl="/" /> */}
           <UserButton />

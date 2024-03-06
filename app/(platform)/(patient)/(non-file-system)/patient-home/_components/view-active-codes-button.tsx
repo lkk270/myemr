@@ -83,7 +83,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
       </DialogTrigger>
       <DialogContent className="overflow-y-scroll max-h-[calc(100vh-200px)] max-w-[850px] w-full">
         <DialogTitle className="text-md">
-          {codeType === "requestRecordsCode" ? "Requests within the last 30 days" : "Active codes"}
+          {codeType === "requestRecordsCode" ? "Requests made within the last 30 days" : "Active codes"}
           <span className="font-normal ml-2">
             {(() => {
               if (!activeCodes) return;
@@ -109,7 +109,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
         ) : !activeCodes || activeCodes.length === 0 ? (
           <div>🫀No active codes🫀</div>
         ) : activeCodes[0].providerEmail ? (
-          <Table className="text-xs sm:text-sm">
+          <Table className="text-[8px] xs:text-xs sm:text-sm">
             <TableHeader>
               <TableRow className="border-b border-primary/10">
                 <TableHead>Provider Email</TableHead>
@@ -130,8 +130,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
                         </InvalidateCodeButton>
                       )}
                       {isLoading && loadingCodeId === code.id && <Spinner size="sm" loaderType={"loader2"} />}
-
-                      {code.providerEmail}
+                      <span className="w-full break-all whitespace-normal">{code.providerEmail}</span>
                     </TableCell>
                     <TableCell>
                       {"< "}
@@ -144,7 +143,7 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
             </TableBody>
           </Table>
         ) : (
-          <Table className="text-xs sm:text-sm">
+          <Table className="text-[8px] xs:text-xs sm:text-sm">
             <TableHeader>
               <TableRow className="border-b border-primary/10">
                 <TableHead>Code</TableHead>

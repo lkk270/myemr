@@ -19,6 +19,7 @@ import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permiss
 import { Button } from "@/components/ui/button";
 import { ViewUploadHistoryButton } from "@/components/temp-upload/view-upload-history-button";
 import { EndSessionButton } from "@/app/(public-routes)/upload-records/[token]/_components/end-session-button";
+import { createNotification } from "@/lib/actions/notifications";
 
 interface UploadFilesFormProps {
   requestRecordsCode?: {
@@ -30,6 +31,7 @@ interface UploadFilesFormProps {
     token: string;
     expires: Date;
     isValid: boolean;
+    providerEmail: string;
   };
 }
 
@@ -58,6 +60,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
     let errorOccurred = false;
+    let numFilesSuccessfullyUploaded = 0;
     if (isLoading || (!currentUserPermissions.canUploadFiles && !requestRecordsCode)) {
       return;
     }
@@ -128,7 +131,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
             setCalledSetHasUploadToTrue(true);
           }
           updateFileStatus(singleFileObj, "uploaded", index);
-
+          numFilesSuccessfullyUploaded += 1;
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
           errorOccurred = true;
@@ -155,7 +158,22 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
     if (errorOccurred) {
       await deleteNotUploadedFilesAndDecrement(requestRecordsCode?.userId);
     }
+    const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
 
+    if (numFilesSuccessfullyUploaded > 0) {
+      if (!!requestRecordsCode) {
+        await createNotification({
+          text: `${requestRecordsCode.providerEmail} has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText} in response to your "Request Your Records" request.`,
+          type: "REQUEST_RECORDS_UPLOAD",
+          requestRecordsCodeToken: requestRecordsCode.token,
+        });
+      } else {
+        await createNotification({
+          text: `An external temporary user, whom you granted a temporary access code with "UPLOAD_FILES_ONLY" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
+          type: "ACCESS_CODE",
+        });
+      }
+    }
     setIsLoading(false);
   };
 

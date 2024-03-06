@@ -14,7 +14,7 @@ import { invalidateCodeById } from "../actions/code";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
+import { useIsLoading } from "@/hooks/use-is-loading";
 interface EndSessionButtonProps {
   codeId: string;
   children: React.ReactNode;
@@ -23,6 +23,7 @@ interface EndSessionButtonProps {
 
 export const EndSessionButton = ({ codeId, children, asChild }: EndSessionButtonProps) => {
   const [isPending, startTransition] = useTransition();
+  const { isLoading } = useIsLoading();
   const router = useRouter();
 
   const onInvalidateClick = () => {
@@ -53,6 +54,7 @@ export const EndSessionButton = ({ codeId, children, asChild }: EndSessionButton
         <AlertDialogFooter>
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
           <AlertDialogAction
+            disabled={isPending || isLoading}
             onClick={onInvalidateClick}
             className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
           >

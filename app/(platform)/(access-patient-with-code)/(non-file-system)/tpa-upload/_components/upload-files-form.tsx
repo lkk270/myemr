@@ -158,20 +158,24 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
     if (errorOccurred) {
       await deleteNotUploadedFilesAndDecrement(requestRecordsCode?.userId);
     }
-    const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
 
     if (numFilesSuccessfullyUploaded > 0) {
-      if (!!requestRecordsCode) {
-        await createNotification({
-          text: `${requestRecordsCode.providerEmail} has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText} in response to your "Request Your Records" request.`,
-          type: "REQUEST_RECORDS_UPLOAD",
-          requestRecordsCodeToken: requestRecordsCode.token,
-        });
-      } else {
-        await createNotification({
-          text: `An external temporary user, whom you granted a temporary access code with "UPLOAD_FILES_ONLY" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
-          type: "ACCESS_CODE",
-        });
+      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
+      try {
+        if (!!requestRecordsCode) {
+          await createNotification({
+            text: `${requestRecordsCode.providerEmail} has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText} in response to your "Request Your Records" request.`,
+            type: "REQUEST_RECORDS_UPLOAD",
+            requestRecordsCodeToken: requestRecordsCode.token,
+          });
+        } else {
+          await createNotification({
+            text: `An external temporary user, whom you granted a temporary access code with "UPLOAD_FILES_ONLY" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
+            type: "ACCESS_CODE",
+          });
+        }
+      } catch {
+        setIsLoading(false);
       }
     }
     setIsLoading(false);

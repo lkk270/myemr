@@ -28,10 +28,12 @@ import {
 } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { createNotification } from "@/lib/actions/notifications";
 
 export const UploadFilesModal = () => {
-  const currentUserPermissions = useCurrentUserPermissions();
+  const currentUser = useCurrentUser();
+  const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const folderStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -79,6 +81,8 @@ export const UploadFilesModal = () => {
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
     let errorOccurred = false;
+    let numFilesSuccessfullyUploaded = 0;
+
     console.log("IN 82");
     if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
@@ -180,7 +184,7 @@ export const UploadFilesModal = () => {
             );
           }
           updateFileStatus(singleFileObj, "uploaded", index);
-
+          numFilesSuccessfullyUploaded += 1;
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
           errorOccurred = true;
@@ -213,6 +217,18 @@ export const UploadFilesModal = () => {
     if (errorOccurred) {
       await deleteNotUploadedFilesAndDecrement();
     }
+    if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
+      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
+      try {
+        await createNotification({
+          text: `An external temporary user, whom you granted a temporary access code with "${currentUser?.role}" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
+          type: "ACCESS_CODE",
+        });
+      } catch {
+        setIsLoading(false);
+      }
+    }
+
     setIsLoading(false);
   };
 

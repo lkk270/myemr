@@ -8,14 +8,17 @@ import { SearchBox } from "./search-box";
 import { UserButton } from "@/components/user-button";
 import { useMediaQuery } from "usehooks-ts";
 import { Notifications } from "@/components/notifications";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 interface NavbarProps {
   isCollapsed: boolean;
   onResetWidth: () => void;
+  numOfUnreadNotifications?: number;
 }
 
-export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
+export const Navbar = ({ isCollapsed, onResetWidth, numOfUnreadNotifications }: NavbarProps) => {
   const isMobile = useMediaQuery("(max-width: 450px)");
+  const currentUserPermissions = useCurrentUserPermissions();
 
   return (
     <>
@@ -42,7 +45,9 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
         {/* <div className="flex-grow"></div> */}
         <div className="flex items-center gap-x-2">
           <GenericNavigationMenu />
-          <Notifications numOfUnreadNotificationsParam={4} />
+          {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
+            <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
+          )}
           <ModeToggle />
           <UserButton />
           {/* <UserButton afterSignOutUrl="/" /> */}

@@ -1,10 +1,7 @@
 "use server";
 
-import crypto from "crypto";
-
 import { currentUser } from "@/auth/lib/auth";
 import prismadb from "@/lib/prismadb";
-import { Notification } from "@prisma/client";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const getNotifications = async (forBaseClick = false, numOfLoadedEntries: number) => {

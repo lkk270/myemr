@@ -23,6 +23,7 @@ export const getCodeByToken = async (token: string) => {
       expires: true,
       isValid: true,
       createdAt: true,
+      providerEmail: true,
     },
   });
   return code;

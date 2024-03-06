@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-import { useState, useTransition } from "react";
+import { useState, startTransition } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Bell, Dot } from "lucide-react";
@@ -25,7 +25,8 @@ type NotificationProps = {
 };
 
 export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationProps) => {
-  const [isPending, startTransition] = useTransition();
+  const [isLoadingBase, setIsLoadingBase] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [totalNumOfNotifications, setTotalNumOfNotifications] = useState(0);
   const [numOfLoadedEntries, setNumOfLoadedEntries] = useState(0);
@@ -35,38 +36,45 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
 
   const onBellClick = () => {
     if (!dataFetched) {
+      setIsLoadingBase(true);
       startTransition(() => {
-        getNotifications(true, numOfUnreadNotifications, 0)
+        const numOfUnreadNotificationsToFetch = Math.min(5, Math.max(0, numOfUnreadNotifications));
+        getNotifications(true, 0)
           .then((data) => {
             if (!!data && !!data.notifications) {
               setNotifications(data.notifications);
               setTotalNumOfNotifications(data.totalNumOfNotifications || 0);
               setNumOfLoadedEntries(data.notifications.length);
               setDataFetched(true);
-              setNumOfUnreadNotifications(0);
+              setNumOfUnreadNotifications(numOfUnreadNotifications - numOfUnreadNotificationsToFetch);
             } else {
               console.log(data);
               toast.error("Something went wrong1");
             }
           })
-          .catch(() => toast.error("Something went wrong2"));
+          .catch(() => toast.error("Something went wrong"))
+          .finally(() => setIsLoadingBase(false));
       });
     }
   };
 
   const onLoadMore = () => {
+    setIsLoadingMore(true);
     startTransition(() => {
-      getNotifications(false, numOfUnreadNotifications, numOfLoadedEntries)
+      const numOfUnreadNotificationsToFetch = Math.min(5, Math.max(0, numOfUnreadNotifications));
+      getNotifications(false, numOfLoadedEntries)
         .then((data) => {
           if (!!data && !!data.notifications) {
             const newNotifications = notifications.concat(data.notifications);
             setNotifications(newNotifications);
             setNumOfLoadedEntries(newNotifications.length);
+            setNumOfUnreadNotifications(numOfUnreadNotifications - numOfUnreadNotificationsToFetch);
           } else {
             toast.error("Something went wrong");
           }
         })
-        .catch(() => toast.error("Something went wrong"));
+        .catch(() => toast.error("Something went wrong"))
+        .finally(() => setIsLoadingMore(false));
     });
   };
 
@@ -89,7 +97,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
       </DropdownMenuTrigger>
       <DropdownMenuContent className="overflow-y-scroll w-96 max-h-[550px]">
         <DropdownMenuGroup>
-          {isPending ? (
+          {isLoadingBase ? (
             <NotificationsSkeleton />
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center mt-3 text-center text-primary/60 gap-y-4 pb-4">
@@ -113,13 +121,13 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
             })
           )}
         </DropdownMenuGroup>
-        {!isPending && notifications.length < totalNumOfNotifications && (
+        {!isLoadingBase && notifications.length < totalNumOfNotifications && (
           <div className="flex items-center justify-between py-4 space-x-2">
             <div className="text-sm text-muted-foreground">
               Showing {notifications.length.toString()}/{totalNumOfNotifications.toString()} rows
             </div>
-            <Button disabled={isPending} variant="outline" size="sm" onClick={onLoadMore}>
-              {isPending ? "Loading more..." : "Load more"}
+            <Button disabled={isLoadingMore} variant="outline" size="sm" onClick={onLoadMore}>
+              {isLoadingMore ? "Loading more..." : "Load more"}
             </Button>
           </div>
         )}

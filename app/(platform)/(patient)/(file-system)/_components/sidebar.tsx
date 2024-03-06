@@ -25,8 +25,9 @@ interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
   usedFileStorage: bigint;
+  numOfUnreadNotifications: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, usedFileStorage }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, numOfUnreadNotifications }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -234,7 +235,11 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage }: SidebarProp
             isMobile && "left-0 w-full",
           )}
         >
-          <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
+          <Navbar
+            isCollapsed={isCollapsed}
+            onResetWidth={resetWidth}
+            numOfUnreadNotifications={numOfUnreadNotifications}
+          />
         </div>
       </>
     )

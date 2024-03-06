@@ -56,9 +56,6 @@ export const Navbar = ({ tempAccess = false, numOfUnreadNotifications }: NavbarP
       </div>
       <div className="flex items-center">
         <div className="flex items-center sm:flex gap-x-4 justify-center">
-          {/* {typeof userValues.numOfUnreadNotifications === "number" && (
-						<Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
-					)} */}
           {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
             <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
           )}

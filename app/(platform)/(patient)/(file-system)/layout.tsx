@@ -23,6 +23,7 @@ import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
+import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -73,6 +74,13 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // console.log(singleLayerNodes.find((node) => node.id === "clsxjojl9002uwo9vzcujf3ag"));
   const usedFileStorage = patient.usedFileStorage;
 
+  let numOfUnreadNotifications = 0;
+  try {
+    numOfUnreadNotifications = await getNumberOfUnreadNotifications();
+  } catch {
+    numOfUnreadNotifications = 0;
+  }
+
   // const totalSizeAll = await prismadb.file.aggregate({
   //   _sum: {
   //     size: true,
@@ -121,7 +129,12 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   // const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar usedFileStorage={usedFileStorage} data={sortedFolders} singleLayerNodes={singleLayerNodes} />
+      <Sidebar
+        usedFileStorage={usedFileStorage}
+        data={sortedFolders}
+        singleLayerNodes={singleLayerNodes}
+        numOfUnreadNotifications={numOfUnreadNotifications}
+      />
       <DeleteModal />
       <TrashModal />
       <DownloadModal />

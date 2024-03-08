@@ -1,4 +1,5 @@
 "use server";
+import { redirect } from "next/navigation";
 
 import { z } from "zod";
 import prismadb from "@/lib/prismadb";
@@ -6,7 +7,8 @@ import { NewMedicationSchema } from "../schemas/medication";
 import { createNotification } from "./notifications";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { decryptMultiplePatientFields, buildUpdatePayload, decryptKey } from "../utils";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
+import { getAccessPatientCodeByToken } from "@/auth/data";
 
 export const createMedication = async (values: z.infer<typeof NewMedicationSchema>) => {
   try {
@@ -15,8 +17,18 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
     const userId = user?.id;
     const currentUserPermissions = extractCurrentUserPermissions(user);
 
-    if (!userId || !user || !currentUserPermissions.canAdd) {
+    if (!session || !userId || !user || !currentUserPermissions.canAdd) {
       return { error: "Unauthorized" };
+    }
+    if (!currentUserPermissions.isPatient) {
+      const code = await getAccessPatientCodeByToken(session.tempToken);
+      if (!code) {
+        console.log("IN HERE26  ");
+        console.log("AATtePMPTING REDIRECT999");
+        return { error: "Unauthorized" };
+        // await signOut({ redirect: true, redirectTo: "/" });
+        // return new NextResponse("Unauthorized", { status: 400 });
+      }
     }
 
     const patient = await prismadb.patientProfile.findUnique({

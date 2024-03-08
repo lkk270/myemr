@@ -9,6 +9,7 @@ import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { planNames } from "@/lib/constants";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ interface LogoProps {
 export const Logo = ({ textColor, showText = true }: LogoProps) => {
   const isMobile = useMediaQuery("(max-width: 500px)");
   const currentUser = useCurrentUser();
+  const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const plan = currentUser?.plan;
   const size = showText ? "40" : "30";
   return (
@@ -38,7 +40,7 @@ export const Logo = ({ textColor, showText = true }: LogoProps) => {
             )}
           >
             MyEMR
-            {!!plan && !plan.includes("FREE") && (
+            {!!plan && !plan.includes("FREE") && currentUserPermissions.hasAccount && (
               <span className="bg-gradient-to-r from-violet-400 to-[#4f5eff] bg-clip-text text-transparent">
                 {planNames[plan].title}
               </span>

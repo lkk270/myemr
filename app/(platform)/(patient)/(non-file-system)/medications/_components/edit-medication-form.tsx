@@ -83,9 +83,11 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
       };
     }
     if (Object.keys(changes).length > 0) {
+      console.log(medication.name);
       const promise = axios
         .post("/api/patient-update", {
           fieldsObj: changes,
+          medicationName: medication.name,
           updateType: "editMedication",
           medicationId: medication.id,
           dosageHistoryInitialFields: dosageHistoryInitialFields,

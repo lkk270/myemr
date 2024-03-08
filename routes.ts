@@ -81,6 +81,12 @@ export const accessPatientUploadRoutes: string[] = ["/tpa-home", "/tpa-upload"];
 export const apiAuthPrefix: string = "/api/auth";
 
 /**
+ * An array of API routes that are patient access
+ * @type {string[]}
+ */
+export const accessPatientApiRoutes: string[] = ["/api/patient-update", "/api/tpa-file-upload"];
+
+/**
  * The default redirect path after logging in
  * @type {string}
  */

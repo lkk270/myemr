@@ -8,6 +8,7 @@ import { statuses } from "./_data/data";
 import { medicationCategories } from "@/lib/constants";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { CustomDataTableRowActions } from "./custom-data-table-row-actions";
+import { medicationsList } from "@/lib/constants";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -16,7 +17,9 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">{row.getValue("name")}</span>
+          <span className="max-w-[500px] truncate font-medium">
+            {medicationsList.find((item) => item.value === row.getValue("name"))?.label || row.getValue("name")}
+          </span>
         </div>
       );
     },

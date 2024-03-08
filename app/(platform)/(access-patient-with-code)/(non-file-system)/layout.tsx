@@ -8,6 +8,8 @@ import { Navbar } from "../../(patient)/_components/navbar";
 import { logout } from "@/auth/actions/logout";
 
 import { startTransition, useEffect, useState } from "react";
+import { NewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
+import { ViewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const sessionObj = useSession();
@@ -44,6 +46,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex overflow-auto h-screen">
       <Navbar tempAccess={true} />
+      <NewMedicationModal />
+      <ViewMedicationModal />
       <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>
   );

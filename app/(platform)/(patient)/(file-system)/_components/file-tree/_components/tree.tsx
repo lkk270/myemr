@@ -283,6 +283,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   };
 
   const onMove = ({ dragIds, parentId, index }: any) => {
+    const fromName = treeRef.current.get(dragIds[0]).data.name;
     const tempParentNode = treeRef.current.get(parentId).data;
     const targetId = tempParentNode.isFile ? tempParentNode.parentId : parentId;
     setIsLoading(true);
@@ -294,6 +295,8 @@ const FileTree = ({ width }: FileTreeProps) => {
         selectedIds: dragIds,
         targetId: targetId,
         updateType: "moveNode",
+        fromName: fromName,
+        toName: tempParentNode.name,
       })
       .then(({ data }) => {})
       .catch((error) => {

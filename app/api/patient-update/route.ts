@@ -1,5 +1,6 @@
 // import { auth, currentUser } from "@clerk/nextjs";
-import { auth } from "@/auth";
+"use server";
+import { signOut, auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import { NextResponse } from "next/server";
@@ -10,9 +11,6 @@ import {
   decryptKey,
   encryptPatientRecord,
   checkForInvalidDemographicsData,
-  checkForInvalidEditedMedication,
-  checkForInvalidNewMedication,
-  decryptMultiplePatientFields,
   patientUpdateVerification,
   isValidNodeName,
 } from "@/lib/utils";
@@ -29,6 +27,8 @@ import {
   deleteS3Objects,
   unrestrictFiles,
 } from "@/lib/actions/files";
+
+import { createNotification } from "@/lib/actions/notifications";
 
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
@@ -69,6 +69,7 @@ export async function POST(req: Request) {
     }
 
     const user = session?.user;
+
     const userId = user?.id;
 
     const currentUserPermissions = extractCurrentUserPermissions(user);
@@ -80,12 +81,16 @@ export async function POST(req: Request) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 
-    if (!currentUserPermissions.isPatient) {
-      const code = await getAccessPatientCodeByToken(session.tempToken);
-      if (!code) {
-        return redirect("/");
-      }
-    }
+    // if (!currentUserPermissions.isPatient) {
+    //   console.log("IN 8777888799");
+    //   const code = await getAccessPatientCodeByToken(session.tempToken);
+    //   console.log(code);
+    //   if (!code) {
+    //     console.log("AATtePMPTING REDIRECT");
+    //     return redirect("/");
+    //     // return new NextResponse("Unauthorized", { status: 400 });
+    //   }
+    // }
 
     const patient = await prismadb.patientProfile.findUnique({
       where: {
@@ -133,32 +138,6 @@ export async function POST(req: Request) {
           data: { ...encryptedAddress },
         });
       }
-    } else if (updateType === "newMedication") {
-      if (checkForInvalidNewMedication(data) !== "") {
-        return new NextResponse("Invalid body", { status: 400 });
-      }
-      const currentMedicationNames = await prismadb.medication.findMany({
-        where: {
-          patientProfileId: patient.id,
-        },
-        select: {
-          name: true,
-        },
-      });
-      const decryptedCurrentMedicationNames = decryptMultiplePatientFields(
-        currentMedicationNames,
-        decryptedSymmetricKey,
-      );
-
-      if (decryptedCurrentMedicationNames.some((medication: { name: string }) => medication.name === data.name)) {
-        return new NextResponse("Medication already exists", { status: 400 });
-      }
-      const encryptedMedication = buildUpdatePayload(data, decryptedSymmetricKey);
-
-      const newMedication = await prismadb.medication.create({
-        data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
-      });
-      return new NextResponse(JSON.stringify({ newMedicationId: newMedication.id }));
     } else if (updateType === "editMedication") {
       const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
       await prismadb.medication.update({
@@ -170,6 +149,12 @@ export async function POST(req: Request) {
         const dosageHistoryEntry = buildUpdatePayload(body.dosageHistoryInitialFields, decryptedSymmetricKey);
         await prismadb.dosageHistory.create({
           data: { ...dosageHistoryEntry, ...{ medicationId: body.medicationId } },
+        });
+      }
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has edited the medication: "${body.medicationName}"`,
+          type: "ACCESS_CODE",
         });
       }
     } else if (updateType === "deleteMedication") {
@@ -199,6 +184,12 @@ export async function POST(req: Request) {
           data: { name: newName, namePath: newNamePath },
         });
         await updateRecordViewActivity(userId, nodeId, true);
+        if (!currentUserPermissions.hasAccount) {
+          await createNotification({
+            text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the file: "${currentFile.name}" to "${newName}"`,
+            type: "ACCESS_CODE",
+          });
+        }
       } else if (isFile === false) {
         const currentFolder = await prismadb.folder.findUnique({
           where: { id: nodeId },
@@ -229,11 +220,24 @@ export async function POST(req: Request) {
           { timeout: 20000 },
         );
         await updateRecordViewActivity(userId, nodeId, false);
+
+        if (!currentUserPermissions.hasAccount) {
+          await createNotification({
+            text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the folder: "${currentFolder.name}" to "${newName}"`,
+            type: "ACCESS_CODE",
+          });
+        }
       }
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
       await moveNodes(selectedIds, targetId, userId);
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has moved nodes from "${body.fromName}" to "${body.toName}"`,
+          type: "ACCESS_CODE",
+        });
+      }
     } else if (updateType === "trashNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
@@ -271,6 +275,12 @@ export async function POST(req: Request) {
         patient.id,
         body.addedByName,
       );
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the root folder: "${body.folderName}"`,
+          type: "ACCESS_CODE",
+        });
+      }
       return NextResponse.json({ folderId: folderId }, { status: 200 });
     } else if (updateType === "addSubFolder") {
       const folder = await addSubFolder(
@@ -281,6 +291,12 @@ export async function POST(req: Request) {
         patient.id,
         body.addedByName,
       );
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added a sub folder: "${body.folderName}"`,
+          type: "ACCESS_CODE",
+        });
+      }
       return NextResponse.json({ folder: folder }, { status: 200 });
     }
     return new NextResponse("Success", { status: 200 });

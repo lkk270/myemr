@@ -1,236 +1,236 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useTransition } from "react";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 
-import axios from "axios";
-
-import { Medication } from "@prisma/client";
-import { MedicationType, NewMedicationType } from "@/app/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
-import { checkForInvalidNewMedication } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useNewMedicationModal } from "../_components/hooks/use-new-medication-modal";
 import { cn } from "@/lib/utils";
-import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-
+import { createMedication } from "@/lib/actions/medications";
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
+import { NewMedicationSchema } from "@/lib/schemas/medication";
 const inputClassName = "bg-secondary border-primary/10";
 
 export const NewMedicationForm = () => {
-  let error = "Something went wrong";
+  const [isPending, startTransition] = useTransition();
   const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();
   const newMedicationModal = useNewMedicationModal();
-  const [medication, setMedication] = useState<NewMedicationType | null>({
-    name: "",
-    prescribedById: undefined,
-    prescribedByName: "",
-    category: "",
-    dosage: "",
-    dosageUnits: "",
-    frequency: "",
-    description: "",
-    status: "active",
+
+  const form = useForm<z.infer<typeof NewMedicationSchema>>({
+    resolver: zodResolver(NewMedicationSchema),
+    defaultValues: {
+      name: "",
+      prescribedById: undefined,
+      prescribedByName: "",
+      category: "",
+      dosage: "",
+      dosageUnits: "",
+      frequency: "",
+      description: "",
+      status: "active",
+    },
   });
-  const { isLoading, setIsLoading } = useIsLoading();
 
-  const validateMedication = () => {
-    if (!medication) {
-      return "No medication";
-    }
-
-    const dataCheck = checkForInvalidNewMedication(medication);
-    if (dataCheck !== "") {
-      return dataCheck;
-    }
-
-    const doesMedicationExist = medicationStore.isMedicationNameExist(medication.name);
-    if (doesMedicationExist) {
-      return "This medication exists already, edit or delete it.";
-    }
-
-    return null; // All checks passed
-  };
-  const handleSave = () => {
+  const onSubmit = (values: z.infer<typeof NewMedicationSchema>) => {
     if (!currentUserPermissions.canAdd) return;
-    setIsLoading(true);
-    const errorMessage = validateMedication();
-    if (errorMessage) {
-      toast.error(errorMessage);
-      setIsLoading(false);
-      return;
-    }
-    const date = new Date();
-    const promise = axios
-      .post("/api/patient-update", { fieldsObj: medication, updateType: "newMedication" })
-      .then(({ data }) => {
-        const updatedMedication = {
-          ...(medication as MedicationType),
-          id: data.newMedicationId,
-          createdAt: date,
-          updatedAt: date,
-        };
-        medicationStore.addMedication(updatedMedication);
-        newMedicationModal.onClose();
-      })
-      .catch((error) => {
-        console.log(error?.response?.data);
-        error = error?.response?.data || "Something went wrong";
-        console.log(error);
 
-        throw error;
-      })
-      .finally(() => {
-        setIsLoading(false);
-        //no need for set loading to false
-        // Toggle edit mode off after operation
-      });
-    toast.promise(promise, {
-      loading: "Saving changes",
-      success: "Changes saved successfully",
-      error: error,
-      duration: 1250,
+    const date = new Date();
+    startTransition(() => {
+      createMedication(values)
+        .then((data) => {
+          if (data.error) {
+            toast.error(data.error);
+          }
+          if (data.success && !!data.medicationId) {
+            const date = new Date();
+            medicationStore.addMedication({
+              ...values,
+              dosageHistory: [],
+              id: data.medicationId,
+              createdAt: date,
+              updatedAt: date,
+            });
+            newMedicationModal.onClose();
+            toast.success("Medication successfully added!");
+          }
+        })
+        .catch(() => toast.error("Something went wrong"));
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setMedication((prev) => (prev ? { ...prev, [name as keyof Medication]: value } : null));
-  };
-
-  const handleChange = (name: keyof Medication, value: string) => {
-    setMedication((prev) => (prev ? { ...prev, [name]: value } : null));
-  };
-
-  const handleStatusChange = (checked: boolean) => {
-    const newStatus = checked ? "active" : "inactive";
-    setMedication((prev) => (prev ? { ...prev, status: newStatus } : null));
-  };
+  const { setValue, control } = form;
 
   return (
-    <div className="flex justify-center w-full max-w-[850px]">
-      <div className="grid grid-cols-1 w-full">
-        <div className="flex gap-x-4 justify-start">
-          <Button variant="outline" size="sm" className="h-8" disabled={isLoading} onClick={handleSave}>
-            Save
-          </Button>
-        </div>
-        {/* Personal Information Card */}
-        <Card className="w-full">
-          <CardContent className="pt-2">
-            <div className="grid gap-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
-                <div>
-                  <Label htmlFor="medicationName">Name</Label>
-                  <GenericCombobox
-                    valueParam={medication?.name}
-                    handleChange={(value) => handleChange("name", value)}
-                    disabled={isLoading}
-                    className={cn("font-normal w-full", inputClassName)}
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No medication found."
-                    items={medicationsList}
-                    allowOther={true}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex justify-center w-full max-w-[850px]">
+        <div className="grid grid-cols-1 w-full">
+          <div className="flex gap-x-4 justify-start">
+            <Button variant="outline" size="sm" className="h-8" disabled={isPending} type="submit">
+              Save
+            </Button>
+          </div>
+          {/* Personal Information Card */}
+          <Card className="w-full">
+            <CardContent className="pt-2">
+              <div className="grid gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                  <FormField
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="medicationName">Name</FormLabel>
+                        <GenericCombobox
+                          valueParam={field.value}
+                          handleChange={(value) => setValue("name", value)}
+                          disabled={isPending}
+                          className={cn("font-normal w-full", inputClassName)}
+                          placeholder="Select..."
+                          searchPlaceholder="Search..."
+                          noItemsMessage="No medication found."
+                          items={medicationsList}
+                          allowOther={true}
+                        />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="category">Category</FormLabel>
+                        <GenericCombobox
+                          handleChange={(value) => setValue("category", value)}
+                          valueParam={field.value}
+                          disabled={isPending}
+                          className={cn("font-normal w-full", inputClassName)}
+                          placeholder="Select..."
+                          searchPlaceholder="Search..."
+                          noItemsMessage="No category found."
+                          items={medicationCategories}
+                          allowOther={true}
+                        />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <GenericCombobox
-                    handleChange={(value) => handleChange("category", value)}
-                    valueParam={medication?.category}
-                    disabled={isLoading}
-                    className={cn("font-normal w-full", inputClassName)}
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No category found."
-                    items={medicationCategories}
-                    allowOther={true}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
-                <div>
-                  <Label htmlFor="dosage">Dosage</Label>
-                  <Input
-                    className={inputClassName}
-                    id="dosage"
+                <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
+                  <FormField
+                    control={control}
                     name="dosage"
-                    autoComplete="off"
-                    type="number"
-                    onChange={handleInputChange}
-                    placeholder="Dosage"
-                    disabled={isLoading}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="dosage">Dosage</FormLabel>
+                        <Input
+                          {...field}
+                          className={inputClassName}
+                          autoComplete="off"
+                          type="number"
+                          placeholder="Dosage"
+                          disabled={isPending}
+                        />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={control}
+                    name="dosageUnits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="dosageUnits">Units</FormLabel>
+                        <GenericCombobox
+                          valueParam={field.value}
+                          handleChange={(value) => setValue("dosageUnits", value)}
+                          disabled={isPending}
+                          className={cn("font-normal w-full", inputClassName)}
+                          placeholder="Select..."
+                          searchPlaceholder="Search..."
+                          noItemsMessage="No units found."
+                          items={dosageUnits}
+                          allowOther={true}
+                        />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={control}
+                    name="frequency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="frequency">Frequency</FormLabel>
+                        <GenericCombobox
+                          valueParam={field.value}
+                          handleChange={(value) => setValue("frequency", value)}
+                          disabled={isPending}
+                          className={cn("font-normal w-full", inputClassName)}
+                          placeholder="Select..."
+                          searchPlaceholder="Search..."
+                          noItemsMessage="No dosage frequency found."
+                          items={dosageFrequency}
+                        />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="dosageUnits">Units</Label>
-                  <GenericCombobox
-                    valueParam={medication?.dosageUnits}
-                    handleChange={(value) => handleChange("dosageUnits", value)}
-                    disabled={isLoading}
-                    className={cn("font-normal w-full", inputClassName)}
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No units found."
-                    items={dosageUnits}
-                    allowOther={true}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="frequency">Frequency</Label>
-                  <GenericCombobox
-                    valueParam={medication?.frequency}
-                    handleChange={(value) => handleChange("frequency", value)}
-                    disabled={isLoading}
-                    className={cn("font-normal w-full", inputClassName)}
-                    placeholder="Select..."
-                    searchPlaceholder="Search..."
-                    noItemsMessage="No dosage frequency found."
-                    items={dosageFrequency}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
-                <div>
-                  <Label htmlFor="prescribedByName">Prescriber</Label>
-                  <Input
-                    className={inputClassName}
-                    id="prescribedByName"
+                <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
+                  <FormField
+                    control={control}
                     name="prescribedByName"
-                    autoComplete="off"
-                    onChange={handleInputChange}
-                    placeholder="Prescriber"
-                    disabled={isLoading}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="prescribedByName">Prescriber</FormLabel>
+                        <Input
+                          {...field}
+                          className={inputClassName}
+                          autoComplete="off"
+                          placeholder="Prescriber"
+                          disabled={isPending}
+                        />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
+                  <FormField
+                    control={control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="status">Status</FormLabel>
+                        <div className="flex items-center">
+                          <Switch
+                            defaultChecked={true}
+                            checked={field.value === "active"}
+                            disabled={isPending}
+                            name="status"
+                            onCheckedChange={(value) => field.onChange(value ? "active" : "inactive")}
+                          />
+                          <span className="inline ml-2">{field.value.toUpperCase()}</span>
+                        </div>
+                      </FormItem>
+                    )}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 w-full items-center gap-4 px-4">
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <div className="flex items-center">
-                    <Switch
-                      defaultChecked={true}
-                      disabled={isLoading}
-                      name="status"
-                      onCheckedChange={(checked) => handleStatusChange(checked)}
-                    />
-                    <span className="inline ml-2">{medication?.status.toUpperCase() || "ACTIVE"}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+            </CardContent>
+          </Card>
+        </div>
+      </form>
+    </Form>
   );
 };

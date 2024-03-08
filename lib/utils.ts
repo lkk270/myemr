@@ -25,6 +25,7 @@ import {
   BsFileZip,
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
+import { encryptPatientRecord } from "./encryption";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -542,4 +543,22 @@ export function getTimeUntil(date: Date): string {
 
 export function absoluteUrl(path: string) {
   return `${process.env.NEXT_PUBLIC_URL}${path}`;
+}
+
+export function buildUpdatePayload(data: any, symmetricKey: string) {
+  const discreteTables = ["addresses", "member"];
+  const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
+  const payload: any = {};
+  for (const key in data) {
+    if (
+      data[key] !== undefined &&
+      data[key] !== null &&
+      !discreteTables.includes(key) &&
+      !exemptFields.includes(key) &&
+      !key.includes("Key")
+    ) {
+      payload[key] = encryptPatientRecord(data[key], symmetricKey);
+    }
+  }
+  return payload;
 }

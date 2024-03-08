@@ -49,6 +49,8 @@ export const MoveModal = () => {
           selectedIds: moveNodesIds,
           targetId: id,
           updateType: "moveNode",
+          fromName: moveNodes[0].name,
+          toName: parentFolder?.name,
         })
         .then(({ data }) => {
           foldersStore.moveNodes(moveNodesIds, id);

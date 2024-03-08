@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
-import { auth2 } from "@/auth";
+import { auth2, signOut } from "@/auth";
 import authConfig from "@/auth.config";
+import { extractCurrentUserPermissions } from "./auth/hooks/use-current-user-permissions";
 import {
   PATIENT_DEFAULT_LOGIN_REDIRECT,
   PROVIDER_DEFAULT_LOGIN_REDIRECT,
@@ -15,6 +16,7 @@ import {
   accessPatientRoutes,
   accessPatientDynamicRoutes,
   accessPatientUploadRoutes,
+  accessPatientApiRoutes,
 } from "@/routes";
 
 const { auth } = NextAuth(authConfig);
@@ -48,11 +50,51 @@ export default auth(async (req) => {
   const isAccessPatientRoute = accessPatientRoutes.includes(nextUrlPathname) || isAccessPatientDynamicRoute;
   const isAccessPatientUploadRoutes = accessPatientUploadRoutes.includes(nextUrlPathname);
 
+  const isAccessPatientApiRoutes = accessPatientApiRoutes.includes(nextUrlPathname);
+  const user = session?.user;
+
+  const currentUserPermissions = extractCurrentUserPermissions(user);
+
+  // if (isLoggedIn) {
+  //   console.log(currentUserPermissions.hasAccount);
+  //   console.log(session?.expires);
+  //   console.log(new Date(req.auth?.expires!!) < new Date());
+  //   console.log("IN 57");
+  // }
+
+  // console.log("isPublicRoute", isPublicRoute);
+  // console.log(nextUrlPathname);
+
+  // console.log(nextUrl);
+  // console.log(nextUrlPathname);
+  // console.log("isAccessPatientApiRoutes", isAccessPatientApiRoutes);
+  // console.log(isLoggedIn);
+
   if (isApiAuthRoute) {
     return null;
   }
 
-  const user = session?.user;
+  // if (!isPublicRoute) {
+  //   if (
+  //     (isLoggedIn && !session?.expires) ||
+  //     (isLoggedIn && !currentUserPermissions.hasAccount && new Date(session?.expires!!) < new Date())
+  //   ) {
+  //     console.log("IN 59");
+  //     return Response.redirect("http://localhost:3000/");
+  //   }
+  // }
+
+  // if (isAccessPatientApiRoutes) {
+  //   console.log("IN 666");
+
+  //   if (
+  //     (isLoggedIn && !session?.expires) ||
+  //     (isLoggedIn && !currentUserPermissions.hasAccount && new Date(session?.expires!!) < new Date())
+  //   ) {
+  //     console.log("IN 59");
+  //     return Response.redirect(new URL("/", nextUrl));
+  //   }
+  // }
 
   let redirectUrl = "/";
 

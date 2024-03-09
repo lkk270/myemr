@@ -27,9 +27,11 @@ export function CustomDataTableRowActions<TData>({ row }: DataTableRowActionsPro
       <DropdownMenuContent hideWhenDetached={true} align="end" className="w-[160px]">
         <DropdownMenuItem
           onClick={(e) => {
+            console.log("IN 30");
+            console.log(!!viewMedicationModal.onOpen);
             // e.preventDefault();
             // e.stopPropagation();
-            if (viewMedicationModal.onOpen) {
+            if (!!viewMedicationModal.onOpen) {
               viewMedicationModal.onOpen(row.original as MedicationType, true);
             }
           }}

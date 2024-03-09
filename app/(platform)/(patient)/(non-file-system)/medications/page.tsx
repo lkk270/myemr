@@ -29,6 +29,9 @@ const PatientMedications = async () => {
         include: {
           dosageHistory: true,
         },
+        orderBy: {
+          createdAt: "asc",
+        },
       },
       symmetricKey: true,
     },
@@ -37,6 +40,14 @@ const PatientMedications = async () => {
   if (!patientMedications) {
     return <div>something went wrong</div>;
   }
+  patientMedications.medications.forEach((medication) => {
+    medication.dosageHistory.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+  });
+
   let decryptedPatientMedications;
 
   try {

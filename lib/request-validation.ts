@@ -2,7 +2,6 @@ import { PermissionsType, PermissionKey } from "@/app/types";
 
 const validUpdateTypes = [
   "demographics",
-  "editMedication",
   "deleteMedication",
   "renameNode",
   "moveNode",
@@ -19,11 +18,6 @@ const validUpdateTypes = [
 ];
 const patientConditionals: any = {
   demographics: { requiredFields: ["fieldsObj"], optionalFields: [], mandatoryTruePermissions: ["isPatient"] },
-  editMedication: {
-    requiredFields: ["fieldsObj", "medicationId", "medicationName"],
-    optionalFields: ["dosageHistoryInitialFields"],
-    mandatoryTruePermissions: ["canEdit"],
-  },
   deleteMedication: { requiredFields: ["medicationId"], optionalFields: [], mandatoryTruePermissions: ["canDelete"] },
   renameNode: {
     requiredFields: ["nodeId", "isFile", "newName"],

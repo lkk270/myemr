@@ -46,8 +46,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex overflow-auto h-screen">
       <Navbar tempAccess={true} />
-      <NewMedicationModal />
-      <ViewMedicationModal />
+      {/* <NewMedicationModal />
+      <ViewMedicationModal /> */}
       <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>
   );

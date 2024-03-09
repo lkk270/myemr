@@ -29,6 +29,9 @@ const PatientMedications = async () => {
         include: {
           dosageHistory: true,
         },
+        orderBy: {
+          createdAt: "asc",
+        },
       },
       symmetricKey: true,
     },

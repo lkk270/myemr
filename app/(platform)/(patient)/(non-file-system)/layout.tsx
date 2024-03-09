@@ -23,8 +23,8 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     <div className="flex overflow-auto h-screen">
       <Navbar numOfUnreadNotifications={numOfUnreadNotifications} />
       <UploadInsuranceModal />
-      <NewMedicationModal />
-      <ViewMedicationModal />
+      {/* <NewMedicationModal />
+      <ViewMedicationModal /> */}
       <DeleteMedicationModal />
       <PatientManageAccountModal />
       <main className="pt-16 flex-1 overflow-y-auto">{children}</main>

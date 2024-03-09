@@ -6,7 +6,7 @@ interface MedicationStore {
   medicationsSet: boolean; // New field to track if medications have been set
   setMedications: (medications: MedicationType[]) => void;
   addMedication: (medication: MedicationType) => void;
-  updateMedication: (updatedMedication: MedicationType, newDosageHistory?: DosageHistory) => void;
+  updateMedication: (updatedMedication: MedicationType, newDosageHistory?: DosageHistory | null) => void;
   deleteMedication: (medicationId: string) => void;
   isMedicationNameExist: (name: string) => boolean;
 }
@@ -23,7 +23,7 @@ export const useMedicationStore = create<MedicationStore>((set, get) => ({
           return {
             ...updatedMedication,
             dosageHistory: newDosageHistory
-              ? [...(medication.dosageHistory || []), newDosageHistory]
+              ? [newDosageHistory, ...(medication.dosageHistory || [])]
               : medication.dosageHistory,
           };
         }

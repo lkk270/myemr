@@ -1,6 +1,6 @@
 // import { auth, currentUser } from "@clerk/nextjs";
 "use server";
-import { signOut, auth } from "@/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import { NextResponse } from "next/server";
@@ -30,10 +30,7 @@ import {
 
 import { createNotification } from "@/lib/actions/notifications";
 
-import { getAccessPatientCodeByToken } from "@/auth/data";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-
-const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
 
 const discreteTables = ["addresses", "member"];
 const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
@@ -136,25 +133,6 @@ export async function POST(req: Request) {
             id: patient.addresses[0].id,
           },
           data: { ...encryptedAddress },
-        });
-      }
-    } else if (updateType === "editMedication") {
-      const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
-      await prismadb.medication.update({
-        where: { id: body.medicationId },
-        data: updatePayload,
-      });
-      if (body.dosageHistoryInitialFields) {
-        //add dosageHistory
-        const dosageHistoryEntry = buildUpdatePayload(body.dosageHistoryInitialFields, decryptedSymmetricKey);
-        await prismadb.dosageHistory.create({
-          data: { ...dosageHistoryEntry, ...{ medicationId: body.medicationId } },
-        });
-      }
-      if (!currentUserPermissions.hasAccount) {
-        await createNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has edited the medication: "${body.medicationName}"`,
-          type: "ACCESS_CODE",
         });
       }
     } else if (updateType === "deleteMedication") {

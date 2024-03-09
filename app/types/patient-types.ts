@@ -39,8 +39,8 @@ export type MedicationType = {
   dosage: string;
   dosageUnits: string;
   frequency: string;
-  description?: string | null;
-  status: string;
+  description?: string;
+  status: "inactive" | "active";
   createdAt: Date;
   updatedAt: Date;
   dosageHistory: DosageHistory[];

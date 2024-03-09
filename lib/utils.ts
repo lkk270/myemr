@@ -562,3 +562,25 @@ export function buildUpdatePayload(data: any, symmetricKey: string) {
   }
   return payload;
 }
+
+export function findChangesBetweenObjects(oldObject: any, newObject: any) {
+  //returns a new object that contains only the changed fields between oldObject & newObject
+  //if there is a field in oldObject that is NOT in newObject then this field will NOT be included
+  //however, if there is a field in newObject that is NOT in oldObject then this field will be included.
+  const changesObject: any = {};
+
+  Object.keys(newObject).forEach((key) => {
+    if (oldObject[key] !== newObject[key]) {
+      if (typeof newObject[key] === "object" && newObject[key] !== null && oldObject[key] !== null) {
+        const deeperChanges = findChangesBetweenObjects(oldObject[key], newObject[key]);
+        if (Object.keys(deeperChanges).length > 0) {
+          changesObject[key] = deeperChanges;
+        }
+      } else {
+        changesObject[key] = newObject[key];
+      }
+    }
+  });
+
+  return changesObject;
+}

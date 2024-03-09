@@ -9,6 +9,8 @@ import { auth } from "@/auth";
 import HolyLoader from "holy-loader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { NewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
+import { ViewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
 
 const font = Inter({ subsets: ["latin"] });
 
@@ -41,6 +43,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <html lang="en" suppressHydrationWarning>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
           <body className={cn(font.className)}>
+            <NewMedicationModal />
+            <ViewMedicationModal />
             {/* <NextTopLoader color="#4f5eff" /> */}
             <HolyLoader color="#4f5eff" height={4} speed={250} easing="linear" showSpinner />
             <ThemeProvider

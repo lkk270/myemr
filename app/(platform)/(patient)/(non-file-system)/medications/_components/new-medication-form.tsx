@@ -21,12 +21,10 @@ import { createMedication } from "@/lib/actions/medications";
 import _ from "lodash";
 import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { NewMedicationSchema } from "@/lib/schemas/medication";
-import { useRouter } from "next/navigation";
 import { logout } from "@/auth/actions/logout";
 const inputClassName = "bg-secondary border-primary/10";
 
 export const NewMedicationForm = () => {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();

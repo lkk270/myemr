@@ -26,7 +26,7 @@ import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-fil
 import { ImageViewer } from "../../../(file-system)/_components/file-viewers/image-viewer";
 import { InsuranceSkeleton } from "./insurance-skeleton";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-
+import { PersonalInformationForm } from "./personal-information-form";
 const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
@@ -278,162 +278,17 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
       <div className="md:ml-6 flex justify-center w-full max-w-[1500px] pb-28 xs:pb-0 ">
         <TabsContent className="w-full" value="demographics">
-          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
-            <CardHeaderComponent
-              title="Personal Information"
-              isEditing={isEditing}
-              handleSave={handleSave}
-              handleEditToggle={handleEditToggle}
-              handleCancel={handleCancel}
-            />
-
-            <CardContent className="pt-4">
-              {/* <CardTitle className="my-4 text-md sm:text-lg text-primary/50">Personal Information</CardTitle> */}
-              <div className="grid gap-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      className={inputClassName}
-                      id="firstName"
-                      name="firstName"
-                      autoComplete="off"
-                      value={user.firstName}
-                      onChange={handleInputChange}
-                      placeholder="First Name"
-                      disabled={!isEditing || isLoading}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      className={inputClassName}
-                      value={user.lastName}
-                      onChange={handleInputChange}
-                      placeholder="Last Name"
-                      disabled={!isEditing || isLoading}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
-                  <div className="w-full">
-                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
-
-                    {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
-                    {/*                       isEditing && "dark:text-[#d8dce1] text-[#0a101e]",
-                     */}
-                    <GenericCalendar
-                      disabled={!isEditing || isLoading}
-                      handleChange={(value) => handleChange("dateOfBirth", value)}
-                      valueParam={user.dateOfBirth}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="gender">Gender</Label>
-                    <GenericCombobox
-                      width={"w-full"}
-                      handleChange={(value) => handleChange("gender", value)}
-                      valueParam={user.gender}
-                      disabled={!isEditing || isLoading}
-                      className={inputClassName}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No gender found."
-                      items={genders}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="race">Race</Label>
-                    <GenericCombobox
-                      width={"w-full"}
-                      handleChange={(value) => handleChange("race", value)}
-                      valueParam={user.race}
-                      disabled={!isEditing || isLoading}
-                      className={inputClassName}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No race found."
-                      items={races}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="maritalStatus">Marital Status</Label>
-                    <GenericCombobox
-                      width={"w-full"}
-                      valueParam={user.maritalStatus}
-                      handleChange={(value) => handleChange("maritalStatus", value)}
-                      disabled={!isEditing || isLoading}
-                      className={inputClassName}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No race found."
-                      items={martialStatuses}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:max-w-[60%] items-center gap-4 px-4">
-                  <div>
-                    <Label htmlFor="height">Height</Label>
-                    <GenericCombobox
-                      width={"w-full"}
-                      valueParam={user.height}
-                      handleChange={(value) => handleChange("height", value)}
-                      disabled={!isEditing || isLoading}
-                      className={cn("sm:max-w-[120px]", inputClassName)}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No results"
-                      items={user.unit === Unit.IMPERIAL ? heightsImperial : heightsMetric}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="weight">Weight</Label>
-                    <div className="relative flex items-center">
-                      <Input
-                        type="number"
-                        id="weight"
-                        name="weight"
-                        min={2}
-                        max={1500}
-                        className={cn(inputClassName, "sm:max-w-[120px]")}
-                        value={user.weight || ""}
-                        onChange={handleInputChange}
-                        placeholder="Weight"
-                        disabled={!isEditing || isLoading}
-                      />
-                      <span className="pl-1"> {user.unit === Unit.IMPERIAL ? "lbs" : "Kg"}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="weight">BMI</Label>
-                    <Input
-                      type="number"
-                      id="bmi"
-                      name="bmi"
-                      placeholder="N/A"
-                      className={cn(inputClassName, "sm:max-w-[120px]")}
-                      value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
-                      disabled={true}
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PersonalInformationForm personalInformation={patientDemographics} />
         </TabsContent>
         <TabsContent className="w-full" value="contact">
           <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
-            <CardHeaderComponent
+            {/* <CardHeaderComponent
               title="Contact Information"
               isEditing={isEditing}
               handleSave={handleSave}
               handleEditToggle={handleEditToggle}
               handleCancel={handleCancel}
-            />
+            /> */}
             <CardContent className="pt-4">
               <div className="grid gap-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center gap-4 px-4">
@@ -477,14 +332,14 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
         </TabsContent>
         <TabsContent className="w-full" value="insurance">
           <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
-            <CardHeaderComponent
+            {/* <CardHeaderComponent
               title="Insurance"
               isEditing={isEditing}
               handleSave={handleSave}
               handleEditToggle={handleEditToggle}
               handleCancel={handleCancel}
               forInsurance={true}
-            />
+            /> */}
             <CardContent className="pt-4">
               <InsuranceContent />
             </CardContent>

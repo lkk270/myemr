@@ -7,7 +7,7 @@ export const NewMedicationSchema = z.object({
       return medicationsList.some((item) => item.value === value);
     },
     {
-      message: "Name must match a label in the medicationsList",
+      message: "Name must match a value in the medicationsList",
     },
   ),
   prescribedById: z
@@ -29,7 +29,7 @@ export const NewMedicationSchema = z.object({
       return medicationCategories.some((item) => item.value === value);
     },
     {
-      message: "Name must match a label in the medicationsList",
+      message: "Name must match a value in the medicationCategories",
     },
   ),
   dosage: z
@@ -45,7 +45,7 @@ export const NewMedicationSchema = z.object({
       return dosageUnits.some((item) => item.value === value);
     },
     {
-      message: "Name must match a label in the medicationsList",
+      message: "Name must match a value in the dosageUnits",
     },
   ),
   frequency: z.string().refine(
@@ -53,7 +53,7 @@ export const NewMedicationSchema = z.object({
       return dosageFrequency.some((item) => item.value === value);
     },
     {
-      message: "Name must match a label in the medicationsList",
+      message: "Name must match a value in the dosageFrequency",
     },
   ),
   description: z.string().optional(),

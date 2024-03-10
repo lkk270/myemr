@@ -6,10 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 
-import axios from "axios";
 import { editMedication } from "@/lib/actions/medications";
-import { Medication, DosageHistory } from "@prisma/client";
-import { MedicationType, PartialDosageHistoryType } from "@/app/types";
+import { MedicationType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +23,6 @@ import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } f
 import { DosageHistoryPopover } from "./dosage-history-popover";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
-import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { EditMedicationSchema } from "@/lib/schemas/medication";
 
@@ -37,7 +34,6 @@ interface MedicationProps {
 
 export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   if (!medicationParam) {
-    console.log(medicationParam);
     return null;
   }
   const [isPending, startTransition] = useTransition();
@@ -45,8 +41,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();
   const viewMedicationModal = useViewMedicationModal();
-
-  const [medication, setMedication] = useState<MedicationType | null>(medicationParam);
   const [isEditing, setIsEditing] = useState(false);
 
   const form = useForm<z.infer<typeof EditMedicationSchema>>({
@@ -63,7 +57,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
       status: medicationParam.status!!,
     },
   });
-
 
   const handleCancel = () => {
     form.reset();
@@ -130,7 +123,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                 Edit
               </Button>
             )}
-            {isEditing && (
+            {currentUserPermissions.canEdit && isEditing && (
               <>
                 <Button variant="outline" size="sm" className="h-8" disabled={isPending} type="submit">
                   {isPending ? "Saving..." : "Save"}
@@ -285,14 +278,19 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                     <Label>Last updated</Label>
                     <div className="flex items-center">
                       <span className="inline text-sm">
-                        {medication?.updatedAt?.toISOString().split("T")[0] || "-"}
+                        {medicationStore
+                          .getMedicationById(medicationParam.id)
+                          ?.updatedAt?.toISOString()
+                          .split("T")[0] || "-"}
                       </span>
                     </div>
                   </div>
                   <div>
                     <Label>Dosage History</Label>
                     <div className="flex items-center">
-                      <DosageHistoryPopover dosageHistory={medication?.dosageHistory || []} />
+                      <DosageHistoryPopover
+                        dosageHistory={medicationStore.getMedicationById(medicationParam.id)?.dosageHistory || []}
+                      />
                     </div>
                   </div>
                 </div>

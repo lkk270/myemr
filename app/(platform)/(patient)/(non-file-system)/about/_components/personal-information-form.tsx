@@ -15,7 +15,6 @@ import { calculateBMI, findChangesBetweenObjects } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { logout } from "@/auth/actions/logout";
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { CardHeaderComponent } from "./card-header";
 import { PersonalInformationSchema } from "../schemas/about";
 import { Input } from "@/components/ui/input";
@@ -81,7 +80,7 @@ export const PersonalInformationForm = ({ personalInformation }: PersonalInforma
           if (data.success) {
             setIsEditing(false);
             setInitialPersonalInformation(values);
-            toast.success("Medication successfully updated!");
+            toast.success("Personal information successfully updated!");
           }
         })
         .catch(() => toast.error("Something went wrong"))

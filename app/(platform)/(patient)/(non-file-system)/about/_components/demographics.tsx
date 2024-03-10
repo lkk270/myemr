@@ -27,6 +27,8 @@ import { ImageViewer } from "../../../(file-system)/_components/file-viewers/ima
 import { InsuranceSkeleton } from "./insurance-skeleton";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { PersonalInformationForm } from "./personal-information-form";
+import { ContactInformationForm } from "./contact-information-form";
+
 const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
@@ -55,7 +57,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
   const [isEditing, setIsEditing] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const [activeTab, setActiveTab] = useState("demographics");
-
+  console.log(user);
   useEffect(() => {
     const fetchUrls = async () => {
       if (!isMounted) return;
@@ -278,68 +280,30 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
       <div className="md:ml-6 flex justify-center w-full max-w-[1500px] pb-28 xs:pb-0 ">
         <TabsContent className="w-full" value="demographics">
-          <PersonalInformationForm personalInformation={patientDemographics} />
+          <PersonalInformationForm
+            personalInformation={{
+              firstName: patientDemographics.firstName,
+              lastName: patientDemographics.lastName,
+              dateOfBirth: patientDemographics.dateOfBirth,
+              gender: patientDemographics.gender,
+              race: patientDemographics.race,
+              maritalStatus: patientDemographics.maritalStatus,
+              height: patientDemographics.height,
+              weight: patientDemographics.weight,
+            }}
+          />
         </TabsContent>
         <TabsContent className="w-full" value="contact">
-          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
-            {/* <CardHeaderComponent
-              title="Contact Information"
-              isEditing={isEditing}
-              handleSave={handleSave}
-              handleEditToggle={handleEditToggle}
-              handleCancel={handleCancel}
-            /> */}
-            <CardContent className="pt-4">
-              <div className="grid gap-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center gap-4 px-4">
-                  <div>
-                    <Label htmlFor="mobilePhone">Mobile phone</Label>
-                    <PhoneNumber
-                      fieldName="mobilePhone"
-                      handleChange={handleChange}
-                      disabled={!isEditing || isLoading}
-                      number={user.mobilePhone}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="homePhone">Home phone</Label>
-                    <PhoneNumber
-                      fieldName="homePhone"
-                      handleChange={handleChange}
-                      disabled={!isEditing || isLoading}
-                      number={user.homePhone}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      className="bg-secondary border-primary/10"
-                      value={user.email}
-                      disabled={true}
-                    />
-                  </div>
-                </div>
-                <GenericAddress
-                  handleChange={handleAddressChange}
-                  address={user.addresses.length > 0 ? user.addresses[0] : null}
-                  disabled={!isEditing || isLoading}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ContactInformationForm
+            contactInformation={{
+              mobilePhone: patientDemographics.mobilePhone,
+              homePhone: patientDemographics.homePhone,
+              address: patientDemographics.addresses.length > 0 ? patientDemographics.addresses[0] : null,
+            }}
+          />
         </TabsContent>
         <TabsContent className="w-full" value="insurance">
           <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
-            {/* <CardHeaderComponent
-              title="Insurance"
-              isEditing={isEditing}
-              handleSave={handleSave}
-              handleEditToggle={handleEditToggle}
-              handleCancel={handleCancel}
-              forInsurance={true}
-            /> */}
             <CardContent className="pt-4">
               <InsuranceContent />
             </CardContent>

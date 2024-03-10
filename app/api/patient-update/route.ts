@@ -1,19 +1,11 @@
 // import { auth, currentUser } from "@clerk/nextjs";
 "use server";
+
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-
 import { NextResponse } from "next/server";
-
 import prismadb from "@/lib/prismadb";
 
-import {
-  decryptKey,
-  encryptPatientRecord,
-  checkForInvalidDemographicsData,
-  patientUpdateVerification,
-  isValidNodeName,
-} from "@/lib/utils";
+import { patientUpdateVerification, isValidNodeName } from "@/lib/utils";
 import {
   updateDescendantsForRename,
   updateRecordViewActivity,
@@ -33,29 +25,10 @@ import { createNotification } from "@/lib/actions/notifications";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { getSumOfFilesSizes } from "@/lib/data/files";
 
-const discreteTables = ["addresses", "member"];
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
-function buildUpdatePayload(data: any, symmetricKey: string) {
-  const payload: any = {};
-  for (const key in data) {
-    if (
-      data[key] !== undefined &&
-      data[key] !== null &&
-      !discreteTables.includes(key) &&
-      !exemptFields.includes(key) &&
-      !key.includes("Key")
-    ) {
-      payload[key] = encryptPatientRecord(data[key], symmetricKey);
-    }
-  }
-  return payload;
-}
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const updateType = body.updateType;
-    const data = body.fieldsObj;
 
     // const { userId } = auth();
     // const user = await currentUser();
@@ -63,13 +36,11 @@ export async function POST(req: Request) {
     const session = await auth();
 
     if (!session) {
-      return redirect("/");
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const user = session?.user;
-
     const userId = user?.id;
-
     const currentUserPermissions = extractCurrentUserPermissions(user);
 
     if (!userId || !user || !currentUserPermissions.canEdit) {
@@ -96,45 +67,13 @@ export async function POST(req: Request) {
       },
       select: {
         id: true,
-        symmetricKey: true,
         addresses: true,
       },
     });
-    if (!patient || !patient.symmetricKey) {
-      return new NextResponse("Decryption key not found", { status: 401 });
+    if (!patient) {
+      return new NextResponse("Patient not found", { status: 401 });
     }
-    const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-
-    if (updateType === "demographics") {
-      if (checkForInvalidDemographicsData(data, { addresses: patient?.addresses }) !== "") {
-        return new NextResponse("Invalid body", { status: 400 });
-      }
-
-      const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
-      if (Object.keys(updatePayload).length > 0) {
-        await prismadb.patientProfile.update({
-          where: { userId },
-          data: updatePayload,
-        });
-      }
-
-      if (patient.addresses.length === 0 && data.addresses) {
-        const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
-        console.log(encryptedAddress);
-        await prismadb.patientAddress.create({
-          data: { ...encryptedAddress, patientProfileId: patient.id },
-        });
-      } else if (patient.addresses.length === 1 && data.addresses) {
-        const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
-        await prismadb.patientAddress.update({
-          where: {
-            patientProfileId: patient.id,
-            id: patient.addresses[0].id,
-          },
-          data: { ...encryptedAddress },
-        });
-      }
-    } else if (updateType === "renameNode") {
+    if (updateType === "renameNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const newName = body.newName;
@@ -226,9 +165,6 @@ export async function POST(req: Request) {
       const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
       const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
-      const totalSizeOfUnrestrictedFiles = rawObjects.reduce((accumulator, currentValue) => {
-        return BigInt(accumulator) + (!currentValue.restricted ? BigInt(currentValue.size) : 0n);
-      }, 0n); // Initialize with a bigint literal
 
       await deleteFiles(selectedFileIds);
       await deleteFolders(selectedFolderIds, forEmptyTrash);

@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { genders, races, martialStatuses, heightsImperial } from "@/lib/constants";
-
+import { genders, races, martialStatuses, heightsImperial, states } from "@/lib/constants";
+import { AddressSchema } from "@/lib/schemas/address";
 export const PersonalInformationSchema = z.object({
   firstName: z.string().min(1, {
     message: "Minimum of 1 characters required",
@@ -52,4 +52,20 @@ export const PersonalInformationSchema = z.object({
     .refine((value) => value === null || (value.length >= 2 && value.length <= 4), {
       message: "Weight must be between 2 to 4 characters if provided",
     }),
+});
+
+export const ContactInformationSchema = z.object({
+  mobilePhone: z
+    .string()
+    .nullable()
+    .refine((value) => value === null || value.length === 10, {
+      message: "Mobile phone must have 10 characters if provided",
+    }),
+  homePhone: z
+    .string()
+    .nullable()
+    .refine((value) => value === null || value.length === 10, {
+      message: "Home phone must have 10 characters if provided",
+    }),
+  address: AddressSchema,
 });

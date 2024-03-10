@@ -1,7 +1,6 @@
 import { PermissionsType, PermissionKey } from "@/app/types";
 
 const validUpdateTypes = [
-  "demographics",
   "renameNode",
   "moveNode",
   "trashNode",
@@ -16,7 +15,6 @@ const validUpdateTypes = [
   "ppUpload",
 ];
 const patientConditionals: any = {
-  demographics: { requiredFields: ["fieldsObj"], optionalFields: [], mandatoryTruePermissions: ["isPatient"] },
   renameNode: {
     requiredFields: ["nodeId", "isFile", "newName"],
     optionalFields: [],
@@ -112,11 +110,6 @@ export const patientUpdateVerification = (body: any, currentUserPermissions: Per
       if (!currentUserPermissions[permission]) {
         return false;
       }
-    }
-
-    // Specific checks for 'deleteMedication'
-    if (updateType === "deleteMedication" && body.fieldsObj) {
-      return false;
     }
     if (updateType === "insuranceUpload" && !insuranceFileNames.includes(body.side)) {
       return false;

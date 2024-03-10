@@ -33,7 +33,6 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
       select: {
         id: true,
         symmetricKey: true,
-        unrestrictedUsedFileStorage: true,
       },
     });
     if (!patient || !patient.symmetricKey) {
@@ -105,7 +104,6 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       select: {
         id: true,
         symmetricKey: true,
-        unrestrictedUsedFileStorage: true,
       },
     });
     if (!patient || !patient.symmetricKey) {

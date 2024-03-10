@@ -23,19 +23,6 @@ export const updateRegularFileStatus = async (fileId: string, forRR = false) => 
           status: FileStatus.SUCCESS,
         },
       });
-
-      //   if (file) {
-      //     await prisma.patientProfile.update({
-      //       where: {
-      //         userId: file.userId,
-      //       },
-      //       data: {
-      //         usedFileStorage: { increment: size },
-      //       },
-      //     });
-      //   } else {
-      //     return { error: "No file created!" };
-      //   }
     },
     { timeout: 20000 },
   );
@@ -80,65 +67,6 @@ export const updateInsuranceStatus = async (fileId: string) => {
   );
 
   return { success: "Settings Updated!", file: file };
-};
-
-export const decrementUsedFileStorage = async (fileId: string, forRR = false) => {
-  const user = await currentUser();
-
-  if (!forRR && (!user || user.role === "READ_ONLY")) {
-    return { error: "Unauthorized" };
-  }
-  const file = await prismadb.file.findUnique({
-    where: {
-      id: fileId,
-      status: "NOT_UPLOADED",
-    },
-  });
-  if (file) {
-    await prismadb.patientProfile.update({
-      where: { userId: file.userId },
-      data: { usedFileStorage: { decrement: file.size } },
-    });
-  }
-};
-
-export const deleteNotUploadedFilesAndDecrement = async (userIdParam: string | null = null) => {
-  const user = await currentUser();
-
-  if (!userIdParam && (!user || user.role === "READ_ONLY")) {
-    return { error: "Unauthorized" };
-  }
-  const userId = userIdParam ? userIdParam : user?.id;
-  const totalSize = await prismadb.file.aggregate({
-    _sum: {
-      size: true,
-    },
-    where: {
-      userId,
-      status: "NOT_UPLOADED",
-    },
-  });
-
-  return await prismadb.$transaction(
-    async (prisma) => {
-      await prisma.file.deleteMany({
-        where: {
-          userId: userId,
-          status: "NOT_UPLOADED",
-        },
-      });
-      if (!!totalSize._sum.size && totalSize?._sum.size > 0) {
-        await prisma.patientProfile.update({
-          where: { userId },
-          data: {
-            usedFileStorage: { decrement: totalSize._sum.size },
-            unrestrictedUsedFileStorage: { decrement: totalSize._sum.size },
-          },
-        });
-      }
-    },
-    { timeout: 20000 },
-  );
 };
 
 export const setHasUploadedToTrue = async (requestRecordsCodeId: string) => {

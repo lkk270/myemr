@@ -10,6 +10,7 @@ import { z } from "zod";
 import { currentUser } from "@/auth/lib/auth";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/utils";
 import { allotedStoragesInGb } from "@/lib/constants";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 const calculateStartAndEndDate = (patientCreatedAt: Date): { startDate: Date; endDate: Date } => {
   const currentDate = new Date();
@@ -68,7 +69,6 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
       lastName: true,
       dateOfBirth: true,
       symmetricKey: true,
-      usedFileStorage: true,
       createdAt: true,
     },
   });
@@ -117,8 +117,12 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
     }
   }
 
+  const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+  if (typeof sumOfAllSuccessFilesSizes !== "bigint") {
+    return { error: "Something went wrong" };
+  }
   const allotedStorageInGb = allotedStoragesInGb[user.plan];
-  if (BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
+  if (BigInt(allotedStorageInGb * 1_000_000_000) - sumOfAllSuccessFilesSizes < 5_000_000) {
     return {
       error: "Cannot send a request for records, as it requires you to have 500 Mb of available storage.",
     };

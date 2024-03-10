@@ -2,6 +2,8 @@
 
 import prismadb from "@/lib/prismadb";
 import { restrictFiles } from "../actions/files";
+import { NextResponse } from "next/server";
+import { getSumOfFilesSizes } from "../data/files";
 
 const freePlan = "PATIENT_FREE";
 
@@ -29,13 +31,15 @@ export const restrictFilesCron = async (authHeader: string) => {
       where: { userId },
       select: {
         id: true,
-        usedFileStorage: true,
-        unrestrictedUsedFileStorage: true,
       },
     });
     if (patient) {
+      const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+      if (typeof sumOfAllSuccessFilesSizes !== "bigint") {
+        return new NextResponse("Something went wrong", { status: 500 });
+      }
       try {
-        await restrictFiles({ ...patient, plan: freePlan });
+        await restrictFiles({ ...patient, plan: freePlan, sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes });
       } catch {
         await prismadb.failedRestrictFilesUserId.create({
           data: {

@@ -86,11 +86,11 @@ export function Dropzone({
     const maxSizeError = maxSize === maxSystemFileSize ? "10 Mb" : "5 GB";
     let newFiles: FileWithStatus[] = []; // Define as array of FileWithStatus
     for (let i = 0; i < files.length; i++) {
-      if (files[0].size > maxSize) {
-        // Optionally, alert the user that the file is too large
-        toast.error(`${files[0].name} is too large. Maximum file size is ${maxSizeError}.`);
-        continue; // Skip this file and continue with the next one
-      }
+      // if (files[i].size > maxSize) {
+      //   // Optionally, alert the user that the file is too large
+      //   toast.error(`${files[i].name} is too large. Maximum file size is ${maxSizeError}.`);
+      //   continue; // Skip this file and continue with the next one
+      // }
       const file = files[i];
       // Convert each File into a FileWithStatus object
       newFiles.push({ file: file, controller: new AbortController() });

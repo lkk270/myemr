@@ -24,6 +24,7 @@ import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort
 import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -38,7 +39,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({
     where: { userId: user.id },
-    select: { id: true, usedFileStorage: true },
+    select: { id: true },
   });
 
   if (!sortedFolders || !patient) {
@@ -72,8 +73,11 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   // console.log(singleLayerNodes.find((node) => node.id === "clsxjojl9002uwo9vzcujf3ag"));
-  const usedFileStorage = patient.usedFileStorage;
 
+  const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+  if (typeof sumOfAllSuccessFilesSizes !== "bigint") {
+    return <div>Something went wrong</div>;
+  }
   let numOfUnreadNotifications = 0;
   try {
     numOfUnreadNotifications = await getNumberOfUnreadNotifications();
@@ -81,56 +85,10 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     numOfUnreadNotifications = 0;
   }
 
-  // const totalSizeAll = await prismadb.file.aggregate({
-  //   _sum: {
-  //     size: true,
-  //   },
-  //   where: {
-  //     userId: user.id,
-  //   },
-  // });
-  // console.log(totalSizeAll);
-
-  // const totalSizeSuccess = await prismadb.file.aggregate({
-  //   _sum: {
-  //     size: true,
-  //   },
-  //   where: {
-  //     userId: user.id,
-  //     status: "SUCCESS",
-  //   },
-  // });
-
-  // console.log(totalSizeSuccess);
-
-  // const totalSizeUnRestricted = await prismadb.file.aggregate({
-  //   _sum: {
-  //     size: true,
-  //   },
-  //   where: {
-  //     userId: user.id,
-  //     restricted: false,
-  //   },
-  // });
-
-  // console.log(totalSizeUnRestricted);
-
-  // const totalSizeRestricted = await prismadb.file.aggregate({
-  //   _sum: {
-  //     size: true,
-  //   },
-  //   where: {
-  //     userId: user.id,
-  //     restricted: true,
-  //   },
-  // });
-
-  // console.log(totalSizeRestricted);
-  // const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
       <Sidebar
-        usedFileStorage={usedFileStorage}
+        sumOfAllSuccessFilesSizes={sumOfAllSuccessFilesSizes}
         data={sortedFolders}
         singleLayerNodes={singleLayerNodes}
         numOfUnreadNotifications={numOfUnreadNotifications}

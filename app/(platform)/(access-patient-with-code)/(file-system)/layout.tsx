@@ -12,7 +12,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
-import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -28,7 +27,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({
     where: { userId: user.id },
-    select: { id: true, usedFileStorage: true },
+    select: { id: true },
   });
 
   if (!sortedFolders || !patient) {
@@ -39,12 +38,18 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
   const allNodesArray = Array.from(allNodesMap.values());
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-  const usedFileStorage = patient.usedFileStorage;
+
+  const sumOfAllSuccessFilesSizes = singleLayerNodes.reduce((accumulator, file) => {
+    if (!!file.size && file.isFile === true) {
+      return accumulator + file.size;
+    }
+    return accumulator;
+  }, 0n);
   // const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
       <Sidebar
-        usedFileStorage={usedFileStorage}
+        sumOfAllSuccessFilesSizes={sumOfAllSuccessFilesSizes}
         // allotedStorageInGb={allotedStorageInGb}
         data={sortedFolders}
         singleLayerNodes={singleLayerNodes}

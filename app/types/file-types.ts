@@ -16,7 +16,7 @@ export type NodeDataType = {
   namePath: string;
   isFile: boolean;
   isRoot?: boolean;
-  size?: number;
+  size?: bigint;
   restricted?: boolean;
 };
 
@@ -28,7 +28,7 @@ export type NodeData2Type = {
   isFile: boolean;
   isRoot?: boolean;
   type?: string;
-  size?: number;
+  size?: bigint;
   createdAt: Date;
 };
 

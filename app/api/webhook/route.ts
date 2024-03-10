@@ -7,7 +7,7 @@ import { stripe } from "@/lib/stripe/stripe";
 import { Plan } from "@prisma/client";
 import { update } from "@/auth";
 import { unrestrictFiles } from "@/lib/actions/files";
-import { redirect } from "next/navigation";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -46,7 +46,18 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
       },
     });
-    await unrestrictFiles({ ...patient, plan: session?.metadata?.planName as Plan });
+
+    const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+    const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+    if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
+      return new NextResponse("Something went wrong", { status: 500 });
+    }
+    await unrestrictFiles({
+      ...patient,
+      plan: session?.metadata?.planName as Plan,
+      sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,
+      sumOfUnrestrictedSuccessFilesSizes: sumOfUnrestrictedSuccessFilesSizes,
+    });
   }
 
   if (event.type === "invoice.payment_succeeded") {

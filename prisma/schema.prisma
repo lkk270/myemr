@@ -422,8 +422,6 @@ model PatientProfile {
   publicKey                   String           @db.Text
   privateKey                  String           @db.Text
   symmetricKey                String           @db.Text
-  usedFileStorage             BigInt           @default(0)
-  unrestrictedUsedFileStorage BigInt           @default(0)
   scheduledToDelete           Boolean          @default(false)
   user                        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt                   DateTime         @default(now())

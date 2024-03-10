@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
 import { allotedStoragesInGb, maxFileUploadSize } from "@/lib/constants";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -50,8 +51,6 @@ export async function POST(request: Request) {
         id: true,
         firstName: true,
         lastName: true,
-        usedFileStorage: true,
-        unrestrictedUsedFileStorage: true,
       },
     });
 
@@ -73,51 +72,39 @@ export async function POST(request: Request) {
     if (!parentFolder) {
       return NextResponse.json({ message: "parentFolder not found" }, { status: 400 });
     }
+
+    const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+    if (typeof sumOfAllSuccessFilesSizes !== "bigint") {
+      return new NextResponse("Something went wrong", { status: 500 });
+    }
     let restricted = false;
-    const usedFileStorageInBytes = patient.usedFileStorage;
     const allotedStorageInBytes = allotedStoragesInGb[user.plan] * 1_000_000_000;
-    if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
+    if (sumOfAllSuccessFilesSizes + BigInt(size) > allotedStorageInBytes) {
       restricted = true;
     }
-    let file: File | undefined;
-    await prismadb.$transaction(
-      async (prisma) => {
-        await prisma.patientProfile.update({
-          where: {
-            userId: userId,
-          },
-          data: {
-            usedFileStorage: { increment: size },
-            unrestrictedUsedFileStorage: { increment: restricted ? 0 : size },
-          },
-        });
-
-        file = await prisma.file.create({
-          data: {
-            name: fileName,
-            parentId: parentFolder.id,
-            namePath: `${parentFolder.namePath}/${fileName}`,
-            path: `${parentFolder.path}${parentFolder.id}/`,
-            uploadedByUserId: userId,
-            uploadedByName: `${patient.firstName} ${patient.lastName}`,
-            type: contentType,
-            size: size,
-            userId: userId,
-            patientProfileId: patient.id,
-            restricted: restricted,
-            patientProfileAccessCodeToken: accessToken,
-            recordViewActivity: {
-              create: [
-                {
-                  userId: userId,
-                },
-              ],
+    const file = await prismadb.file.create({
+      data: {
+        name: fileName,
+        parentId: parentFolder.id,
+        namePath: `${parentFolder.namePath}/${fileName}`,
+        path: `${parentFolder.path}${parentFolder.id}/`,
+        uploadedByUserId: userId,
+        uploadedByName: `${patient.firstName} ${patient.lastName}`,
+        type: contentType,
+        size: size,
+        userId: userId,
+        patientProfileId: patient.id,
+        restricted: restricted,
+        patientProfileAccessCodeToken: accessToken,
+        recordViewActivity: {
+          create: [
+            {
+              userId: userId,
             },
-          },
-        });
+          ],
+        },
       },
-      { timeout: 20000 },
-    );
+    });
 
     if (file) {
       const client = new S3Client({ region: process.env.AWS_REGION });

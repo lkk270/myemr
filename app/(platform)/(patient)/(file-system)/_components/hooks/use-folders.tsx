@@ -15,9 +15,9 @@ interface FolderStore {
   singleLayerNodes: SingleLayerNodesType2[];
   singleLayerNodesSet: boolean;
   foldersSet: boolean;
-  usedFileStorage: bigint;
+  sumOfAllSuccessFilesSizes: bigint;
   updateLastViewedAt: (nodeId: string) => void;
-  setUsedFileStorage: (newUsedFileStorage: bigint) => void;
+  setSumOfAllSuccessFilesSizes: (newSumOfAllSuccessFilesSizes: bigint) => void;
   getDropdownFolders: () => { label: string; value: string; namePath: string }[];
   getNode: (nodeId: string) => SingleLayerNodesType2 | undefined;
   setSingleLayerNodes: (nodes: SingleLayerNodesType2[]) => void;
@@ -67,7 +67,7 @@ const insertNewNode = (folders: any[], parentId: string, newNode: any): any => {
 export const useFolderStore = create<FolderStore>((set, get) => ({
   folders: [],
   singleLayerNodes: [],
-  usedFileStorage: BigInt(0),
+  sumOfAllSuccessFilesSizes: BigInt(0),
   singleLayerNodesSet: false,
   foldersSet: false,
   getDropdownFolders() {
@@ -90,7 +90,8 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
 
   setSingleLayerNodes: (singleLayerNodes) => set({ singleLayerNodes, singleLayerNodesSet: true }),
   setFolders: (folders) => set({ folders, foldersSet: true }),
-  setUsedFileStorage: (usedFileStorage) => set({ usedFileStorage: usedFileStorage }),
+  setSumOfAllSuccessFilesSizes: (sumOfAllSuccessFilesSizes) =>
+    set({ sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes }),
 
   restoreRootNode: (selectedIds: string[]) => {
     set((state) => {

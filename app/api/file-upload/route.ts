@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { File } from "@prisma/client";
 import { allotedStoragesInGb, maxFileUploadSizes } from "@/lib/constants";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -31,13 +32,12 @@ export async function POST(request: Request) {
 
     const patient = await prismadb.patientProfile.findUnique({
       where: {
-        userId: userId,
+        userId,
       },
       select: {
         id: true,
         firstName: true,
         lastName: true,
-        usedFileStorage: true,
       },
     });
 
@@ -58,51 +58,36 @@ export async function POST(request: Request) {
     if (!parentFolder || parentFolder.namePath.startsWith("/Trash")) {
       return NextResponse.json({ message: "Parent folder not found" }, { status: 400 });
     }
-
-    const usedFileStorageInBytes = patient.usedFileStorage;
+    const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+    if (typeof sumOfAllSuccessFilesSizes !== "bigint") {
+      return new NextResponse("Something went wrong", { status: 500 });
+    }
     const allotedStorageInBytes = allotedStoragesInGb[user.plan] * 1000000000;
-    if (usedFileStorageInBytes + BigInt(size) > allotedStorageInBytes) {
+    if (sumOfAllSuccessFilesSizes + BigInt(size) > allotedStorageInBytes) {
       return NextResponse.json({ message: "Out of storage! Please upgrade your plan" }, { status: 400 });
     }
-    let file: File | undefined;
-    await prismadb.$transaction(
-      async (prisma) => {
-        await prisma.patientProfile.update({
-          where: {
-            userId: userId,
-          },
-          data: {
-            usedFileStorage: { increment: size },
-            unrestrictedUsedFileStorage: { increment: size },
-          },
-        });
 
-        file = await prisma.file.create({
-          data: {
-            name: fileName,
-            parentId: parentId,
-            namePath: `${parentNamePath}/${fileName}`,
-            path: `${parentPath}${parentId}/`,
-            uploadedByUserId: userId,
-            uploadedByName: `${patient.firstName} ${patient.lastName}`,
-            type: contentType,
-            size: size,
-            userId: userId,
-            patientProfileId: patient.id,
-            recordViewActivity: {
-              create: [
-                {
-                  userId: userId,
-                },
-              ],
+    const file = await prismadb.file.create({
+      data: {
+        name: fileName,
+        parentId: parentId,
+        namePath: `${parentNamePath}/${fileName}`,
+        path: `${parentPath}${parentId}/`,
+        uploadedByUserId: userId,
+        uploadedByName: `${patient.firstName} ${patient.lastName}`,
+        type: contentType,
+        size: size,
+        userId: userId,
+        patientProfileId: patient.id,
+        recordViewActivity: {
+          create: [
+            {
+              userId: userId,
             },
-          },
-        });
+          ],
+        },
       },
-      { timeout: 20000 },
-    );
-
-    // try {
+    });
     if (file) {
       const client = new S3Client({ region: process.env.AWS_REGION });
       const key = `${patient.id}/${file.id}`;
@@ -122,16 +107,6 @@ export async function POST(request: Request) {
     } else {
       return Response.json({ error: "No file made" }, { status: 500 });
     }
-    // }
-    // catch (error) {
-    //   await prismadb.patientProfile
-    //     .update({
-    //       where: { userId: userId },
-    //       data: { usedFileStorage: { decrement: size } },
-    //     })
-    //     .catch((decrementError) => console.error("Failed to decrement storage", decrementError));
-    //   throw error;
-    // }
   } catch (error: any) {
     const errorMessage = !!error && error.message ? error.message : "Something went wrong";
     return Response.json({ error: errorMessage }, { status: 500 });

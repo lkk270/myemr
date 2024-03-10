@@ -21,7 +21,6 @@ const exemptFields = [
   "medicationId",
   "createdAt",
   "updatedAt",
-  "usedFileStorage",
   "plan",
   "imageUrl",
 ];

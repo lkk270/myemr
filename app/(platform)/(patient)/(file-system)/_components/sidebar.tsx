@@ -24,10 +24,10 @@ import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
-  usedFileStorage: bigint;
-  numOfUnreadNotifications: number;
+  sumOfAllSuccessFilesSizes: bigint;
+  numOfUnreadNotifications?: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, numOfUnreadNotifications }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, numOfUnreadNotifications = 0 }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -45,8 +45,6 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, numOfUnreadNo
   const session = useSession();
   const plan = session?.data?.user?.plan;
   const { onOpen } = usePatientManageAccountModal();
-  // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
-  // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
   const allotedStorageInGb = !!session && !!session.data ? allotedStoragesInGb[session.data.user.plan] : 1;
   useEffect(() => {
     setIsMounted(true);
@@ -54,7 +52,7 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, numOfUnreadNo
     // console.log(singleLayerNodes);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
-    folderStore.setUsedFileStorage(usedFileStorage);
+    folderStore.setSumOfAllSuccessFilesSizes(sumOfAllSuccessFilesSizes);
   }, []);
 
   useEffect(() => {
@@ -203,11 +201,11 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, numOfUnreadNo
                 <div role="button" className="flex flex-col gap-y-1">
                   <Progress
                     className="h-1"
-                    value={Number(folderStore.usedFileStorage) / (10_000_000 * allotedStorageInGb)}
+                    value={Number(folderStore.sumOfAllSuccessFilesSizes) / (10_000_000 * allotedStorageInGb)}
                   />
                   <div className="flex flex-row justify-between text-xs font-light ">
                     <span className="italic">{`${formatStorageValue(
-                      folderStore.usedFileStorage,
+                      folderStore.sumOfAllSuccessFilesSizes,
                     )} Gb / ${allotedStorageInGb} Gb`}</span>
 
                     {plan && !plan.includes("_PREMIUM_2") && (

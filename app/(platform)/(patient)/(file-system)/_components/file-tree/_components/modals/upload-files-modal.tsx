@@ -21,11 +21,7 @@ import { FileWithStatus, NodeDataType, SingleLayerNodesType2 } from "@/app/types
 import { Spinner } from "@/components/loading/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import {
-  updateRegularFileStatus,
-  decrementUsedFileStorage,
-  deleteNotUploadedFilesAndDecrement,
-} from "../../../../actions/update-status";
+import { updateRegularFileStatus } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
@@ -207,16 +203,16 @@ export const UploadFilesModal = () => {
       const totalUploadedSize = sizes.reduce((acc, size) => acc + size, BigInt(0));
 
       if (totalUploadedSize > 0) {
-        const currentUsedUploadedSize = BigInt(folderStore.usedFileStorage);
-        folderStore.setUsedFileStorage(currentUsedUploadedSize + totalUploadedSize);
+        const currentUsedUploadedSize = BigInt(folderStore.sumOfAllSuccessFilesSizes);
+        folderStore.setSumOfAllSuccessFilesSizes(currentUsedUploadedSize + totalUploadedSize);
       }
     } catch (error) {
       errorOccurred = false;
       console.error("An unexpected error occurred:", error);
     }
-    if (errorOccurred) {
-      await deleteNotUploadedFilesAndDecrement();
-    }
+    // if (errorOccurred) {
+    //   await deleteNotUploadedFilesAndDecrement();
+    // }
     if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
       const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
       await createNotification({

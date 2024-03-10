@@ -60,8 +60,6 @@ export const DeleteModal = () => {
         foldersStore.deleteNode(deleteNodesIds, deleteModal.forEmptyTrash);
         const newlyUnrestrictedFileIds = data.newlyUnrestrictedFileIds;
         foldersStore.updateRestrictedStatus(newlyUnrestrictedFileIds, false);
-        // console.log(BigInt(foldersStore.usedFileStorage));
-        // console.log(BigInt(data.totalSize));
         deletedSize += data.totalSize;
       })
       .catch((error) => {
@@ -83,8 +81,8 @@ export const DeleteModal = () => {
     });
     try {
       await promise; // Wait for the current promise to resolve or reject
-      const newUsedFileStorage = BigInt(foldersStore.usedFileStorage) - BigInt(deletedSize);
-      foldersStore.setUsedFileStorage(newUsedFileStorage);
+      const newSumOfAllSuccessFilesSizes = BigInt(foldersStore.sumOfAllSuccessFilesSizes) - BigInt(deletedSize);
+      foldersStore.setSumOfAllSuccessFilesSizes(newSumOfAllSuccessFilesSizes);
       if (!!trashNodeId && !pathname.includes(trashNodeId) && !deleteModal.forEmptyTrash) {
         router.push(`/files/${trashNodeId}`);
       }

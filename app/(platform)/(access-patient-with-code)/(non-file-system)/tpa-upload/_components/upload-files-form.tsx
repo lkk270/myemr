@@ -11,7 +11,6 @@ import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import {
   updateRegularFileStatus,
-  deleteNotUploadedFilesAndDecrement,
   setHasUploadedToTrue,
 } from "@/app/(platform)/(patient)/(file-system)/actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
@@ -155,9 +154,9 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
       console.error("An unexpected error occurred:", error);
     }
 
-    if (errorOccurred) {
-      await deleteNotUploadedFilesAndDecrement(requestRecordsCode?.userId);
-    }
+    // if (errorOccurred) {
+    //   await deleteNotUploadedFilesAndDecrement(requestRecordsCode?.userId);
+    // }
 
     if (numFilesSuccessfullyUploaded > 0) {
       const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";

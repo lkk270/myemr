@@ -31,9 +31,10 @@ import {
 import { createNotification } from "@/lib/actions/notifications";
 
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 const discreteTables = ["addresses", "member"];
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
+const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
 function buildUpdatePayload(data: any, symmetricKey: string) {
   const payload: any = {};
   for (const key in data) {
@@ -97,8 +98,6 @@ export async function POST(req: Request) {
         id: true,
         symmetricKey: true,
         addresses: true,
-        usedFileStorage: true,
-        unrestrictedUsedFileStorage: true,
       },
     });
     if (!patient || !patient.symmetricKey) {
@@ -221,6 +220,8 @@ export async function POST(req: Request) {
       await restoreRootFolder(selectedId, userId);
     } else if (updateType === "deleteNode") {
       const selectedIds = body.selectedIds;
+      console.log("selectedIds");
+      console.log(selectedIds);
       const forEmptyTrash = body.forEmptyTrash;
       const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
@@ -229,13 +230,18 @@ export async function POST(req: Request) {
         return BigInt(accumulator) + (!currentValue.restricted ? BigInt(currentValue.size) : 0n);
       }, 0n); // Initialize with a bigint literal
 
-      await deleteFiles(selectedFileIds, totalSizeOfUnrestrictedFiles, totalSize, patient.id);
+      await deleteFiles(selectedFileIds);
       await deleteFolders(selectedFolderIds, forEmptyTrash);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
+      const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+      const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+      if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
+        return new NextResponse("Something went wrong", { status: 500 });
+      }
       const newlyUnrestrictedFileIds = await unrestrictFiles({
         id: patient.id,
-        usedFileStorage: patient.usedFileStorage,
-        unrestrictedUsedFileStorage: patient.unrestrictedUsedFileStorage,
+        sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,
+        sumOfUnrestrictedSuccessFilesSizes: sumOfUnrestrictedSuccessFilesSizes,
         plan: user.plan,
       });
       return new NextResponse(

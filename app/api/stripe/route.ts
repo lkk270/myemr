@@ -9,6 +9,7 @@ import { planNames } from "@/lib/constants";
 import { StipePostSchema } from "@/lib/schemas/stripe";
 
 import { unrestrictFiles, restrictFiles } from "@/lib/actions/files";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -68,10 +69,25 @@ export async function POST(request: Request) {
       if (!patient) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
+
+      const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+      const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+      if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
+        return new NextResponse("Something went wrong", { status: 500 });
+      }
       if (tierIsUpgrade) {
-        newlyUnrestrictedFileIds = await unrestrictFiles({ ...patient, plan: planName });
+        newlyUnrestrictedFileIds = await unrestrictFiles({
+          ...patient,
+          plan: planName,
+          sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,
+          sumOfUnrestrictedSuccessFilesSizes: sumOfUnrestrictedSuccessFilesSizes,
+        });
       } else {
-        newlyRestrictedFileIds = await restrictFiles({ ...patient, plan: planName });
+        newlyRestrictedFileIds = await restrictFiles({
+          ...patient,
+          plan: planName,
+          sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,
+        });
       }
       await prismadb.userSubscription.update({
         where: {

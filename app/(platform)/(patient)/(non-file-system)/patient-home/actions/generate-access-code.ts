@@ -6,6 +6,7 @@ import { currentUser } from "@/auth/lib/auth";
 import { GenerateCodeSchema } from "../schemas";
 import { generateAccessCode } from "@/lib/actions/access-codes";
 import { allotedStoragesInGb } from "@/lib/constants";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
   const user = await currentUser();
@@ -22,7 +23,6 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     },
     select: {
       id: true,
-      usedFileStorage: true,
     },
   });
 
@@ -47,8 +47,16 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
         "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan or select a different access type.",
     };
   }
+
+  const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+  if (typeof sumOfAllSuccessFilesSizes !== "bigint") {
+    return { error: "Something went wrong" };
+  }
   const allotedStorageInGb = allotedStoragesInGb[user.plan];
-  if (accessType !== "READ_ONLY" && BigInt(allotedStorageInGb * 1_000_000_000) - patient.usedFileStorage < 5_000_000) {
+  if (
+    accessType !== "READ_ONLY" &&
+    BigInt(allotedStorageInGb * 1_000_000_000) - sumOfAllSuccessFilesSizes < 5_000_000
+  ) {
     return {
       error:
         "We're unable to generate a code for the selected access type because it requires you to have 500 Mb of available storage.",

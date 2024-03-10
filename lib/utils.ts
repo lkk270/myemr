@@ -349,6 +349,7 @@ export function isViewableFile(fileType: string) {
     "application/pdf",
     "audio/mpeg",
     "audio/mp4",
+    "video/mp4",
     "image/png",
     "image/jpeg",
     "image/gif",
@@ -459,10 +460,10 @@ export function formatFileSize(bytes: bigint) {
   const TB = 1000000000000n;
 
   if (bytes < KB) return bytes + " Bytes";
-  else if (bytes < MB) return Number(bytes / KB).toFixed(1) + " KB";
-  else if (bytes < GB) return Number(bytes / MB).toFixed(1) + " MB";
-  else if (bytes < TB) return Number(bytes / GB).toFixed(2) + " GB";
-  return Number(bytes / TB).toFixed(2) + " TB";
+  else if (bytes < MB) return (Number(bytes) / Number(KB)).toFixed(1) + " KB";
+  else if (bytes < GB) return (Number(bytes) / Number(MB)).toFixed(1) + " MB";
+  else if (bytes < TB) return (Number(bytes) / Number(GB)).toFixed(2) + " GB";
+  return (Number(bytes) / Number(TB)).toFixed(2) + " TB";
 }
 
 // Assuming amzDate is a string like "20240205T235432Z"
@@ -547,7 +548,7 @@ export function absoluteUrl(path: string) {
 
 export function buildUpdatePayload(data: any, symmetricKey: string) {
   const discreteTables = ["addresses", "member"];
-  const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
+  const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
   const payload: any = {};
   for (const key in data) {
     if (

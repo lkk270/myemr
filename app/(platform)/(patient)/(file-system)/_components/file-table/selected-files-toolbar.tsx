@@ -55,8 +55,8 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   const hasUnrestrictedNode = cleanedRows.some((obj: any) => !obj.restricted);
 
   let totalSize = cleanedRows.reduce((acc, obj) => {
-    return acc + (obj.size || 0);
-  }, 0);
+    return acc + (obj.size || 0n);
+  }, 0n);
 
   if (numRowsSelected === 0) {
     return null;

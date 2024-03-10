@@ -56,7 +56,6 @@ export const getSubscription = async (userId: string) => {
 };
 
 export const getSubscriptionRigorous = async (userId: string) => {
-
   let currentDatePlusOne = new Date();
   currentDatePlusOne.setDate(currentDatePlusOne.getDate() + 1);
 
@@ -76,8 +75,6 @@ export const getPatient = async (userId: string) => {
     },
     select: {
       id: true,
-      usedFileStorage: true,
-      unrestrictedUsedFileStorage: true,
     },
   });
 

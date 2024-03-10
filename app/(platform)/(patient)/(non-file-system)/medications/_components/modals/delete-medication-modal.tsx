@@ -9,56 +9,43 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-// import { Button } from "@/components/ui/button";
 import { useDeleteMedicationModal } from "../hooks/use-delete-medication-modal";
-import { useState, useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
 import _ from "lodash";
-import axios from "axios";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { useIsLoading } from "@/hooks/use-is-loading";
+import { deleteMedication } from "@/lib/actions/medications";
 import { useMedicationStore } from "../hooks/use-medications";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const DeleteMedicationModal = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const { isLoading, setIsLoading } = useIsLoading();
-  const currentUserPermissions = useCurrentUserPermissions();
+  const [isPending, startTransition] = useTransition();
   const medicationStore = useMedicationStore();
   const deleteMedicationModal = useDeleteMedicationModal();
-  const deleteMedication = deleteMedicationModal.medication;
+  const medicationToDelete = deleteMedicationModal.medication;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !deleteMedication) {
+  if (!isMounted || !medicationToDelete) {
     return null;
   }
 
   const handleSave = () => {
-    if (isLoading || !currentUserPermissions.canDelete) return;
-    setIsLoading(true);
-    const promise = axios
-      .post("/api/patient-update", { medicationId: deleteMedication.id, updateType: "deleteMedication" })
-      .then(() => {
-        medicationStore.deleteMedication(deleteMedication.id);
-        deleteMedicationModal.onClose();
-      })
-      .catch((error) => {
-        throw error;
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-
-    toast.promise(promise, {
-      loading: "Saving changes",
-      success: "Changes saved successfully",
-      error: "Something went wrong",
-      duration: 1250,
+    startTransition(() => {
+      deleteMedication({ id: medicationToDelete.id })
+        .then((data) => {
+          if (data.error) {
+            toast.error(data.error);
+          } else if (data.success) {
+            medicationStore.deleteMedication(medicationToDelete.id);
+            deleteMedicationModal.onClose();
+            toast.success("Medication deleted successfully!");
+          }
+        })
+        .catch(() => toast.error("Something went wrong"));
     });
   };
 
@@ -67,7 +54,7 @@ export const DeleteMedicationModal = () => {
       <AlertDialogContent className="flex flex-col xs:max-w-[360px]">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Delete <span className="whitespace-normal break-all italic">{deleteMedication.name}</span>
+            Delete <span className="whitespace-normal break-all italic">{medicationToDelete.name}</span>
             {"  ?"}
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -75,11 +62,11 @@ export const DeleteMedicationModal = () => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading} onClick={deleteMedicationModal.onClose} className="w-20 h-8 text-sm">
+          <AlertDialogCancel disabled={isPending} onClick={deleteMedicationModal.onClose} className="w-20 h-8 text-sm">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isLoading}
+            disabled={isPending}
             onClick={() => {
               handleSave();
             }}

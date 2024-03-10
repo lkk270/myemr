@@ -115,3 +115,9 @@ export const EditMedicationSchema = z.object({
   description: z.string().optional(),
   status: z.enum(["active", "inactive"]),
 });
+
+export const DeleteMedicationSchema = z.object({
+  id: z.string().min(6, {
+    message: "Minimum of 6 characters required",
+  }),
+});

@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import prismadb from "@/lib/prismadb";
-import { EditMedicationSchema, NewMedicationSchema } from "../schemas/medication";
+import { EditMedicationSchema, NewMedicationSchema, DeleteMedicationSchema } from "../schemas/medication";
 import { createNotification } from "./notifications";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { decryptMultiplePatientFields, buildUpdatePayload, decryptKey, findChangesBetweenObjects } from "../utils";
@@ -81,8 +81,6 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
 };
 
 export const editMedication = async (values: z.infer<typeof EditMedicationSchema>) => {
-  console.log("IN 85 sAAAA");
-
   try {
     let newDosageHistory = null;
     const session = await auth();
@@ -182,10 +180,39 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
     }
 
     return {
-      success: "mMdication updated!",
+      success: "Medication updated!",
       medicationName: decryptedCurrentMedication.name,
       newDosageHistory: newDosageHistory,
       createdAt: currentMedication.createdAt,
+    };
+  } catch {
+    return { error: "something went wrong" };
+  }
+};
+
+export const deleteMedication = async (values: z.infer<typeof DeleteMedicationSchema>) => {
+  try {
+    const session = await auth();
+    const user = session?.user;
+    const userId = user?.id;
+    const currentUserPermissions = extractCurrentUserPermissions(user);
+
+    if (!session || !userId || !user || !currentUserPermissions.canDelete) {
+      return { error: "Unauthorized" };
+    }
+
+    const validatedFields = DeleteMedicationSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+    const { id } = validatedFields.data;
+
+    await prismadb.medication.delete({
+      where: { id },
+    });
+
+    return {
+      success: "Medication deleted!",
     };
   } catch {
     return { error: "something went wrong" };

@@ -135,10 +135,6 @@ export async function POST(req: Request) {
           data: { ...encryptedAddress },
         });
       }
-    } else if (updateType === "deleteMedication") {
-      await prismadb.medication.delete({
-        where: { id: body.medicationId },
-      });
     } else if (updateType === "renameNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;

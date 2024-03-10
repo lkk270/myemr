@@ -6,10 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import { useUploadInsuranceModal } from "../hooks/use-upload-insurance-modal";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { useTransition } from "react";
+
 interface CardHeaderComponentProps {
   title: string;
   isEditing: boolean;
-  handleSave: () => void;
+  children?: React.ReactNode;
   handleEditToggle: () => void;
   handleCancel: () => void;
   forInsurance?: boolean;
@@ -18,16 +20,18 @@ interface CardHeaderComponentProps {
 export const CardHeaderComponent = ({
   title,
   isEditing,
-  handleSave,
+  children,
   handleEditToggle,
   handleCancel,
   forInsurance = false,
 }: CardHeaderComponentProps) => {
   const currentUserPermissions = useCurrentUserPermissions();
   const { isLoading } = useIsLoading();
+  const [isPending] = useTransition();
   const { onOpen } = useUploadInsuranceModal();
+
   return (
-    <div className="px-8">
+    <div>
       <CardHeader className="px-4  pt-5 pb-3 flex flex-row justify-between items-center bg-transparent text-primary/70 rounded-t-xl">
         <CardTitle className="px-0 text-md sm:text-xl">{title}</CardTitle>
         {currentUserPermissions.isPatient && (
@@ -37,16 +41,23 @@ export const CardHeaderComponent = ({
                 Upload
               </Button>
             ) : (
-              <div className="flex gap-x-4">
-                <Button size="xs" disabled={isLoading} onClick={isEditing ? handleSave : handleEditToggle}>
-                  {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
-                </Button>
-                {isEditing && !isLoading && (
-                  <Button size="xs" variant={"destructive"} disabled={isLoading} onClick={handleCancel}>
-                    Cancel
-                  </Button>
-                )}
-              </div>
+              currentUserPermissions.isPatient && (
+                <div className="flex gap-x-4">
+                  {!isEditing && (
+                    <Button variant="outline" size="sm" className="h-8" disabled={isLoading} onClick={handleEditToggle}>
+                      Edit
+                    </Button>
+                  )}
+                  {currentUserPermissions.isPatient && isEditing && (
+                    <>
+                      {children}
+                      <Button size="xs" variant={"destructive"} disabled={isLoading} onClick={handleCancel}>
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )
             )}
           </>
         )}

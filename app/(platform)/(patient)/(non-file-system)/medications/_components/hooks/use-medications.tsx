@@ -9,6 +9,7 @@ interface MedicationStore {
   updateMedication: (updatedMedication: MedicationType, newDosageHistory?: DosageHistory | null) => void;
   deleteMedication: (medicationId: string) => void;
   isMedicationNameExist: (name: string) => boolean;
+  getMedicationById: (id: string) => MedicationType | undefined;
 }
 
 export const useMedicationStore = create<MedicationStore>((set, get) => ({
@@ -37,5 +38,9 @@ export const useMedicationStore = create<MedicationStore>((set, get) => ({
   isMedicationNameExist: (name) => {
     const state = get(); // Correctly use 'get' to access the state
     return state.medications.some((medication) => medication.name === name);
+  },
+  getMedicationById: (id) => {
+    const state = get();
+    return state.medications.find((medication) => medication.id === id);
   },
 }));

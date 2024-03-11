@@ -37,9 +37,9 @@ export const PatientManageAccountModal = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
   const { isOpen, onOpen, onClose, defaultScrollTo } = usePatientManageAccountModal();
-  const activeSection = "";
+  // const activeSection = "";
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  // const activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan", "feedback-form"]);
+  const activeSection = useWindowScroll(scrollContainerRef, ["account", "billing-plan", "feedback-form"]);
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -121,7 +121,7 @@ export const PatientManageAccountModal = () => {
               variant="secondary"
               className={cn(
                 "transition-colors flex items-center justify-start",
-                // activeSection === "account" ? "bg-secondary" : "bg-transparent",
+                activeSection === "account" ? "bg-secondary" : "bg-transparent",
               )}
               onClick={() => scrollToSection("account")}
             >
@@ -135,7 +135,7 @@ export const PatientManageAccountModal = () => {
               onClick={() => scrollToSection("billing-plan")}
               className={cn(
                 "transition-colors flex items-center justify-start",
-                // activeSection === "billing-plan" ? "bg-secondary" : "bg-transparent",
+                activeSection === "billing-plan" ? "bg-secondary" : "bg-transparent",
               )}
             >
               <div className="flex items-center gap-x-2">
@@ -148,7 +148,7 @@ export const PatientManageAccountModal = () => {
               onClick={() => scrollToSection("feedback-form")}
               className={cn(
                 "transition-colors flex items-center justify-start",
-                // activeSection === "feedback-form" ? "bg-secondary" : "bg-transparent",
+                activeSection === "feedback-form" ? "bg-secondary" : "bg-transparent",
               )}
             >
               <div className="flex items-center gap-x-2">

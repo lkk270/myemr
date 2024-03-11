@@ -2,7 +2,8 @@ import { UploadFilesForm } from "@/app/(platform)/(access-patient-with-code)/(no
 import { UploadRecordsNavbar } from "./_components/upload-records-navbar";
 import { getCodeByToken } from "./data/token";
 import { redirect } from "next/navigation";
-
+import { CodeNotFound } from "./_components/code-not-found";
+import { Logo } from "@/components/logo";
 interface UploadRecordsPageProps {
   params: {
     token: string;
@@ -12,7 +13,16 @@ interface UploadRecordsPageProps {
 const UploadRecordsPage = async ({ params }: UploadRecordsPageProps) => {
   const requestRecordsCode = await getCodeByToken(params.token);
   if (!requestRecordsCode) {
-    return redirect("/");
+    return (
+      <div className="flex overflow-auto h-screen bg-[#1A2238]">
+        <div className="fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
+          <div className="flex items-center">
+            <Logo />
+          </div>
+        </div>
+        <CodeNotFound />
+      </div>
+    );
   }
   return (
     <div className="flex overflow-auto h-screen">

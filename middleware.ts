@@ -17,6 +17,7 @@ import {
   accessPatientDynamicRoutes,
   accessPatientUploadRoutes,
   accessPatientApiRoutes,
+  termRoutes,
 } from "@/routes";
 
 const { auth } = NextAuth(authConfig);
@@ -37,6 +38,7 @@ export default auth(async (req) => {
   const dynamicPublicRoutesRegex = new RegExp(`^(?:${dynamicPublicRoutes.join("|")})[^/]+/?$`);
   const isDynamicPublicRoute = dynamicPublicRoutesRegex.test(nextUrlPathname);
   const isPublicRoute = publicRoutes.includes(nextUrlPathname) || isDynamicPublicRoute;
+  const isTermRoute = termRoutes.includes(nextUrlPathname);
   const isAuthRoute = authRoutes.includes(nextUrlPathname);
 
   const patientDynamicRoutesRegex = new RegExp(`^(?:${patientDynamicRoutes.join("|")})[^/]+/?$`);
@@ -120,7 +122,7 @@ export default auth(async (req) => {
     return null;
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
+  if (!isLoggedIn && !isPublicRoute && !isTermRoute) {
     console.log("IN 82222");
     let callbackUrl = nextUrlPathname;
     if (nextUrl.search) {

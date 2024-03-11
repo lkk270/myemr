@@ -8,7 +8,7 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 export const AvatarComponent = ({ avatarClassName = "w-8 h-8" }: { avatarClassName?: string }) => {
   const user = useCurrentUser();
   const currentUserPermissions = extractCurrentUserPermissions(user);
-  console.log(user);
+  // console.log(user);
 
   return (
     <Avatar className={avatarClassName}>

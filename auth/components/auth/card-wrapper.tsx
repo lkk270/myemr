@@ -40,8 +40,17 @@ export const CardWrapper = ({
           <Social userType={backButtonHref.includes("patient") ? UserType.PATIENT : UserType.PROVIDER} />
         </CardFooter>
       )}
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-y-3">
         <BackButton label={backButtonLabel} href={backButtonHref} />
+        {headerLabel.includes("Create") && (
+          <div className="text-xs text-muted-foreground">
+            By creating an account you agree to be bounded by these{" "}
+            <a target="_blank" href="/terms" className="underline">
+              terms
+            </a>
+            .
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

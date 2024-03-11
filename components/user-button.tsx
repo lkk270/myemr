@@ -67,14 +67,18 @@ export const UserButton = () => {
         <Separator className="mt-1" />
         <div className="py-2 flex flex-row justify-between text-xs font-semibold text-[#99a1f7]">
           <div role={"button"}>
-            <a href="/">myemr © 2024</a>
+            <span>myemr © 2024</span>
           </div>
           <div className="flex flex-row gap-x-2">
             <div role={"button"}>
-              <a href="/">Terms</a>
+              <a target="_blank" href="/privacy">
+                Privacy
+              </a>
             </div>
             <div role={"button"}>
-              <a href="/">Privacy</a>
+              <a target="_blank" href="/terms">
+                Terms
+              </a>
             </div>
           </div>
         </div>

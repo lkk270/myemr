@@ -13,6 +13,13 @@ export const publicRoutes: string[] = [
 ];
 
 /**
+ * An array of term routes that are accessible to the public
+ * These routes do not require authentication but can be accessed by logged in users
+ * @type {string[]}
+ */
+export const termRoutes: string[] = ["/terms", "/privacy"];
+
+/**
  * An array of dynamic routes that are accessible to the public
  * These routes do not require authentication
  * @type {string[]}

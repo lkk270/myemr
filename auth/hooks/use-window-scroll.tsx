@@ -20,7 +20,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
 export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: string[]) => {
   const [activeSection, setActiveSection] = useState<string | null>("account");
   const { isOpen, defaultScrollTo } = usePatientManageAccountModal();
-  console.log(isOpen);
+
   useEffect(() => {
     if (!isOpen) {
       setActiveSection(null);

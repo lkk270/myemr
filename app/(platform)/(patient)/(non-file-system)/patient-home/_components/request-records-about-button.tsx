@@ -1,40 +1,13 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { TermsParagraph } from "@/components/terms-paragraph";
+import { TermsParagraphType } from "@/app/types";
 
 interface RequestRecordsAboutButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
 }
 
-interface ParagraphComponentProps {
-  title: string;
-  description?: string;
-  headerClassName?: string;
-  bullets?: string[];
-}
-
-const ParagraphComponent = ({
-  title,
-  description,
-  headerClassName = "text-lg font-semibold",
-  bullets,
-}: ParagraphComponentProps) => {
-  return (
-    <div className="flex flex-col gap-y-2">
-      <h2 className={headerClassName ? headerClassName : "text-lg font-semibold"}>{title}</h2>
-      {bullets ? (
-        <ul className="list-disc list-inside space-y-2 pl-2">
-          {bullets.map((bullet) => {
-            return <li>{bullet}</li>;
-          })}
-        </ul>
-      ) : (
-        <p className="text-md">{description}</p>
-      )}
-    </div>
-  );
-};
-
-const paragraphs: ParagraphComponentProps[] = [
+const paragraphs: TermsParagraphType[] = [
   {
     title: "Terms of Use for Medical Records Request and Upload",
     description: `Welcome to MyEmr. By requesting a doctor or healthcare provider to upload medical records through our
@@ -119,7 +92,7 @@ export const RequestRecordsAboutButton = ({ children, asChild }: RequestRecordsA
       <DialogContent className="overflow-y-scroll h-5/6 xs:h-3/5 max-w-[850px] w-full">
         {paragraphs.map((paragraph, index) => {
           return (
-            <ParagraphComponent
+            <TermsParagraph
               key={index}
               title={paragraph.title}
               headerClassName={paragraph.headerClassName}

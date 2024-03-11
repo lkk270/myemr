@@ -30,3 +30,10 @@ export type SubscriptionTierType = {
   featured: boolean;
   items: string[];
 };
+
+export type TermsParagraphType = {
+  title: string;
+  description?: string;
+  headerClassName?: string;
+  bullets?: string[];
+};

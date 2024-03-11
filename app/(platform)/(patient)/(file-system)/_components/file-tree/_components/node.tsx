@@ -58,6 +58,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     path: nodeData.path,
     namePath: nodeData.namePath,
     isFile: nodeData.isFile,
+    isRoot: nodeData.isRoot,
     restricted: nodeData.restricted,
   };
 

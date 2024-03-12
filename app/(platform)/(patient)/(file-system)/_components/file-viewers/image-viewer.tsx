@@ -10,16 +10,21 @@ import React, { useEffect, useState } from "react";
 import { Image, Space } from "antd";
 // import { getPresignedUrl, handleDownload } from "../../actions/get-file-psu";
 import { useDownloadFile } from "../hooks/use-download-file";
-
 interface ImageViewerProps {
   fileId: string;
   fileSrc: string;
+  forInsurance?: boolean;
 }
-export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
+export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageViewerProps) => {
   const downloadFile = useDownloadFile();
 
-  const calculateImageWidth = () =>
-    window.innerWidth <= 768 ? Math.min(window.innerWidth - 100, 510) : Math.min(window.innerWidth - 450, 510);
+  const calculateImageWidth = () => {
+    if (forInsurance) {
+      return Math.min(350, window.innerWidth);
+    } else {
+      return window.innerWidth <= 768 ? Math.min(window.innerWidth - 100, 510) : Math.min(window.innerWidth - 450, 510);
+    }
+  };
 
   const [imageWidth, setImageWidth] = useState(calculateImageWidth);
 
@@ -81,7 +86,7 @@ export const ImageViewer = ({ fileId, fileSrc }: ImageViewerProps) => {
           { transform: { scale }, actions: { onFlipY, onFlipX, onRotateLeft, onRotateRight, onZoomOut, onZoomIn } },
         ) => (
           <Space size={12} className="toolbar-wrapper">
-            <DownloadOutlined onClick={() => downloadFile(fileId)} />
+            <DownloadOutlined onClick={() => downloadFile(fileId, forInsurance)} />
             <SwapOutlined rotate={90} onClick={onFlipY} />
             <SwapOutlined onClick={onFlipX} />
             <RotateLeftOutlined onClick={onRotateLeft} />

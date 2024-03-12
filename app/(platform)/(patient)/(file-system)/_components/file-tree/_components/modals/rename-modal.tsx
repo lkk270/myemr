@@ -20,8 +20,10 @@ import { toast } from "sonner";
 import axios from "axios";
 import { isValidNodeName } from "@/lib/utils";
 import { useIsLoading } from "@/hooks/use-is-loading";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const RenameModal = () => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
   const renameModal = useRenameModal();
@@ -45,6 +47,7 @@ export const RenameModal = () => {
   }
 
   const handleSave = () => {
+    if (isLoading || !currentUserPermissions.canEdit) return;
     setIsLoading(true);
     const nodeData = renameModal.nodeData;
     const newName = name.trim();

@@ -1,58 +1,34 @@
 // import { auth, currentUser } from "@clerk/nextjs";
+"use server";
+
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-
 import { NextResponse } from "next/server";
-
 import prismadb from "@/lib/prismadb";
 
-import {
-  decryptKey,
-  encryptPatientRecord,
-  checkForInvalidDemographicsData,
-  checkForInvalidEditedMedication,
-  checkForInvalidNewMedication,
-  decryptMultiplePatientFields,
-  patientUpdateVerification,
-  isValidNodeName,
-} from "@/lib/utils";
+import { patientUpdateVerification, isValidNodeName } from "@/lib/utils";
 import {
   updateDescendantsForRename,
   updateRecordViewActivity,
   moveNodes,
-  deleteNode,
+  deleteFiles,
+  deleteFolders,
   addRootNode,
   addSubFolder,
   restoreRootFolder,
   getAllObjectsToDelete,
   deleteS3Objects,
-} from "@/lib/files";
+  unrestrictFiles,
+} from "@/lib/actions/files";
 
-const validUpdateTypes = ["demographics", "newMedication", "editMedication", "deleteMedication"];
+import { createNotification } from "@/lib/actions/notifications";
 
-const discreteTables = ["addresses", "member"];
-const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt", "usedFileStorage"];
-function buildUpdatePayload(data: any, symmetricKey: string) {
-  const payload: any = {};
-  for (const key in data) {
-    if (
-      data[key] !== undefined &&
-      data[key] !== null &&
-      !discreteTables.includes(key) &&
-      !exemptFields.includes(key) &&
-      !key.includes("Key")
-    ) {
-      payload[key] = encryptPatientRecord(data[key], symmetricKey);
-    }
-  }
-  return payload;
-}
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const updateType = body.updateType;
-    const data = body.fieldsObj;
 
     // const { userId } = auth();
     // const user = await currentUser();
@@ -60,18 +36,30 @@ export async function POST(req: Request) {
     const session = await auth();
 
     if (!session) {
-      return redirect("/");
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const user = session?.user;
     const userId = user?.id;
+    const currentUserPermissions = extractCurrentUserPermissions(user);
 
-    if (!userId || !user) {
+    if (!userId || !user || !currentUserPermissions.canEdit) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!patientUpdateVerification(body)) {
+    if (!patientUpdateVerification(body, currentUserPermissions)) {
       return new NextResponse("Invalid body", { status: 400 });
     }
+
+    // if (!currentUserPermissions.isPatient) {
+    //   console.log("IN 8777888799");
+    //   const code = await getAccessPatientCodeByToken(session.tempToken);
+    //   console.log(code);
+    //   if (!code) {
+    //     console.log("AATtePMPTING REDIRECT");
+    //     return redirect("/");
+    //     // return new NextResponse("Unauthorized", { status: 400 });
+    //   }
+    // }
 
     const patient = await prismadb.patientProfile.findUnique({
       where: {
@@ -79,88 +67,13 @@ export async function POST(req: Request) {
       },
       select: {
         id: true,
-        symmetricKey: true,
         addresses: true,
       },
     });
-    if (!patient || !patient.symmetricKey) {
-      return new NextResponse("Decryption key not found", { status: 401 });
+    if (!patient) {
+      return new NextResponse("Patient not found", { status: 401 });
     }
-    const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-
-    if (updateType === "demographics") {
-      if (checkForInvalidDemographicsData(data, { addresses: patient?.addresses }) !== "") {
-        return new NextResponse("Invalid body", { status: 400 });
-      }
-
-      const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
-      if (Object.keys(updatePayload).length > 0) {
-        await prismadb.patientProfile.update({
-          where: { userId },
-          data: updatePayload,
-        });
-      }
-
-      if (patient.addresses.length === 0 && data.addresses) {
-        const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
-        console.log(encryptedAddress);
-        await prismadb.patientAddress.create({
-          data: { ...encryptedAddress, patientProfileId: patient.id },
-        });
-      } else if (patient.addresses.length === 1 && data.addresses) {
-        const encryptedAddress = buildUpdatePayload(data.addresses[0], decryptedSymmetricKey);
-        await prismadb.patientAddress.update({
-          where: {
-            patientProfileId: patient.id,
-            id: patient.addresses[0].id,
-          },
-          data: { ...encryptedAddress },
-        });
-      }
-    } else if (updateType === "newMedication") {
-      if (checkForInvalidNewMedication(data) !== "") {
-        return new NextResponse("Invalid body", { status: 400 });
-      }
-      const currentMedicationNames = await prismadb.medication.findMany({
-        where: {
-          patientProfileId: patient.id,
-        },
-        select: {
-          name: true,
-        },
-      });
-      const decryptedCurrentMedicationNames = decryptMultiplePatientFields(
-        currentMedicationNames,
-        decryptedSymmetricKey,
-      );
-
-      if (decryptedCurrentMedicationNames.some((medication: { name: string }) => medication.name === data.name)) {
-        return new NextResponse("Medication already exists", { status: 400 });
-      }
-      const encryptedMedication = buildUpdatePayload(data, decryptedSymmetricKey);
-
-      const newMedication = await prismadb.medication.create({
-        data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
-      });
-      return new NextResponse(JSON.stringify({ newMedicationId: newMedication.id }));
-    } else if (updateType === "editMedication") {
-      const updatePayload = buildUpdatePayload(data, decryptedSymmetricKey);
-      await prismadb.medication.update({
-        where: { id: body.medicationId },
-        data: updatePayload,
-      });
-      if (body.dosageHistoryInitialFields) {
-        //add dosageHistory
-        const dosageHistoryEntry = buildUpdatePayload(body.dosageHistoryInitialFields, decryptedSymmetricKey);
-        await prismadb.dosageHistory.create({
-          data: { ...dosageHistoryEntry, ...{ medicationId: body.medicationId } },
-        });
-      }
-    } else if (updateType === "deleteMedication") {
-      await prismadb.medication.delete({
-        where: { id: body.medicationId },
-      });
-    } else if (updateType === "renameNode") {
+    if (updateType === "renameNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const newName = body.newName;
@@ -183,6 +96,12 @@ export async function POST(req: Request) {
           data: { name: newName, namePath: newNamePath },
         });
         await updateRecordViewActivity(userId, nodeId, true);
+        if (!currentUserPermissions.hasAccount) {
+          await createNotification({
+            text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the file: "${currentFile.name}" to "${newName}"`,
+            type: "ACCESS_CODE",
+          });
+        }
       } else if (isFile === false) {
         const currentFolder = await prismadb.folder.findUnique({
           where: { id: nodeId },
@@ -210,14 +129,27 @@ export async function POST(req: Request) {
             // Pass the transactional Prisma client to the function
             await updateDescendantsForRename(prisma, nodeId, oldNamePath, newNamePath);
           },
-          { timeout: 60000 },
+          { timeout: 20000 },
         );
         await updateRecordViewActivity(userId, nodeId, false);
+
+        if (!currentUserPermissions.hasAccount) {
+          await createNotification({
+            text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the folder: "${currentFolder.name}" to "${newName}"`,
+            type: "ACCESS_CODE",
+          });
+        }
       }
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
       await moveNodes(selectedIds, targetId, userId);
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has moved nodes from "${body.fromName}" to "${body.toName}"`,
+          type: "ACCESS_CODE",
+        });
+      }
     } else if (updateType === "trashNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
@@ -226,18 +158,31 @@ export async function POST(req: Request) {
       const selectedId = body.selectedId;
       await restoreRootFolder(selectedId, userId);
     } else if (updateType === "deleteNode") {
-      const isFile = body.isFile;
-      const nodeId = body.nodeId;
+      const selectedIds = body.selectedIds;
+      console.log("selectedIds");
+      console.log(selectedIds);
       const forEmptyTrash = body.forEmptyTrash;
-      const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(nodeId, isFile, patient.id);
+      const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
+      const selectedFileIds: string[] = rawObjects.map((object) => object.id);
+      const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
 
-      if (convertedObjects.length === 0 && isFile) {
-        return new NextResponse("file not found", { status: 500 });
-      }
-      await deleteNode(nodeId, isFile, forEmptyTrash, totalSize, patient.id);
-      console.log(rawObjects);
+      await deleteFiles(selectedFileIds);
+      await deleteFolders(selectedFolderIds, forEmptyTrash);
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
-      return new NextResponse(JSON.stringify({ totalSize: totalSize }));
+      const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+      const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+      if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
+        return new NextResponse("Something went wrong", { status: 500 });
+      }
+      const newlyUnrestrictedFileIds = await unrestrictFiles({
+        id: patient.id,
+        sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,
+        sumOfUnrestrictedSuccessFilesSizes: sumOfUnrestrictedSuccessFilesSizes,
+        plan: user.plan,
+      });
+      return new NextResponse(
+        JSON.stringify({ totalSize: totalSize, newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
+      );
     } else if (updateType === "addRootNode") {
       const folderId = await addRootNode(
         body.folderName,
@@ -246,6 +191,12 @@ export async function POST(req: Request) {
         patient.id,
         body.addedByName,
       );
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the root folder: "${body.folderName}"`,
+          type: "ACCESS_CODE",
+        });
+      }
       return NextResponse.json({ folderId: folderId }, { status: 200 });
     } else if (updateType === "addSubFolder") {
       const folder = await addSubFolder(
@@ -256,6 +207,12 @@ export async function POST(req: Request) {
         patient.id,
         body.addedByName,
       );
+      if (!currentUserPermissions.hasAccount) {
+        await createNotification({
+          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added a sub folder: "${body.folderName}"`,
+          type: "ACCESS_CODE",
+        });
+      }
       return NextResponse.json({ folder: folder }, { status: 200 });
     }
     return new NextResponse("Success", { status: 200 });

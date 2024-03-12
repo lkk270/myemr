@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var PrismaClient = require("@prisma/client").PrismaClient;
 var prismadb = new PrismaClient();
-function main() {
+function deleteAllFiles() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -48,4 +48,77 @@ function main() {
         });
     });
 }
-main();
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        var files, folders;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, prismadb.file.findMany({})];
+                case 1:
+                    files = _a.sent();
+                    return [4 /*yield*/, prismadb.folder.findMany({})];
+                case 2:
+                    folders = _a.sent();
+                    console.log(files);
+                    if (!(files.length === 0 && folders.length === 0)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, createFolder("Root", "/", "/Root", null, "clqvdl88c0004cah8gho5yxe2", "clqvdl88c0003cah8li8dt7fy", 3)];
+                case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function createFolder(name, path, namePath, parentId, patientProfileId, userId, depth) {
+    return __awaiter(this, void 0, void 0, function () {
+        var folder;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (depth === 0)
+                        return [2 /*return*/, null];
+                    return [4 /*yield*/, prismadb.folder.create({
+                            data: {
+                                name: name,
+                                path: path,
+                                namePath: namePath,
+                                parentId: parentId,
+                                patientProfileId: patientProfileId,
+                                userId: userId,
+                                files: {
+                                    create: [
+                                        {
+                                            name: "File1_in_".concat(name),
+                                            path: "".concat(path, "$FILL/"),
+                                            namePath: "".concat(namePath, "/File1_in_").concat(name),
+                                            patientProfileId: patientProfileId,
+                                            userId: userId,
+                                        },
+                                        {
+                                            name: "File2_in_".concat(name),
+                                            path: "".concat(path, "$FILL/"),
+                                            namePath: "".concat(namePath, "/File2_in_").concat(name),
+                                            patientProfileId: patientProfileId,
+                                            userId: userId,
+                                        },
+                                    ],
+                                },
+                            },
+                        })];
+                case 1:
+                    folder = _a.sent();
+                    // Create subfolders
+                    return [4 /*yield*/, createFolder("Subfolder1_of_".concat(name), "".concat(path).concat(folder.id, "/"), "".concat(namePath, "/Subfolder1_of_").concat(name), folder.id, patientProfileId, userId, depth - 1)];
+                case 2:
+                    // Create subfolders
+                    _a.sent();
+                    return [4 /*yield*/, createFolder("Subfolder2_of_".concat(name), "".concat(path).concat(folder.id, "/"), "".concat(namePath, "/Subfolder2_of_").concat(name), folder.id, patientProfileId, userId, depth - 1)];
+                case 3:
+                    _a.sent();
+                    return [2 /*return*/, folder];
+            }
+        });
+    });
+}
+deleteAllFiles();

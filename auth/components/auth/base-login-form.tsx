@@ -18,148 +18,32 @@ import { FormSuccess } from "../form-success";
 import { login } from "@/auth/actions/login";
 import { UserType } from "@prisma/client";
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { AccessPatientWithCodeForm } from "./access-patient-wth-code-form";
+import { LoginForm } from "./login-form";
 
 export const BaseLoginForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  console.log(searchParams.get("error"));
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Email is already being used through Google Sign in!"
-      : searchParams.get("error") === "AuthorizedCallbackError"
-      ? "Email is already being used through email & password sign in!"
-      : "";
+  const [userType, setUserType] = useState<UserType | "CODE">(callbackUrl?.includes("tpa-") ? "CODE" : "PATIENT");
 
-  const [showTwoFactor, setShowTwoFactor] = useState(false);
-  const [error, setError] = useState<string | undefined>("");
-  //   const [userType, setUserType] = useState<UserType>(UserType.PATIENT);
-  const [success, setSuccess] = useState<string | undefined>("");
-  const [isPending, startTransition] = useTransition();
-
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      userType: UserType.PATIENT,
-    },
-  });
-
-  const { register, watch, setValue, handleSubmit, control } = form;
-  const watchedUserType = watch("userType");
-
-  const handleUserTypeChange = (value: UserType) => {
-    setValue("userType", value);
-  };
-
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    setError("");
-    setSuccess("");
-
-    startTransition(() => {
-      login(values, callbackUrl)
-        .then((data) => {
-          if (data?.error) {
-            // form.reset();
-            setError(data.error);
-          }
-
-          if (data?.success) {
-            form.reset();
-            setSuccess(data.success);
-          }
-
-          if (data?.twoFactor) {
-            setShowTwoFactor(true);
-          }
-        })
-        .catch(() => setError("Something went wrong"));
-    });
+  const handleUserTypeChange = (value: "PROVIDER" | "PATIENT") => {
+    setUserType(value);
   };
 
   return (
     <CardWrapper
-      headerLabel={`Welcome Back ${capitalizeFirstLetter(watchedUserType)}`}
-      backButtonLabel="Don't have an account?"
-      backButtonHref={watchedUserType === UserType.PATIENT ? "/auth/patient-register" : "/auth/provider-register"}
-      showSocial={watchedUserType === UserType.PATIENT}
+      headerLabel={userType === "CODE" ? "Access a Patient" : `Welcome Back ${capitalizeFirstLetter(userType)}`}
+      headerSubtitle={userType === "CODE" ? "Enter the temporary access code given to you by your patient." : undefined}
+      backButtonLabel={userType === "CODE" ? "Or create a provider account" : "Don't have an account?"}
+      backButtonHref={userType === UserType.PATIENT ? "/auth/patient-register" : "/auth/provider-register"}
+      showSocial={userType === UserType.PATIENT}
     >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-4">
-            <FormField
-              control={control}
-              name="userType"
-              render={({ field }) => (
-                <FormItem>
-                  <ToggleGroup {...field} type="single" onValueChange={handleUserTypeChange}>
-                    <ToggleGroupItem value={UserType.PATIENT}>Patient</ToggleGroupItem>
-                    <ToggleGroupItem value={UserType.PROVIDER}>Provider</ToggleGroupItem>
-                  </ToggleGroup>
-                </FormItem>
-              )}
-            />
-            {showTwoFactor && (
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Two Factor Code</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled={isPending} placeholder="123456" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            {!showTwoFactor && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} disabled={isPending} placeholder="john.doe@example.com" type="email" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input {...field} disabled={isPending} placeholder="******" type="password" />
-                      </FormControl>
-                      <Button size="sm" variant="link" asChild className="px-0 font-normal">
-                        <Link
-                          href={`/auth/${watchedUserType.toLowerCase()}-reset`}
-                          onDragStart={(e) => e.preventDefault()}
-                        >
-                          Forgot password?
-                        </Link>
-                      </Button>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
-          </div>
-          <FormError message={error || urlError} />
-          <FormSuccess message={success} />
-          <Button disabled={isPending} type="submit" className="w-full">
-            {showTwoFactor ? "Confirm" : "Login"}
-          </Button>
-        </form>
-      </Form>
+      <ToggleGroup type="single" onValueChange={handleUserTypeChange} defaultValue={userType}>
+        <ToggleGroupItem value={UserType.PATIENT}>Patient</ToggleGroupItem>
+        <ToggleGroupItem value={UserType.PROVIDER}>Provider</ToggleGroupItem>
+        <ToggleGroupItem value={"CODE"}>Code</ToggleGroupItem>
+      </ToggleGroup>
+      {userType === "CODE" ? <AccessPatientWithCodeForm /> : <LoginForm userType={userType} />}
     </CardWrapper>
   );
 };

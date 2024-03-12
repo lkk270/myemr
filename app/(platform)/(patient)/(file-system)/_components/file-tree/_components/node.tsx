@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { ChevronRight, ChevronDown, MoreHorizontal, GripVertical, Trash } from "lucide-react";
 import DragContext from "./drag-context";
-import { cn, getFileIcon } from "@/lib/utils";
+import { cn, getFileIcon, extractNewNodeIdFromPath } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { MenuHeader } from "./menu-header";
 import { useRouter } from "next/navigation";
@@ -12,9 +12,10 @@ import { ActionDropdown } from "./action-dropdown";
 import { useMenuItems } from "./hooks";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { NodeDataType } from "@/app/types/file-types";
-import Link from "next/link";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useFolderStore } from "../../hooks/use-folders";
 import { usePathnameHook } from "./hooks/use-pathname";
+import { toast } from "sonner";
 
 type NodeProps = {
   node: any;
@@ -29,6 +30,7 @@ const iconSize = "17px";
 const iconClassName = "w-4 h-4 mr-2";
 
 const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const [isMounted, setIsMounted] = useState(false);
   const folderStore = useFolderStore();
   const isMobile = useMediaQuery("(max-width: 450px)");
@@ -56,6 +58,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     path: nodeData.path,
     namePath: nodeData.namePath,
     isFile: nodeData.isFile,
+    isRoot: nodeData.isRoot,
+    restricted: nodeData.restricted,
   };
 
   const menuItems = useMenuItems(customNodeData);
@@ -80,13 +84,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }
 
   useEffect(() => {
-    let newNodeIdFromPath = "";
     if (!pathnameVar) return;
-    if (pathnameVar.includes("/files/")) {
-      newNodeIdFromPath = pathnameVar.split("/files/")[1];
-    } else if (pathnameVar.includes("/file/")) {
-      newNodeIdFromPath = pathnameVar.split("/file/")[1];
-    }
+    let newNodeIdFromPath = extractNewNodeIdFromPath(pathnameVar);
     const isPathNodeInTrash = folderStore.singleLayerNodes.some((node) => {
       return node.id === newNodeIdFromPath && node.namePath.startsWith("/Trash");
     });
@@ -266,10 +265,22 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
   // }
 
   const nodeOnclick = () => {
-    if (!tree.hasMultipleSelections) {
-      router.push(node.data.isFile ? "/file/" + node.id : "/files/" + node.id);
+    if (node.data.restricted) {
+      toast.warning("You are out of storage, so this file is hidden. Please upgrade your plan to access it.", {
+        duration: 3500,
+      });
+    } else if (tree.hasMultipleSelections <= 1) {
+      const basePath = currentUserPermissions.isPatient
+        ? node.data.isFile
+          ? "/file/"
+          : "/files/"
+        : node.data.isFile
+        ? "/tpa-file/"
+        : "/tpa-files/";
+      router.push(`${basePath}${node.id}`);
     }
   };
+
   return (
     <div className={cn("px-2", isTrashNode && "pt-2")}>
       {isMounted && (
@@ -283,12 +294,13 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 !node.state.isDragging &&
                 !node.isEditing &&
                 !draggedNode.id &&
+                !node.data.restricted &&
                 "hover:bg-primary/10 py-[6.45px] hover:text-primary",
               node.state.isSelected &&
                 !node.state.isDragging &&
                 !node.isEditing &&
                 !draggedNode.id &&
-                "bg-primary/10 py-[6.45px] text-primary",
+                "bg-primary/10 py-[6.45px]",
               // node.state.willReceiveDrop && node.id !== draggedNode.id && node.id !== draggedNode.parentId && "bg-blue-300",
 
               draggedNode.id &&
@@ -302,8 +314,8 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               //   node.id !== draggedNode.id &&
               //   node.id !== draggedNode.parentId &&
               //   "bg-blue-300",
-
-              nodeIdFromPath === node.id && "border-[1px] border-[#4f5eff]",
+              node.data.restricted && "text-primary/30",
+              nodeIdFromPath === node.id && "border-[1px] border-[#4f5eff] text-primary",
             )}
             style={style}
             // style={{ ...style, paddingRight: "20px" }}
@@ -319,30 +331,40 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
               style={{ lineHeight: "18px", fontSize: "13px" }}
               className={cn(
                 `min-w-[${(tree.width - 100).toString()}px]`,
-                "truncate flex items-center flex-grow cursor-pointer",
+                "truncate flex items-center flex-grow cursor-default",
                 // !node.data.parentId ? "cursor-pointer" : "cursor-grab",
               )}
             >
               {node.data.isFile ? (
                 <>
-                  <GripVertical
-                    className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
-                  />
-                  <span className="w-5 flex-shrink-0 mr-1"></span>
-                  <span className="mr-2 flex items-center flex-shrink-0">
+                  {currentUserPermissions.canEdit && (
+                    <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
+                  )}
+                  <span
+                    className={cn(
+                      "w-5 flex-shrink-0 mr-1",
+                      node.data.restricted ? "cursor-not-allowed" : "cursor-pointer",
+                    )}
+                    onClick={nodeOnclick}
+                  ></span>
+                  <span
+                    className={cn(
+                      "mr-2 flex items-center flex-shrink-0",
+                      node.data.restricted ? "cursor-not-allowed" : "cursor-pointer",
+                    )}
+                    onClick={nodeOnclick}
+                  >
                     <CustomIcon size={iconSize} />
                   </span>
                 </>
               ) : (
                 <>
-                  {!node.data.isRoot && (
-                    <GripVertical
-                      className={cn(isMobile ? "" : "action-button", "cursor-grab w-3 h-3 absolute left-3")}
-                    />
+                  {!node.data.isRoot && currentUserPermissions.canEdit && (
+                    <GripVertical className={cn("action-button", "cursor-grab w-3 h-3 absolute left-3")} />
                   )}
                   {!isTrashNode && (
                     <span
-                      className="mr-2 flex-shrink-0"
+                      className="mr-2 flex-shrink-0 cursor-pointer"
                       onClick={() => {
                         node.isInternal && node.toggle();
                       }}
@@ -358,7 +380,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                     style={{
                       pointerEvents: tree.hasMultipleSelections > 1 ? "none" : "auto",
                     }}
-                    className="mr-[6px] flex-shrink-0"
+                    className="mr-[6px] flex-shrink-0 cursor-pointer"
                   >
                     <div title={node.data.namePath}>
                       {isTrashNode ? (
@@ -387,11 +409,11 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 title={node.data.namePath}
                 // href={node.data.isFile ? "/file/" + node.id : "/files/" + node.id}
                 //!node.data.parentId ? "cursor-pointer" : "cursor-grab"
-                className={cn("truncate flex-grow cursor-pointer")}
+                className={cn("truncate flex-grow", node.data.restricted ? "cursor-not-allowed" : "cursor-pointer")}
               >
                 {node.data.name}
               </div>
-              {!isTrashNode && (
+              {!isTrashNode && currentUserPermissions.showActions && (
                 <div className={cn(isMobile ? "" : "action-button")}>
                   <ActionDropdown
                     nodeData={node.data}
@@ -409,7 +431,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
                 </div>
               )}
             </div>
-            {!isTrashNode && (
+            {!isTrashNode && currentUserPermissions.showActions && (
               <ContextMenuContent hideWhenDetached={true} className="w-[160px] flex flex-col">
                 <MenuHeader title={node.data.name} icon={CustomIcon} />
                 {menuItems.map((item, index) => {

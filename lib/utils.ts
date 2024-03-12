@@ -25,7 +25,7 @@ import {
   BsFileZip,
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
-import { LuFileVideo } from "react-icons/lu";
+import { encryptPatientRecord } from "./encryption";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -179,80 +179,6 @@ function checkForExtraneousFields(dataKeys: string[], allowedFields: string[]) {
   return "";
 }
 
-export function checkForInvalidNewMedication(data: NewMedicationType | null) {
-  const requiredFields = {
-    name: "Name is required",
-    category: "Category is required",
-    dosage: "Dosage is required",
-    dosageUnits: "Dosage units are required",
-    frequency: "Dosage frequency is required",
-    prescribedByName: "Prescriber is required",
-    status: "Status is required",
-  };
-
-  if (!data) return "Data is invalid";
-  for (const [key, value] of Object.entries(requiredFields)) {
-    if (!data[key as keyof NewMedicationType]) {
-      return value;
-    }
-  }
-  if (data.status !== "active" && data.status !== "inactive") {
-    return "Invalid status";
-  }
-  if (typeof data.prescribedById === "string" && (!data.prescribedById || !data.prescribedByName)) {
-    return "Invalid prescriber";
-  }
-  if (typeof data.dosage === "string") {
-    const dosageNum = parseFloat(data.dosage);
-    if (isNaN(dosageNum) || dosageNum <= 0) {
-      return "Invalid dosage";
-    }
-  }
-  if (!isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
-    return "Invalid dosage frequency";
-  }
-  const allowedFields = [...Object.keys(requiredFields), "prescribedById", "description"];
-  return checkForExtraneousFields(Object.keys(data), allowedFields);
-}
-
-export function checkForInvalidEditedMedication(data: Partial<NewMedicationType>) {
-  const allowedFields = {
-    category: "Category is required",
-    dosage: "Dosage is required",
-    dosageUnits: "Dosage units are required",
-    frequency: "Dosage frequency is required",
-    prescribedByName: "Prescriber is required",
-    prescribedById: "Prescriber Id is required",
-    description: "Description is cannot be an empty string",
-    status: "Status is required",
-  };
-  if (typeof data.name === "string") {
-    return "Cannot edit the name of a medication";
-  }
-  for (const [key, value] of Object.entries(allowedFields)) {
-    const fieldValue = data[key as keyof NewMedicationType];
-    if (typeof fieldValue === "string" && fieldValue.length === 0) {
-      return value;
-    }
-  }
-  if (data.status && data.status !== "active" && data.status !== "inactive") {
-    return "Invalid status";
-  }
-
-  if (typeof data.dosage === "string") {
-    const dosageNum = parseFloat(data.dosage);
-    if (isNaN(dosageNum) || dosageNum <= 0) {
-      return "Invalid dosage";
-    }
-  }
-  if (data.frequency && !isValueInArrayOfConstObj(dosageFrequency, data.frequency)) {
-    return "Invalid dosage frequency";
-  }
-  if (typeof data.prescribedById === "string" && (!data.prescribedById || !data.prescribedByName)) {
-    return "Invalid prescriber";
-  }
-  return checkForExtraneousFields(Object.keys(data), Object.keys(allowedFields));
-}
 
 export function capitalizeFirstLetter(str: string) {
   if (!str) return str; // Return the original string if it's empty
@@ -349,6 +275,7 @@ export function isViewableFile(fileType: string) {
     "application/pdf",
     "audio/mpeg",
     "audio/mp4",
+    "video/mp4",
     "image/png",
     "image/jpeg",
     "image/gif",
@@ -452,12 +379,17 @@ export function sortSingleLayerNodes(array: SingleLayerNodesType2[]): SingleLaye
   return sortedItems;
 }
 
-export function formatFileSize(bytes: number) {
-  if (bytes < 1000) return bytes + " Bytes";
-  else if (bytes < 1000000) return (bytes / 1000).toFixed(1) + " KB";
-  else if (bytes < 1000000000) return (bytes / 1000000).toFixed(1) + " MB";
-  else if (bytes < 1000000000000) return (bytes / 1000000000).toFixed(2) + " GB";
-  return (bytes / 1000000000000).toFixed(2) + " TB";
+export function formatFileSize(bytes: bigint) {
+  const KB = 1000n;
+  const MB = 1000000n;
+  const GB = 1000000000n;
+  const TB = 1000000000000n;
+
+  if (bytes < KB) return bytes + " Bytes";
+  else if (bytes < MB) return (Number(bytes) / Number(KB)).toFixed(1) + " KB";
+  else if (bytes < GB) return (Number(bytes) / Number(MB)).toFixed(1) + " MB";
+  else if (bytes < TB) return (Number(bytes) / Number(GB)).toFixed(2) + " GB";
+  return (Number(bytes) / Number(TB)).toFixed(2) + " TB";
 }
 
 // Assuming amzDate is a string like "20240205T235432Z"
@@ -479,3 +411,103 @@ export const isLinkExpired = (url: string) => {
   // Compare with current UTC time in milliseconds
   return expiryTimestamp <= new Date().getTime();
 };
+
+export const extractNewNodeIdFromPath = (pathnameVar: string) => {
+  // Regular expression to match the patterns and capture the ID part
+  const regex = /\/(files|file|tpa-files|tpa-file)\/([^\/]+)/;
+  const match = pathnameVar.match(regex);
+
+  if (match) {
+    return match[2];
+  }
+  return "";
+};
+
+export const getNodeHref = (isPatient: boolean, isFile: boolean, nodeId: string) => {
+  return `${isPatient ? (isFile ? "/file/" : "/files/") : isFile ? "/tpa-file/" : "/tpa-files/"}${nodeId}`;
+};
+
+export function getTimeUntil(date: Date): string {
+  const now = new Date();
+  const diffInSeconds = Math.floor((date.getTime() - now.getTime()) / 1000); // Convert milliseconds to seconds
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} second${diffInSeconds === 1 ? "" : "s"}`;
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.ceil(diffInSeconds / 60);
+    return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.ceil(diffInSeconds / 3600);
+    return `${hours} hour${hours === 1 ? "" : "s"}`;
+  } else {
+    const days = Math.ceil(diffInSeconds / 86400);
+    return `${days} day${days === 1 ? "" : "s"}`;
+  }
+}
+
+// function flattenStructure(data: any[]) {
+//   let result: any[] = [];
+
+//   function flattenItem(item: any) {
+//     // Add the current item to the result
+//     result.push({
+//       id: item.id,
+//       path: item.path,
+//       namePath: item.namePath,
+//       name: item.name,
+//       isFile: item.isFile,
+//     });
+
+//     // If the item has children, flatten each child
+//     if (item.children && item.children.length) {
+//       item.children.forEach((child: any) => flattenItem(child));
+//     }
+//   }
+
+//   flattenItem(data); // start with the root item
+//   return result;
+// }
+
+export function absoluteUrl(path: string) {
+  return `${process.env.NEXT_PUBLIC_URL}${path}`;
+}
+
+export function buildUpdatePayload(data: any, symmetricKey: string) {
+  const discreteTables = ["addresses", "member"];
+  const exemptFields = ["unit", "patientProfileId", "userId", "id", "createdAt", "updatedAt"];
+  const payload: any = {};
+  for (const key in data) {
+    if (
+      data[key] !== undefined &&
+      data[key] !== null &&
+      !discreteTables.includes(key) &&
+      !exemptFields.includes(key) &&
+      !key.includes("Key")
+    ) {
+      payload[key] = encryptPatientRecord(data[key], symmetricKey);
+    }
+  }
+  return payload;
+}
+
+export function findChangesBetweenObjects(oldObject: any, newObject: any) {
+  //returns a new object that contains only the changed fields between oldObject & newObject
+  //if there is a field in oldObject that is NOT in newObject then this field will NOT be included
+  //however, if there is a field in newObject that is NOT in oldObject then this field will be included.
+  const changesObject: any = {};
+
+  Object.keys(newObject).forEach((key) => {
+    if (oldObject[key] !== newObject[key]) {
+      if (typeof newObject[key] === "object" && newObject[key] !== null && oldObject[key] !== null) {
+        const deeperChanges = findChangesBetweenObjects(oldObject[key], newObject[key]);
+        if (Object.keys(deeperChanges).length > 0) {
+          changesObject[key] = deeperChanges;
+        }
+      } else {
+        changesObject[key] = newObject[key];
+      }
+    }
+  });
+
+  return changesObject;
+}

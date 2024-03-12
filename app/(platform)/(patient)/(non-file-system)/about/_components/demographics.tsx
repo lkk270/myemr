@@ -1,19 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { buttonVariants } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import axios from "axios";
 
-import { PatientAddress, Unit } from "@prisma/client";
+import { InsuranceSide, PatientAddress, Unit } from "@prisma/client";
 import { PatientDemographicsType } from "@/app/types";
 import { PhoneNumber } from "@/components/phone-number";
 import { GenericCombobox } from "@/components/generic-combobox";
@@ -21,11 +17,18 @@ import { GenericCalendar } from "@/components/generic-calendar";
 import { GenericAddress } from "@/components/generic-address";
 import { CardHeaderComponent } from "./card-header";
 import { toast } from "sonner";
-import { cn, checkForInvalidDemographicsData, calculateBMI } from "@/lib/utils";
+import { cn, checkForInvalidDemographicsData, calculateBMI, isLinkExpired } from "@/lib/utils";
 import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
 import { useIsLoading } from "@/hooks/use-is-loading";
-
+import { useInsuranceImages } from "../hooks/use-insurance-images";
 import _ from "lodash";
+import { getPresignedInsuranceUrl } from "../../../(file-system)/actions/get-file-psu";
+import { ImageViewer } from "../../../(file-system)/_components/file-viewers/image-viewer";
+import { InsuranceSkeleton } from "./insurance-skeleton";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { PersonalInformationForm } from "./personal-information-form";
+import { ContactInformationForm } from "./contact-information-form";
+
 const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
@@ -46,10 +49,50 @@ const tabsData = [
 ];
 
 export const Demographics = ({ patientDemographics }: PatientDemographicsProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+  const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
+  const currentUserPermissions = useCurrentUserPermissions();
   const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
   const [user, setUser] = useState<PatientDemographicsType>(patientDemographics);
   const [isEditing, setIsEditing] = useState(false);
   const { isLoading, setIsLoading } = useIsLoading();
+  const [activeTab, setActiveTab] = useState("demographics");
+  console.log(user);
+  useEffect(() => {
+    const fetchUrls = async () => {
+      if (!isMounted) return;
+      if (
+        user.insuranceImagesSet &&
+        activeTab === "insurance" &&
+        (!imagesUrls["front"] ||
+          !imagesUrls["back"] ||
+          isLinkExpired(imagesUrls["front"]) ||
+          isLinkExpired(imagesUrls["front"]))
+      ) {
+        try {
+          setIsLoading(true);
+
+          const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT);
+          const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK);
+
+          const frontUrl = frontUrlData.presignedUrl;
+          const backUrl = backUrlData.presignedUrl;
+          setInsuranceImageUrls({ front: frontUrl, back: backUrl });
+
+          setIsMounted(true);
+          setIsLoading(false);
+        } catch (error) {
+          setIsLoading(false);
+          setIsMounted(true);
+          console.error("Failed to fetch presigned URLs", error);
+        }
+      }
+    };
+
+    // Only attempt to fetch URLs if the "insurance" tab is active
+    setIsMounted(true);
+    fetchUrls();
+  }, [activeTab]);
 
   // const [initialUser, setInitialUser] = useState<PatientDemographicsType>(patientDemographics);
 
@@ -104,6 +147,7 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     setIsEditing(false);
   };
   const handleSave = () => {
+    if (!currentUserPermissions.isPatient) return;
     setIsLoading(true);
     const changes: Partial<PatientDemographicsType> = {};
 
@@ -181,12 +225,52 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
+  const InsuranceContent = () => {
+    // Decide the content based on the state
+    let contentElements;
+
+    if (imagesUrls.front && imagesUrls.back) {
+      // Render ImageViewer components for front and back images
+      contentElements = (
+        <>
+          <ImageViewer forInsurance fileId={InsuranceSide.FRONT} fileSrc={imagesUrls.front} />
+          <ImageViewer forInsurance fileId={InsuranceSide.BACK} fileSrc={imagesUrls.back} />
+        </>
+      );
+    } else {
+      // Render InsuranceSkeleton components, with pulse only if isLoading is true
+      const skeletonProps = isLoading ? { pulse: true } : {};
+      contentElements = (
+        <>
+          <InsuranceSkeleton {...skeletonProps} />
+          <InsuranceSkeleton {...skeletonProps} />
+        </>
+      );
+    }
+
+    return (
+      <div
+        className="items-center pt-2 grid grid-flow-row gap-2 auto-cols-max"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))" }}
+      >
+        {contentElements}
+      </div>
+    );
+  };
+
   return (
     <Tabs orientation="vertical" defaultValue="demographics" className="w-full flex flex-col md:flex-row">
       {/* Sidebar with tabs */}
-      <TabsList className="flex-row md:-mx-4 flex md:flex-col md:w-40 md:px-3 md:py-14 md:mt-2">
+      <TabsList className="flex-row flex md:flex-col md:w-40 md:py-14 md:mt-2">
         {tabsData.map((tab) => (
-          <TabsTrigger key={tab.value} className="w-full data-[state=active]:bg-primary/10" value={tab.value}>
+          <TabsTrigger
+            onClick={() => {
+              setActiveTab(tab.value);
+            }}
+            key={tab.value}
+            className="w-full data-[state=active]:bg-primary/10"
+            value={tab.value}
+          >
             {tab.label}
           </TabsTrigger>
         ))}
@@ -196,198 +280,32 @@ export const Demographics = ({ patientDemographics }: PatientDemographicsProps) 
 
       <div className="md:ml-6 flex justify-center w-full max-w-[1500px] pb-28 xs:pb-0 ">
         <TabsContent className="w-full" value="demographics">
-          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
-            <CardHeaderComponent
-              title="Personal Information"
-              isEditing={isEditing}
-              isLoading={isLoading}
-              handleSave={handleSave}
-              handleEditToggle={handleEditToggle}
-              handleCancel={handleCancel}
-            />
-
-            <CardContent className="pt-4">
-              {/* <CardTitle className="my-4 text-md sm:text-lg text-primary/50">Personal Information</CardTitle> */}
-              <div className="grid gap-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      className={inputClassName}
-                      id="firstName"
-                      name="firstName"
-                      autoComplete="off"
-                      value={user.firstName}
-                      onChange={handleInputChange}
-                      placeholder="First Name"
-                      disabled={!isEditing || isLoading}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      className={inputClassName}
-                      value={user.lastName}
-                      onChange={handleInputChange}
-                      placeholder="Last Name"
-                      disabled={!isEditing || isLoading}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 w-full items-center gap-4 px-4">
-                  <div className="w-[220px] md:w-full">
-                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
-
-                    {/* dark:text-[#70606a] font-normal text-[#adafb4] */}
-                    {/*                       isEditing && "dark:text-[#d8dce1] text-[#0a101e]",
-                     */}
-                    <GenericCalendar
-                      disabled={!isEditing || isLoading}
-                      handleChange={(value) => handleChange("dateOfBirth", value)}
-                      valueParam={user.dateOfBirth}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="gender">Gender</Label>
-                    <GenericCombobox
-                      handleChange={(value) => handleChange("gender", value)}
-                      valueParam={user.gender}
-                      disabled={!isEditing || isLoading}
-                      className={inputClassName}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No gender found."
-                      items={genders}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="race">Race</Label>
-                    <GenericCombobox
-                      handleChange={(value) => handleChange("race", value)}
-                      valueParam={user.race}
-                      disabled={!isEditing || isLoading}
-                      className={inputClassName}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No race found."
-                      items={races}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="maritalStatus">Marital Status</Label>
-                    <GenericCombobox
-                      valueParam={user.maritalStatus}
-                      handleChange={(value) => handleChange("maritalStatus", value)}
-                      disabled={!isEditing || isLoading}
-                      className={inputClassName}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No race found."
-                      items={martialStatuses}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:max-w-[60%] items-center gap-4 px-4">
-                  <div>
-                    <Label htmlFor="height">Height</Label>
-                    <GenericCombobox
-                      valueParam={user.height}
-                      handleChange={(value) => handleChange("height", value)}
-                      disabled={!isEditing || isLoading}
-                      className={cn("sm:max-w-[120px]", inputClassName)}
-                      placeholder="Select..."
-                      searchPlaceholder="Search..."
-                      noItemsMessage="No results"
-                      items={user.unit === Unit.IMPERIAL ? heightsImperial : heightsMetric}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="weight">Weight</Label>
-                    <div className="relative flex items-center">
-                      <Input
-                        type="number"
-                        id="weight"
-                        name="weight"
-                        min={2}
-                        max={1500}
-                        className={cn(inputClassName, " max-w-[240px] sm:max-w-[120px]")}
-                        value={user.weight || ""}
-                        onChange={handleInputChange}
-                        placeholder="Weight"
-                        disabled={!isEditing || isLoading}
-                      />
-                      <span className="pl-1"> {user.unit === Unit.IMPERIAL ? "lbs" : "Kg"}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="weight">BMI</Label>
-                    <Input
-                      type="number"
-                      id="bmi"
-                      name="bmi"
-                      placeholder="N/A"
-                      className={cn(inputClassName, " max-w-[240px] sm:max-w-[120px]")}
-                      value={user.weight && user.height ? calculateBMI(user.unit, user.height, user.weight) : ""}
-                      disabled={true}
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PersonalInformationForm
+            personalInformation={{
+              firstName: patientDemographics.firstName,
+              lastName: patientDemographics.lastName,
+              dateOfBirth: patientDemographics.dateOfBirth,
+              gender: patientDemographics.gender,
+              race: patientDemographics.race,
+              maritalStatus: patientDemographics.maritalStatus,
+              height: patientDemographics.height,
+              weight: patientDemographics.weight,
+            }}
+          />
         </TabsContent>
         <TabsContent className="w-full" value="contact">
-          <Card className="min-h-full shadow-lg shadow-zinc-700 transition border-1 rounded-xl">
-            <CardHeaderComponent
-              title="Contact Information"
-              isEditing={isEditing}
-              isLoading={isLoading}
-              handleSave={handleSave}
-              handleEditToggle={handleEditToggle}
-              handleCancel={handleCancel}
-            />
+          <ContactInformationForm
+            contactInformation={{
+              mobilePhone: patientDemographics.mobilePhone,
+              homePhone: patientDemographics.homePhone,
+              address: patientDemographics.addresses.length > 0 ? patientDemographics.addresses[0] : null,
+            }}
+          />
+        </TabsContent>
+        <TabsContent className="w-full" value="insurance">
+          <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
             <CardContent className="pt-4">
-              <div className="grid gap-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center gap-4 px-4">
-                  <div>
-                    <Label htmlFor="mobilePhone">Mobile phone</Label>
-                    <PhoneNumber
-                      fieldName="mobilePhone"
-                      handleChange={handleChange}
-                      disabled={!isEditing || isLoading}
-                      number={user.mobilePhone}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="homePhone">Home phone</Label>
-                    <PhoneNumber
-                      fieldName="homePhone"
-                      handleChange={handleChange}
-                      disabled={!isEditing || isLoading}
-                      number={user.homePhone}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      className="bg-secondary border-primary/10"
-                      value={user.email}
-                      disabled={true}
-                    />
-                  </div>
-                </div>
-                <GenericAddress
-                  handleChange={handleAddressChange}
-                  address={user.addresses.length > 0 ? user.addresses[0] : null}
-                  disabled={!isEditing || isLoading}
-                />
-              </div>
+              <InsuranceContent />
             </CardContent>
           </Card>
         </TabsContent>

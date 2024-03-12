@@ -14,6 +14,8 @@ import {
   useDeleteModal,
 } from ".";
 
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+
 export const useMenuItems = (nodeData: any) => {
   const trashModal = useTrashModal();
   const deleteModal = useDeleteModal();
@@ -24,10 +26,12 @@ export const useMenuItems = (nodeData: any) => {
   const uploadFilesModal = useUploadFilesModal();
   const foldersStore = useFolderStore();
 
+  const currentUserPermissions = useCurrentUserPermissions();
   const { isLoading } = useIsLoading();
 
   const inTrash = nodeData.namePath.startsWith("/Trash");
   const isTrashNode = nodeData.namePath === "/Trash";
+  const isRestricted = nodeData.restricted;
   // const trashHasContents = isTrashNode
   //   ? foldersStore.singleLayerNodes.some((node) => node.namePath.startsWith("/Trash") && !node.isRoot)
   //   : undefined;
@@ -164,28 +168,49 @@ export const useMenuItems = (nodeData: any) => {
   ];
 
   const menuItems = menuItemsConfig.filter((item) => {
-    if ((!nodeData.parentId || (inTrash && nodeData.isRoot)) && (item.label === "Move" || item.label === "Restore")) {
+    const itemLabel = item.label;
+    if ((!nodeData.parentId || (inTrash && nodeData.isRoot)) && (itemLabel === "Move" || itemLabel === "Restore")) {
       return false;
     }
-    if (item.label === "Rename" && (nodeData.isRoot || inTrash)) {
+    if (itemLabel === "Rename" && (nodeData.isRoot || inTrash)) {
       return false;
     }
-    if ((nodeData.isFile || inTrash) && (item.label === "Upload files" || item.label === "Add a subfolder")) {
+    if ((nodeData.isFile || inTrash) && (itemLabel === "Upload files" || itemLabel === "Add a subfolder")) {
       return false;
     }
-    if (isTrashNode && item.label === "Delete") {
+    if (isTrashNode && itemLabel === "Delete") {
       return false;
     }
-    if ((!inTrash || !nodeData.isRoot || isTrashNode) && item.label === "Restore Root") {
+    if ((!inTrash || !nodeData.isRoot || isTrashNode) && itemLabel === "Restore Root") {
       return false;
     }
-    if (isTrashNode && item.label === "Empty Trash" && !folderHasContents) {
+    if (isTrashNode && itemLabel === "Empty Trash" && !folderHasContents) {
       return false;
     }
-    // if (item.isFile && item.label === "Export") {
-    //   return true;
-    // }
-    // if (!item.isFile && item.label === "Export" && (!folderHasContents || !folderHasFileDescendants)) {
+    if (!currentUserPermissions.canAdd) {
+      if (itemLabel === "Upload files" || itemLabel === "Add a subfolder") {
+        return false;
+      }
+    }
+    if (!currentUserPermissions.canEdit) {
+      if (itemLabel === "Move" || itemLabel === "Rename") {
+        return false;
+      }
+    }
+    if (!currentUserPermissions.canDelete) {
+      if (itemLabel === "Empty Trash" || itemLabel === "Delete" || itemLabel === "Trash") {
+        return false;
+      }
+    }
+    if (!currentUserPermissions.isPatient) {
+      if (itemLabel === "Restore" || itemLabel === "Restore Root") {
+        return false;
+      }
+    }
+    if (isRestricted && itemLabel === "Export") {
+      return false;
+    }
+    // if (!item.isFile && itemLabel === "Export" && (!folderHasContents || !folderHasFileDescendants)) {
     //   return false;
     // }
     return true; // Include the item if none of the conditions above match

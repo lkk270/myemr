@@ -8,14 +8,15 @@ import { useNewMedicationModal } from "../hooks/use-new-medication-modal";
 import { useMedicationStore } from "../hooks/use-medications";
 import { useEffect } from "react";
 import { MedicationType } from "@/app/types";
-
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 interface DataTableProps {
   data: MedicationType[];
 }
 
 export function CustomDataTable({ data }: DataTableProps) {
+  const currentUserPermissions = useCurrentUserPermissions();
   const onOpen = useViewMedicationModal().onOpen;
-  const newOnOpen = useNewMedicationModal().onOpen;
+  const newOnOpen = currentUserPermissions.canAdd ? useNewMedicationModal().onOpen : undefined;
   const medicationStore = useMedicationStore();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export function CustomDataTable({ data }: DataTableProps) {
       data={medicationStore.medications}
       isLoading={!medicationStore.medicationsSet}
       columns={columns}
+      // className={"xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
     />
   );
 }

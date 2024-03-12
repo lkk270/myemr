@@ -17,7 +17,7 @@ import { UserType } from "@prisma/client";
 import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface RegisterFormProps {
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 
 export const RegisterForm = ({ userType }: RegisterFormProps) => {

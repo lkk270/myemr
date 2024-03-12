@@ -1,8 +1,8 @@
-// import { initialPatientProfile } from "@/lib/initial-profile";
-
-const PatientHome = async () => {
-  // await initialPatientProfile();
-  return <p className="text-indigo-700 text-3xl">Hello Patient</p>;
+import { PatientHome } from "./_components/patient-home";
+import { auth } from "@/auth";
+const Home = async () => {
+  const session = await auth();
+  // console.log(session);
+  return <PatientHome />;
 };
-
-export default PatientHome;
+export default Home;

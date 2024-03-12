@@ -1,4 +1,6 @@
-import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings } from "lucide-react";
+import { SubscriptionTierType } from "@/app/types";
+import { UserRole } from "@prisma/client";
+import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings, Upload } from "lucide-react";
 
 export const navRoutes = [
   {
@@ -21,20 +23,51 @@ export const navRoutes = [
     href: "/about",
     label: "About",
   },
-  {
-    icon: ScrollText,
-    href: "/notes",
-    label: "Notes",
-  },
+  // {
+  //   icon: ScrollText,
+  //   href: "/notes",
+  //   label: "Notes",
+  // },
   {
     icon: Stethoscope,
     href: "/providers",
     label: "Providers",
   },
+];
+
+export const tempPatientAccessNavRoutes = [
   {
-    icon: Settings,
-    href: "/settings",
-    label: "Settings",
+    icon: Home,
+    href: "/tpa-home",
+    label: "Home",
+  },
+  {
+    icon: FolderClosed,
+    href: "/tpa-files",
+    label: "Files",
+  },
+  {
+    icon: Pill,
+    href: "/tpa-medications",
+    label: "Meds",
+  },
+  {
+    icon: Contact,
+    href: "/tpa-about",
+    label: "About",
+  },
+];
+
+export const tempPatientUploadAccessNavRoutes = [
+  {
+    icon: Home,
+    href: "/tpa-home",
+    label: "Home",
+  },
+  {
+    icon: Upload,
+    href: "/tpa-upload",
+    label: "Upload",
   },
 ];
 
@@ -48,6 +81,49 @@ export interface SimpleSelectItemsType {
   height: SelectItemType[];
   weight: SelectItemType[];
 }
+interface AccessType {
+  title: string;
+  description: string;
+}
+
+export interface AccessTypeObjectType {
+  [key: string]: AccessType;
+}
+
+export const accessTypeTextObjForPatient: AccessTypeObjectType = {
+  READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },
+  UPLOAD_FILES_ONLY: {
+    title: "Upload Files Only",
+    description: "can only upload files to a folder of your choosing. Your records will be hidden",
+  },
+  READ_AND_ADD: {
+    title: "Read & Add",
+    description: "can view records and add records i.e. medications & folders/files",
+  },
+  FULL_ACCESS: {
+    title: "Full Access",
+    description:
+      "can view records, add records i.e. medications & folders/files, make edits to existing medications, and rename & move folders/files",
+  },
+};
+
+export const accessTypeTextObjForTemp: AccessTypeObjectType = {
+  READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },
+  UPLOAD_FILES_ONLY: {
+    title: "Upload Files Only",
+    description:
+      "can only upload files. A destination folder has already been selected by the patient. You do not have access to any of the patient's records",
+  },
+  READ_AND_ADD: {
+    title: "Read & Add",
+    description: "can view records and add records i.e. medications & folders/files",
+  },
+  FULL_ACCESS: {
+    title: "Full Access",
+    description:
+      "can view records, add records i.e. medications & folders/files, make edits to existing medications, and rename & move folders/files",
+  },
+};
 
 export const simpleSelectItems: SimpleSelectItemsType = {
   height: [
@@ -984,8 +1060,56 @@ export const dosageFrequency = [
   { value: "q24h", label: "Every 24 hours" },
 ];
 
-export const allotedPatientStorage = {
-  FREE: 1,
-  PREMIUM_1: 10,
-  PREMIUM_2: 100,
+//IN GB
+export const allotedStoragesInGb = {
+  PATIENT_FREE: 1,
+  PATIENT_PREMIUM_1: 10,
+  PATIENT_PREMIUM_2: 50,
+  PROVIDER_FREE: 1,
+  PROVIDER_PREMIUM_1: 10,
+  PROVIDER_PREMIUM_2: 50,
 };
+
+export const maxFileUploadSize = 5368709120; //5 GB in bytes
+export const maxSystemFileSize = 10485760; //10 Mb in bytes
+
+export const maxFileUploadSizes = {
+  PATIENT_FREE: maxSystemFileSize,
+  PATIENT_PREMIUM_1: maxFileUploadSize,
+  PATIENT_PREMIUM_2: maxFileUploadSize,
+  PROVIDER_FREE: maxSystemFileSize,
+  PROVIDER_PREMIUM_1: maxFileUploadSize,
+  PROVIDER_PREMIUM_2: maxFileUploadSize,
+};
+
+export const planNames = {
+  PATIENT_FREE: { title: "Basic", stripe: { id: "", price: 0, name: "MyEmr Patient Basic" } },
+  PATIENT_PREMIUM_1: {
+    title: "Pro",
+    stripe: { id: "price_1Opg0XE2jPbkyOVrg8JcnSHZ", price: 500, name: "MyEmr Patient Pro" },
+  },
+  PATIENT_PREMIUM_2: {
+    title: "Pro+",
+    stripe: { id: "price_1Opg0mE2jPbkyOVrYuIXGhiY", price: 1200, name: "MyEmr Patient Pro+" },
+  },
+  PROVIDER_FREE: { title: "Basic", stripe: { id: "", price: 0, name: "MyEmr Provider Basic" } },
+  PROVIDER_PREMIUM_1: { title: "Pro", stripe: { id: "", price: 500, name: "MyEmr Provider Pro" } },
+  PROVIDER_PREMIUM_2: { title: "Pro+", stripe: { id: "", price: 1200, name: "MyEmr Provider Pro+" } },
+};
+
+export const accessCodeValidTimeObj = {
+  MINUTE_30: 1800,
+  HOUR_1: 3600,
+  HOUR_12: 43200,
+  DAY_1: 86400,
+  WEEK_1: 604800,
+};
+
+export const accessTypesText = [
+  { value: UserRole.READ_ONLY, label: "Read only", requiresSubscription: false },
+  { value: UserRole.UPLOAD_FILES_ONLY, label: "Upload files only", requiresSubscription: false },
+  { value: UserRole.READ_AND_ADD, label: "Read & Add", requiresSubscription: true },
+  { value: UserRole.FULL_ACCESS, label: "Full access", requiresSubscription: true },
+];
+
+export const profileImageUrlPrefix = "https://myemrpps3.s3.us-east-2.amazonaws.com/";

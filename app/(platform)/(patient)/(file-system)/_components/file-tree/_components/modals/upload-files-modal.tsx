@@ -18,14 +18,18 @@ import { Trash, RefreshCw, XCircle } from "lucide-react";
 import { Dropzone } from "@/components/files/dropzone";
 import _ from "lodash";
 import { FileWithStatus, NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { updateStatus, decrementUsedFileStorage } from "../../../../actions/update-status";
+import { updateRegularFileStatus } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { createNotification } from "@/lib/actions/notifications";
 
 export const UploadFilesModal = () => {
+  const currentUser = useCurrentUser();
+  const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const folderStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -43,8 +47,6 @@ export const UploadFilesModal = () => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {}, [files]);
-
   useEffect(() => {
     setFiles([]);
   }, [uploadFilesModal.nodeData?.id]);
@@ -59,7 +61,7 @@ export const UploadFilesModal = () => {
 
   const updateFileStatus = (
     singleFileObj: FileWithStatus | null,
-    status: "uploaded" | "error" | "canceled",
+    status: "uploaded" | "error" | "canceled" | "uploading" | "gotPSU",
     index: number,
   ) => {
     if (singleFileObj) {
@@ -74,64 +76,74 @@ export const UploadFilesModal = () => {
   };
 
   const handleUpload = async (singleFileObj: FileWithStatus | null = null, isForRetry = false) => {
+    let errorOccurred = false;
+    let numFilesSuccessfullyUploaded = 0;
+
+    console.log("IN 82");
+    if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
+
+    console.log("IN 88");
     setIsLoading(true);
 
-    if (singleFileObj) {
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.file === singleFileObj.file ? { ...file, status: "uploading", isRetrying: true } : file,
-        ),
-      );
-    } else {
-      setFiles((prevFiles) =>
-        prevFiles.map((fileObj) => ({
-          ...fileObj,
-          status: fileObj.status == null ? "uploading" : fileObj.status,
-        })),
-      );
-    }
+    // if (singleFileObj) {
+    //   setFiles((prevFiles) =>
+    //     prevFiles.map((file) =>
+    //       file.file === singleFileObj.file ? { ...file, status: "uploading", isRetrying: true } : file,
+    //     ),
+    //   );
+    // } else {
+    //   setFiles((prevFiles) =>
+    //     prevFiles.map((fileObj) => ({
+    //       ...fileObj,
+    //       status: fileObj.status == null ? "uploading" : fileObj.status,
+    //     })),
+    //   );
+    // }
 
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
-    console.log(tempFileList);
+    // console.log(tempFileList);
     const uploadPromises = tempFileList
       .filter((fileObj) => !fileObj.status || isForRetry)
       .map(async (tempFile, index) => {
         let fileId = null;
         let goodPsuResponse = false;
         try {
-          console.log("IN HERE 96");
+          updateFileStatus(tempFile, "uploading", 0);
+
           const file = tempFile.file;
 
-          const response = await fetch("/api/upload", {
+          const response = await fetch("/api/file-upload", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              updateType: "uploadFiles",
               fileName: file.name,
               contentType: file.type,
-              folderPath: "myfolder",
               size: file.size,
               parentId: parentNode?.id,
               parentNamePath: parentNode?.namePath,
               parentPath: parentNode?.path,
             }),
+            signal: tempFile.controller.signal,
           });
+          updateFileStatus(tempFile, "gotPSU", 0);
           const responseObj = await response.json();
-          const { url, fields } = responseObj;
-
-          if (fields.key) {
-            fileId = fields.key.split("/")[1];
-          }
+          const { url, fields, fileIdResponse } = responseObj;
+          fileId = fileIdResponse;
+          // if (fields.key) {
+          //   fileId = fileIdResponse;
+          // }
           if (response.ok) {
-            console.log("GOOOD 124");
             goodPsuResponse = true;
           } else {
-            console.log("BADD 129");
+            const errorMessage = responseObj.message;
+            if (errorMessage && errorMessage.includes("Out of storage")) {
+              toast.error(responseObj.message || "Upload failed", { duration: 3000 });
+            }
             throw new Error(responseObj.message || "Upload failed");
           }
 
@@ -144,14 +156,11 @@ export const UploadFilesModal = () => {
           const uploadResponse = await fetch(url, {
             method: "POST",
             body: formData,
-            signal: tempFile.controller.signal,
           });
 
           if (!uploadResponse.ok) throw new Error(`File upload to storage failed.`);
 
-          updateFileStatus(singleFileObj, "uploaded", index);
-
-          const data = await updateStatus(fileId);
+          const data = await updateRegularFileStatus(fileId);
 
           if (!data.success) throw new Error(data.error || "Status update failed");
 
@@ -167,17 +176,18 @@ export const UploadFilesModal = () => {
               createdFile.uploadedByUserId,
               createdFile.uploadedByName,
               createdFile.type || "",
-              createdFile.size,
+              BigInt(createdFile.size),
             );
           }
+          updateFileStatus(singleFileObj, "uploaded", index);
+          numFilesSuccessfullyUploaded += 1;
           return BigInt(file.size); // Return the file size on successful upload
         } catch (error) {
-          console.error("Upload or status update failed for file", index, error);
+          errorOccurred = true;
+          // console.error("Upload or status update failed for file", index, error);
           const errorMessage = error as any;
           const errorMessageStr = errorMessage.toString();
-          if (goodPsuResponse) {
-            decrementUsedFileStorage(fileId);
-          }
+          console.log(errorMessageStr);
           if (errorMessageStr.includes("signal is aborted") || errorMessageStr.includes("The user aborted a request")) {
             updateFileStatus(singleFileObj, "canceled", index);
           } else {
@@ -193,11 +203,22 @@ export const UploadFilesModal = () => {
       const totalUploadedSize = sizes.reduce((acc, size) => acc + size, BigInt(0));
 
       if (totalUploadedSize > 0) {
-        const currentUsedUploadedSize = BigInt(folderStore.usedFileStorage);
-        folderStore.setUsedFileStorage(currentUsedUploadedSize + totalUploadedSize);
+        const currentUsedUploadedSize = BigInt(folderStore.sumOfAllSuccessFilesSizes);
+        folderStore.setSumOfAllSuccessFilesSizes(currentUsedUploadedSize + totalUploadedSize);
       }
     } catch (error) {
+      errorOccurred = false;
       console.error("An unexpected error occurred:", error);
+    }
+    // if (errorOccurred) {
+    //   await deleteNotUploadedFilesAndDecrement();
+    // }
+    if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
+      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
+      await createNotification({
+        text: `An external user, whom you granted a temporary access code with "${currentUser?.role}" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
+        type: "ACCESS_CODE",
+      });
     }
 
     setIsLoading(false);
@@ -209,8 +230,10 @@ export const UploadFilesModal = () => {
 
   const cancelUpload = (fileObj: FileWithStatus) => {
     fileObj.controller.abort(); // Abort the request for this specific file
+    // updateFileStatus(fileObj, "canceled", 0);
+
     // Update the file's status to reflect the cancellation, if necessary
-    console.log("IN HERE");
+    // console.log("IN HERE");
     // updateFileStatus(fileObj, "canceled", -1);
   };
 
@@ -248,7 +271,7 @@ export const UploadFilesModal = () => {
             </AlertDialogTitle>
           )}
 
-          <Dropzone onChange={setFiles} className="w-full" fileExtension="pdf" />
+          <Dropzone onChangeMulti={setFiles} className="w-full" />
         </AlertDialogHeader>
 
         {/* Scrollable File List */}
@@ -272,9 +295,9 @@ export const UploadFilesModal = () => {
               <div key={index} className="px-4">
                 {/* {isPreviousBatch && <Separator />} */}
                 <div className="flex items-center text-muted-foreground overflow-hidden">
-                  {fileObj.status === "uploading" && (
+                  {(fileObj.status === "uploading" || fileObj.status === "gotPSU") && (
                     <div className="flex-shrink-0 pr-2">
-                      <Spinner size="default" defaultLoader={false} />
+                      <Spinner size="default" loaderType={"loader2"} />
                     </div>
                   )}
                   {(fileObj.status === "error" || fileObj.status === "canceled") && (
@@ -299,7 +322,7 @@ export const UploadFilesModal = () => {
                     >
                       {fileObj.file.name}
                     </p>
-                    <span className="flex-shrink-0 pl-2">({formatFileSize(fileObj.file.size)})</span>
+                    <span className="flex-shrink-0 pl-2">({formatFileSize(BigInt(fileObj.file.size))})</span>
                   </div>
                   {!fileObj.status && (
                     <div role="button" className="flex-shrink-0 pl-2" onClick={() => handleRemoveFile(fileObj.file)}>

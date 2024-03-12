@@ -1,23 +1,24 @@
-import { Unit, PatientAddress, DosageHistory } from "@prisma/client";
+import { Unit, PatientAddress, DosageHistory, UserRole, Plan } from "@prisma/client";
 
 export type PatientDemographicsType = {
   imageUrl: string;
   email: string;
   firstName: string;
   lastName: string;
-  gender?: string | null;
-  dateOfBirth?: string | null;
-  maritalStatus?: string | null;
-  race?: string | null;
-  mobilePhone?: string | null;
-  homePhone?: string | null;
-  height?: string | null;
-  weight?: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  maritalStatus: string | null;
+  race: string | null;
+  mobilePhone: string | null;
+  homePhone: string | null;
+  height: string | null;
+  weight: string | null;
   unit: Unit;
-  insuranceProvider?: string | null;
-  policyNumber?: string | null;
+  insuranceProvider: string | null;
+  policyNumber: string | null;
   groupNumber?: string | null;
   addresses: PatientAddress[] | any;
+  insuranceImagesSet: boolean;
 };
 
 export type PatientDemographicsContactType = {
@@ -38,8 +39,8 @@ export type MedicationType = {
   dosage: string;
   dosageUnits: string;
   frequency: string;
-  description?: string | null;
-  status: string;
+  description?: string;
+  status: "inactive" | "active";
   createdAt: Date;
   updatedAt: Date;
   dosageHistory: DosageHistory[];
@@ -62,3 +63,21 @@ export type PartialDosageHistoryType = {
   dosageUnits: string;
   frequency: string;
 };
+
+export type genericPatientAccessCodeType = {
+  id: string;
+  accessType?: UserRole;
+  token: string;
+  expires: Date;
+  isValid: boolean;
+  providerEmail?: string;
+  createdAt: Date;
+};
+
+export type patientForManageAccountType = {
+  firstName: string;
+  lastName: string;
+  plan: Plan;
+};
+
+export type accessCodeType = "patientProfileAccessCode" | "requestRecordsCode";

@@ -5,7 +5,7 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 // import Viewer from "react-viewer";
 import Image from "next/image";
 import { ImageViewer } from "./image-viewer";
-import { Spinner } from "@/components/spinner";
+import { Spinner } from "@/components/loading/spinner";
 import { useFolderStore } from "../hooks/use-folders";
 import { isLinkExpired, isViewableFile, cn } from "@/lib/utils";
 import { getPresignedUrl } from "../../actions/get-file-psu";
@@ -33,24 +33,21 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
 
   useEffect(() => {
     const checkAndRefreshLink = async () => {
-      console.log("IN HERE 33");
       if (isLinkExpired(fileSrc) && !attemptedRefresh && isMounted) {
         setAttemptedRefresh(true); // Mark that an attempt was made
         try {
-          console.log("IN HERE 37");
           const response = await getPresignedUrl(fileId);
           const newSrc = response?.presignedUrl;
           if (!newSrc) {
             setErrorMessage("Something went wrong");
           } else if (isLinkExpired(newSrc)) {
-            console.log("IN 43");
             setErrorMessage("The link has expired. Please try accessing the document again.");
           } else {
             console.log("46");
             setFileSrc(newSrc);
           }
         } catch (error) {
-          console.error(error);
+          // console.error(error);
           setErrorMessage("Something went wrong");
         }
       }

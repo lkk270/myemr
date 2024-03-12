@@ -74,7 +74,7 @@ export const columns: ColumnDef<any>[] = [
     header: ({ column }) => <DataTableColumnHeader className="justify-end" column={column} title="Size" />,
     cell: ({ row }) => {
       const size = row.original.size;
-      const label = size ? formatFileSize(size) : "";
+      const label = size ? formatFileSize(BigInt(size)) : "";
       return (
         <div className="flex space-x-2 justify-end pr-[18px]">
           <span className="truncate font-medium">{label}</span>

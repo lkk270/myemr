@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/button";
 
+import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import Link from "next/link";
 
 export const Footer = () => {
   return (
@@ -9,12 +10,16 @@ export const Footer = () => {
 
       <div className="ml-auto w-full justify-end flex items-center gap-x-1 text-muted-foreground">
         <span className="text-sm">myemr © 2024</span>
-        <Button variant="ghost" size="sm">
-          Privacy
-        </Button>
-        <Button variant="ghost" size="sm">
-          Terms
-        </Button>
+        <Link href="/privacy">
+          <Button variant="ghost" size="sm">
+            Privacy
+          </Button>
+        </Link>
+        <Link href="/terms">
+          <Button variant="ghost" size="sm">
+            Terms
+          </Button>
+        </Link>
       </div>
     </div>
   );

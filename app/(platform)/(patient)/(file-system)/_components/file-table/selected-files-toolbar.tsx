@@ -14,7 +14,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useFolderStore } from "../hooks/use-folders";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { useState } from "react";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 interface SelectedFilesToolbarProps<TData> {
   table: Table<TData>;
@@ -30,6 +30,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
   const deleteModal = useDeleteModal();
   const downloadModal = useDownloadModal();
   const foldersStore = useFolderStore();
+  const currentUserPermissions = useCurrentUserPermissions();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows as any;
 
@@ -42,18 +43,20 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
     isFile: obj.original.isFile,
     isRoot: obj.original.isRoot,
     size: obj.original.size,
+    restricted: obj.original.restricted,
   }));
   const numRowsSelected = cleanedRows.length;
-  // const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
-  // const allAreFiles = cleanedRows.every((obj: any) => obj.isFile === true);
+  const hasFile = cleanedRows.some((obj: any) => obj.isFile === true);
+  const allAreFiles = cleanedRows.every((obj: any) => obj.isFile === true);
   // const allAreFolders = cleanedRows.every((obj: any) => !obj.isFile);
   const allAreRootNodes = cleanedRows.every((obj: any) => obj.isRoot === true);
   const allAreNotRootNodes = cleanedRows.every((obj: any) => !obj.isRoot);
   const inTrash = cleanedRows.some((obj: any) => obj.namePath.startsWith("/Trash"));
+  const hasUnrestrictedNode = cleanedRows.some((obj: any) => !obj.restricted);
 
   let totalSize = cleanedRows.reduce((acc, obj) => {
-    return acc + (obj.size || 0);
-  }, 0);
+    return acc + (obj.size || 0n);
+  }, 0n);
 
   if (numRowsSelected === 0) {
     return null;
@@ -67,7 +70,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           return;
         }
         moveModal.onOpen(cleanedRows);
-        table.resetRowSelection(true);
+        // table.resetRowSelection(true);
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
@@ -127,9 +130,9 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           return;
         }
         inTrash ? deleteModal.onOpen(cleanedRows, false) : trashModal.onOpen(cleanedRows);
-        if (!inTrash) {
-          table.resetRowSelection(true);
-        }
+        // if (!inTrash) {
+        //   table.resetRowSelection(true);
+        // }
       }}
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
@@ -161,6 +164,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
         if (isLoading) {
           return;
         }
+        setIsLoading(true);
         for (const restoreNode of cleanedRows) {
           const promise = axios
             .post("/api/patient-update", {
@@ -168,11 +172,13 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
               updateType: "restoreRootFolder",
             })
             .then(({ data }) => {
+              setIsLoading(false);
               foldersStore.restoreRootNode([restoreNode.id]);
-              table.resetRowSelection(true);
+              // table.resetRowSelection(true);
               // Success handling
             })
             .catch((error) => {
+              setIsLoading(false);
               // Error handling
               throw error; // Rethrow to allow the toast to catch it
             });
@@ -187,6 +193,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
           try {
             await promise; // Wait for the current promise to resolve or reject
           } catch (error) {
+            setIsLoading(false);
             // Error handling if needed
           }
         }
@@ -202,26 +209,35 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
     <div className="px-1 flex items-center z-[999999] h-10 p-0.5 fixed bottom-10 rounded-lg shadow-lg dark:bg-[#303030] bg-[#292929] text-[#f6f6f6] text-sm">
       <div className="flex flex-row px-1 gap-x-2 border-r border-[#434343] pr-2">
         <span>{numRowsSelected} selected</span>
-        {totalSize > 0 && <span className="text-[#9d9d9d]">{formatFileSize(totalSize)}</span>}
+        {totalSize > 0 && (
+          <span className="text-[#9d9d9d]">
+            {formatFileSize(BigInt(totalSize))}
+            {hasFile && !allAreFiles && cleanedRows.length > 1 && "+"}
+          </span>
+        )}
       </div>
       {/* 1 file or 1 folder selected */}
 
       {numRowsSelected === 1 && (
         <div className="flex flex-row">
-          {!allAreRootNodes && !inTrash && renameButton}
-          {allAreRootNodes ? restoreRootFolder : moveButton}
-          {!cleanedRows[0].isFile && !inTrash && addSubfolderButton}
-          {exportButton}
-          {trashButton}
+          {!allAreRootNodes && !inTrash && currentUserPermissions.canEdit && renameButton}
+          {allAreRootNodes && currentUserPermissions.isPatient
+            ? restoreRootFolder
+            : currentUserPermissions.canEdit && moveButton}
+          {!cleanedRows[0].isFile && !inTrash && currentUserPermissions.canAdd && addSubfolderButton}
+          {hasUnrestrictedNode && exportButton}
+          {currentUserPermissions.isPatient && trashButton}
         </div>
       )}
 
       {/* more than one row selected*/}
       {numRowsSelected > 1 && (
         <div className="flex flex-row">
-          {allAreRootNodes ? restoreRootFolder : allAreNotRootNodes && moveButton}
-          {exportButton}
-          {trashButton}
+          {allAreRootNodes && currentUserPermissions.isPatient
+            ? restoreRootFolder
+            : allAreNotRootNodes && currentUserPermissions.canEdit && moveButton}
+          {hasUnrestrictedNode && exportButton}
+          {currentUserPermissions.isPatient && trashButton}
         </div>
       )}
     </div>

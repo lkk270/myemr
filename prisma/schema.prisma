@@ -44,6 +44,10 @@ enum OrganizationType {
 enum UserRole {
   USER
   ADMIN
+  UPLOAD_FILES_ONLY
+  READ_ONLY
+  READ_AND_ADD
+  FULL_ACCESS
 }
 
 enum UserType {
@@ -74,6 +78,35 @@ enum DoctorPlan {
   PREMIUM_2
 }
 
+enum Plan {
+  PATIENT_FREE
+  PATIENT_PREMIUM_1
+  PATIENT_PREMIUM_2
+  PROVIDER_FREE
+  PROVIDER_PREMIUM_1
+  PROVIDER_PREMIUM_2
+}
+
+enum InsuranceSide {
+  FRONT
+  BACK
+}
+
+enum AccessCodeValidTime {
+  MINUTE_30
+  HOUR_1
+  HOUR_12
+  DAY_1
+  WEEK_1
+}
+
+enum AccessCodeType {
+  UPLOAD_FILES_ONLY
+  READ_ONLY
+  READ_AND_ADD
+  FULL_ACCESS
+}
+
 model PatientAddress {
   id       String  @id @default(uuid())
   address  String
@@ -83,7 +116,7 @@ model PatientAddress {
   zipcode  String
 
   patientProfileId String
-  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,7 +169,7 @@ model Medication {
 
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   patientProfileId String
 
   @@unique([patientProfileId, name])
@@ -183,9 +216,9 @@ model RecordViewActivity {
   userId       String
   fileId       String?  @unique
   folderId     String?  @unique
-  user         User     @relation(fields: [userId], references: [id])
-  file         File?    @relation(fields: [fileId], references: [id])
-  folder       Folder?  @relation(fields: [folderId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file         File?    @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  folder       Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
 
   @@unique([userId, fileId])
   @@unique([userId, folderId])
@@ -194,8 +227,8 @@ model RecordViewActivity {
 model Folder {
   id            String   @id @default(cuid())
   name          String
-  path          String   @default("/")
-  namePath      String
+  path          String   @db.LongText
+  namePath      String   @db.LongText
   isFile        Boolean  @default(false)
   isRoot        Boolean  @default(false)
   addedByUserId String?
@@ -210,49 +243,77 @@ model Folder {
 
   userId           String
   patientProfileId String
-  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, namePath])
+  // @@unique([userId, namePath])
   @@index([parentId])
   @@index([patientProfileId])
 }
 
-model File {
-  id               String     @id @default(cuid())
-  name             String
-  isFile           Boolean    @default(true)
-  path             String
-  namePath         String
-  parentId         String
+model InsuranceFile {
+  id               String         @id @default(cuid())
+  side             InsuranceSide
   uploadedByUserId String?
-  uploadedByName   String     @default("Charli Dog")
-  type             String?
-  size             Int
-  status           FileStatus @default(NOT_UPLOADED)
+  uploadedByName   String         @default("Charli Dog")
+  type             String
+  size             BigInt
+  status           FileStatus     @default(NOT_UPLOADED)
+  userId           String
+  patientProfileId String
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([side, userId])
+  @@unique([side, patientProfileId])
+  @@index([patientProfileId])
+}
+
+model File {
+  id                 String               @id @default(cuid())
+  name               String
+  isFile             Boolean              @default(true)
+  path               String               @db.LongText
+  namePath           String               @db.LongText
+  parentId           String
+  uploadedByUserId   String?
+  uploadedByName     String               @default("Charli Dog")
+  type               String?
+  size               BigInt
+  status             FileStatus           @default(NOT_UPLOADED)
+  restricted         Boolean              @default(false)
   folder             Folder               @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   recordViewActivity RecordViewActivity[]
 
   userId           String //of which patient files are for
   patientProfileId String
-  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
+  PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt                     DateTime                  @default(now())
+  updatedAt                     DateTime                  @updatedAt
+  requestRecordsCode            RequestRecordsCode?       @relation(fields: [requestRecordsCodeToken], references: [token])
+  requestRecordsCodeToken       String?
+  patientProfileAccessCode      PatientProfileAccessCode? @relation(fields: [patientProfileAccessCodeToken], references: [token])
+  patientProfileAccessCodeToken String?
 
   @@index([parentId])
   @@index([patientProfileId])
+  @@index([requestRecordsCodeToken])
+  @@index([patientProfileAccessCodeToken])
 }
 
 model DeadFile {
-  id               String @id @default(cuid())
+  id               String   @id @default(cuid())
   awsKey           String
   userId           String
   patientProfileId String
-  size             Int
+  size             BigInt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // model ProviderProfile {
@@ -321,73 +382,75 @@ model User {
   providerProfile    ProviderProfile?
   accountType        AccountType          @default(OAUTH)
   recordViewActivity RecordViewActivity[]
+  scheduledToDelete  Boolean              @default(false)
 
   accounts                Account[]
   isTwoFactorEnabled      Boolean                @default(false)
   twoFactorConfirmation   TwoFactorConfirmation?
   twoFactorConfirmationId String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   // @@index([twoFactorConfirmationId])
+  userSubscription UserSubscription?
+  notifications    Notification[]
 
   @@unique([email, type])
 }
 
 model PatientProfile {
-  id                String      @id @default(cuid())
-  userId            String      @unique
-  firstName         String
-  lastName          String
-  email             String      @unique
-  imageUrl          String?
-  gender            String?
-  dateOfBirth       String?
-  maritalStatus     String?
-  race              String?
-  height            String?
-  weight            String?
-  allergies         String?
-  unit              Unit        @default(IMPERIAL)
-  mobilePhone       String?
-  homePhone         String?
-  insuranceProvider String?
-  policyNumber      String?
-  groupNumber       String?
-  publicKey         String      @db.Text
-  privateKey        String      @db.Text
-  symmetricKey      String      @db.Text
-  plan              PatientPlan @default(FREE)
-  usedFileStorage   BigInt      @default(0)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  member      Member[]
-  addresses   PatientAddress[]
-  medications Medication[]
-  folders     Folder[]
-  files       File[]
+  id                          String           @id @default(cuid())
+  userId                      String           @unique
+  firstName                   String
+  lastName                    String
+  email                       String           @unique
+  imageUrl                    String?
+  gender                      String?
+  dateOfBirth                 String?
+  maritalStatus               String?
+  race                        String?
+  height                      String?
+  weight                      String?
+  allergies                   String?
+  unit                        Unit             @default(IMPERIAL)
+  mobilePhone                 String?
+  homePhone                   String?
+  insuranceImagesSet          Boolean          @default(false)
+  insuranceProvider           String?
+  policyNumber                String?
+  groupNumber                 String?
+  publicKey                   String           @db.Text
+  privateKey                  String           @db.Text
+  symmetricKey                String           @db.Text
+  scheduledToDelete           Boolean          @default(false)
+  user                        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
+  member                      Member[]
+  addresses                   PatientAddress[]
+  medications                 Medication[]
+  folders                     Folder[]
+  files                       File[]
+  InsuranceFile               InsuranceFile[]
 
   @@index([userId])
 }
 
 model ProviderProfile {
-  id            String            @id @default(cuid())
-  userId        String            @unique
-  firstName     String
-  lastName      String
-  email         String            @unique
-  imageUrl      String?
-  publicKey     String            @db.Text
-  privateKey    String            @db.Text
-  plan          DoctorPlan        @default(FREE)
-  organizations Organization[]
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addresses     ProviderAddress[]
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  firstName         String
+  lastName          String
+  email             String            @unique
+  imageUrl          String?
+  publicKey         String            @db.Text
+  privateKey        String            @db.Text
+  scheduledToDelete Boolean           @default(false)
+  organizations     Organization[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses         ProviderAddress[]
 
   @@index([userId])
 }
@@ -449,4 +512,73 @@ model TwoFactorConfirmation {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId])
+}
+
+model PatientProfileAccessCode {
+  id               String              @id @default(cuid())
+  patientProfileId String
+  userId           String
+  validFor         AccessCodeValidTime
+  accessType       UserRole
+  parentFolderId   String?
+  token            String              @unique
+  expires          DateTime
+  isValid          Boolean             @default(true)
+  files            File[]
+  createdAt        DateTime            @default(now())
+}
+
+model RequestRecordsCode {
+  id               String   @id @default(cuid())
+  userId           String
+  providerEmail    String
+  parentFolderId   String
+  patientProfileId String
+  hasUploaded      Boolean  @default(false)
+  token            String   @unique
+  expires          DateTime
+  isValid          Boolean  @default(true)
+  files            File[]
+  createdAt        DateTime @default(now())
+}
+
+model UserSubscription {
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  plan                   Plan
+  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?   @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FailedRestrictFilesUserId {
+  id        String   @id @default(cuid())
+  userId    String
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model FailedAccountDelete {
+  id               String   @id @default(cuid())
+  userId           String
+  patientProfileId String
+  reason           String?
+  createdAt        DateTime @default(now())
+}
+
+model Notification {
+  id     String  @id @default(uuid())
+  userId String
+  text   String
+  read   Boolean @default(false)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

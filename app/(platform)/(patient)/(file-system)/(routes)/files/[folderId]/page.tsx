@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { NodePageHeader } from "../../../_components/node-page-header";
-import { updateRecordViewActivity } from "@/lib/files";
+import { updateRecordViewActivity } from "@/lib/actions/files";
 import { redirect } from "next/navigation";
 
 interface FolderPagePageProps {

@@ -1,14 +1,24 @@
 import * as z from "zod";
 import { UserRole, UserType } from "@prisma/client";
 
+const nonEmptyString = z.string().min(6).or(z.literal(""));
+const transformedString = nonEmptyString.transform((str) => (str === "" ? undefined : str));
+
 export const SettingsSchema = z
   .object({
     isTwoFactorEnabled: z.optional(z.boolean()),
     userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
-    role: z.enum([UserRole.USER, UserRole.ADMIN]),
+    role: z.enum([
+      UserRole.USER,
+      UserRole.ADMIN,
+      UserRole.UPLOAD_FILES_ONLY,
+      UserRole.READ_ONLY,
+      UserRole.READ_AND_ADD,
+      UserRole.FULL_ACCESS,
+    ]),
     email: z.optional(z.string().email()),
-    password: z.optional(z.string().min(6)),
-    newPassword: z.optional(z.string().min(6)),
+    password: transformedString.optional(),
+    newPassword: transformedString.optional(),
   })
   .refine(
     (data) => {
@@ -32,7 +42,7 @@ export const SettingsSchema = z
       return true;
     },
     {
-      message: "Password is required!",
+      message: "Current password is required!",
       path: ["password"],
     },
   );
@@ -76,4 +86,10 @@ export const RegisterSchema = z.object({
     message: "Last name is required",
   }),
   userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
+});
+
+export const AccessPatientWithCodeSchema = z.object({
+  code: z.string().min(1, {
+    message: "Access code is required",
+  }),
 });

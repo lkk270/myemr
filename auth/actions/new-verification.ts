@@ -2,7 +2,7 @@
 
 import prismadb from "@/lib/prismadb";
 import { getUserByEmail } from "@/auth/data/user";
-import { getVerificationTokenByToken } from "@/auth/data/verificiation-token";
+import { getVerificationTokenByToken } from "@/auth/data/verification-token";
 import { UserType } from "@prisma/client";
 
 export const newVerification = async (token: string, userType: UserType) => {

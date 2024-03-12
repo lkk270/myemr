@@ -16,7 +16,8 @@ export type NodeDataType = {
   namePath: string;
   isFile: boolean;
   isRoot?: boolean;
-  size?: number;
+  size?: bigint;
+  restricted?: boolean;
 };
 
 export type NodeData2Type = {
@@ -27,7 +28,7 @@ export type NodeData2Type = {
   isFile: boolean;
   isRoot?: boolean;
   type?: string;
-  size?: number;
+  size?: bigint;
   createdAt: Date;
 };
 
@@ -39,7 +40,7 @@ type SingleLayerNodeBaseType = {
   isFile: boolean;
   parentId?: string | null;
   type?: string;
-  size?: number;
+  size?: bigint;
   isRoot?: boolean;
   createdAt: Date;
   addedByUserId?: string | null;
@@ -64,13 +65,14 @@ export type SingleLayerNodesType2 = {
   parentId?: string | null;
   lastViewedAt?: Date;
   type?: string;
-  size?: number;
+  size?: bigint;
   isRoot?: boolean;
   createdAt?: Date;
   addedByUserId?: string | null;
   addedByName: string;
   userId: string;
   patientProfileId: string;
+  restricted?: boolean;
   updatedAt?: Date;
   children?: undefined | any[];
 };
@@ -85,7 +87,10 @@ export type MenuItemData = {
 
 export type FileWithStatus = {
   file: File;
-  status?: "waiting" | "uploading" | "uploaded" | "error" | "canceled" | null;
+  status?: "waiting" | "uploading" | "uploaded" | "error" | "canceled" | "gotPSU" | null;
   isRetrying?: boolean;
   controller: AbortController;
+  insuranceSide?: "front" | "back";
 };
+
+export type FolderNameType = { name: string; namePath: string };

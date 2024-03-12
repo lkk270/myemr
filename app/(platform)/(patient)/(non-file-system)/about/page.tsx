@@ -62,6 +62,7 @@ const PatientDemographics = async () => {
       groupNumber: true,
       addresses: true,
       symmetricKey: true,
+      insuranceImagesSet: true,
     },
   });
 
@@ -75,9 +76,11 @@ const PatientDemographics = async () => {
   } catch (e) {
     return <div>something went wrong decryption</div>;
   }
+
+  const { symmetricKey, ...safeObject } = decryptedPatientDemographics;
   return (
-    <div className="flex pt-4 px-2 xs:px-10 h-full justify-center">
-      <Demographics patientDemographics={decryptedPatientDemographics} />
+    <div className="flex pt-4 pb-6 px-2 xs:px-10 min-h-[calc(100vh-64px)] justify-center">
+      <Demographics patientDemographics={safeObject} />
     </div>
   );
 };

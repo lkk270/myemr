@@ -17,7 +17,7 @@ import { newPassword } from "@/auth/actions/new-password";
 import { UserType } from "@prisma/client";
 
 interface NewPasswordFormProps {
-  userType: UserType;
+  userType: "PROVIDER" | "PATIENT";
 }
 export const NewPasswordForm = ({ userType }: NewPasswordFormProps) => {
   const searchParams = useSearchParams();

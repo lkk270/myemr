@@ -12,6 +12,7 @@ import _ from "lodash";
 import { useFolderStore } from "../../hooks/use-folders";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 interface FileTreeProps {
   width: number;
@@ -155,6 +156,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
+  const currentUserPermissions = useCurrentUserPermissions();
   const { prevPathnameVar, setPrevPathnameVar, pathnameVar, setPathnameVar } = usePathnameHook();
   // const [nodeIdFromPath, setNodeIdFromPath] = useState<string | null>(null);
 
@@ -252,7 +254,7 @@ const FileTree = ({ width }: FileTreeProps) => {
     if (currentAllSelectedHaveSameParent === false) {
       console.log(currentAllSelectedHaveSameParent);
     }
-    return !draggedNode.parentId || !currentAllSelectedHaveSameParent;
+    return !draggedNode.parentId || !currentAllSelectedHaveSameParent || !currentUserPermissions.canEdit;
   };
   // const customDragPreviewWithTree = (props: any) => customDragPreview(props, treeInstance);
 
@@ -275,21 +277,26 @@ const FileTree = ({ width }: FileTreeProps) => {
       isReorderingInSameFolder ||
       !hoveredNode.id ||
       !allSelectedHaveSameParent ||
+      !currentUserPermissions.canEdit ||
       hoveredNode.namePath === "/Trash"
     );
   };
 
   const onMove = ({ dragIds, parentId, index }: any) => {
-    console.log(parentId);
+    const fromName = treeRef.current.get(dragIds[0]).data.name;
+    const tempParentNode = treeRef.current.get(parentId).data;
+    const targetId = tempParentNode.isFile ? tempParentNode.parentId : parentId;
     setIsLoading(true);
     const originalFolders = _.cloneDeep(folderStore.folders);
-    folderStore.moveNodes(dragIds, parentId);
+    folderStore.moveNodes(dragIds, targetId);
     setContextDisableDrop(true);
     const promise = axios
       .post("/api/patient-update", {
         selectedIds: dragIds,
-        targetId: parentId,
+        targetId: targetId,
         updateType: "moveNode",
+        fromName: fromName,
+        toName: tempParentNode.name,
       })
       .then(({ data }) => {})
       .catch((error) => {
@@ -372,7 +379,13 @@ const FileTree = ({ width }: FileTreeProps) => {
               data={folderStore.folders}
               // initialData={folderStore.folders}
               width={width - 8}
-              height={screenHeight - 180}
+              height={
+                currentUserPermissions.isPatient
+                  ? screenHeight - 180
+                  : currentUserPermissions.showActions
+                  ? screenHeight - 180 + 45
+                  : screenHeight - 180 + 95
+              }
               // rowClassName={"max-w-[200px] w-full"}
               indent={15}
               rowHeight={31}

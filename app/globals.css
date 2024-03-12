@@ -316,3 +316,7 @@ body {
   max-height: 150px;
   overflow-y: scroll;
 } */
+.sigCanvas {
+  width: 100%;
+  height: 100px;
+}

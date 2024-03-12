@@ -9,6 +9,7 @@ import { UserType } from "@prisma/client";
 interface CardWrapperProps {
   children: React.ReactNode;
   headerLabel: string;
+  headerSubtitle?: string;
   backButtonLabel: string;
   backButtonHref: string;
   showSocial?: boolean;
@@ -17,6 +18,7 @@ interface CardWrapperProps {
 export const CardWrapper = ({
   children,
   headerLabel,
+  headerSubtitle,
   backButtonLabel,
   backButtonHref,
   showSocial,
@@ -25,6 +27,7 @@ export const CardWrapper = ({
     <Card className="shadow-md">
       <CardHeader>
         <Header label={headerLabel} />
+        {headerSubtitle && <div className="text-sm text-muted-foreground text-center">{headerSubtitle}</div>}
       </CardHeader>
       <CardContent>{children}</CardContent>
       {showSocial && (
@@ -37,8 +40,17 @@ export const CardWrapper = ({
           <Social userType={backButtonHref.includes("patient") ? UserType.PATIENT : UserType.PROVIDER} />
         </CardFooter>
       )}
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-y-3">
         <BackButton label={backButtonLabel} href={backButtonHref} />
+        {headerLabel.includes("Create") && (
+          <div className="text-xs text-muted-foreground">
+            By creating an account you agree to be bounded by these{" "}
+            <a target="_blank" href="/terms" className="underline">
+              terms
+            </a>
+            .
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

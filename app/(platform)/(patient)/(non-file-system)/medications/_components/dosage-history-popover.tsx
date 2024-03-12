@@ -19,8 +19,10 @@ export const DosageHistoryPopover = ({ dosageHistory }: DosageHistoryPopoverProp
       <PopoverContent className="w-80">
         <div className="grid gap-4">
           <div className="space-y-2">
-            <h4 className="font-medium leading-none">Dosage History</h4>
-            <p className="text-sm text-muted-foreground">Ordered from most to least recent</p>
+            <h4 className="font-medium leading-none text-sm">Dosage History</h4>
+            <p className="text-xs text-muted-foreground">
+              Ordered from most to least recent. The date listed is the date when the corresponding dosage was changed.
+            </p>
           </div>
           <div className="grid gap-2">
             {dosageHistory.map((history, index) => {

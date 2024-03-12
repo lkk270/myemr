@@ -12,20 +12,22 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import { MenuIcon, LucideIcon } from "lucide-react";
+import { navRoutes, tempPatientAccessNavRoutes } from "@/lib/constants";
+import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useCurrentRole } from "@/auth/hooks/use-current-role";
 
-interface GenericNavigationMenuProps {
-  navRoutes: {
-    icon: LucideIcon;
-    href: string;
-    label: string;
-  }[];
-}
+interface GenericNavigationMenuProps {}
 
-export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps) => {
+export const GenericNavigationMenu = ({}: GenericNavigationMenuProps) => {
+  const currentRole = useCurrentRole();
   const pathname = usePathname();
+
+  const routes =
+    currentRole === "FULL_ACCESS" || currentRole === "READ_AND_ADD" || currentRole === "READ_ONLY"
+      ? tempPatientAccessNavRoutes
+      : navRoutes;
 
   return (
     <NavigationMenu>
@@ -36,7 +38,7 @@ export const GenericNavigationMenu = ({ navRoutes }: GenericNavigationMenuProps)
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 grid-cols-2 w-[215px]">
-              {navRoutes.map((route, index) => (
+              {routes.map((route, index) => (
                 <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>
                   <div
                     className={cn(

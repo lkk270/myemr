@@ -9,7 +9,7 @@ import { SettingsSchema } from "@/auth/schemas";
 import { getUserByEmail, getUserById } from "@/auth/data/user";
 import { currentUser } from "@/auth/lib/auth";
 import { generateVerificationToken } from "@/auth/lib/tokens";
-import { sendVerificationEmail } from "@/auth/lib/mail";
+import { sendVerificationEmail } from "@/auth/lib/mail/mail";
 import { UserType } from "@prisma/client";
 
 export const settings = async (values: z.infer<typeof SettingsSchema>) => {

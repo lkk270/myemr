@@ -1,7 +1,9 @@
 import { useCallback } from "react";
-import { getPresignedUrl, getPresignedUrls } from "../../actions/get-file-psu";
+import { getPresignedUrl, getPresignedUrls, getPresignedInsuranceUrl } from "../../actions/get-file-psu";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { toast } from "sonner";
+import { InsuranceSide } from "@prisma/client";
 
 function isNotNull<T>(value: T | null): value is T {
   return value !== null;
@@ -10,13 +12,16 @@ function isNotNull<T>(value: T | null): value is T {
 export const useDownloadFile = () => {
   // const { isLoading, setIsLoading } = useIsLoading();
 
-  const downloadFile = useCallback(async (fileId: string) => {
+  const downloadFile = useCallback(async (fileId: string, forInsurance = false) => {
     // if (isLoading) return;
     // setIsLoading(true);
     // Call your API endpoint to get the presigned URL
-    const data = await getPresignedUrl(fileId, true);
+    console.log(fileId);
+    const data = forInsurance
+      ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true)
+      : await getPresignedUrl(fileId, true);
     if (!data.presignedUrl) {
-      console.error("Failed to get the presigned URL");
+      toast.error("Something went wrong", { duration: 2500 });
       return;
     }
 
@@ -47,19 +52,21 @@ export const useDownloadZip = () => {
   const downloadZip = useCallback(async (fileIds: string[], parentNamePath: string, parentName: string) => {
     // Example fileIds could be an array of IDs or keys that identify what you want to download
     const filesData = await getPresignedUrls(fileIds, parentNamePath);
-
+    console.log(filesData);
     if (!Array.isArray(filesData)) {
       // Since it's not an array, we now assume it's the error object - handle the error
       console.error(filesData.error || "An unknown error occurred");
+      toast.error("Something went wrong", { duration: 2500 });
       return;
     } else if (filesData.length === 0) {
       // It's an array but it's empty - handle this case as needed
-      console.error("No files found");
+      toast.error("No files found", { duration: 2500 });
+
       return;
     }
     const zip = new JSZip();
     const filteredFilesData = filesData.filter(isNotNull);
-
+    console.log(filteredFilesData);
     // Load files and add them to the zip with their full paths
     const filePromises = filteredFilesData.map(async ({ presignedUrl, path }) => {
       try {
@@ -68,7 +75,9 @@ export const useDownloadZip = () => {
         // Add the file to the zip, using `path` for the folder structure
         zip.file(path, blob, { binary: true });
       } catch (error) {
-        console.error("Error downloading or adding file to zip:", error);
+        toast.error("Error downloading or adding file to zip", { duration: 2500 });
+
+        // console.error("Error downloading or adding file to zip:", error);
         // Consider how you want to handle errors for individual files
       }
     });

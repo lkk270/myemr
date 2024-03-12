@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,12 +19,12 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import { cn } from "@/lib/utils";
+import { cn, getNodeHref } from "@/lib/utils";
 import { SelectedFilesToolbar } from "../../app/(platform)/(patient)/(file-system)/_components/file-table/selected-files-toolbar";
-
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { toast } from "sonner";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -49,10 +49,11 @@ export function DataTable<TData, TValue>({
   isLink = false,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(hiddenColumns);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const currentUserPermissions = useCurrentUserPermissions();
+  const [rowSelection, setRowSelection] = useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(hiddenColumns);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data,
     columns,
@@ -75,10 +76,9 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  const getHref = (row: any) => {
-    const rowId = row.id;
-    return row.isFile ? `/file/${rowId}` : `/files/${rowId}`;
-  };
+  useEffect(() => {
+    table.resetRowSelection(true);
+  }, [data]);
 
   return (
     <>
@@ -114,29 +114,48 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ) : data.length > 0 ? (
                 // When there are rows, render them
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    className="hover:cursor-pointer"
-                    onClick={() => {
-                      if (onOpen) {
-                        onOpen(row.original, true);
-                      }
-                    }}
-                    onDoubleClick={() => {
-                      if (isLink) {
-                        router.push(getHref(row.original));
-                      }
-                    }}
-                    key={row.id}
-                    data-state={row.getIsSelected() ? "selected" : undefined}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell className="max-w-[325px]" key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  // Declare rowOriginal here
+                  const rowOriginal = row.original as any;
+
+                  // Now return your JSX
+                  return (
+                    <TableRow
+                      className={cn(
+                        rowOriginal.restricted
+                          ? "opacity-40 cursor-not-allowed hover:bg-transparent"
+                          : "cursor-pointer",
+                      )}
+                      onClick={() => {
+                        if (onOpen) {
+                          onOpen(row.original, true);
+                        }
+                      }}
+                      onDoubleClick={() => {
+                        if (isLink && rowOriginal.restricted) {
+                          toast.warning(
+                            "You are out of storage, so this file is hidden. Please upgrade your plan to access it.",
+                            {
+                              duration: 3500,
+                            },
+                          );
+                        } else if (isLink && !rowOriginal.restricted) {
+                          router.push(
+                            getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id),
+                          );
+                        }
+                      }}
+                      key={row.id}
+                      data-state={row.getIsSelected() ? "selected" : undefined}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell className="max-w-[325px]" key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })
               ) : (
                 // When rows are empty, display "No results."
                 <TableRow>

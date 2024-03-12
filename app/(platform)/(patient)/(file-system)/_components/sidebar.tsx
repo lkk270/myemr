@@ -1,11 +1,10 @@
 "use client";
 
 import { ChevronsLeft } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { ElementRef, useEffect, useRef, useState } from "react";
+import { ElementRef, useEffect, useRef, useState, useTransition } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Logo } from "@/components/logo";
-import { cn } from "@/lib/utils";
+import { addLastViewedAtAndSort, cn, extractNodes, sortFolderChildren, sortRootNodes } from "@/lib/utils";
 import { useFolderStore } from "../_components/hooks/use-folders";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { Navbar } from "./navbar";
@@ -13,17 +12,28 @@ import FileTree from "./file-tree/_components/tree";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { NewRootFolderBox } from "./new-root-folder-box";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { getAccessPatientCodeByToken } from "@/auth/data";
+import { useSession } from "next-auth/react";
+import { logout } from "@/auth/actions/logout";
+import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
+import { allotedStoragesInGb } from "@/lib/constants";
+import { usePathname, useSearchParams } from "next/navigation";
+import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 
 interface SidebarProps {
   data: any[];
   singleLayerNodes: SingleLayerNodesType2[];
-  usedFileStorage: bigint;
-  allotedStorageInGb: number;
+  sumOfAllSuccessFilesSizes: bigint;
+  numOfUnreadNotifications?: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorageInGb }: SidebarProps) => {
+export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, numOfUnreadNotifications = 0 }: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
+
+  const searchParams = useSearchParams();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -31,16 +41,30 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
-  // const usedFileStorageInGb = Number(usedFileStorage) / 1000000000;
-  // let usedFileStoragePercentage = (100 * usedFileStorageInGb) / allotedStorageInGb;
-
+  const currentUserPermissions = useCurrentUserPermissions();
+  const session = useSession();
+  const plan = session?.data?.user?.plan;
+  const { onOpen } = usePatientManageAccountModal();
+  const allotedStorageInGb = !!session && !!session.data ? allotedStoragesInGb[session.data.user.plan] : 1;
   useEffect(() => {
     setIsMounted(true);
-    console.log(data);
+    // console.log(data);
     // console.log(singleLayerNodes);
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
-    folderStore.setUsedFileStorage(usedFileStorage);
+    folderStore.setSumOfAllSuccessFilesSizes(sumOfAllSuccessFilesSizes);
+  }, []);
+
+  useEffect(() => {
+    const checkValidCode = async () => {
+      if (!currentUserPermissions.isPatient) {
+        const code = await getAccessPatientCodeByToken(session?.data?.tempToken);
+        if (!code) {
+          logout();
+        }
+      }
+    };
+    checkValidCode();
   }, []);
 
   useEffect(() => {
@@ -56,6 +80,38 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
       collapse();
     }
   }, [pathname, isMobile]);
+
+  useEffect(() => {
+    const fetchFiles = () => {
+      startTransition(() => {
+        const userId = session?.data?.user.id;
+        if (!userId) return;
+        fetchAllFoldersForPatient(null, userId)
+          .then((data) => {
+            if (!!data) {
+              const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));
+              const sortedFolders = sortRootNodes(sortedFoldersTemp);
+
+              let rawAllNodes = extractNodes(data);
+              const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
+              const allNodesArray = Array.from(allNodesMap.values());
+
+              const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
+
+              folderStore.setFolders(sortedFolders);
+              folderStore.setSingleLayerNodes(singleLayerNodes);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    };
+    if (searchParams.get("manage-account-billing-plan") === "refresh") {
+      fetchFiles();
+    }
+  }, [searchParams]);
+
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -133,19 +189,34 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
           </div>
 
           <FileTree width={sidebarWidth} />
-          <div className="flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10">
-            <NewRootFolderBox />
-            <Separator />
-            <div role="button" className="flex flex-col gap-y-1">
-              <Progress className="h-1" value={Number(folderStore.usedFileStorage) / (10000000 * allotedStorageInGb)} />
-              <div className="flex flex-row justify-between text-xs font-light ">
-                <span className="italic">{`${formatStorageValue(
-                  folderStore.usedFileStorage,
-                )} Gb / ${allotedStorageInGb} Gb`}</span>
+          <div
+            className={cn(
+              currentUserPermissions.showActions && "flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10",
+            )}
+          >
+            {currentUserPermissions.showActions && <NewRootFolderBox />}
+            {currentUserPermissions.isPatient && (
+              <>
+                <Separator />
+                <div role="button" className="flex flex-col gap-y-1">
+                  <Progress
+                    className="h-1"
+                    value={Number(folderStore.sumOfAllSuccessFilesSizes) / (10_000_000 * allotedStorageInGb)}
+                  />
+                  <div className="flex flex-row justify-between text-xs font-light ">
+                    <span className="italic">{`${formatStorageValue(
+                      folderStore.sumOfAllSuccessFilesSizes,
+                    )} Gb / ${allotedStorageInGb} Gb`}</span>
 
-                <span role="button">Upgrade</span>
-              </div>
-            </div>
+                    {plan && !plan.includes("_PREMIUM_2") && (
+                      <span role="button" onClick={() => onOpen("billing-plan")}>
+                        Upgrade
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           <div
             onMouseDown={handleMouseDown}
@@ -157,12 +228,16 @@ export const Sidebar = ({ data, singleLayerNodes, usedFileStorage, allotedStorag
         <div
           ref={navbarRef}
           className={cn(
-            "absolute top-0 z-[50] left-[300px] w-[calc(100%-300px)]",
+            "bg-[#f8f7f7] dark:bg-[#1f1f1f] absolute top-0 z-[50] left-[300px] w-[calc(100%-300px)]",
             isResetting && "transition-all ease-in-out duration-300",
             isMobile && "left-0 w-full",
           )}
         >
-          <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
+          <Navbar
+            isCollapsed={isCollapsed}
+            onResetWidth={resetWidth}
+            numOfUnreadNotifications={numOfUnreadNotifications}
+          />
         </div>
       </>
     )

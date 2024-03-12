@@ -20,9 +20,11 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { cn } from "@/lib/utils";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const MoveModal = () => {
   const moveModal = useMoveModal();
+  const currentUserPermissions = useCurrentUserPermissions();
   const moveNodes = moveModal.nodeDatas;
   const firstMoveNode = moveNodes ? moveNodes[0] : null;
   const foldersStore = useFolderStore();
@@ -36,38 +38,42 @@ export const MoveModal = () => {
   }, []);
 
   const onSelect = async (id: string) => {
-    if (isLoading) return;
+    if (isLoading || !currentUserPermissions.canEdit) return;
     if (moveNodes) {
-      setIsLoading(true);
-      for (const moveNode of moveNodes) {
-        const promise = axios
-          .post("/api/patient-update", {
-            selectedIds: [moveNode.id],
-            targetId: id,
-            updateType: "moveNode",
-          })
-          .then(({ data }) => {
-            foldersStore.moveNodes([moveNode.id], id);
-            // Success handling
-          })
-          .catch((error) => {
-            // Error handling
-            throw error; // Rethrow to allow the toast to catch it
-          });
+      const moveNodesIds = moveNodes.map((obj) => obj.id);
 
-        toast.promise(promise, {
-          loading: "Moving node",
-          success: "Changes saved successfully",
-          error: "Something went wrong",
-          duration: 1250,
+      setIsLoading(true);
+
+      const promise = axios
+        .post("/api/patient-update", {
+          selectedIds: moveNodesIds,
+          targetId: id,
+          updateType: "moveNode",
+          fromName: moveNodes[0].name,
+          toName: parentFolder?.name,
+        })
+        .then(({ data }) => {
+          foldersStore.moveNodes(moveNodesIds, id);
+          // Success handling
+        })
+        .catch((error) => {
+          // Error handling
+          throw error; // Rethrow to allow the toast to catch it
         });
 
-        try {
-          await promise; // Wait for the current promise to resolve or reject
-        } catch (error) {
-          // Error handling if needed
-        }
+      toast.promise(promise, {
+        loading: moveNodesIds.length === 1 ? "Moving node" : "Moving nodes",
+        success: "Changes saved successfully",
+        error: "Something went wrong",
+        duration: 1250,
+      });
+
+      try {
+        await promise; // Wait for the current promise to resolve or reject
+      } catch (error) {
+        // Error handling if needed
       }
+
       setIsLoading(false);
       moveModal.onClose();
     }
@@ -109,11 +115,12 @@ export const MoveModal = () => {
       {moveNodes.length === 1 ? (
         isMobile ? (
           <div>
-            <span className="pl-3 text-sm text-primary/30 whitespace-normal break-all">{`(${firstMoveNode.name})`}</span>
+            <div className="px-8 pt-1 text-sm text-primary/30 whitespace-normal break-all">{`(${firstMoveNode.name})`}</div>
             <CommandInput placeholder={`Move ${firstMoveNode.isFile ? "file" : "folder"} to...`} />
           </div>
         ) : (
           <CommandInput
+            className={cn(!isMobile && "pr-8 truncate")}
             placeholder={`Move the ${firstMoveNode.isFile ? "file" : "folder"} "${firstMoveNode.name}" to...`}
           />
         )

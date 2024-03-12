@@ -7,7 +7,7 @@ interface PhoneNumberProps {
   number?: string | null;
   disabled?: boolean;
   fieldName: string;
-  handleChange: (name: string, value: any) => void;
+  handleChange: (value: any) => void;
 }
 
 export const PhoneNumber = ({ number = "", disabled = false, handleChange, fieldName }: PhoneNumberProps) => {
@@ -29,7 +29,7 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedNumber = formatPhoneNumber(e.target.value);
     value = formattedNumber;
-    handleChange(fieldName, formattedNumber.replace(/\D/g, "")); // Pass the selected value directly
+    handleChange(formattedNumber.replace(/\D/g, "")); // Pass the selected value directly
   };
 
   return (

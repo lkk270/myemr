@@ -4,17 +4,30 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "./mobile-sidebar";
-import { navRoutes } from "@/lib/constants";
-
+import { navRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@/auth/components/auth/user-button";
+import { UserButton } from "@/components/user-button";
 import Link from "next/link";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { Notifications } from "@/components/notifications";
 // import { Notifications } from "@/components/notifications";
 
-interface NavbarProps {}
+interface NavbarProps {
+  tempAccess?: boolean;
+  numOfUnreadNotifications?: number;
+}
 
-export const Navbar = ({}: NavbarProps) => {
+export const Navbar = ({ tempAccess = false, numOfUnreadNotifications }: NavbarProps) => {
+  const currentUser = useCurrentUser();
+  const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
+
+  const routes = currentUserPermissions.isPatient
+    ? navRoutes
+    : currentUser?.role === "UPLOAD_FILES_ONLY"
+    ? tempPatientUploadAccessNavRoutes
+    : tempPatientAccessNavRoutes;
 
   return (
     <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
@@ -24,7 +37,7 @@ export const Navbar = ({}: NavbarProps) => {
       </div>
       <div className="items-center sm:flex hidden">
         <div className="flex items-center sm:flex gap-x-1 lg:gap-x-4">
-          {navRoutes.map((route, index) => (
+          {routes.map((route, index) => (
             <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>
               <div
                 className={cn(
@@ -43,9 +56,9 @@ export const Navbar = ({}: NavbarProps) => {
       </div>
       <div className="flex items-center">
         <div className="flex items-center sm:flex gap-x-4 justify-center">
-          {/* {typeof userValues.numOfUnreadNotifications === "number" && (
-						<Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
-					)} */}
+          {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
+            <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
+          )}
           <ModeToggle />
           {/* <UserButton afterSignOutUrl="/" /> */}
           <UserButton />

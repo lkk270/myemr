@@ -15,7 +15,7 @@ const domain = process.env.NEXT_PUBLIC_APP_URL;
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
-    to: email.toLowerCase(),
+    to: "leekk270@gmail.com",
     subject: "2FA Code",
     react: TwoFactorConfirmationEmail({ verificationToken: token }),
   });
@@ -27,7 +27,7 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
 export const sendSuccessfullyDeletedAccountEmail = async (email: string, accountType: "Patient" | "Provider") => {
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
-    to: email.toLowerCase(),
+    to: "leekk270@gmail.com",
     subject: `MyEmr ${accountType} Successfully Deleted`,
     react: SuccessfullyDeletedAccountEmail({ email, accountType }),
   });
@@ -41,7 +41,7 @@ export const sendPasswordResetEmail = async (email: string, token: string, userT
 
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
-    to: email.toLowerCase(),
+    to: "leekk270@gmail.com",
     subject: "Reset your password",
     react: MagicLinkEmail({ magicLink: resetLink, type: "passwordReset" }),
   });
@@ -53,10 +53,9 @@ export const sendPasswordResetEmail = async (email: string, token: string, userT
 export const sendVerificationEmail = async (email: string, token: string, userType: UserType) => {
   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
   const confirmLink = `http://localhost:3000/auth/${userType.toLowerCase()}-new-verification?token=${token}`;
-  console.log(confirmLink);
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
-    to: email.toLowerCase(),
+    to: "leekk270@gmail.com",
     subject: "Confirm your email",
     react: MagicLinkEmail({ magicLink: confirmLink, type: "emailConfirmation" }),
   });

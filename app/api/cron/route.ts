@@ -1,23 +1,19 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import {
-  deletePasswordResetTokens,
-  deletePatientProfileAccessCodes,
-  deletePatients,
-  deleteRequestRecordsCodes,
-  deleteTwoFactorTokens,
-  deleteVerificationTokens,
-  restrictFilesCron,
-} from "@/lib/cron";
+import { deletePasswordResetTokens } from "@/lib/cron/delete-password-reset-tokens";
+
+import { deletePatientProfileAccessCodes } from "@/lib/cron/delete-patient-profile-access-codes";
+import { deletePatients } from "@/lib/cron/delete-patients";
+import { deleteRequestRecordsCodes } from "@/lib/cron/delete-request-records-codes";
+import { deleteTwoFactorTokens } from "@/lib/cron/delete-two-factor-tokens";
+import { deleteVerificationTokens } from "@/lib/cron/delete-verification-tokens";
+import { restrictFilesCron } from "@/lib/cron/restrict-files";
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("CRON ROUTE HIT");
     const authHeader = request.headers.get("authorization");
-    console.log(`Bearer ${process.env.CRON_SECRET}`);
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      console.log("IN HERE");
       return new Response("Unauthorized", {
         status: 401,
       });

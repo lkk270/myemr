@@ -19,13 +19,16 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
 import { NavItem } from "./nav-item";
-
+import { OrganizationWithRoleType } from "@/app/types";
+import { useOrganizationStore } from "./hooks/use-organizations";
 interface SidebarProps {
   // data: any[];
   storageKey?: string;
+  organizations: OrganizationWithRoleType[];
 }
-export const Sidebar = ({ storageKey = "myemr-storage-key" }: SidebarProps) => {
+export const Sidebar = ({ storageKey = "myemr-storage-key", organizations }: SidebarProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const { setOrganizations } = useOrganizationStore();
   const pathname = usePathname();
 
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -36,14 +39,6 @@ export const Sidebar = ({ storageKey = "myemr-storage-key" }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
 
-  const organizations = [
-    {
-      id: "abc",
-      slug: "cde",
-      imageUrl: "https://res.cloudinary.com/ddr7l73bu/image/upload/v1708784793/logo_wuhwbw.png",
-      name: "FIRST",
-    },
-  ];
   const [expanded, setExpanded] = useLocalStorage<Record<string, any>>(storageKey, {});
 
   const currentUserPermissions = useCurrentUserPermissions();
@@ -52,6 +47,10 @@ export const Sidebar = ({ storageKey = "myemr-storage-key" }: SidebarProps) => {
 
   useEffect(() => {
     setIsMounted(true);
+    // console.log(data);
+    // console.log(singleLayerNodes);
+    console.log(organizations);
+    setOrganizations(organizations);
   }, []);
 
   useEffect(() => {
@@ -131,8 +130,6 @@ export const Sidebar = ({ storageKey = "myemr-storage-key" }: SidebarProps) => {
     }));
   };
 
-
-
   return (
     isMounted && (
       <>
@@ -159,10 +156,10 @@ export const Sidebar = ({ storageKey = "myemr-storage-key" }: SidebarProps) => {
             </div>
           </div>
 
-          <>
-            <div className="font-medium text-xs flex items-center mb-1">
-              <span className="pl-4">Organizations</span>
-              <Button asChild type="button" size="icon" variant="ghost" className="ml-auto">
+          <div className="px-4">
+            <div className="text-md font-medium flex items-center mb-1">
+              <span>Organizations</span>
+              <Button asChild type="button" size="icon" variant="ghost" className="ml-3">
                 <Link href="/select-org">
                   <Plus className="h-4 w-4" />
                 </Link>
@@ -179,7 +176,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key" }: SidebarProps) => {
                 />
               ))}
             </Accordion>
-          </>
+          </div>
 
           <div
             onMouseDown={handleMouseDown}

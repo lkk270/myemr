@@ -3,6 +3,7 @@ import { Plan } from "@prisma/client";
 // types/index.ts
 export * from "./patient-types";
 export * from "./table-types";
+export * from "./organization-types";
 
 export type EncryptionKeyType =
   | "patientPublicKey"

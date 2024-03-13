@@ -5,13 +5,14 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";
 import { UserButton } from "@/components/user-button";
 import { OrganizationDropdown } from "./organization-dropdown";
-
+import { useOrganizationStore } from "./hooks/use-organizations";
 interface NavbarProps {
   isCollapsed: boolean;
   onResetWidth: () => void;
 }
 
 export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
+  const { organizations } = useOrganizationStore();
   return (
     <>
       <nav className="justify-between px-3 py-4 xs:py-2 w-full flex items-center gap-x-4">
@@ -24,7 +25,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
         <div className="flex items-center px-3"></div>
         <div className="flex items-center">
           <div className="flex items-center sm:flex gap-x-4">
-            <OrganizationDropdown />
+            {organizations.length > 0 && <OrganizationDropdown />}
             <ModeToggle />
             <UserButton />
           </div>

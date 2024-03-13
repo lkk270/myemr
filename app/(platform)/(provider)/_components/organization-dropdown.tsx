@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown, Building2, Mail, MessageSquare, PlusCircle, Users } from "lucide-react";
+import { Dot, ChevronsUpDown, Building2, Users, Activity, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
+  DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuItem,
@@ -17,17 +16,58 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { useOrganizationStore } from "./hooks/use-organizations";
 
+type OrganizationType = {
+  id: string;
+  title: string;
+};
 export const OrganizationDropdown = () => {
-  const organizations = [
-    {
-      id: "abc",
-      slug: "cde",
-      imageUrl: "https://res.cloudinary.com/ddr7l73bu/image/upload/v1708784793/logo_wuhwbw.png",
-      name: "FIRST",
-    },
-  ];
-  const [position, setPosition] = useState("bottom");
+  const { organizations } = useOrganizationStore();
+  const [currentOrganizationId, setCurrentOrganizationId] = useState(organizations[0].id);
+
+  const DropdownMenuSubComponent = ({ id, title }: OrganizationType) => {
+    const routes = [
+      {
+        label: "Patients",
+        icon: <Users className="h-4 w-4 mr-2" />,
+        href: `/organization/${id}/patients`,
+      },
+      {
+        label: "Activity",
+        icon: <Activity className="h-4 w-4 mr-2" />,
+        href: `/organization/${id}/activity`,
+      },
+      {
+        label: "Settings",
+        icon: <Settings className="h-4 w-4 mr-2" />,
+        href: `/organization/${id}/settings`,
+      },
+    ];
+    return (
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <div className="flex flex-row gap-x-3 items-center">
+            <Dot strokeWidth={10} className=" text-[#615cff]" />
+            <div className="truncate w-full">{title}</div>
+          </div>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            {routes.map((route, index) => (
+              <Link href={route.href} key={index}>
+                <DropdownMenuItem>
+                  {route.icon}
+                  <span>{route.label}</span>
+                </DropdownMenuItem>
+              </Link>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
+    );
+  };
 
   return (
     <DropdownMenu>
@@ -37,7 +77,7 @@ export const OrganizationDropdown = () => {
             <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
               <Building2 className="w-5 h-5" />
             </div>
-            <span className="text-left truncate text-sm flex-grow min-w-0">{position}</span>
+            <span className="text-left truncate text-sm flex-grow min-w-0">{organizations[0].title}</span>
           </div>
           <div className="flex-shrink-0">
             <ChevronsUpDown className="w-4 h-4" />
@@ -48,38 +88,19 @@ export const OrganizationDropdown = () => {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Organization</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-          {/* <DropdownMenuRadioItem value="adsfsadfasdfsdfasdfsadfsdfsadfsdfsdfsdfsdf"> */}
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <div className="truncate w-full">first</div>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
+        <DropdownMenuGroup>
+          {organizations.map((organization, index) =>
+            currentOrganizationId === organization.id ? (
+              <DropdownMenuSubComponent id={organization.id} title={organization.title} />
+            ) : (
+              <Link href={`/organization/${organization.id}`} key={index}>
                 <DropdownMenuItem>
-                  <Mail className="mr-2 h-4 w-4" />
-                  <span>Email</span>
+                  <span>{organization.title}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  <span>Message</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  <span>More...</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-          <DropdownMenuRadioItem value="top">
-            <div className="truncate w-full">adsfsadfasdfsdfasdfsadfsdfsadfsdfsdfsdfsdf</div>
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="bottom">
-            <div className="truncate w-full">adsfsadfasdfsdfasdfsadfsdfsadfsdfsdfsdfsdf</div>
-          </DropdownMenuRadioItem>
-          {/* Repeat for other items */}
-        </DropdownMenuRadioGroup>
+              </Link>
+            ),
+          )}
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

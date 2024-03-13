@@ -179,7 +179,6 @@ function checkForExtraneousFields(dataKeys: string[], allowedFields: string[]) {
   return "";
 }
 
-
 export function capitalizeFirstLetter(str: string) {
   if (!str) return str; // Return the original string if it's empty
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -289,13 +288,14 @@ export function isViewableFile(fileType: string) {
   return viewableTypes.includes(fileType);
 }
 
-export function isValidNodeName(fileName: string): boolean {
+export function isValidNodeName(newName: string): boolean {
   // Check if the file name is empty
-  if (!fileName || fileName.trim().length === 0) {
+  const newNameLength = newName.trim().length;
+  if (!newName || newNameLength || newNameLength > 125) {
     return false;
   }
   const invalidChars = /[\/\\?%*:|"<>&]/g;
-  return !invalidChars.test(fileName);
+  return !invalidChars.test(newName);
 }
 
 // Utility function to sort nodes: folders first (alphabetically), then files (alphabetically).

@@ -38,7 +38,7 @@ enum OrganizationRole {
 enum OrganizationType {
   CLINICAL_TRIAL
   CLINIC
-  DOCTOR_OFFICE
+  PRIVATE_PRACTICE
 }
 
 enum UserRole {
@@ -108,7 +108,7 @@ enum AccessCodeType {
 }
 
 model PatientAddress {
-  id       String  @id @default(uuid())
+  id       String  @id @default(cuid())
   address  String
   address2 String?
   city     String
@@ -125,7 +125,7 @@ model PatientAddress {
 }
 
 model ProviderAddress {
-  id       String  @id @default(uuid())
+  id       String  @id @default(cuid())
   address  String
   address2 String?
   city     String
@@ -141,8 +141,25 @@ model ProviderAddress {
   @@index([providerProfileId])
 }
 
+model OrganizationAddress {
+  id       String  @id @default(cuid())
+  address  String
+  address2 String?
+  city     String
+  state    String
+  zipcode  String
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+}
+
 model DosageHistory {
-  id           String     @id @default(uuid())
+  id           String     @id @default(cuid())
   medicationId String
   dosage       String
   dosageUnits  String
@@ -155,7 +172,7 @@ model DosageHistory {
 }
 
 model Medication {
-  id               String          @id @default(uuid())
+  id               String          @id @default(cuid())
   name             String
   prescribedById   String?
   prescribedByName String
@@ -245,12 +262,15 @@ model Folder {
   patientProfileId String
   PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  patientMember   PatientMember? @relation(fields: [patientMemberId], references: [id])
+  patientMemberId String?
 
   // @@unique([userId, namePath])
   @@index([parentId])
   @@index([patientProfileId])
+  @@index([patientMemberId])
 }
 
 model InsuranceFile {
@@ -316,57 +336,85 @@ model DeadFile {
   updatedAt        DateTime @updatedAt
 }
 
-// model ProviderProfile {
-//   id            String         @id @default(uuid())
-//   userId        String         @unique
-//   name          String
-//   imageUrl      String         @db.Text
-//   email         String
-//   publicKey     String         @db.Text
-//   privateKey    String         @db.Text
-//   organizations Organization[]
+model OrganizationTags {
+  id             String       @id @default(cuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   member    Member[]
-// }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-model Organization {
-  id               String           @id @default(uuid())
-  name             String
-  imageUrl         String           @db.Text
-  inviteCode       String           @unique
-  organizationType OrganizationType
-
-  // providerProfileId String
-  // providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
-
-  members Member[]
-
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id])
-  providerProfileId String
-
-  @@index([providerProfileId])
+  @@index([organizationId])
 }
 
-model Member {
-  id   String           @id @default(uuid())
-  role OrganizationRole
+model Organization {
+  id                 String           @id @default(cuid())
+  title              String
+  category           String
+  subTitle           String?          @db.Text
+  desciption         String?          @db.Text
+  backgroundImageUrl String?          @db.Text
+  profileImageUrl    String?          @db.Text
+  acceptMessages     Boolean          @default(false)
+  organizationType   OrganizationType @default(PRIVATE_PRACTICE)
+
+  organizationAddresses OrganizationAddress[]
+  organizationTags      OrganizationTags[]
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  organizationMembers OrganizationMember[]
+}
+
+enum PatientMemberRole {
+  READ_ONLY
+  READ_AND_ADD
+  FULL_ACCESS
+}
+
+model PatientMember {
+  id   String            @id @default(uuid())
+  role PatientMemberRole @default(READ_ONLY)
+
+  providerProfileId String
+  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+
+  patientProfileId          String
+  patientProfile            PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  accessibleRootFolders     Folder[]
+  hasAccessToAllRootFolders Boolean        @default(true)
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+
+  @@index([providerProfileId])
+  @@index([patientProfileId])
+}
+
+enum OrganizationMemberRole {
+  ADMIN
+  OWNER
+  USER
+}
+
+model OrganizationMember {
+  id     String                 @id @default(uuid())
+  role   OrganizationMemberRole @default(USER)
+  userId String
+  user   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  providerProfileId String
+  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
 
   organizationId String
-  Organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id])
-  patientProfileId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // @@index([providerProfileId])
-  // @@index([patientProfileId])
+  @@index([providerProfileId])
   @@index([organizationId])
-  @@index([patientProfileId])
+  @@index([userId])
 }
 
 model User {
@@ -389,68 +437,70 @@ model User {
   twoFactorConfirmation   TwoFactorConfirmation?
   twoFactorConfirmationId String?
 
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   // @@index([twoFactorConfirmationId])
-  userSubscription UserSubscription?
-  notifications    Notification[]
+  userSubscription   UserSubscription?
+  notifications      Notification[]
+  organizationMember OrganizationMember[]
 
   @@unique([email, type])
 }
 
 model PatientProfile {
-  id                          String           @id @default(cuid())
-  userId                      String           @unique
-  firstName                   String
-  lastName                    String
-  email                       String           @unique
-  imageUrl                    String?
-  gender                      String?
-  dateOfBirth                 String?
-  maritalStatus               String?
-  race                        String?
-  height                      String?
-  weight                      String?
-  allergies                   String?
-  unit                        Unit             @default(IMPERIAL)
-  mobilePhone                 String?
-  homePhone                   String?
-  insuranceImagesSet          Boolean          @default(false)
-  insuranceProvider           String?
-  policyNumber                String?
-  groupNumber                 String?
-  publicKey                   String           @db.Text
-  privateKey                  String           @db.Text
-  symmetricKey                String           @db.Text
-  scheduledToDelete           Boolean          @default(false)
-  user                        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt                   DateTime         @default(now())
-  updatedAt                   DateTime         @updatedAt
-  member                      Member[]
-  addresses                   PatientAddress[]
-  medications                 Medication[]
-  folders                     Folder[]
-  files                       File[]
-  InsuranceFile               InsuranceFile[]
+  id                 String           @id @default(cuid())
+  userId             String           @unique
+  firstName          String
+  lastName           String
+  email              String           @unique
+  imageUrl           String?
+  gender             String?
+  dateOfBirth        String?
+  maritalStatus      String?
+  race               String?
+  height             String?
+  weight             String?
+  allergies          String?
+  unit               Unit             @default(IMPERIAL)
+  mobilePhone        String?
+  homePhone          String?
+  insuranceImagesSet Boolean          @default(false)
+  insuranceProvider  String?
+  policyNumber       String?
+  groupNumber        String?
+  publicKey          String           @db.Text
+  privateKey         String           @db.Text
+  symmetricKey       String           @db.Text
+  scheduledToDelete  Boolean          @default(false)
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  addresses          PatientAddress[]
+  medications        Medication[]
+  folders            Folder[]
+  files              File[]
+  insuranceFile      InsuranceFile[]
+  providers          PatientMember[]
 
   @@index([userId])
 }
 
 model ProviderProfile {
-  id                String            @id @default(cuid())
-  userId            String            @unique
-  firstName         String
-  lastName          String
-  email             String            @unique
-  imageUrl          String?
-  publicKey         String            @db.Text
-  privateKey        String            @db.Text
-  scheduledToDelete Boolean           @default(false)
-  organizations     Organization[]
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addresses         ProviderAddress[]
+  id                  String               @id @default(cuid())
+  userId              String               @unique
+  firstName           String
+  lastName            String
+  email               String               @unique
+  imageUrl            String?
+  publicKey           String               @db.Text
+  privateKey          String               @db.Text
+  scheduledToDelete   Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses           ProviderAddress[]
+  organizationMembers OrganizationMember[]
+  patients            PatientMember[]
 
   @@index([userId])
 }
@@ -571,7 +621,7 @@ model FailedAccountDelete {
 }
 
 model Notification {
-  id     String  @id @default(uuid())
+  id     String  @id @default(cuid())
   userId String
   text   String
   read   Boolean @default(false)

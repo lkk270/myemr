@@ -8,13 +8,7 @@ import { cn } from "@/lib/utils";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
-export type Organization = {
-  id: string;
-  slug: string;
-  imageUrl: string;
-  name: string;
-};
+import { Organization } from "@prisma/client";
 
 interface NavItemProps {
   isExpanded: boolean;
@@ -59,10 +53,12 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
         )}
       >
         <div className="flex items-center gap-x-2">
-          <div className="w-7 h-7 relative">
-            <Image fill src={organization.imageUrl} alt="Organization" className="rounded-sm object-cover" />
-          </div>
-          <span className="font-medium text-sm">{organization.name}</span>
+          {organization.profileImageUrl && (
+            <div className="w-7 h-7 relative">
+              <Image fill src={organization.profileImageUrl} alt="Organization" className="rounded-sm object-cover" />
+            </div>
+          )}
+          <span className="font-medium text-sm">{organization.title}</span>
         </div>
       </AccordionTrigger>
       <AccordionContent className="pt-1 text-primary/70">

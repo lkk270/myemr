@@ -1,8 +1,6 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import React, { useState, useEffect } from "react";
@@ -11,14 +9,8 @@ import axios from "axios";
 
 import { InsuranceSide, PatientAddress, Unit } from "@prisma/client";
 import { PatientDemographicsType } from "@/app/types";
-import { PhoneNumber } from "@/components/phone-number";
-import { GenericCombobox } from "@/components/generic-combobox";
-import { GenericCalendar } from "@/components/generic-calendar";
-import { GenericAddress } from "@/components/generic-address";
-import { CardHeaderComponent } from "./card-header";
 import { toast } from "sonner";
-import { cn, checkForInvalidDemographicsData, calculateBMI, isLinkExpired } from "@/lib/utils";
-import { genders, races, martialStatuses, heightsImperial, heightsMetric } from "@/lib/constants";
+import { checkForInvalidDemographicsData, isLinkExpired } from "@/lib/utils";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useInsuranceImages } from "../hooks/use-insurance-images";
 import _ from "lodash";
@@ -28,8 +20,6 @@ import { InsuranceSkeleton } from "./insurance-skeleton";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { PersonalInformationForm } from "./personal-information-form";
 import { ContactInformationForm } from "./contact-information-form";
-
-const inputClassName = "bg-secondary border-primary/10";
 
 interface PatientDemographicsProps {
   patientDemographics: PatientDemographicsType;

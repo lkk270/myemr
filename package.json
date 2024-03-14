@@ -55,6 +55,7 @@
     "dayjs": "^1.11.10",
     "file-saver": "^2.0.5",
     "holy-loader": "^2.2.9",
+    "input-otp": "^1.1.0",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.284.0",

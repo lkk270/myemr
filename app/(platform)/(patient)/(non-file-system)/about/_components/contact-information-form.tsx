@@ -69,13 +69,13 @@ export const ContactInformationForm = ({ contactInformation }: ContactInformatio
     );
 
     let changesOfAddress: any = !contactInformation.address && !!values.address.address ? values.address : {};
-    if (!!changesOfAddress && Object.keys(changesOfAddress).length === 0) {
+    if (!!changesOfAddress && !!values.address.address && Object.keys(changesOfAddress).length === 0) {
       changesOfAddress = findChangesBetweenObjects(initialContactInformation.address, values.address);
     }
 
     const changesOfPhoneNumbersLength = Object.keys(changesOfPhoneNumbers).length;
     const changesOfAddressLength = Object.keys(changesOfAddress).length;
-    
+
     if (changesOfPhoneNumbersLength === 0 && changesOfAddressLength === 0) {
       toast("No changes made");
       setIsEditing(false);

@@ -7,10 +7,17 @@ interface PhoneNumberProps {
   number?: string | null;
   disabled?: boolean;
   fieldName: string;
+  className?: string;
   handleChange: (value: any) => void;
 }
 
-export const PhoneNumber = ({ number = "", disabled = false, handleChange, fieldName }: PhoneNumberProps) => {
+export const PhoneNumber = ({
+  number = "",
+  disabled = false,
+  handleChange,
+  fieldName,
+  className = "bg-secondary border-primary/10",
+}: PhoneNumberProps) => {
   const formatPhoneNumber = (inputNumber: string) => {
     if (!inputNumber) {
       return "";
@@ -38,7 +45,7 @@ export const PhoneNumber = ({ number = "", disabled = false, handleChange, field
       <Input
         type="tel"
         autoComplete="tel"
-        className="bg-secondary border-primary/10"
+        className={className}
         value={value}
         onChange={onChange}
         placeholder="(000) 000-0000"

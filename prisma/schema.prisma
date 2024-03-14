@@ -126,19 +126,20 @@ model PatientAddress {
 
 model ProviderAddress {
   id       String  @id @default(cuid())
+  name     String
   address  String
   address2 String?
   city     String
   state    String
   zipcode  String
 
-  providerProfileId String
-  ProviderProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([providerProfileId])
+  @@index([organizationId])
 }
 
 model OrganizationAddress {
@@ -362,9 +363,13 @@ model Organization {
   organizationAddresses OrganizationAddress[]
   organizationTags      OrganizationTags[]
 
+  organizationMembers OrganizationMember[]
+  patients            PatientMember[]
+  providerAddress     ProviderAddress[]
+  officeEmail         String?
+  officePhone         String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
-  organizationMembers OrganizationMember[]
 }
 
 enum PatientMemberRole {
@@ -373,22 +378,27 @@ enum PatientMemberRole {
   FULL_ACCESS
 }
 
+//An entire organizatons's memeber status to a patient. All members of the organization have access to the single PatientMember that exists per patient
 model PatientMember {
   id   String            @id @default(uuid())
   role PatientMemberRole @default(READ_ONLY)
 
-  providerProfileId String
-  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  // providerProfileId String
+  // providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
 
   patientProfileId          String
   patientProfile            PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   accessibleRootFolders     Folder[]
   hasAccessToAllRootFolders Boolean        @default(true)
-  createdAt                 DateTime       @default(now())
-  updatedAt                 DateTime       @updatedAt
+  organizationId            String?
+  organization              Organization?  @relation(fields: [organizationId], references: [id])
 
-  @@index([providerProfileId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // @@index([providerProfileId])
   @@index([patientProfileId])
+  @@index([organizationId])
 }
 
 enum OrganizationMemberRole {
@@ -403,8 +413,8 @@ model OrganizationMember {
   userId String
   user   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  providerProfileId String
-  providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  // providerProfileId String
+  // providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -412,7 +422,7 @@ model OrganizationMember {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([providerProfileId])
+  // @@index([providerProfileId])
   @@index([organizationId])
   @@index([userId])
 }
@@ -437,12 +447,12 @@ model User {
   twoFactorConfirmation   TwoFactorConfirmation?
   twoFactorConfirmationId String?
 
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
   // @@index([twoFactorConfirmationId])
-  userSubscription   UserSubscription?
-  notifications      Notification[]
-  organizationMember OrganizationMember[]
+  userSubscription       UserSubscription?
+  notifications          Notification[]
+  organizationsAMemberOf OrganizationMember[] //uses OrganizationMember because it contains organization and the role
 
   @@unique([email, type])
 }
@@ -480,27 +490,26 @@ model PatientProfile {
   folders            Folder[]
   files              File[]
   insuranceFile      InsuranceFile[]
-  providers          PatientMember[]
+  organizations      PatientMember[] //uses PatientMember because it contains organization and the role
 
   @@index([userId])
 }
 
 model ProviderProfile {
-  id                  String               @id @default(cuid())
-  userId              String               @unique
-  firstName           String
-  lastName            String
-  email               String               @unique
-  imageUrl            String?
-  publicKey           String               @db.Text
-  privateKey          String               @db.Text
-  scheduledToDelete   Boolean              @default(false)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addresses           ProviderAddress[]
-  organizationMembers OrganizationMember[]
-  patients            PatientMember[]
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  firstName         String
+  lastName          String
+  email             String   @unique
+  imageUrl          String?
+  publicKey         String   @db.Text
+  privateKey        String   @db.Text
+  scheduledToDelete Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // organizationMembers OrganizationMember[]
+  // patients          PatientMember[]
 
   @@index([userId])
 }
@@ -631,4 +640,14 @@ model Notification {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+model OrganizationInviteCode {
+  id      String                 @id @default(cuid())
+  email   String
+  role    OrganizationMemberRole @default(USER)
+  token   String                 @unique
+  expires DateTime
+
+  @@unique([email, token])
 }

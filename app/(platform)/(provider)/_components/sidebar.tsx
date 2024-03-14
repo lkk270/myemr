@@ -47,9 +47,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", organizations }: Sid
 
   useEffect(() => {
     setIsMounted(true);
-    // console.log(data);
-    // console.log(singleLayerNodes);
-    console.log(organizations);
+    // console.log(organizations);
     setOrganizations(organizations);
   }, []);
 

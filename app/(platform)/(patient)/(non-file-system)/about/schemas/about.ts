@@ -43,28 +43,36 @@ export const PersonalInformationSchema = z.object({
   height: z
     .string()
     .nullable()
-    .refine((value) => value === null || heightsImperial.some((item) => item.value === value), {
+    .optional()
+    .refine((value) => heightsImperial.some((item) => item.value === value), {
       message: "Heights must match a value in the heights list or be null",
     }),
   weight: z
     .string()
     .nullable()
-    .refine((value) => value === null || (value.length >= 2 && value.length <= 4), {
-      message: "Weight must be between 2 to 4 characters if provided",
-    }),
+    .optional()
+    .refine(
+      (value) =>
+        typeof value === "undefined" || !value || value.length === 0 || (value.length >= 2 && value.length <= 4),
+      {
+        message: "Weight must be between 2-4 characters if provided",
+      },
+    ),
 });
 
 export const ContactInformationSchema = z.object({
   mobilePhone: z
     .string()
     .nullable()
-    .refine((value) => value === null || value.length === 10, {
-      message: "Mobile phone must have 10 characters if provided",
+    .optional()
+    .refine((value) => typeof value === "undefined" || !value || value.length === 0 || value.length === 10, {
+      message: "Home phone must have 10 characters if provided",
     }),
   homePhone: z
     .string()
     .nullable()
-    .refine((value) => value === null || value.length === 10, {
+    .optional()
+    .refine((value) => typeof value === "undefined" || !value || value.length === 0 || value.length === 10, {
       message: "Home phone must have 10 characters if provided",
     }),
   address: AddressSchema,

@@ -1,7 +1,15 @@
 import * as z from "zod";
 import { rootFolderCategories } from "@/lib/constants";
+import { OrganizationType } from "@prisma/client";
+import { AddressSchema } from "@/lib/schemas/address";
 
-export const NewOrganization = z.object({
+const TagSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
+
+export const OrganizationSchema = z.object({
   title: z
     .string()
     .min(1, {
@@ -20,16 +28,22 @@ export const NewOrganization = z.object({
   subTitle: z
     .string()
     .optional()
-    .refine((value) => typeof value === "undefined" || (value.length > 1 && value.length <= 250), {
-      message: "Must be longer than 1 characters and not exceed 250 characters if specified",
-    }),
+    .refine(
+      (value) => typeof value === "undefined" || value.length === 0 || (value.length > 1 && value.length <= 250),
+      {
+        message: "Must be longer than 1 character and not exceed 250 characters if specified",
+      },
+    ),
 
   description: z
     .string()
     .optional()
-    .refine((value) => typeof value === "undefined" || (value.length > 1 && value.length <= 1000), {
-      message: "Must be longer than 1 characters and not exceed 1000 characters if specified",
-    }),
+    .refine(
+      (value) => typeof value === "undefined" || value.length === 0 || (value.length > 1 && value.length <= 1000),
+      {
+        message: "Must be longer than 1 character and not exceed 1000 characters if specified",
+      },
+    ),
 
   backgroundImageUrl: z
     .string()
@@ -46,11 +60,22 @@ export const NewOrganization = z.object({
     }),
 
   acceptMessages: z.boolean().optional(),
-
-  providerProfileId: z
+  organizationType: z.enum([
+    OrganizationType.CLINIC,
+    OrganizationType.CLINICAL_TRIAL,
+    OrganizationType.PRIVATE_PRACTICE,
+  ]),
+  tags: z.array(TagSchema).max(8, { message: "Maximum of 8 tags allowed" }),
+  officeEmail: z.string().email({ message: "Not a valid email" }).optional(),
+  officePhone: z
     .string()
-    .min(1, {
-      message: "Minimum of 6 characters required",
-    })
-    .max(125, { message: "Maximum of 30 characters" }),
+    .optional()
+    .refine((value) => typeof value === "undefined" || value.length === 0 || value.length === 10, {
+      message: "Home phone must have 10 characters if provided",
+    }),
+  address: z.array(AddressSchema).max(4, { message: "Maximum of 4 addresses allowed" }),
+});
+
+export const JoinOrganization = z.object({
+  inviteCode: z.string().length(8, { message: "Invite code must be 8 characters long" }),
 });

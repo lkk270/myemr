@@ -26,6 +26,7 @@ interface GenericComboboxProps {
   disabled?: boolean;
   allowOther?: boolean;
   forFileSystem?: boolean;
+  transparentPopoverBg?: boolean;
 }
 
 export const GenericCombobox = ({
@@ -40,6 +41,7 @@ export const GenericCombobox = ({
   disabled = false,
   allowOther = false,
   forFileSystem = false,
+  transparentPopoverBg = false,
 }: GenericComboboxProps) => {
   const [newItems, setNewItems] = useState(items);
   const [open, setOpen] = useState(false);
@@ -61,7 +63,7 @@ export const GenericCombobox = ({
   }, [valueParam, newItems]);
 
   return (
-    <div className={disabled ? "cursor-not-allowed" : "cursor-default"}>
+    <div className={cn(disabled ? "cursor-not-allowed" : "cursor-default")}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild disabled={disabled}>
           <Button
@@ -83,7 +85,7 @@ export const GenericCombobox = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent className={cn(width, "p-0 overflow-y-scroll max-h-[250px]", className)}>
-          <Command>
+          <Command className={cn(transparentPopoverBg && "dark:bg-[#1f1f1f] bg-[#f8f7f7]")}>
             <CommandInput placeholder={searchPlaceholder} onValueChange={(value) => setSearchInput(value)} />
             <CommandEmpty>
               {!allowOther || (searchInput && searchInput.trim() === "") ? (

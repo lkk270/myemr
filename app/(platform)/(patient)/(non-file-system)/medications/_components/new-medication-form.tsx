@@ -125,7 +125,7 @@ export const NewMedicationForm = () => {
                           searchPlaceholder="Search..."
                           noItemsMessage="No category found."
                           items={medicationCategories}
-                          allowOther={true}
+                          // allowOther={true}
                         />
                       </FormItem>
                     )}

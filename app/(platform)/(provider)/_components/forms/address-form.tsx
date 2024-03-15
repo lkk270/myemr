@@ -24,15 +24,19 @@ import { AddressSchema } from "../../schema/organization";
 // ]);
 
 interface AddressFormProps {
+  numOfCurrentAddresses: number;
+  setOpen: (openValue: boolean) => void;
+  addOrUpdateFunction: (newAddress: z.infer<typeof AddressSchema>) => void;
   initialData?: z.infer<typeof AddressSchema>;
 }
-export const AddressForm = ({ initialData }: AddressFormProps) => {
+export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCurrentAddresses }: AddressFormProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof AddressSchema>>({
     resolver: zodResolver(AddressSchema),
     defaultValues: initialData || {
+      id: (numOfCurrentAddresses + 1).toString(),
       name: undefined,
       address: undefined,
       address2: undefined,
@@ -42,7 +46,10 @@ export const AddressForm = ({ initialData }: AddressFormProps) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof AddressSchema>) => {};
+  const onSubmit = (values: z.infer<typeof AddressSchema>) => {
+    addOrUpdateFunction(values);
+    setOpen(false);
+  };
 
   const { setValue, control, watch } = form;
 
@@ -194,7 +201,7 @@ export const AddressForm = ({ initialData }: AddressFormProps) => {
                     id="zipcode"
                     name="zipcode"
                     autoComplete="off"
-                    placeholder="zipcode"
+                    placeholder="Zipcode"
                     disabled={isPending}
                   />
                   <FormMessage />

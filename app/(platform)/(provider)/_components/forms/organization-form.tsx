@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Wand2 } from "lucide-react";
+import { Wand2, Pencil } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -13,13 +13,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { OrganizationSchema } from "../../schema/organization";
+import { AddressSchema, OrganizationSchema } from "../../schema/organization";
 import { rootFolderCategories } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { PhoneNumber } from "@/components/phone-number";
-import { NewAddressButton } from "../new-address-button";
+import { OpenAddressButton } from "../open-address-button";
 // import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const organizationTypes = [
   { value: "CLINIC", label: "Clinic" },
@@ -49,23 +50,54 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
       profileImageUrl: undefined,
       acceptMessages: undefined,
       tags: [],
-      officeEmail: undefined,
-      officePhone: undefined,
-      address: [],
+      mainEmail: undefined,
+      mainPhone: undefined,
+      addresses: [
+        {
+          id: "1",
+          name: "FirstFirstFirstFirstFirstFirstFirstFirst FirstFirstFirstFirstFirst qwertyuiopoiuytredcfvbhjkhgsbdfn fllast",
+          address:
+            "sodfksandfksdnfklsadnflk sandflksan dflknsadlkf nasdklf mething at somet afjskdfj skdjf slkdjf sd flast last",
+          address2: "200 patsdfnksdnfklsdnfsdf",
+          city: "New Yordfnkasdnfklsd nfklsdf nklsdfnlksdnfk adsfkmsdklf mldskf mkdsa fmklsdamf lksdamf lkdsamflksdmf lksdfsdfsdfsdfasdflast",
+          state: "NY",
+          zipcode: "10028",
+        },
+      ],
     },
   });
-
-  const onSubmit = (values: z.infer<typeof OrganizationSchema>) => {};
-
   const { setValue, control, watch } = form;
 
-  const watchedOfficeEmail = watch("officeEmail");
+  const watchedAddresses = watch("addresses");
+
+  const onSubmit = (values: z.infer<typeof OrganizationSchema>) => {
+    console.log(values);
+  };
+
+  const addAddress = (newAddress: z.infer<typeof AddressSchema>) => {
+    const updatedAddresses = [...watchedAddresses, newAddress];
+    setValue("addresses", updatedAddresses);
+  };
+
+  const updateAddress = (updatedAddress: z.infer<typeof AddressSchema>) => {
+    // Get the current state of the addresses array
+    const currentAddresses = watch("addresses");
+    const index = currentAddresses.findIndex((address) => address.id === updatedAddress.id);
+    const updatedAddresses = [
+      ...currentAddresses.slice(0, index),
+      updatedAddress,
+      ...currentAddresses.slice(index + 1),
+    ];
+    setValue("addresses", updatedAddresses);
+  };
+
+  const watchedMainEmail = watch("mainEmail");
 
   useEffect(() => {
-    if (watchedOfficeEmail === "") {
-      setValue("officeEmail", undefined);
+    if (watchedMainEmail === "") {
+      setValue("mainEmail", undefined);
     }
-  }, [watchedOfficeEmail]);
+  }, [watchedMainEmail]);
 
   return (
     <div className="h-full p-4 max-w-3xl mx-auto">
@@ -240,11 +272,11 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
-              name="officeEmail"
+              name="mainEmail"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Office Email</FormLabel>
+                  <FormLabel>Main Email</FormLabel>
                   {/* <FormControl> */}
                   <Input disabled={isPending} placeholder="Hippocrates@earth.com" {...field} />
                   {/* </FormControl> */}
@@ -254,15 +286,15 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             />
             <FormField
               control={control}
-              name="officePhone"
+              name="mainPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="officePhone">Office Phone</FormLabel>
+                  <FormLabel htmlFor="mainPhone">Main Phone</FormLabel>
                   <PhoneNumber
                     {...field}
-                    fieldName="officePhone"
+                    fieldName="mainPhone"
                     className="border-primary/10"
-                    handleChange={(value) => setValue("officePhone", value)}
+                    handleChange={(value) => setValue("mainPhone", value)}
                     number={field.value}
                     disabled={isPending}
                   />
@@ -279,11 +311,58 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             <Separator className="bg-primary/10" />
           </div>
           <div>
-            <NewAddressButton asChild>
+            <OpenAddressButton numOfCurrentAddresses={watchedAddresses.length} asChild addOrUpdateFunction={addAddress}>
               <Button variant={"secondary"}>New address</Button>
-            </NewAddressButton>
+            </OpenAddressButton>
           </div>
-          <div className="w-full flex justify-center">
+          <div>
+            {watchedAddresses.map((address) => (
+              <div className="flex flex-col gap-y-1.5">
+                <div className="flex flex-row justify-between gap-2 items-center">
+                  <Accordion type="multiple" className="space-y-2 w-full">
+                    <AccordionItem className="border-none" value={address.id}>
+                      <AccordionTrigger
+                        className={cn(
+                          "flex items-center gap-x-2 p-1.5 rounded-md hover:bg-neutral-500/10 transition text-start no-underline hover:no-underline",
+                        )}
+                      >
+                        {address.name}
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-1 text-primary/70 text-md">
+                        <div className="p-4 rounded border border-secondary flex items-center gap-4">
+                          <div className="grid gap-2.5">
+                            <p className="font-semibold leading-none">{address.name}</p>
+                            <address className="not-italic leading-none space-y-1.5">
+                              <p>{address.address}</p>
+                              <p>{address.address2}</p>
+                              <p>
+                                {address.city}, {address.state}, {address.zipcode}
+                              </p>
+                            </address>
+                          </div>
+                          {/* <Button size="sm">Edit</Button> */}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                  <OpenAddressButton
+                    numOfCurrentAddresses={watchedAddresses.length}
+                    initialData={address}
+                    asChild
+                    addOrUpdateFunction={updateAddress}
+                  >
+                    <Button className="w-20 h-9 items-center" variant={"outline"}>
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                  </OpenAddressButton>
+                </div>
+                <Separator className="bg-primary/10" />
+              </div>
+            ))}
+          </div>
+
+          <div className="w-full flex justify-center pt-20">
             <Button size="lg" disabled={isPending}>
               {initialData ? "Edit your organization" : "Create a new organization"}
               <Wand2 className="w-4 h-4 ml-2" />

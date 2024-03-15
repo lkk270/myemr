@@ -3,12 +3,17 @@ import { rootFolderCategories, states } from "@/lib/constants";
 import { OrganizationType } from "@prisma/client";
 
 export const AddressSchema = z.object({
+  id: z.string(),
   name: z.string().refine((value) => value.length > 1 && value.length <= 100, {
     message: "Must be longer than 1 character and not exceed 100 characters",
   }),
-  address: z.string(),
-  address2: z.string().optional().nullable(),
-  city: z.string(),
+  address: z.string().max(200, { message: "Address cannot be greater than 200 characters" }),
+  address2: z
+    .string()
+    .max(200, { message: "Second address cannot be greater than 200 characters" })
+    .optional()
+    .nullable(),
+  city: z.string().max(200, { message: "City cannot be greater than 200 characters" }),
   state: z.string().refine(
     (value) => {
       // Perform validation against states array
@@ -102,14 +107,14 @@ export const OrganizationSchema = z.object({
     OrganizationType.PRIVATE_PRACTICE,
   ]),
   tags: z.array(TagSchema).max(8, { message: "Maximum of 8 tags allowed" }),
-  officeEmail: z.string().email({ message: "Not a valid email" }).optional(),
-  officePhone: z
+  mainEmail: z.string().email({ message: "Not a valid email" }).optional(),
+  mainPhone: z
     .string()
     .optional()
     .refine((value) => typeof value === "undefined" || value.length === 0 || value.length === 10, {
       message: "Home phone must have 10 characters if provided",
     }),
-  address: z.array(AddressSchema).max(4, { message: "Maximum of 4 addresses allowed" }),
+  addresses: z.array(AddressSchema).max(4, { message: "Maximum of 4 addresses allowed" }),
 });
 
 export const JoinOrganization = z.object({

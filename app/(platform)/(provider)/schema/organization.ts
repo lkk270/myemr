@@ -1,7 +1,43 @@
 import * as z from "zod";
-import { rootFolderCategories } from "@/lib/constants";
+import { rootFolderCategories, states } from "@/lib/constants";
 import { OrganizationType } from "@prisma/client";
-import { AddressSchema } from "@/lib/schemas/address";
+
+export const AddressSchema = z.object({
+  name: z.string().refine((value) => value.length > 1 && value.length <= 100, {
+    message: "Must be longer than 1 character and not exceed 100 characters",
+  }),
+  address: z.string(),
+  address2: z.string().optional().nullable(),
+  city: z.string(),
+  state: z.string().refine(
+    (value) => {
+      // Perform validation against states array
+      return states.some((item) => item.value === value);
+    },
+    {
+      message: "State must match a value in the states list",
+    },
+  ),
+
+  zipcode: z
+    .string()
+
+    .refine(
+      (value) => {
+        // Perform regex validation for zip code
+        return /^(\d{5})(-\d{4})?$/.test(value);
+      },
+      {
+        message: "Zip code is not valid",
+      },
+    ),
+  phone: z
+    .string()
+    .optional()
+    .refine((value) => typeof value === "undefined" || value.length === 0 || value.length === 10, {
+      message: "Home phone must have 10 characters if provided",
+    }),
+});
 
 const TagSchema = z.object({
   label: z.string(),

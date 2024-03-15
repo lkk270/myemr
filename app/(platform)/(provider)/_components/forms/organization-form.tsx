@@ -18,6 +18,7 @@ import { rootFolderCategories } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { PhoneNumber } from "@/components/phone-number";
+import { NewAddressButton } from "../new-address-button";
 // import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
 
 const organizationTypes = [
@@ -95,9 +96,9 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input disabled={isPending} placeholder="Hippocrates Associates" {...field} />
-                  </FormControl>
+                  {/* <FormControl> */}
+                  <Input disabled={isPending} placeholder="Hippocrates Associates" {...field} />
+                  {/* </FormControl> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -114,11 +115,11 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                     value={field.value}
                     defaultValue={field.value}
                   >
-                    <FormControl>
-                      <SelectTrigger className="bg-background hover:bg-[#f0f0f0] dark:hover:bg-[#2b2b2b]">
-                        <SelectValue defaultValue={field.value} placeholder="Organization type" />
-                      </SelectTrigger>
-                    </FormControl>
+                    {/* <FormControl> */}
+                    <SelectTrigger className="bg-background hover:bg-[#f0f0f0] dark:hover:bg-[#2b2b2b]">
+                      <SelectValue defaultValue={field.value} placeholder="Organization type" />
+                    </SelectTrigger>
+                    {/* </FormControl> */}
                     <SelectContent>
                       {organizationTypes.map((organizationType) => (
                         <SelectItem key={organizationType.value} value={organizationType.value}>
@@ -190,15 +191,15 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subtitle...</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      disabled={isPending}
-                      rows={2}
-                      className="bg-background resize-none"
-                      placeholder={"Subtitle"}
-                      {...field}
-                    />
-                  </FormControl>
+                  {/* <FormControl> */}
+                  <Textarea
+                    disabled={isPending}
+                    rows={2}
+                    className="bg-background resize-none"
+                    placeholder={"Subtitle"}
+                    {...field}
+                  />
+                  {/* </FormControl> */}
                   <FormDescription>One line about our organization.</FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -210,15 +211,15 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      disabled={isPending}
-                      rows={5}
-                      className="bg-background resize-none"
-                      placeholder={"Description..."}
-                      {...field}
-                    />
-                  </FormControl>
+                  {/* <FormControl> */}
+                  <Textarea
+                    disabled={isPending}
+                    rows={5}
+                    className="bg-background resize-none"
+                    placeholder={"Description..."}
+                    {...field}
+                  />
+                  {/* </FormControl> */}
                   <FormDescription>
                     Describe your organization further and provide any relevant details.
                   </FormDescription>
@@ -244,9 +245,9 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Office Email</FormLabel>
-                  <FormControl>
-                    <Input disabled={isPending} placeholder="Hippocrates@earth.com" {...field} />
-                  </FormControl>
+                  {/* <FormControl> */}
+                  <Input disabled={isPending} placeholder="Hippocrates@earth.com" {...field} />
+                  {/* </FormControl> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -278,7 +279,9 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             <Separator className="bg-primary/10" />
           </div>
           <div>
-            <Button variant={"secondary"}>New address</Button>
+            <NewAddressButton asChild>
+              <Button variant={"secondary"}>New address</Button>
+            </NewAddressButton>
           </div>
           <div className="w-full flex justify-center">
             <Button size="lg" disabled={isPending}>

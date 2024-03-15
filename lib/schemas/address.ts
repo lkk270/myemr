@@ -3,16 +3,6 @@ import { states } from "../constants";
 
 export const AddressSchema = z
   .object({
-    name: z
-      .string()
-      .optional()
-      .refine(
-        (value) => typeof value === "undefined" || value.length === 0 || (value.length > 1 && value.length <= 100),
-        {
-          message: "Must be longer than 1 character and not exceed 100 characters if specified",
-        },
-      )
-      .nullable(),
     address: z.string().optional().nullable(),
     address2: z.string().optional().nullable(),
     city: z.string().optional().nullable(),

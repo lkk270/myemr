@@ -9,6 +9,7 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Organization } from "@prisma/client";
+import Link from "next/link";
 
 interface NavItemProps {
   isExpanded: boolean;
@@ -63,19 +64,20 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
       </AccordionTrigger>
       <AccordionContent className="pt-1 text-primary/70">
         {routes.map((route) => (
-          <Button
-            key={route.href}
-            size="sm"
-            onClick={() => onClick(route.href)}
-            className={cn(
-              "w-full font-normal justify-start pl-10 mb-1",
-              pathname === route.href && "bg-sky-500/10 text-sky-700",
-            )}
-            variant="ghost"
-          >
-            {route.icon}
-            {route.label}
-          </Button>
+          <Link href={route.href}>
+            <Button
+              key={route.href}
+              size="sm"
+              className={cn(
+                "w-full font-normal justify-start pl-10 mb-1",
+                pathname === route.href && "bg-sky-500/10 text-sky-700",
+              )}
+              variant="ghost"
+            >
+              {route.icon}
+              {route.label}
+            </Button>
+          </Link>
         ))}
       </AccordionContent>
     </AccordionItem>

@@ -39,7 +39,8 @@ export const AddressSchema = z.object({
   phone: z
     .string()
     .optional()
-    .refine((value) => typeof value === "undefined" || value.length === 0 || value.length === 10, {
+    .nullable()
+    .refine((value) => typeof value === "undefined"  || !value || value.length === 0 || value.length === 10, {
       message: "Home phone must have 10 characters if provided",
     }),
 });
@@ -106,7 +107,7 @@ export const OrganizationSchema = z.object({
     OrganizationType.CLINICAL_TRIAL,
     OrganizationType.PRIVATE_PRACTICE,
   ]),
-  tags: z.array(TagSchema).max(8, { message: "Maximum of 8 tags allowed" }),
+  // tags: z.array(TagSchema).max(8, { message: "Maximum of 8 tags allowed" }),
   mainEmail: z.string().email({ message: "Not a valid email" }).optional(),
   mainPhone: z
     .string()

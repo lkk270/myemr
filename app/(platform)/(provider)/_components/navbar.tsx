@@ -1,6 +1,6 @@
 "use client";
 
-import { Folders } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";
 import { UserButton } from "@/components/user-button";
@@ -18,11 +18,11 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
       <nav className="justify-between px-3 py-4 xs:py-2 w-full flex items-center gap-x-4">
         {isCollapsed && (
           <div className="flex items-center gap-x-4 xs:gap-x-6">
-            <Folders role="button" onClick={onResetWidth} className="w-6 h-6" />
-            <Logo textColor="#4f5eff" />
+            <Building2 role="button" onClick={onResetWidth} className="w-6 h-6" />
+            {/* <Logo textColor="#4f5eff" /> */}
           </div>
         )}
-        <div className="flex items-center px-3"></div>
+        <div className="hidden items-center px-3 xs:flex"></div>
         <div className="flex items-center">
           <div className="flex items-center sm:flex gap-x-4">
             {organizations.length > 0 && <OrganizationDropdown />}

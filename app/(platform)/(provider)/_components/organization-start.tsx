@@ -16,7 +16,7 @@ import Link from "next/link";
 export const OrganizationStart = () => {
   const [isMounted, setIsMounted] = useState(false);
   const { organizations } = useOrganizationStore();
-  let z = [organizations[0], organizations[0]];
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -32,7 +32,7 @@ export const OrganizationStart = () => {
       <CardContent className="flex flex-col gap-y-3">
         <div>
           <Label>My organizations</Label>
-          {z.map((organization, index) => (
+          {organizations.map((organization, index) => (
             <Link href={`/organization/${organization.id}/patients`} key={index}>
               <Button
                 variant="outline"
@@ -42,7 +42,7 @@ export const OrganizationStart = () => {
                   <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
                     <Building2 className="w-5 h-5" />
                   </div>
-                  <span className="text-left truncate text-sm flex-grow min-w-0">{organizations[0].title}</span>
+                  <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
                 </div>
                 <div className="flex-shrink-0">
                   <ArrowRight className="w-4 h-4" />

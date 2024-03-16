@@ -221,7 +221,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
   return (
     <div className="h-full p-4 max-w-3xl mx-auto">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pb-10">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2 w-full col-span-2">
             <div className="flex flex-row justify-between">
               <div className="flex flex-col">
@@ -507,7 +507,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             ))}
           </div>
 
-          <div className="w-full flex justify-center pt-4 xs:pt-20 pb-20 xs:pb-0">
+          <div className={cn("w-full flex justify-center pt-4 xs:pt-10", !!initialData ? "pb-32 xs:pb-10" : "pb-10")}>
             <Button type="submit" size="lg" disabled={isPending || !isEditing}>
               {initialData ? "Edit your organization" : "Create a new organization"}
               {initialData ? <PencilLine className="w-4 h-4 ml-2" /> : <PackagePlus className="w-4 h-4 ml-2" />}

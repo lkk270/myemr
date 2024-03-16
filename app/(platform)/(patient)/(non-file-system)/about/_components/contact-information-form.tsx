@@ -11,21 +11,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { toast } from "sonner";
-import { calculateBMI, findChangesBetweenObjects } from "@/lib/utils";
+import { findChangesBetweenObjects } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { logout } from "@/auth/actions/logout";
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { CardHeaderComponent } from "./card-header";
 import { ContactInformationSchema } from "../schemas/about";
 import { Input } from "@/components/ui/input";
-import { GenericCalendar } from "@/components/generic-calendar";
-import { genders, heightsImperial, martialStatuses, races, states } from "@/lib/constants";
+import { states } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { editContactInformation, editPersonalInformation } from "../actions/about";
+import { editContactInformation } from "../actions/about";
 import { PhoneNumber } from "@/components/phone-number";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
-import { GenericAddress } from "@/components/generic-address";
+
 const inputClassName = "bg-secondary border-primary/10";
 
 interface ContactInformationProps {

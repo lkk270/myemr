@@ -497,14 +497,22 @@ export function findChangesBetweenObjects(oldObject: any, newObject: any) {
   const changesObject: any = {};
 
   Object.keys(newObject).forEach((key) => {
-    if (oldObject[key] !== newObject[key]) {
-      if (typeof newObject[key] === "object" && newObject[key] !== null && oldObject[key] !== null) {
-        const deeperChanges = findChangesBetweenObjects(oldObject[key], newObject[key]);
+    const oldValue = oldObject[key];
+    const newValue = newObject[key];
+    if (
+      oldValue !== newValue &&
+      oldValue !== undefined &&
+      oldValue !== null &&
+      newValue !== null &&
+      newValue !== undefined
+    ) {
+      if (typeof newValue === "object" && newValue !== null && oldValue !== null) {
+        const deeperChanges = findChangesBetweenObjects(oldValue, newValue);
         if (Object.keys(deeperChanges).length > 0) {
           changesObject[key] = deeperChanges;
         }
       } else {
-        changesObject[key] = newObject[key];
+        changesObject[key] = newValue;
       }
     }
   });

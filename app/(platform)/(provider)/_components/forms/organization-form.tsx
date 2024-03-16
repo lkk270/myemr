@@ -4,8 +4,8 @@ import * as z from "zod";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { Wand2, Pencil } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { Ban, PackagePlus, PencilLine, Trash } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -15,13 +15,18 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { AddressSchema, OrganizationSchema } from "../../schema/organization";
 import { rootFolderCategories } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn, findChangesBetweenObjects } from "@/lib/utils";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { PhoneNumber } from "@/components/phone-number";
 import { OpenAddressButton } from "../open-address-button";
 // import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { createOrganization, editOrganization } from "../../actions/organization";
+import { logout } from "@/auth/actions/logout";
+import { useOrganizationStore } from "../hooks/use-organizations";
+import { OrganizationWithRoleType } from "@/app/types/organization-types";
 
+import { initial } from "lodash";
 const organizationTypes = [
   { value: "CLINIC", label: "Clinic" },
   { value: "CLINICAL_TRIAL", label: "Clinical Trial" },
@@ -33,45 +38,135 @@ const organizationTypes = [
 // ]);
 
 interface OrganizationFormProps {
-  initialData?: z.infer<typeof OrganizationSchema>;
+  initialData?: OrganizationWithRoleType;
 }
 export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const pathname = usePathname();
+  const organizationId = pathname.split("/organization/")[1].split("/")[0];
 
+  const { addOrganization } = useOrganizationStore();
+  const [isPending, startTransition] = useTransition();
+  const [isEditing, setIsEditing] = useState(false);
+
+  // console.log(initialData);
   const form = useForm<z.infer<typeof OrganizationSchema>>({
     resolver: zodResolver(OrganizationSchema),
-    defaultValues: initialData || {
-      title: "",
-      category: "",
-      subTitle: undefined,
-      description: undefined,
-      backgroundImageUrl: undefined,
-      profileImageUrl: undefined,
-      acceptMessages: undefined,
-      tags: [],
-      mainEmail: undefined,
-      mainPhone: undefined,
-      addresses: [
-        {
-          id: "1",
-          name: "FirstFirstFirstFirstFirstFirstFirstFirst FirstFirstFirstFirstFirst qwertyuiopoiuytredcfvbhjkhgsbdfn fllast",
-          address:
-            "sodfksandfksdnfklsadnflk sandflksan dflknsadlkf nasdklf mething at somet afjskdfj skdjf slkdjf sd flast last",
-          address2: "200 patsdfnksdnfklsdnfsdf",
-          city: "New Yordfnkasdnfklsd nfklsdf nklsdfnlksdnfk adsfkmsdklf mldskf mkdsa fmklsdamf lksdamf lkdsamflksdmf lksdfsdfsdfsdfasdflast",
-          state: "NY",
-          zipcode: "10028",
+    defaultValues: !!initialData
+      ? {
+          title: initialData.title,
+          category: initialData.category,
+          organizationType: initialData.organizationType,
+          subTitle: initialData.subTitle || undefined,
+          description: initialData.description || undefined,
+          backgroundImageUrl: initialData.backgroundImageUrl || undefined,
+          profileImageUrl: initialData.profileImageUrl || undefined,
+          acceptMessages: initialData.acceptMessages,
+          mainEmail: initialData.mainEmail || undefined,
+          mainPhone: initialData.mainPhone || undefined,
+          addresses: initialData.addresses,
+        }
+      : {
+          title: "",
+          category: "",
+          subTitle: undefined,
+          description: undefined,
+          backgroundImageUrl: undefined,
+          profileImageUrl: undefined,
+          acceptMessages: undefined,
+          organizationType: undefined,
+          // tags: [],
+          mainEmail: undefined,
+          mainPhone: undefined,
+          addresses: [],
         },
-      ],
-    },
   });
   const { setValue, control, watch } = form;
 
   const watchedAddresses = watch("addresses");
 
+  const onSubmitForCreateOrganization = (values: z.infer<typeof OrganizationSchema>) => {
+    createOrganization(values)
+      .then((data) => {
+        if (data.error) {
+          toast.error(data.error);
+          if (data.error === "Unauthorized") {
+            // newMedicationModal.onClose();
+            logout();
+          }
+        }
+        if (data.success) {
+          // newMedicationModal.onClose();
+          toast.success("Organization successfully added!");
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error("Something went wrong");
+      });
+  };
+
+  const onSubmitForEditOrganization = (values: z.infer<typeof OrganizationSchema>) => {
+    editOrganization(values, organizationId)
+      .then((data) => {
+        if (data.error) {
+          toast.error(data.error);
+          if (data.error === "Unauthorized") {
+            // newMedicationModal.onClose();
+            logout();
+          }
+        }
+        if (data.success) {
+          // newMedicationModal.onClose();
+          toast.success("Organization successfully updated!");
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error("Something went wrong");
+      });
+  };
+
   const onSubmit = (values: z.infer<typeof OrganizationSchema>) => {
+    let nonAddressChanges: any = {};
+    let addressChanges: any = {};
+
     console.log(values);
+    if (!!initialData) {
+      const { addresses: initialDataAddresses, ...initialDataNonAddressesObj } = initialData;
+      const { addresses, ...nonAddressesObj } = values;
+
+      nonAddressChanges = findChangesBetweenObjects(initialDataNonAddressesObj, nonAddressesObj);
+      const nonAddressChangesLength = Object.keys(nonAddressChanges).length;
+
+      let addressesChanged = values.addresses.some((address) => {
+        address.id.includes("new-address-") || values.addresses.length !== initialDataAddresses?.length;
+      }); //are new addresses means that they've changed
+
+      if (!addressesChanged && !!initialDataAddresses) {
+        const limit = Math.min(addresses.length, initialDataAddresses.length);
+        for (let i = 0; i < limit; i++) {
+          const changes = findChangesBetweenObjects(initialDataAddresses[i], addresses[i]);
+          const changesLength = Object.keys(changes).length;
+          if (changesLength > 0) {
+            addressesChanged = true;
+            break;
+          }
+        }
+      }
+      if (nonAddressChangesLength === 0 && !addressesChanged) {
+        setIsEditing(false);
+        return;
+      }
+    }
+    startTransition(() => {
+      if (!!initialData) {
+        console.log(nonAddressChanges);
+        console.log(addressChanges);
+        onSubmitForEditOrganization(values);
+      } else {
+        onSubmitForCreateOrganization(values);
+      }
+    });
   };
 
   const addAddress = (newAddress: z.infer<typeof AddressSchema>) => {
@@ -91,6 +186,11 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
     setValue("addresses", updatedAddresses);
   };
 
+  const removeAddress = (addressId: string) => {
+    const updatedAddresses = watchedAddresses.filter((address) => address.id !== addressId);
+    setValue("addresses", updatedAddresses);
+  };
+
   const watchedMainEmail = watch("mainEmail");
 
   useEffect(() => {
@@ -99,15 +199,37 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
     }
   }, [watchedMainEmail]);
 
+  // console.log(initialData);
+
+  const handleEditToggle = (e: any) => {
+    e.preventDefault();
+    if (isEditing) {
+      form.reset();
+      toast("No changes made");
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const editingAllowed =
+    (!!initialData && (initialData.role === "OWNER" || initialData.role === "ADMIN")) || !initialData;
   return (
     <div className="h-full p-4 max-w-3xl mx-auto">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pb-10">
           <div className="space-y-2 w-full col-span-2">
-            <div>
-              <h3 className="text-lg font-medium">General Information</h3>
-              <p className="text-sm text-muted-foreground">General information about your organization</p>
+            <div className="flex flex-row justify-between">
+              <div className="flex flex-col">
+                <h3 className="text-lg font-medium">General Information</h3>
+                <p className="text-sm text-muted-foreground">General information about your organization</p>
+              </div>
+              {editingAllowed && (
+                <Button className="w-32 h-9 items-center" variant={"outline"} onClick={handleEditToggle}>
+                  {isEditing ? <Ban className="w-4 h-4 mr-2" /> : <PencilLine className="w-4 h-4 mr-2" />}
+                  {isEditing ? "Cancel" : "Edit"}
+                </Button>
+              )}
             </div>
+
             <Separator className="bg-primary/10" />
           </div>
           {/* <FormField
@@ -115,7 +237,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             render={({ field }) => (
               <FormItem className="flex flex-col items-center justify-center space-y-4 col-span-2">
                 <FormControl>
-                  <ImageUpload disabled={isPending} onChange={field.onChange} value={field.value} />
+                  <ImageUpload disabled={isPending || !isEditing} onChange={field.onChange} value={field.value} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -123,26 +245,28 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           /> */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
+              disabled={isPending || !isEditing}
               name="title"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   {/* <FormControl> */}
-                  <Input disabled={isPending} placeholder="Hippocrates Associates" {...field} />
+                  <Input placeholder="Hippocrates Associates" {...field} />
                   {/* </FormControl> */}
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
+              disabled={isPending || !isEditing}
               control={form.control}
               name="organizationType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Type</FormLabel>
                   <Select
-                    disabled={isPending}
+                    disabled={isPending || !isEditing}
                     onValueChange={field.onChange}
                     value={field.value}
                     defaultValue={field.value}
@@ -173,7 +297,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   <GenericCombobox
                     valueParam={field.value}
                     handleChange={(value) => setValue("category", value)}
-                    disabled={isPending}
+                    disabled={isPending || !isEditing}
                     className={cn(
                       "bg-black-300 font-normal min-w-[calc(100vw-90px)]  w-full sm:max-w-[843px] sm:min-w-[300px]",
                     )}
@@ -218,19 +342,14 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           </div>
           <div className="flex flex-col gap-4">
             <FormField
+              disabled={isPending || !isEditing}
               name="subTitle"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subtitle...</FormLabel>
                   {/* <FormControl> */}
-                  <Textarea
-                    disabled={isPending}
-                    rows={2}
-                    className="bg-background resize-none"
-                    placeholder={"Subtitle"}
-                    {...field}
-                  />
+                  <Textarea rows={2} className="bg-background resize-none" placeholder={"Subtitle"} {...field} />
                   {/* </FormControl> */}
                   <FormDescription>One line about our organization.</FormDescription>
                   <FormMessage />
@@ -240,17 +359,12 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             <FormField
               name="description"
               control={form.control}
+              disabled={isPending || !isEditing}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   {/* <FormControl> */}
-                  <Textarea
-                    disabled={isPending}
-                    rows={5}
-                    className="bg-background resize-none"
-                    placeholder={"Description..."}
-                    {...field}
-                  />
+                  <Textarea rows={5} className="bg-background resize-none" placeholder={"Description..."} {...field} />
                   {/* </FormControl> */}
                   <FormDescription>
                     Describe your organization further and provide any relevant details.
@@ -272,13 +386,14 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
+              disabled={isPending || !isEditing}
               name="mainEmail"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Main Email</FormLabel>
                   {/* <FormControl> */}
-                  <Input disabled={isPending} placeholder="Hippocrates@earth.com" {...field} />
+                  <Input placeholder="Hippocrates@earth.com" {...field} />
                   {/* </FormControl> */}
                   <FormMessage />
                 </FormItem>
@@ -296,7 +411,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                     className="border-primary/10"
                     handleChange={(value) => setValue("mainPhone", value)}
                     number={field.value}
-                    disabled={isPending}
+                    disabled={isPending || !isEditing}
                   />
                   <FormMessage />
                 </FormItem>
@@ -310,14 +425,22 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             </div>
             <Separator className="bg-primary/10" />
           </div>
-          <div>
-            <OpenAddressButton numOfCurrentAddresses={watchedAddresses.length} asChild addOrUpdateFunction={addAddress}>
-              <Button variant={"secondary"}>New address</Button>
-            </OpenAddressButton>
-          </div>
+          {editingAllowed && (
+            <div>
+              <OpenAddressButton
+                numOfCurrentAddresses={watchedAddresses.length}
+                asChild
+                addOrUpdateFunction={addAddress}
+              >
+                <Button disabled={isPending || !isEditing} variant={"secondary"}>
+                  New address
+                </Button>
+              </OpenAddressButton>
+            </div>
+          )}
           <div>
             {watchedAddresses.map((address) => (
-              <div className="flex flex-col gap-y-1.5">
+              <div className="flex flex-col gap-y-1.5" key={address.id}>
                 <div className="flex flex-row justify-between gap-2 items-center">
                   <Accordion type="multiple" className="space-y-2 w-full">
                     <AccordionItem className="border-none" value={address.id}>
@@ -345,27 +468,43 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
-                  <OpenAddressButton
-                    numOfCurrentAddresses={watchedAddresses.length}
-                    initialData={address}
-                    asChild
-                    addOrUpdateFunction={updateAddress}
-                  >
-                    <Button className="w-20 h-9 items-center" variant={"outline"}>
-                      <Pencil className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
-                  </OpenAddressButton>
+                  {editingAllowed && (
+                    <>
+                      <OpenAddressButton
+                        numOfCurrentAddresses={watchedAddresses.length}
+                        initialData={address}
+                        asChild
+                        addOrUpdateFunction={updateAddress}
+                      >
+                        <Button
+                          disabled={isPending || !isEditing}
+                          className="w-12 xs:w-20 h-9 items-center"
+                          variant={"outline"}
+                        >
+                          <PencilLine className="w-4 h-4 xs:mr-2" />
+                          <span className="hidden xs:flex">Edit</span>
+                        </Button>
+                      </OpenAddressButton>
+                      <Button
+                        disabled={isPending || !isEditing}
+                        onClick={() => removeAddress(address.id)}
+                        className="w-12 xs:w-20 h-9 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+                      >
+                        <Trash className="w-4 h-4 xs:mr-2 flex xs:hidden" />
+                        <span className="hidden xs:flex">Delete</span>
+                      </Button>
+                    </>
+                  )}
                 </div>
                 <Separator className="bg-primary/10" />
               </div>
             ))}
           </div>
 
-          <div className="w-full flex justify-center pt-20">
-            <Button size="lg" disabled={isPending}>
+          <div className="w-full flex justify-center pt-4 xs:pt-20 pb-20 xs:pb-0">
+            <Button type="submit" size="lg" disabled={isPending || !isEditing}>
               {initialData ? "Edit your organization" : "Create a new organization"}
-              <Wand2 className="w-4 h-4 ml-2" />
+              {initialData ? <PencilLine className="w-4 h-4 ml-2" /> : <PackagePlus className="w-4 h-4 ml-2" />}
             </Button>
           </div>
         </form>

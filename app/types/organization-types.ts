@@ -1,5 +1,6 @@
-import { Organization, OrganizationMemberRole } from "@prisma/client";
+import { Organization, OrganizationAddress, OrganizationMemberRole } from "@prisma/client";
 
 export type OrganizationWithRoleType = Organization & {
   role: OrganizationMemberRole;
+  addresses?: OrganizationAddress[];
 };

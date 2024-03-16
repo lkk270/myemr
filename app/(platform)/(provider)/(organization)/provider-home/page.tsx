@@ -1,4 +1,4 @@
-import { OrganizationStart } from "../_components/organization-start";
+import { OrganizationStart } from "../../_components/organization-start";
 
 export default function Home() {
   return (

@@ -124,27 +124,29 @@ model PatientAddress {
   @@index([patientProfileId])
 }
 
-model ProviderAddress {
-  id       String  @id @default(cuid())
-  name     String
-  address  String
-  address2 String?
-  city     String
-  state    String
-  zipcode  String
-  phone    String?
+// model ProviderAddress {
+//   id       String  @id @default(cuid())
+//   name     String
+//   address  String
+//   address2 String?
+//   city     String
+//   state    String
+//   zipcode  String
+//   phone    String?
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+//   organizationId String
+//   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  @@index([organizationId])
-}
+//   @@index([organizationId])
+// }
 
 model OrganizationAddress {
   id       String  @id @default(cuid())
+  name     String
+  phone    String?
   address  String
   address2 String?
   city     String
@@ -355,20 +357,19 @@ model Organization {
   title              String
   category           String
   subTitle           String?          @db.Text
-  desciption         String?          @db.Text
+  description        String?          @db.Text
   backgroundImageUrl String?          @db.Text
   profileImageUrl    String?          @db.Text
   acceptMessages     Boolean          @default(false)
   organizationType   OrganizationType @default(PRIVATE_PRACTICE)
 
-  organizationAddresses OrganizationAddress[]
+  addresses OrganizationAddress[]
   organizationTags      OrganizationTags[]
 
   organizationMembers OrganizationMember[]
   patients            PatientMember[]
-  providerAddress     ProviderAddress[]
-  officeEmail         String?
-  officePhone         String?
+  mainEmail           String?
+  mainPhone           String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 }

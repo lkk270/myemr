@@ -158,7 +158,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", organizations }: Sid
             <div className="text-md font-medium flex items-center mb-1">
               <span>Organizations</span>
               <Button asChild type="button" size="icon" variant="ghost" className="ml-3">
-                <Link href="/select-org">
+                <Link href="/provider-home">
                   <Plus className="h-4 w-4" />
                 </Link>
               </Button>
@@ -166,9 +166,9 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", organizations }: Sid
             <Accordion type="multiple" defaultValue={defaultAccordionValue} className="space-y-2">
               {organizations.map((organization) => (
                 <NavItem
-                  key={"1"}
+                  key={organization.id}
                   isActive={false}
-                  isExpanded={expanded["1"]}
+                  isExpanded={expanded[organization.id]}
                   organization={organization as any}
                   onExpand={onExpand}
                 />

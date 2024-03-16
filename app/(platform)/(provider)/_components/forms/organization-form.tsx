@@ -4,7 +4,6 @@ import * as z from "zod";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, usePathname } from "next/navigation";
 import { Ban, PackagePlus, PencilLine, Trash } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -41,12 +40,9 @@ interface OrganizationFormProps {
   initialData?: OrganizationWithRoleType;
 }
 export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
-  const pathname = usePathname();
-  const organizationId = pathname.split("/organization/")[1].split("/")[0];
-
-  const { addOrganization } = useOrganizationStore();
+  const { addOrganization, updateOrganization } = useOrganizationStore();
   const [isPending, startTransition] = useTransition();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(!initialData);
 
   // console.log(initialData);
   const form = useForm<z.infer<typeof OrganizationSchema>>({
@@ -94,8 +90,12 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             logout();
           }
         }
-        if (data.success) {
-          // newMedicationModal.onClose();
+        if (!!data.success && !!data.organizationId) {
+          addOrganization({
+            ...values,
+            id: data.organizationId,
+            role: "OWNER",
+          });
           toast.success("Organization successfully added!");
         }
       })
@@ -106,7 +106,8 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
   };
 
   const onSubmitForEditOrganization = (values: z.infer<typeof OrganizationSchema>) => {
-    editOrganization(values, organizationId)
+    if (!initialData) return;
+    editOrganization(values, initialData.id)
       .then((data) => {
         if (data.error) {
           toast.error(data.error);
@@ -117,6 +118,14 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
         }
         if (data.success) {
           // newMedicationModal.onClose();
+          const newDate = new Date();
+          updateOrganization({
+            ...values,
+            role: initialData.role,
+            id: initialData.id,
+            createdAt: newDate,
+            updatedAt: newDate,
+          });
           toast.success("Organization successfully updated!");
         }
       })
@@ -130,7 +139,6 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
     let nonAddressChanges: any = {};
     let addressChanges: any = {};
 
-    console.log(values);
     if (!!initialData) {
       const { addresses: initialDataAddresses, ...initialDataNonAddressesObj } = initialData;
       const { addresses, ...nonAddressesObj } = values;
@@ -160,8 +168,6 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
     }
     startTransition(() => {
       if (!!initialData) {
-        console.log(nonAddressChanges);
-        console.log(addressChanges);
         onSubmitForEditOrganization(values);
       } else {
         onSubmitForCreateOrganization(values);
@@ -222,7 +228,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                 <h3 className="text-lg font-medium">General Information</h3>
                 <p className="text-sm text-muted-foreground">General information about your organization</p>
               </div>
-              {editingAllowed && (
+              {!!initialData && editingAllowed && (
                 <Button className="w-32 h-9 items-center" variant={"outline"} onClick={handleEditToggle}>
                   {isEditing ? <Ban className="w-4 h-4 mr-2" /> : <PencilLine className="w-4 h-4 mr-2" />}
                   {isEditing ? "Cancel" : "Edit"}

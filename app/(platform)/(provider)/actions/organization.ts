@@ -22,26 +22,21 @@ export const createOrganization = async (values: z.infer<typeof OrganizationSche
     const { addresses, ...nonAddressesObj } = values;
     const addressesWithoutId = addresses.map(({ id, ...restOfAddress }) => restOfAddress);
 
-    await prismadb.$transaction(
-      async (prisma) => {
-        await prisma.organization.create({
-          data: {
-            ...nonAddressesObj,
-            addresses: {
-              createMany: { data: addressesWithoutId },
-            },
-            organizationMembers: {
-              create: { role: "OWNER", userId },
-            },
-          },
-        });
+    const organization = await prismadb.organization.create({
+      data: {
+        ...nonAddressesObj,
+        addresses: {
+          createMany: { data: addressesWithoutId },
+        },
+        organizationMembers: {
+          create: { role: "OWNER", userId },
+        },
       },
-
-      { timeout: 20000 },
-    );
+    });
 
     return {
       success: "Organization created!",
+      organizationId: organization.id,
     };
   } catch (e) {
     console.log("TRUE ERROR");

@@ -14,7 +14,7 @@ const OrganizationSettingsPage = async ({ params }: OrganizationSettingsPageProp
 
   const session = await auth();
   const user = session?.user;
-  console.log(user);
+
   if (!session || !user || user.userType !== "PROVIDER") {
     return redirect("/");
   }

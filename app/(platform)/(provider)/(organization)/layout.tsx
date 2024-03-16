@@ -6,7 +6,7 @@ import { OrganizationWithRoleType } from "@/app/types";
 const OrganizationLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   const user = session?.user;
-  console.log(user);
+
   if (!session || !user || user.userType !== "PROVIDER") {
     return redirect("/");
   }
@@ -27,7 +27,7 @@ const OrganizationLayout = async ({ children }: { children: React.ReactNode }) =
 
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar organizations={organizations} />
+      <Sidebar initialOrganizations={organizations} />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
     </main>
   );

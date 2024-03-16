@@ -24,11 +24,11 @@ import { useOrganizationStore } from "./hooks/use-organizations";
 interface SidebarProps {
   // data: any[];
   storageKey?: string;
-  organizations: OrganizationWithRoleType[];
+  initialOrganizations: OrganizationWithRoleType[];
 }
-export const Sidebar = ({ storageKey = "myemr-storage-key", organizations }: SidebarProps) => {
+export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations }: SidebarProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const { setOrganizations } = useOrganizationStore();
+  const { setOrganizations, organizations } = useOrganizationStore();
   const pathname = usePathname();
 
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -48,7 +48,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", organizations }: Sid
   useEffect(() => {
     setIsMounted(true);
     // console.log(organizations);
-    setOrganizations(organizations);
+    setOrganizations(initialOrganizations);
   }, []);
 
   useEffect(() => {

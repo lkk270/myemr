@@ -44,7 +44,7 @@ export const TwoFactorConfirmationEmail = ({ verificationToken }: TwoFactorConfi
             Home
           </Link>
           &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-          <Link style={footerLink} href="https://myemr.io/legal" target="_blank" rel="noopener noreferrer">
+          <Link style={footerLink} href="https://myemr.io/terms" target="_blank" rel="noopener noreferrer">
             Terms
           </Link>
           <Text style={footerText}>

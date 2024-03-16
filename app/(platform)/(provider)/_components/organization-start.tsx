@@ -30,25 +30,59 @@ export const OrganizationStart = () => {
         <CardDescription>Select, join, or create an organization.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-y-3">
-        <div>
-          <Label>My organizations</Label>
+        <Label>My organizations</Label>
+        <div className="h-32 overflow-y-scroll">
           {organizations.map((organization, index) => (
-            <Link href={`/organization/${organization.id}/patients`} key={index}>
-              <Button
-                variant="outline"
-                className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
-              >
-                <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                  <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                    <Building2 className="w-5 h-5" />
+            <>
+              <Link href={`/organization/${organization.id}/patients`} key={index}>
+                <Button
+                  variant="outline"
+                  className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
+                >
+                  <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
+                    <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
                   </div>
-                  <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
-                </div>
-                <div className="flex-shrink-0">
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </Button>
-            </Link>
+                  <div className="flex-shrink-0">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </Button>
+              </Link>
+              <Link href={`/organization/${organization.id}/patients`} key={index}>
+                <Button
+                  variant="outline"
+                  className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
+                >
+                  <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
+                    <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </Button>
+              </Link>
+              <Link href={`/organization/${organization.id}/patients`} key={index}>
+                <Button
+                  variant="outline"
+                  className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
+                >
+                  <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
+                    <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </Button>
+              </Link>
+            </>
           ))}
         </div>
         <div className="flex items-center w-full">

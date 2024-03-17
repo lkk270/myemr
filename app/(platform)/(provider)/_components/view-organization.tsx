@@ -4,17 +4,34 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 // import { AddressAccordion } from "./address-accordion";
 import { cn } from "@/lib/utils";
+import { PencilLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
 interface ViewOrganizationProps {
+  editingAllowed: boolean;
+  handleEditToggle: (e: any) => void;
   initialData: OrganizationWithRoleType;
 }
-export const ViewOrganization = ({ initialData }: ViewOrganizationProps) => {
+export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle }: ViewOrganizationProps) => {
   return (
     <div className="h-full p-4 w-full max-w-3xl mx-auto">
       <div className="space-y-4">
-        <div className="space-y-2 w-full">
-          <h3 className="text-lg font-medium">General Information</h3>
-          <p className="text-sm text-muted-foreground">General information about your organization</p>
-          <Separator className="bg-primary/10" />
+        <div className="flex flex-row justify-between">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-medium">General Information</h3>
+            <p className="text-sm text-muted-foreground">General information about your organization</p>
+          </div>
+          {editingAllowed && (
+            <Button
+              className="w-32 h-9 items-center"
+              variant={"outline"}
+              onClick={(e) => {
+                handleEditToggle(e);
+              }}
+            >
+              <PencilLine className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>

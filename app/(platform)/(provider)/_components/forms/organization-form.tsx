@@ -221,10 +221,12 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
     (!!initialData && (initialData.role === "OWNER" || initialData.role === "ADMIN")) || !initialData;
 
   if (!isEditing && !!initialData) {
-    return <ViewOrganization initialData={initialData} />;
+    return (
+      <ViewOrganization handleEditToggle={handleEditToggle} editingAllowed={editingAllowed} initialData={initialData} />
+    );
   }
   return (
-    <div className="h-full p-4 max-w-3xl mx-auto">
+    <div className="h-full p-4 w-full max-w-3xl mx-auto">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2 w-full col-span-2">
@@ -234,7 +236,13 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                 <p className="text-sm text-muted-foreground">General information about your organization</p>
               </div>
               {!!initialData && editingAllowed && (
-                <Button className="w-32 h-9 items-center" variant={"outline"} onClick={handleEditToggle}>
+                <Button
+                  className="w-32 h-9 items-center"
+                  variant={"outline"}
+                  onClick={(e) => {
+                    handleEditToggle(e);
+                  }}
+                >
                   {isEditing ? <Ban className="w-4 h-4 mr-2" /> : <PencilLine className="w-4 h-4 mr-2" />}
                   {isEditing ? "Cancel" : "Edit"}
                 </Button>

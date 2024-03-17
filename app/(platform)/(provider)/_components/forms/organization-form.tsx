@@ -42,40 +42,43 @@ interface OrganizationFormProps {
 }
 export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
   const { addOrganization, updateOrganization } = useOrganizationStore();
+  const [initialDataDynamic, setInitialDataDynamic] = useState(initialData);
+
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(!initialData);
 
   // console.log(initialData);
   const form = useForm<z.infer<typeof OrganizationSchema>>({
     resolver: zodResolver(OrganizationSchema),
-    defaultValues: !!initialData
-      ? {
-          title: initialData.title,
-          category: initialData.category,
-          organizationType: initialData.organizationType,
-          subTitle: initialData.subTitle || undefined,
-          description: initialData.description || undefined,
-          backgroundImageUrl: initialData.backgroundImageUrl || undefined,
-          profileImageUrl: initialData.profileImageUrl || undefined,
-          acceptMessages: initialData.acceptMessages,
-          mainEmail: initialData.mainEmail || undefined,
-          mainPhone: initialData.mainPhone || undefined,
-          addresses: initialData.addresses,
-        }
-      : {
-          title: "",
-          category: "",
-          subTitle: undefined,
-          description: undefined,
-          backgroundImageUrl: undefined,
-          profileImageUrl: undefined,
-          acceptMessages: undefined,
-          organizationType: undefined,
-          // tags: [],
-          mainEmail: undefined,
-          mainPhone: undefined,
-          addresses: [],
-        },
+    defaultValues:
+      !!initialData && !!initialDataDynamic
+        ? {
+            title: initialDataDynamic.title,
+            category: initialDataDynamic.category,
+            organizationType: initialDataDynamic.organizationType,
+            subTitle: initialDataDynamic.subTitle || undefined,
+            description: initialDataDynamic.description || undefined,
+            backgroundImageUrl: initialDataDynamic.backgroundImageUrl || undefined,
+            profileImageUrl: initialDataDynamic.profileImageUrl || undefined,
+            acceptMessages: initialDataDynamic.acceptMessages,
+            mainEmail: initialDataDynamic.mainEmail || undefined,
+            mainPhone: initialDataDynamic.mainPhone || undefined,
+            addresses: initialDataDynamic.addresses,
+          }
+        : {
+            title: "",
+            category: "",
+            subTitle: undefined,
+            description: undefined,
+            backgroundImageUrl: undefined,
+            profileImageUrl: undefined,
+            acceptMessages: undefined,
+            organizationType: undefined,
+            // tags: [],
+            mainEmail: undefined,
+            mainPhone: undefined,
+            addresses: [],
+          },
   });
   const { setValue, control, watch } = form;
 
@@ -97,6 +100,13 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             id: data.organizationId,
             role: "OWNER",
           });
+          setInitialDataDynamic({
+            ...values,
+            id: data.organizationId,
+            role: "OWNER",
+          });
+          form.reset(values);
+          setIsEditing(false);
           toast.success("Organization successfully added!");
         }
       })
@@ -127,6 +137,15 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             createdAt: newDate,
             updatedAt: newDate,
           });
+          setInitialDataDynamic({
+            ...values,
+            role: initialData.role,
+            id: initialData.id,
+            createdAt: newDate,
+            updatedAt: newDate,
+          });
+          form.reset(values);
+          setIsEditing(false);
           toast.success("Organization successfully updated!");
         }
       })
@@ -138,10 +157,9 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
 
   const onSubmit = (values: z.infer<typeof OrganizationSchema>) => {
     let nonAddressChanges: any = {};
-    let addressChanges: any = {};
 
-    if (!!initialData) {
-      const { addresses: initialDataAddresses, ...initialDataNonAddressesObj } = initialData;
+    if (!!initialData && !!initialDataDynamic) {
+      const { addresses: initialDataAddresses, ...initialDataNonAddressesObj } = initialDataDynamic;
       const { addresses, ...nonAddressesObj } = values;
 
       nonAddressChanges = findChangesBetweenObjects(initialDataNonAddressesObj, nonAddressesObj);
@@ -163,6 +181,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
         }
       }
       if (nonAddressChangesLength === 0 && !addressesChanged) {
+        toast("No changes made");
         setIsEditing(false);
         return;
       }
@@ -220,9 +239,13 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
   const editingAllowed =
     (!!initialData && (initialData.role === "OWNER" || initialData.role === "ADMIN")) || !initialData;
 
-  if (!isEditing && !!initialData) {
+  if (!isEditing && !!initialData && !!initialDataDynamic) {
     return (
-      <ViewOrganization handleEditToggle={handleEditToggle} editingAllowed={editingAllowed} initialData={initialData} />
+      <ViewOrganization
+        handleEditToggle={handleEditToggle}
+        editingAllowed={editingAllowed}
+        initialData={initialDataDynamic}
+      />
     );
   }
   return (

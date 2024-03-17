@@ -33,28 +33,29 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
             </Button>
           )}
         </div>
+        <Separator className="bg-primary/10" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Title:</strong>
             <p>{initialData.title}</p>
           </div>
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Organization Type:</strong>
             <p>{initialData.organizationType}</p>
           </div>
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Category:</strong>
             <p>{initialData.category}</p>
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Subtitle:</strong>
-            <p>{initialData.subTitle}</p>
+            <p>{initialData.subTitle || "N/A"}</p>
           </div>
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Description:</strong>
-            <p>{initialData.description}</p>
+            <p>{initialData.description || "N/A"}</p>
           </div>
         </div>
 
@@ -63,13 +64,13 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
           <Separator className="bg-primary/10" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Main Email:</strong>
-            <p>{initialData.mainEmail}</p>
+            <p>{initialData.mainEmail || "N/A"}</p>
           </div>
-          <div>
+          <div className="flex flex-col gap-y-2">
             <strong>Main Phone:</strong>
-            <p>{initialData.mainPhone}</p>
+            <p>{initialData.mainPhone || "N/A"}</p>
           </div>
         </div>
 

@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useOrganizationStore } from "./hooks/use-organizations";
 import { Building2, ArrowRight } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
 import { CreateNewOrganizationButton } from "./create-new-organization-button";
 import Link from "next/link";
+import Image from "next/image";
 
 export const OrganizationStart = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -40,41 +40,21 @@ export const OrganizationStart = () => {
                   className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
                 >
                   <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                    <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                      <Building2 className="w-5 h-5" />
-                    </div>
-                    <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </Button>
-              </Link>
-              <Link href={`/organization/${organization.id}/patients`} key={index}>
-                <Button
-                  variant="outline"
-                  className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
-                >
-                  <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                    <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                      <Building2 className="w-5 h-5" />
-                    </div>
-                    <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </Button>
-              </Link>
-              <Link href={`/organization/${organization.id}/patients`} key={index}>
-                <Button
-                  variant="outline"
-                  className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
-                >
-                  <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                    <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                      <Building2 className="w-5 h-5" />
-                    </div>
+                    {organization.profileImageUrl ? (
+                      <div className="w-8 h-8 relative">
+                        <Image
+                          sizes="32px"
+                          fill
+                          src={organization.profileImageUrl}
+                          alt="Organization"
+                          className="rounded-sm object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+                        <Building2 className="w-5 h-5" />
+                      </div>
+                    )}
                     <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
                   </div>
                   <div className="flex-shrink-0">

@@ -6,6 +6,7 @@ interface OrganizationsStore {
   organizationsSet: boolean; // New field to track if organizations have been set
   setOrganizations: (organizations: OrganizationWithRoleType[]) => void;
   addOrganization: (organization: OrganizationWithRoleType) => void;
+  patchOrganization: (organizationId: string, updates: Partial<OrganizationWithRoleType>) => void;
   updateOrganization: (updatedOrganization: OrganizationWithRoleType) => void;
   deleteOrganization: (organizationId: string) => void;
   isOrganizationNameExist: (name: string) => boolean;
@@ -17,6 +18,12 @@ export const useOrganizationStore = create<OrganizationsStore>((set, get) => ({
   organizationsSet: false, // Initial value is false
   setOrganizations: (organizations) => set({ organizations, organizationsSet: true }),
   addOrganization: (organization) => set((state) => ({ organizations: [...state.organizations, organization] })),
+  patchOrganization: (organizationId, updates) =>
+    set((state) => ({
+      organizations: state.organizations.map((organization) =>
+        organization.id === organizationId ? { ...organization, ...updates } : organization,
+      ),
+    })),
   updateOrganization: (updatedOrganization) =>
     set((state) => ({
       organizations: state.organizations.map((organization) => {

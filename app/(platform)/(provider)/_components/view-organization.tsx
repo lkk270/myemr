@@ -1,7 +1,8 @@
 import { OrganizationWithRoleType } from "@/app/types";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
+import { Building2 } from "lucide-react";
+import Image from "next/image";
 // import { AddressAccordion } from "./address-accordion";
 import { cn } from "@/lib/utils";
 import { PencilLine } from "lucide-react";
@@ -35,6 +36,15 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
         </div>
         <Separator className="bg-primary/10" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="justify-center sm:justify-start flex flex-row gap-x-2 items-center flex-grow min-w-0">
+            {initialData.profileImageUrl ? (
+              <Image width={80} height={80} src={initialData.profileImageUrl} alt="image" />
+            ) : (
+              <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+                <Building2 className="w-5 h-5" />
+              </div>
+            )}
+          </div>
           <div className="flex flex-col gap-y-2">
             <strong>Title:</strong>
             <p>{initialData.title}</p>

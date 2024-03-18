@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Dot, ChevronsUpDown, Building2, Users, Activity, Settings } from "lucide-react";
 import {
@@ -18,14 +18,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useOrganizationStore } from "./hooks/use-organizations";
-
+import { usePathname } from "next/navigation";
 type OrganizationType = {
   id: string;
   title: string;
 };
 export const OrganizationDropdown = () => {
-  const { organizations } = useOrganizationStore();
-  const [currentOrganizationId, setCurrentOrganizationId] = useState(organizations[0].id);
+  const pathname = usePathname();
+  const organizationId = pathname.split("/organization/")[1].split("/")[0];
+  const { organizations, getOrganizationById } = useOrganizationStore();
+  const currentOrganization = getOrganizationById(organizationId);
 
   const DropdownMenuSubComponent = ({ id, title }: OrganizationType) => {
     const routes = [
@@ -69,15 +71,25 @@ export const OrganizationDropdown = () => {
     );
   };
 
+  if (!currentOrganization) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="w-48">
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <span className="text-left truncate text-sm flex-grow min-w-0">{organizations[0].title}</span>
+            {currentOrganization.profileImageUrl ? (
+              <Image width={30} height={30} src={currentOrganization.profileImageUrl} alt="image" />
+            ) : (
+              <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+                <Building2 className="w-5 h-5" />
+              </div>
+            )}
+            <span className="text-left truncate text-sm flex-grow min-w-0">
+              {currentOrganization.title}sdfsdf sdf sadf sdfsdfsdfsdf
+            </span>
           </div>
           <div className="flex-shrink-0">
             <ChevronsUpDown className="w-4 h-4" />
@@ -90,12 +102,12 @@ export const OrganizationDropdown = () => {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {organizations.map((organization, index) =>
-            currentOrganizationId === organization.id ? (
-              <DropdownMenuSubComponent id={organization.id} title={organization.title} />
+            organizationId === organization.id ? (
+              <DropdownMenuSubComponent key={index} id={organization.id} title={organization.title} />
             ) : (
               <Link href={`/organization/${organization.id}`} key={index}>
                 <DropdownMenuItem>
-                  <span>{organization.title}</span>
+                  <span className="truncate">{organization.title}</span>
                 </DropdownMenuItem>
               </Link>
             ),

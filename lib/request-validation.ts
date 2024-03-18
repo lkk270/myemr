@@ -13,6 +13,7 @@ const validUpdateTypes = [
   "tpaUploadFiles",
   "rrUploadFiles",
   "ppUpload",
+  "oppUpload",
 ];
 const patientConditionals: any = {
   renameNode: {
@@ -70,6 +71,11 @@ const patientConditionals: any = {
     requiredFields: ["contentType"],
     optionalFields: [],
     mandatoryTruePermissions: ["canUploadFiles", "hasAccount"],
+  },
+  oppUpload: {
+    requiredFields: ["contentType"],
+    optionalFields: [],
+    mandatoryTruePermissions: ["hasAccount"],
   },
 };
 

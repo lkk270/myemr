@@ -166,6 +166,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations
             <Accordion type="multiple" defaultValue={defaultAccordionValue} className="space-y-2">
               {organizations.map((organization) => (
                 <NavItem
+                  width={sidebarWidth}
                   key={organization.id}
                   isActive={false}
                   isExpanded={expanded[organization.id]}

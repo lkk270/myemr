@@ -2,7 +2,7 @@
 
 import { Building2 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Logo } from "@/components/logo";
+import { usePathname } from "next/navigation";
 import { UserButton } from "@/components/user-button";
 import { OrganizationDropdown } from "./organization-dropdown";
 import { useOrganizationStore } from "./hooks/use-organizations";
@@ -12,6 +12,7 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
+  const pathName = usePathname();
   const { organizations } = useOrganizationStore();
   return (
     <>
@@ -25,7 +26,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
         <div className="hidden items-center px-3 xs:flex"></div>
         <div className="flex items-center">
           <div className="flex items-center sm:flex gap-x-4">
-            {organizations.length > 0 && <OrganizationDropdown />}
+            {pathName !== "/provider-home" && organizations.length > 0 && <OrganizationDropdown />}
             <ModeToggle />
             <UserButton />
           </div>

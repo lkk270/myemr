@@ -4,7 +4,7 @@ import * as z from "zod";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Ban, PackagePlus, PencilLine, Trash } from "lucide-react";
+import { Ban, Building2, PackagePlus, PencilLine, Trash } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,9 @@ import { useOrganizationStore } from "../hooks/use-organizations";
 import { OrganizationWithRoleType } from "@/app/types/organization-types";
 import { ViewOrganization } from "../view-organization";
 // import { AddressAccordion } from "../address-accordion";
+import Image from "next/image";
+import { DeleteProfilePictureButton } from "@/components/modals/patient-manage-account/delete-profile-picture-button";
+import { UploadOrganizationPictureButton } from "../upload-organization-picture-button";
 
 const organizationTypes = [
   { value: "CLINIC", label: "Clinic" },
@@ -41,7 +44,7 @@ interface OrganizationFormProps {
   initialData?: OrganizationWithRoleType;
 }
 export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
-  const { addOrganization, updateOrganization } = useOrganizationStore();
+  const { addOrganization, patchOrganization, getOrganizationById } = useOrganizationStore();
   const [initialDataDynamic, setInitialDataDynamic] = useState(initialData);
 
   const [isPending, startTransition] = useTransition();
@@ -130,13 +133,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
         if (data.success) {
           // newMedicationModal.onClose();
           const newDate = new Date();
-          updateOrganization({
-            ...values,
-            role: initialData.role,
-            id: initialData.id,
-            createdAt: newDate,
-            updatedAt: newDate,
-          });
+          patchOrganization(initialData.id, values);
           setInitialDataDynamic({
             ...values,
             role: initialData.role,
@@ -248,6 +245,8 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
       />
     );
   }
+  const organizationById = initialData ? getOrganizationById(initialData.id) : null;
+
   return (
     <div className="h-full p-4 w-full max-w-3xl mx-auto">
       <Form {...form}>
@@ -286,6 +285,31 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             )}
           /> */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {organizationById && (
+              <div className="justify-center flex items-center gap-x-8 sm:justify-start">
+                {organizationById.profileImageUrl ? (
+                  <Image width={80} height={80} src={organizationById.profileImageUrl} alt="image" />
+                ) : (
+                  <div className="border-dashed border-[3px] border-primary/40 rounded-lg p-6 w-20 h-20 flex flex-col">
+                    <Building2 className="text-muted-foreground" />
+                  </div>
+                )}
+                <div className="flex flex-col gap-y-2">
+                  <UploadOrganizationPictureButton asChild organizationId={organizationById.id}>
+                    <Button variant={"secondary"} className="w-20 h-8">
+                      Upload
+                    </Button>
+                  </UploadOrganizationPictureButton>
+                  {organizationById.profileImageUrl && (
+                    <DeleteProfilePictureButton asChild>
+                      <Button className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]">
+                        Delete
+                      </Button>
+                    </DeleteProfilePictureButton>
+                  )}
+                </div>
+              </div>
+            )}
             <FormField
               disabled={isPending || !isEditing}
               name="title"

@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { Activity, Users, Settings, Settings2, BriefcaseMedical } from "lucide-react";
+import { Activity, Users, Settings, Settings2, BriefcaseMedical, Building2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -16,9 +16,10 @@ interface NavItemProps {
   isActive: boolean;
   organization: Organization;
   onExpand?: (id: string) => void;
+  width: number;
 }
 
-export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavItemProps) => {
+export const NavItem = ({ isExpanded, isActive, organization, onExpand, width }: NavItemProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -26,7 +27,7 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
     {
       label: "Patients",
       icon: <BriefcaseMedical className="h-4 w-4 mr-2" />,
-      href: `/organization/${organization.id}`,
+      href: `/organization/${organization.id}/patients`,
     },
     {
       label: "Activity",
@@ -51,9 +52,7 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
     },
   ];
 
-  const onClick = (href: string) => {
-    router.push(href);
-  };
+  const newWidth = (width - 100).toString();
 
   return (
     <AccordionItem value={organization.id} className="border-none">
@@ -65,20 +64,31 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
         )}
       >
         <div className="flex items-center gap-x-2">
-          {organization.profileImageUrl && (
+          {organization.profileImageUrl ? (
             <div className="w-7 h-7 relative">
-              <Image fill src={organization.profileImageUrl} alt="Organization" className="rounded-sm object-cover" />
+              <Image
+                sizes="28px"
+                fill
+                src={organization.profileImageUrl}
+                alt="Organization"
+                className="rounded-sm object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-7 h-7 rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
+              <Building2 className="w-full h-full" />
             </div>
           )}
-          <span className="font-medium text-sm">{organization.title}</span>
+          <span className={`font-medium text-sm truncate`} style={{ maxWidth: `${newWidth}px` }}>
+            {organization.title}
+          </span>
         </div>
       </AccordionTrigger>
-      <AccordionContent className="pt-1 text-primary/70">
-        {routes.map((route) =>
+      <AccordionContent className="pb-0 pt-1 text-primary/70">
+        {routes.map((route, index) =>
           !!route.href ? (
-            <Link href={route.href}>
+            <Link href={route.href} key={route.href}>
               <Button
-                key={route.href}
                 size="sm"
                 className={cn(
                   "w-full font-normal justify-start pl-10 mb-1",
@@ -91,7 +101,7 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
               </Button>
             </Link>
           ) : (
-            <Accordion type="multiple" defaultValue={undefined} className="space-y-2">
+            <Accordion key={index} type="multiple" defaultValue={undefined} className="space-y-2">
               <AccordionItem value={organization.id} className="border-none">
                 <AccordionTrigger
                   className={cn(
@@ -104,11 +114,10 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand }: NavIte
                     {route.label}
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pt-1 text-primary/70">
+                <AccordionContent className="pt-1 text-primary/70 pb-0">
                   {route.routes?.map((routesRoute) => (
-                    <Link href={routesRoute.href}>
+                    <Link href={routesRoute.href} key={index.toString() + "-rr-" + routesRoute.href.toString()}>
                       <Button
-                        key={routesRoute.href}
                         size="sm"
                         className={cn(
                           "w-full font-normal justify-start pl-20 mb-1",

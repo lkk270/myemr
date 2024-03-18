@@ -363,8 +363,8 @@ model Organization {
   acceptMessages     Boolean          @default(false)
   organizationType   OrganizationType @default(PRIVATE_PRACTICE)
 
-  addresses OrganizationAddress[]
-  organizationTags      OrganizationTags[]
+  addresses        OrganizationAddress[]
+  organizationTags OrganizationTags[]
 
   organizationMembers OrganizationMember[]
   patients            PatientMember[]
@@ -424,6 +424,7 @@ model OrganizationMember {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([organizationId, userId])
   // @@index([providerProfileId])
   @@index([organizationId])
   @@index([userId])

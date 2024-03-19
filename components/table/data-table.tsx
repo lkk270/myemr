@@ -35,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   className?: string;
   isLink?: boolean;
+  showDataTableViewOptions?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -47,6 +48,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   className = "",
   isLink = false,
+  showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const currentUserPermissions = useCurrentUserPermissions();
@@ -83,7 +85,12 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="space-y-4">
-        <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
+        <DataTableToolbar
+          showDataTableViewOptions={showDataTableViewOptions}
+          filters={filters}
+          newOnOpen={newOnOpen}
+          table={table}
+        />
         {isLink && (
           <span style={{ fontSize: "10px" }} className="text-muted-foreground">
             Double click on a row to open it

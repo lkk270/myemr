@@ -1,6 +1,7 @@
 import {
   Organization,
   OrganizationAddress,
+  OrganizationMember,
   OrganizationMemberRole,
   OrganizationTags,
   OrganizationType,
@@ -38,4 +39,13 @@ type SpecialOrganizationType = {
 export type OrganizationWithRoleType = SpecialOrganizationType & {
   role: OrganizationMemberRole;
   addresses?: SpecialOrganizationAddress[];
+};
+
+export type OrganizationMemberType = OrganizationMember & {
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
 };

@@ -291,7 +291,7 @@ export function isViewableFile(fileType: string) {
 export function isValidNodeName(newName: string): boolean {
   // Check if the file name is empty
   const newNameLength = newName.trim().length;
-  if (!newName || newNameLength || newNameLength > 125) {
+  if (!newName || newNameLength === 0 || newNameLength > 125) {
     return false;
   }
   const invalidChars = /[\/\\?%*:|"<>&]/g;
@@ -518,4 +518,15 @@ export function findChangesBetweenObjects(oldObject: any, newObject: any) {
   });
 
   return changesObject;
+}
+
+export function formatPhoneNumber(phoneNumberString: string): string {
+  // Extract the parts of the phone number using a regular expression
+  const match = phoneNumberString.match(/^(\d{3})(\d{3})(\d{4})$/);
+
+  // If the input is valid, format and return the phone number
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+  return "N/A";
 }

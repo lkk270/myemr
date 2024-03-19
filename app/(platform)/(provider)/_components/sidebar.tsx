@@ -1,18 +1,16 @@
 "use client";
 
-import { ChevronsLeft } from "lucide-react";
+import { ChevronsLeft, PackagePlus } from "lucide-react";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Navbar } from "./navbar";
-import { Separator } from "@/components/ui/separator";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
 
 import { Button } from "@/components/ui/button";
@@ -159,7 +157,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations
               <span>Organizations</span>
               <Button asChild type="button" size="icon" variant="ghost" className="ml-3">
                 <Link href="/provider-home">
-                  <Plus className="h-4 w-4" />
+                  <PackagePlus className="h-5 w-5" />
                 </Link>
               </Button>
             </div>

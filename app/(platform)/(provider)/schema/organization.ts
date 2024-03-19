@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { rootFolderCategories, states } from "@/lib/constants";
-import { OrganizationType } from "@prisma/client";
+import { OrganizationMemberRole, OrganizationType } from "@prisma/client";
 
 export const AddressSchema = z.object({
   id: z.string(),
@@ -40,7 +40,7 @@ export const AddressSchema = z.object({
     .string()
     .optional()
     .nullable()
-    .refine((value) => typeof value === "undefined"  || !value || value.length === 0 || value.length === 10, {
+    .refine((value) => typeof value === "undefined" || !value || value.length === 0 || value.length === 10, {
       message: "Home phone must have 10 characters if provided",
     }),
 });
@@ -118,6 +118,11 @@ export const OrganizationSchema = z.object({
   addresses: z.array(AddressSchema).max(4, { message: "Maximum of 4 addresses allowed" }),
 });
 
-export const JoinOrganization = z.object({
+export const JoinOrganizationSchema = z.object({
   inviteCode: z.string().length(8, { message: "Invite code must be 8 characters long" }),
+});
+
+export const InviteMemberSchema = z.object({
+  email: z.string().email(),
+  role: z.enum([OrganizationMemberRole.OWNER, OrganizationMemberRole.ADMIN, OrganizationMemberRole.USER]),
 });

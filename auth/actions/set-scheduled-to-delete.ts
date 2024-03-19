@@ -15,14 +15,14 @@ export const setScheduledToDelete = async (type: "PATIENT" | "PROVIDER", newValu
           },
         });
       } else if (type === "PROVIDER") {
-        await prisma.providerProfile.update({
-          where: {
-            userId: userId,
-          },
-          data: {
-            scheduledToDelete: newValue,
-          },
-        });
+        // await prisma.providerProfile.update({
+        //   where: {
+        //     userId: userId,
+        //   },
+        //   data: {
+        //     scheduledToDelete: newValue,
+        //   },
+        // });
       }
 
       await prisma.user.update({

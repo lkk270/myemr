@@ -7,6 +7,8 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber } from "@/lib/utils";
+
 interface ViewOrganizationProps {
   editingAllowed: boolean;
   handleEditToggle: (e: any) => void;
@@ -80,7 +82,7 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
           </div>
           <div className="flex flex-col gap-y-2">
             <strong>Main Phone:</strong>
-            <p>{initialData.mainPhone || "N/A"}</p>
+            <p>{!!initialData.mainPhone ? formatPhoneNumber(initialData.mainPhone) : "N/A"}</p>
           </div>
         </div>
 
@@ -104,7 +106,9 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
                     <AccordionContent className="pt-1 text-primary/70 text-md">
                       <div className="p-4 rounded border border-secondary flex items-center gap-4">
                         <div className="grid gap-2.5">
-                          <p className="font-semibold leading-none">{address.name}</p>
+                          <p className="font-semibold leading-none">
+                            {address.name} {!!address.phone && `| ${formatPhoneNumber(address.phone)}`}
+                          </p>
                           <address className="not-italic leading-none space-y-1.5">
                             <p>{address.address}</p>
                             <p>{address.address2}</p>

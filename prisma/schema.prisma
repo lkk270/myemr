@@ -440,7 +440,7 @@ model User {
   role               UserRole             @default(USER)
   type               UserType             @default(PATIENT)
   patientProfile     PatientProfile?
-  providerProfile    ProviderProfile?
+  // providerProfile    ProviderProfile?
   accountType        AccountType          @default(OAUTH)
   recordViewActivity RecordViewActivity[]
   scheduledToDelete  Boolean              @default(false)
@@ -498,24 +498,24 @@ model PatientProfile {
   @@index([userId])
 }
 
-model ProviderProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  firstName         String
-  lastName          String
-  email             String   @unique
-  imageUrl          String?
-  publicKey         String   @db.Text
-  privateKey        String   @db.Text
-  scheduledToDelete Boolean  @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // organizationMembers OrganizationMember[]
-  // patients          PatientMember[]
+// model ProviderProfile {
+//   id                String   @id @default(cuid())
+//   userId            String   @unique
+//   firstName         String
+//   lastName          String
+//   email             String   @unique
+//   imageUrl          String?
+//   publicKey         String   @db.Text
+//   privateKey        String   @db.Text
+//   scheduledToDelete Boolean  @default(false)
+//   createdAt         DateTime @default(now())
+//   updatedAt         DateTime @updatedAt
+//   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   // organizationMembers OrganizationMember[]
+//   // patients          PatientMember[]
 
-  @@index([userId])
-}
+//   @@index([userId])
+// }
 
 model Account {
   id                String  @id @default(cuid())

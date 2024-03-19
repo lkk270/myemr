@@ -64,7 +64,7 @@ export const useMenuItems = (nodeData: any) => {
   const menuItemsConfig: MenuItemData[] = [
     {
       label: "Rename",
-      icon: Pencil,
+      icon: PencilLine,
       action: () => {
         if (isLoading) {
           return;

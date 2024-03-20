@@ -119,10 +119,11 @@ export const OrganizationSchema = z.object({
 });
 
 export const JoinOrganizationSchema = z.object({
-  inviteCode: z.string().length(8, { message: "Invite code must be 8 characters long" }),
+  inviteToken: z.string().length(6, { message: "Invite code must be 6 characters long" }),
 });
 
 export const InviteMemberSchema = z.object({
+  organizationId: z.string(),
   email: z.string().email(),
-  role: z.enum([OrganizationMemberRole.OWNER, OrganizationMemberRole.ADMIN, OrganizationMemberRole.USER]),
+  role: z.enum([OrganizationMemberRole.ADMIN, OrganizationMemberRole.USER]),
 });

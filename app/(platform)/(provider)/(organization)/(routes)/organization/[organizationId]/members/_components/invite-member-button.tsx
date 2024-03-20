@@ -2,13 +2,14 @@
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
+import { InviteMemberForm } from "./invite-member-form";
 
-interface AddMemberButtonProps {
+interface InviteMemberButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
 }
 
-export const AddMemberButton = ({ children, asChild }: AddMemberButtonProps) => {
+export const InviteMemberButton = ({ children, asChild }: InviteMemberButtonProps) => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog
@@ -19,7 +20,7 @@ export const AddMemberButton = ({ children, asChild }: AddMemberButtonProps) => 
     >
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent className="overflow-y-scroll h-1/2 max-w-[450px] w-full">
-        <div>HULLO</div>
+        <InviteMemberForm />
       </DialogContent>
     </Dialog>
   );

@@ -4,6 +4,7 @@ import { UserType } from "@prisma/client";
 import resendClient from "./resendClient";
 import { getBuffer } from "./pdfs/notarized-letter";
 import {
+  InvitedToOrganizationEmailNoAccount,
   MagicLinkEmail,
   RequestRecordsEmail,
   SuccessfullyDeletedAccountEmail,
@@ -126,3 +127,33 @@ export const sendFeedback = async (text: string) => {
     throw new Error("Something went wrong on email send");
   }
 };
+
+export const sendInvitedToOrganizationEmailNoAccount = async (
+  email: string,
+  token: string,
+  organizationName: string,
+) => {
+  const response = await resendClient.emails.send({
+    from: "onboarding@resend.dev",
+    to: "leekk270@gmail.com",
+    subject: "You've Been Invited to Join a MyEmr Organization",
+    react: InvitedToOrganizationEmailNoAccount({ inviteToken: token, organizationName }),
+  });
+  if (response.error) {
+    throw new Error("Something went wrong on email send");
+  }
+};
+
+// export const sendInvitedToOrganizationEmailHasAccount = async (email: string) => {
+//   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
+//   const confirmLink = `http://localhost:3000/auth/${userType.toLowerCase()}-new-verification?token=${token}`;
+//   const response = await resendClient.emails.send({
+//     from: "onboarding@resend.dev",
+//     to: "leekk270@gmail.com",
+//     subject: "Confirm your email",
+//     react: MagicLinkEmail({ magicLink: confirmLink, type: "emailConfirmation" }),
+//   });
+//   if (response.error) {
+//     throw new Error("Something went wrong on email send");
+//   }
+// };

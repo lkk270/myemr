@@ -2,6 +2,9 @@ const { PrismaClient } = require("@prisma/client");
 
 const prismadb = new PrismaClient();
 
+async function deleteAllOrganizationInviteCodes() {
+  await prismadb.organizationInviteCode.deleteMany({});
+}
 async function deleteAllFiles() {
   await prismadb.file.deleteMany({});
   // await prismadb.insuranceFile.deleteMany({});
@@ -78,5 +81,5 @@ async function createFolder(
 
   return folder;
 }
-
-deleteAllFiles();
+deleteAllOrganizationInviteCodes()
+// deleteAllFiles();

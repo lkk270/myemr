@@ -17,7 +17,7 @@ import { rootFolderCategories } from "@/lib/constants";
 import { cn, findChangesBetweenObjects } from "@/lib/utils";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { PhoneNumber } from "@/components/phone-number";
-import { OpenAddressButton } from "../open-address-button";
+import { OpenAddressButton } from "../buttons/open-address-button";
 // import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { createOrganization, editOrganization } from "../../actions/organization";
@@ -28,7 +28,7 @@ import { ViewOrganization } from "../view-organization";
 // import { AddressAccordion } from "../address-accordion";
 import Image from "next/image";
 import { DeleteProfilePictureButton } from "@/components/modals/patient-manage-account/delete-profile-picture-button";
-import { UploadOrganizationPictureButton } from "../upload-organization-picture-button";
+import { UploadOrganizationPictureButton } from "../buttons/upload-organization-picture-button";
 
 const organizationTypes = [
   { value: "CLINIC", label: "Clinic" },

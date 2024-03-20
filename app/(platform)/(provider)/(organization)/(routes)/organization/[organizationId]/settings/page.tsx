@@ -1,4 +1,4 @@
-import { OrganizationForm } from "@/app/(platform)/(provider)/_components/forms/organization-form";
+import { OrganizationForm } from "@/app/(platform)/(provider)/(organization)/_components/forms/organization-form";
 import { OrganizationWithRoleType } from "@/app/types";
 import { auth } from "@/auth";
 import prismadb from "@/lib/prismadb";

@@ -189,7 +189,7 @@ export default auth(async (req) => {
   //   return Response.redirect(new URL(ACCESS_PATIENT_WITH_CODE_REDIRECT, nextUrl));
   // } else
 
-  if (isPublicRoute && isLoggedIn) {
+  if (isPublicRoute && isLoggedIn && !isDynamicPublicRoute) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
   // if (nextUrlPathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {

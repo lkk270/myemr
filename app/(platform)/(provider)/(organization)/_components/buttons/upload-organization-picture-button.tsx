@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Dropzone } from "@/components/files/dropzone";
 import { FileWithStatus } from "@/app/types/file-types";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { useOrganizationStore } from "./hooks/use-organizations";
+import { useOrganizationStore } from "../hooks/use-organizations";
 
 interface UploadProfilePictureButtonProps {
   organizationId: string;

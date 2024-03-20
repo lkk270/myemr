@@ -1,4 +1,4 @@
-import { Sidebar } from "../_components/sidebar";
+import { Sidebar } from "./_components/sidebar";
 import prismadb from "@/lib/prismadb";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";

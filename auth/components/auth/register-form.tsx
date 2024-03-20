@@ -44,6 +44,9 @@ export const RegisterForm = ({ userType }: RegisterFormProps) => {
       register(values).then((data) => {
         setError(data.error);
         setSuccess(data.success);
+        if (data.success) {
+          form.reset();
+        }
       });
     });
   };

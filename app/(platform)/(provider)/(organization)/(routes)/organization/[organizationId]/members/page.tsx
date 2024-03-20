@@ -4,7 +4,7 @@ import prismadb from "@/lib/prismadb";
 import { redirect } from "next/navigation";
 import { MembersTable } from "./_components/table/members-table";
 import { UserPlus } from "lucide-react";
-import { AddMemberButton } from "./_components/add-member-button";
+import { InviteMemberButton } from "./_components/invite-member-button";
 import { Button } from "@/components/ui/button";
 interface MembersPageProps {
   params: {
@@ -41,12 +41,12 @@ const MembersPage = async ({ params }: MembersPageProps) => {
 
   return (
     <div className="pt-20 px-4 flex flex-col gap-y-3">
-      <AddMemberButton asChild>
-        <Button className="w-36 h-14 flex flex-row gap-x-2" variant="secondary">
+      <InviteMemberButton asChild>
+        <Button className="w-[150px] h-14 flex flex-row gap-x-2 border border-primary/5" variant="secondary">
           <UserPlus className="w-5 h-5" />
           <span>Add member</span>
         </Button>
-      </AddMemberButton>
+      </InviteMemberButton>
       <MembersTable data={organizationMembers} />
     </div>
   );

@@ -1113,3 +1113,9 @@ export const accessTypesText = [
 ];
 
 export const profileImageUrlPrefix = "https://myemrpps3.s3.us-east-2.amazonaws.com/";
+
+export const organizationMemberPermissionTypes = [
+  { value: "OWNER", label: "Owner" },
+  { value: "ADMIN", label: "Admin" },
+  { value: "USER", label: "User" },
+];

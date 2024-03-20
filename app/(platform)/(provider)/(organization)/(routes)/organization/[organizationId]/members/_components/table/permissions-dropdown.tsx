@@ -4,11 +4,7 @@ import { useOrganizationMembersStore } from "../../hooks/use-members";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
 import { capitalizeFirstLetter } from "@/lib/utils";
-const permissionTypes = [
-  { value: "OWNER", label: "Owner" },
-  { value: "ADMIN", label: "Admin" },
-  { value: "USER", label: "User" },
-];
+import { organizationMemberPermissionTypes } from "@/lib/constants";
 
 export const PermissionsDropdown = ({ memberId }: { memberId: string }) => {
   const currentUser = useCurrentUser();
@@ -40,7 +36,7 @@ export const PermissionsDropdown = ({ memberId }: { memberId: string }) => {
         <SelectValue defaultValue={organizationMember?.role} placeholder="Organization type" />
       </SelectTrigger>
       <SelectContent>
-        {permissionTypes.map((permissionType) => (
+        {organizationMemberPermissionTypes.map((permissionType) => (
           <SelectItem key={permissionType.value} value={permissionType.value}>
             {permissionType.label}
           </SelectItem>

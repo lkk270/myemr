@@ -1,8 +1,8 @@
 "use client";
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { AddressForm } from "./forms/address-form";
-import { AddressSchema } from "../schema/organization";
+import { AddressForm } from "../forms/address-form";
+import { AddressSchema } from "../../schema/organization";
 import { z } from "zod";
 import { useState } from "react";
 

@@ -368,10 +368,11 @@ model Organization {
 
   organizationMembers OrganizationMember[]
   patients            PatientMember[]
+  inviteCodes         OrganizationInviteCode[]
   mainEmail           String?
   mainPhone           String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
 }
 
 enum PatientMemberRole {
@@ -413,6 +414,7 @@ model OrganizationMember {
   id     String                 @id @default(uuid())
   role   OrganizationMemberRole @default(USER)
   userId String
+  email  String
   user   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // providerProfileId String
@@ -425,6 +427,7 @@ model OrganizationMember {
   updatedAt DateTime @updatedAt
 
   @@unique([organizationId, userId])
+  @@unique([email, organizationId])
   // @@index([providerProfileId])
   @@index([organizationId])
   @@index([userId])
@@ -646,11 +649,16 @@ model Notification {
 }
 
 model OrganizationInviteCode {
-  id      String                 @id @default(cuid())
-  email   String
-  role    OrganizationMemberRole @default(USER)
-  token   String                 @unique
-  expires DateTime
+  id             String                 @id @default(cuid())
+  email          String
+  role           OrganizationMemberRole @default(USER)
+  token          String                 @unique
+  expires        DateTime
+  organizationId String
+  organization   Organization          @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
 
   @@unique([email, token])
+  @@index([organizationId])
 }

@@ -7,7 +7,7 @@ import prismadb from "@/lib/prismadb";
 import { NotificationPostSchema } from "../schemas/notification";
 import { z } from "zod";
 
-export const createNotification = async (values: z.infer<typeof NotificationPostSchema>) => {
+export const createPatientNotification = async (values: z.infer<typeof NotificationPostSchema>) => {
   try {
     const validatedFields = NotificationPostSchema.safeParse(values);
     // const session = await auth();

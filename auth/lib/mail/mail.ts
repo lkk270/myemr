@@ -5,6 +5,7 @@ import resendClient from "./resendClient";
 import { getBuffer } from "./pdfs/notarized-letter";
 import {
   InvitedToOrganizationEmailNoAccount,
+  InvitedToOrganizationEmailHasAccount,
   MagicLinkEmail,
   RequestRecordsEmail,
   SuccessfullyDeletedAccountEmail,
@@ -144,16 +145,18 @@ export const sendInvitedToOrganizationEmailNoAccount = async (
   }
 };
 
-// export const sendInvitedToOrganizationEmailHasAccount = async (email: string) => {
-//   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
-//   const confirmLink = `http://localhost:3000/auth/${userType.toLowerCase()}-new-verification?token=${token}`;
-//   const response = await resendClient.emails.send({
-//     from: "onboarding@resend.dev",
-//     to: "leekk270@gmail.com",
-//     subject: "Confirm your email",
-//     react: MagicLinkEmail({ magicLink: confirmLink, type: "emailConfirmation" }),
-//   });
-//   if (response.error) {
-//     throw new Error("Something went wrong on email send");
-//   }
-// };
+export const sendInvitedToOrganizationEmailHasAccount = async (
+  email: string,
+  organizationId: string,
+  organizationName: string,
+) => {
+  const response = await resendClient.emails.send({
+    from: "onboarding@resend.dev",
+    to: "leekk270@gmail.com",
+    subject: "You've Been Added to a MyEmr Organization",
+    react: InvitedToOrganizationEmailHasAccount({ organizationId, organizationName }),
+  });
+  if (response.error) {
+    throw new Error("Something went wrong on email send");
+  }
+};

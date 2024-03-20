@@ -25,7 +25,7 @@ import { updateRegularFileStatus } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { createNotification } from "@/lib/actions/notifications";
+import { createPatientNotification } from "@/lib/actions/notifications";
 
 export const UploadFilesModal = () => {
   const currentUser = useCurrentUser();
@@ -215,7 +215,7 @@ export const UploadFilesModal = () => {
     // }
     if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
       const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
-      await createNotification({
+      await createPatientNotification({
         text: `An external user, whom you granted a temporary access code with "${currentUser?.role}" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
         type: "ACCESS_CODE",
       });

@@ -18,7 +18,7 @@ import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permiss
 import { Button } from "@/components/ui/button";
 import { ViewUploadHistoryButton } from "@/components/temp-upload/view-upload-history-button";
 import { EndSessionButton } from "@/app/(public-routes)/upload-records/[token]/_components/end-session-button";
-import { createNotification } from "@/lib/actions/notifications";
+import { createPatientNotification } from "@/lib/actions/notifications";
 
 interface UploadFilesFormProps {
   requestRecordsCode?: {
@@ -162,13 +162,13 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
       const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
 
       if (!!requestRecordsCode) {
-        await createNotification({
+        await createPatientNotification({
           text: `${requestRecordsCode.providerEmail} has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText} in response to your "Request Your Records" request.`,
           type: "REQUEST_RECORDS_UPLOAD",
           requestRecordsCodeToken: requestRecordsCode.token,
         });
       } else {
-        await createNotification({
+        await createPatientNotification({
           text: `An external user, whom you granted a temporary access code with "UPLOAD_FILES_ONLY" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
           type: "ACCESS_CODE",
         });

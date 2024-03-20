@@ -20,7 +20,7 @@ import {
   unrestrictFiles,
 } from "@/lib/actions/files";
 
-import { createNotification } from "@/lib/actions/notifications";
+import { createPatientNotification } from "@/lib/actions/notifications";
 
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { getSumOfFilesSizes } from "@/lib/data/files";
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
         });
         await updateRecordViewActivity(userId, nodeId, true);
         if (!currentUserPermissions.hasAccount) {
-          await createNotification({
+          await createPatientNotification({
             text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the file: "${currentFile.name}" to "${newName}"`,
             type: "ACCESS_CODE",
           });
@@ -134,7 +134,7 @@ export async function POST(req: Request) {
         await updateRecordViewActivity(userId, nodeId, false);
 
         if (!currentUserPermissions.hasAccount) {
-          await createNotification({
+          await createPatientNotification({
             text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the folder: "${currentFolder.name}" to "${newName}"`,
             type: "ACCESS_CODE",
           });
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
       const targetId = body.targetId;
       await moveNodes(selectedIds, targetId, userId);
       if (!currentUserPermissions.hasAccount) {
-        await createNotification({
+        await createPatientNotification({
           text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has moved nodes from "${body.fromName}" to "${body.toName}"`,
           type: "ACCESS_CODE",
         });
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
         body.addedByName,
       );
       if (!currentUserPermissions.hasAccount) {
-        await createNotification({
+        await createPatientNotification({
           text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the root folder: "${body.folderName}"`,
           type: "ACCESS_CODE",
         });
@@ -208,7 +208,7 @@ export async function POST(req: Request) {
         body.addedByName,
       );
       if (!currentUserPermissions.hasAccount) {
-        await createNotification({
+        await createPatientNotification({
           text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added a sub folder: "${body.folderName}"`,
           type: "ACCESS_CODE",
         });

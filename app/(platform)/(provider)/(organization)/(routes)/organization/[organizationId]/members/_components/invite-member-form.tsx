@@ -3,12 +3,11 @@
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 import { InviteMemberSchema } from "@/app/(platform)/(provider)/(organization)/schema/organization";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTransition } from "react";
@@ -52,7 +51,7 @@ export const InviteMemberForm = ({}: InviteMemberFormProps) => {
         });
     });
   };
-  const { setValue, control, watch } = form;
+  const { control } = form;
 
   return (
     <div className="h-full max-w-3xl">

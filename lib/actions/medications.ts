@@ -3,7 +3,7 @@
 import { z } from "zod";
 import prismadb from "@/lib/prismadb";
 import { EditMedicationSchema, NewMedicationSchema, DeleteMedicationSchema } from "../schemas/medication";
-import { createNotification } from "./notifications";
+import { createPatientNotification } from "./notifications";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { decryptMultiplePatientFields, buildUpdatePayload, decryptKey, findChangesBetweenObjects } from "../utils";
 import { auth } from "@/auth";
@@ -67,7 +67,7 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
     });
 
     if (!currentUserPermissions.hasAccount) {
-      await createNotification({
+      await createPatientNotification({
         text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the medication: "${name}"`,
         type: "ACCESS_CODE",
       });
@@ -171,7 +171,7 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       };
     }
     if (!currentUserPermissions.hasAccount) {
-      await createNotification({
+      await createPatientNotification({
         text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has updated the medication: "${currentMedication.name}"`,
         type: "ACCESS_CODE",
       });

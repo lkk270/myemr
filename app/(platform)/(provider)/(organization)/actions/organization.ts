@@ -15,8 +15,12 @@ import {
   getInviteMemberCodeByToken,
 } from "../data/organization";
 import { getUserByEmail } from "@/auth/data";
-import { sendInvitedToOrganizationEmailNoAccount } from "@/auth/lib/mail/mail";
+import {
+  sendInvitedToOrganizationEmailNoAccount,
+  sendInvitedToOrganizationEmailHasAccount,
+} from "@/auth/lib/mail/mail";
 import { OrganizationMemberRole } from "@prisma/client";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 export const createOrganization = async (values: z.infer<typeof OrganizationSchema>) => {
   try {
@@ -178,13 +182,32 @@ export const inviteMember = async (values: z.infer<typeof InviteMemberSchema>) =
     if (!!memberExists) {
       return { error: "Member already exists" };
     }
-
+    const organizationTitle = organizationMember.organization.title;
     const inviteeHasProviderAccount = await getUserByEmail(email, "PROVIDER");
     if (!!inviteeHasProviderAccount) {
+      await prismadb.organizationMember.create({
+        data: {
+          role: role,
+          userId: inviteeHasProviderAccount.id,
+          email,
+          organizationId,
+        },
+      });
+      await sendInvitedToOrganizationEmailHasAccount(email, organizationId, organizationTitle);
+      await prismadb.notification.create({
+        data: {
+          userId: inviteeHasProviderAccount.id,
+          text: `You have been added to the organization: ${organizationTitle}. Your role is ${capitalizeFirstLetter(
+            role,
+          )}`,
+        },
+      });
+      revalidatePath(`/organization/${organizationId}/members`);
+
       //create a member and send them an email and notification
     } else {
       const inviteCode = await generateInviteMemberToken(email, role, organizationId);
-      await sendInvitedToOrganizationEmailNoAccount(email, inviteCode.token, organizationMember.organization.title);
+      await sendInvitedToOrganizationEmailNoAccount(email, inviteCode.token, organizationTitle);
 
       //otherwise create an OrganizationInviteCode send them an email
     }

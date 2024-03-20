@@ -40,8 +40,8 @@ export const InviteMemberForm = ({}: InviteMemberFormProps) => {
               logout();
             }
           }
-          if (data.success) {
-            toast.success("Member invite sent!");
+          if (!!data.success) {
+            toast.success(data.success, { duration: 5000 });
             form.reset();
           }
         })

@@ -203,17 +203,20 @@ export const inviteMember = async (values: z.infer<typeof InviteMemberSchema>) =
         },
       });
       revalidatePath(`/organization/${organizationId}/members`);
-
+      return {
+        success:
+          "Member has been successfully added. Since this member already has a MyEmr provider account with the provided email, they have already been added to the organization.",
+      };
       //create a member and send them an email and notification
     } else {
       const inviteCode = await generateInviteMemberToken(email, role, organizationId);
       await sendInvitedToOrganizationEmailNoAccount(email, inviteCode.token, organizationTitle);
-
+      return {
+        success:
+          "Member has been successfully invited. Since they do not yet have a MyEmr provider account, they will only be added to the organization upon successfully creating an account.",
+      };
       //otherwise create an OrganizationInviteCode send them an email
     }
-    return {
-      success: "Member Invited!",
-    };
   } catch (e) {
     console.log("TRUE ERROR");
     console.log(e);

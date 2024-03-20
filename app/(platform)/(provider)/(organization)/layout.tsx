@@ -25,6 +25,7 @@ const OrganizationLayout = async ({ children }: { children: React.ReactNode }) =
     role: member.role,
   }));
 
+  console.log(organizations);
   return (
     <main className="h-screen flex overflow-y-auto">
       <Sidebar initialOrganizations={organizations} />

@@ -14,12 +14,10 @@ import { logout } from "@/auth/actions/logout";
 import { Spinner } from "@/components/loading/spinner";
 import { FormError } from "@/auth/components/form-error";
 import { joinOrganization } from "../../actions/organization";
-import { useRouter } from "next/navigation";
 interface JoinOrganizationForm {
   setOpen: (value: boolean) => void;
 }
 export const JoinOrganizationForm = ({ setOpen }: JoinOrganizationForm) => {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
 
@@ -43,8 +41,6 @@ export const JoinOrganizationForm = ({ setOpen }: JoinOrganizationForm) => {
           if (!!data.success && !!data.organizationId) {
             setOpen(false);
             toast.success(data.success);
-            router.refresh();
-            // router.push(`/organization/${data.organizationId}/settings`);
           }
         })
         .catch((e) => {

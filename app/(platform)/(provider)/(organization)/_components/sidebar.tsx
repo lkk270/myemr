@@ -47,7 +47,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations
     setIsMounted(true);
     // console.log(organizations);
     setOrganizations(initialOrganizations);
-  }, []);
+  }, [initialOrganizations]);
 
   useEffect(() => {
     if (isMobile) {

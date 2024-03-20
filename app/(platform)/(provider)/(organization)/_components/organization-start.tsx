@@ -35,7 +35,7 @@ export const OrganizationStart = () => {
         {organizations.length > 0 && (
           <>
             <Label>My organizations</Label>
-            <div className="h-32 overflow-y-scroll">
+            <div className="max-h-32 overflow-y-scroll">
               {organizations.map((organization, index) => (
                 <>
                   <Link href={`/organization/${organization.id}/patients`} key={index}>

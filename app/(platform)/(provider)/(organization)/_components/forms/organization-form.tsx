@@ -29,6 +29,7 @@ import { ViewOrganization } from "../view-organization";
 import Image from "next/image";
 import { DeleteProfilePictureButton } from "@/components/modals/patient-manage-account/delete-profile-picture-button";
 import { UploadOrganizationPictureButton } from "../buttons/upload-organization-picture-button";
+import { useRouter } from "next/navigation";
 
 const organizationTypes = [
   { value: "CLINIC", label: "Clinic" },
@@ -46,7 +47,7 @@ interface OrganizationFormProps {
 export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
   const { addOrganization, patchOrganization, getOrganizationById } = useOrganizationStore();
   const [initialDataDynamic, setInitialDataDynamic] = useState(initialData);
-
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(!initialData);
 
@@ -111,6 +112,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           form.reset(values);
           setIsEditing(false);
           toast.success("Organization successfully added!");
+          router.push(`/organization/${data.organizationId}/settings`);
         }
       })
       .catch((e) => {

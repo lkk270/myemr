@@ -239,13 +239,14 @@ export const joinOrganization = async (values: z.infer<typeof JoinOrganizationSc
       },
     });
 
-    // await prismadb.organizationInviteCode.delete({
-    //   where: { id: existingCode.id },
-    // });
-    revalidatePath(`/provider-home`);
+    await prismadb.organizationInviteCode.delete({
+      where: { id: existingCode.id },
+    });
+
+    revalidatePath(`/organization/${existingCode.organizationId}/settings`);
 
     return {
-      success: "You have successfully joined the organization. Redirecting...",
+      success: "You have successfully joined the organization.",
       organizationId: existingCode.organizationId,
     };
   } catch (err) {

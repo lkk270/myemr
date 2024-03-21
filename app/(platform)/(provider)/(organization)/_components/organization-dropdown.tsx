@@ -91,7 +91,7 @@ export const OrganizationDropdown = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild className="w-48">
+      <DropdownMenuTrigger asChild className="w-42 xs:w-48">
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
             <OrganizationAvatar

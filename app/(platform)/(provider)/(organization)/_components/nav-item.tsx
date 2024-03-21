@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Organization } from "@prisma/client";
 import Link from "next/link";
+import { OrganizationAvatar } from "./organization-avatar";
 
 interface NavItemProps {
   defaultAccordionValue: string[];
@@ -72,21 +73,11 @@ export const NavItem = ({
         )}
       >
         <div className="flex items-center gap-x-2">
-          {organization.profileImageUrl ? (
-            <div className="w-7 h-7 relative">
-              <Image
-                sizes="28px"
-                fill
-                src={organization.profileImageUrl}
-                alt="Organization"
-                className="rounded-sm object-cover"
-              />
-            </div>
-          ) : (
-            <div className="w-7 h-7 rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-              <Building2 className="w-full h-full" />
-            </div>
-          )}
+          <OrganizationAvatar
+            buildingClassName="w-5 h-5"
+            profileImageUrl={organization.profileImageUrl}
+            imageSize={30}
+          />
           <span className={`font-medium text-sm truncate`} style={{ maxWidth: `${newWidth}px` }}>
             {organization.title}
           </span>

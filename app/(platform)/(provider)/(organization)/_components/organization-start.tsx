@@ -12,6 +12,7 @@ import { CreateNewOrganizationButton } from "./buttons/create-new-organization-b
 import Link from "next/link";
 import Image from "next/image";
 import { InviteMemberButton } from "./buttons/join-organization-button";
+import { OrganizationAvatar } from "./organization-avatar";
 
 export const OrganizationStart = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -44,21 +45,12 @@ export const OrganizationStart = () => {
                       className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
                     >
                       <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                        {organization.profileImageUrl ? (
-                          <div className="w-8 h-8 relative">
-                            <Image
-                              sizes="32px"
-                              fill
-                              src={organization.profileImageUrl}
-                              alt="Organization"
-                              className="rounded-sm object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                            <Building2 className="w-5 h-5" />
-                          </div>
-                        )}
+                        <OrganizationAvatar
+                          buildingClassName="w-5 h-5"
+                          profileImageUrl={organization.profileImageUrl}
+                          imageSize={32}
+                          imageClassName="rounded-sm object-cover"
+                        />
                         <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
                       </div>
                       <div className="flex-shrink-0">

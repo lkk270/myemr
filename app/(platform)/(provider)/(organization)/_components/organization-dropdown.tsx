@@ -19,6 +19,8 @@ import {
 import Link from "next/link";
 import { useOrganizationStore } from "./hooks/use-organizations";
 import { usePathname } from "next/navigation";
+import { OrganizationAvatar } from "./organization-avatar";
+
 type OrganizationType = {
   id: string;
   title: string;
@@ -80,16 +82,12 @@ export const OrganizationDropdown = () => {
       <DropdownMenuTrigger asChild className="w-48">
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            {currentOrganization.profileImageUrl ? (
-              <Image width={30} height={30} src={currentOrganization.profileImageUrl} alt="image" />
-            ) : (
-              <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                <Building2 className="w-5 h-5" />
-              </div>
-            )}
-            <span className="text-left truncate text-sm flex-grow min-w-0">
-              {currentOrganization.title}sdfsdf sdf sadf sdfsdfsdfsdf
-            </span>
+            <OrganizationAvatar
+              buildingClassName="w-5 h-5"
+              profileImageUrl={currentOrganization.profileImageUrl}
+              imageSize={30}
+            />
+            <span className="text-left truncate text-sm flex-grow min-w-0">{currentOrganization.title}</span>
           </div>
           <div className="flex-shrink-0">
             <ChevronsUpDown className="w-4 h-4" />
@@ -98,15 +96,21 @@ export const OrganizationDropdown = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Organization</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuLabel>Organization</DropdownMenuLabel>
+        <DropdownMenuSeparator /> */}
         <DropdownMenuGroup>
           {organizations.map((organization, index) =>
             organizationId === organization.id ? (
               <DropdownMenuSubComponent key={index} id={organization.id} title={organization.title} />
             ) : (
               <Link href={`/organization/${organization.id}`} key={index}>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="flex flex-row gap-x-2">
+                  <OrganizationAvatar
+                    buildingClassName="w-4 h-4"
+                    profileImageUrl={organization.profileImageUrl}
+                    imageSize={16}
+                    buildingParentDivPadding="p-[4px]"
+                  />
                   <span className="truncate">{organization.title}</span>
                 </DropdownMenuItem>
               </Link>

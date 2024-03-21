@@ -20,7 +20,14 @@ export const OrganizationAvatar = ({
   return (
     <>
       {profileImageUrl ? (
-        <Image className={imageClassName} width={imageSize} height={imageSize} src={profileImageUrl} alt="image" />
+        <Image
+          draggable={false}
+          className={imageClassName}
+          width={imageSize}
+          height={imageSize}
+          src={profileImageUrl}
+          alt="image"
+        />
       ) : (
         <div
           className={cn(

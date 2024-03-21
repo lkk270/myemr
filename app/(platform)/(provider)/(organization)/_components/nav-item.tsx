@@ -86,7 +86,7 @@ export const NavItem = ({
       <AccordionContent className="pb-0 pt-1 text-primary/70">
         {routes.map((route, index) =>
           !!route.href ? (
-            <Link href={route.href} key={route.href}>
+            <Link href={route.href} key={route.href} onDragStart={(e) => e.preventDefault()}>
               <Button
                 size="sm"
                 className={cn(
@@ -116,7 +116,11 @@ export const NavItem = ({
                 </AccordionTrigger>
                 <AccordionContent className="pt-1 text-primary/70 pb-0">
                   {route.routes?.map((routesRoute) => (
-                    <Link href={routesRoute.href} key={index.toString() + "-rr-" + routesRoute.href.toString()}>
+                    <Link
+                      href={routesRoute.href}
+                      key={index.toString() + "-rr-" + routesRoute.href.toString()}
+                      onDragStart={(e) => e.preventDefault()}
+                    >
                       <Button
                         size="sm"
                         className={cn(

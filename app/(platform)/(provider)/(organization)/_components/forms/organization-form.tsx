@@ -290,7 +290,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
             {organizationById && (
               <div className="justify-center flex items-center gap-x-8 sm:justify-start">
                 {organizationById.profileImageUrl ? (
-                  <Image width={80} height={80} src={organizationById.profileImageUrl} alt="image" />
+                  <Image draggable={false} width={80} height={80} src={organizationById.profileImageUrl} alt="image" />
                 ) : (
                   <div className="border-dashed border-[3px] border-primary/40 rounded-lg p-6 w-20 h-20 flex flex-col">
                     <Building2 className="text-muted-foreground" />

@@ -70,7 +70,7 @@ export const OrganizationDropdown = () => {
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
             {routes.map((route, index) => (
-              <Link href={route.href} key={index} className="">
+              <Link href={route.href} key={index} onDragStart={(e) => e.preventDefault()}>
                 <DropdownMenuItem
                   className={cn(pathname === route.href && "text-[#44aaf7] font-bold focus:text-[#44aaf7]")}
                 >
@@ -120,7 +120,7 @@ export const OrganizationDropdown = () => {
                 profileImageUrl={organization.profileImageUrl}
               />
             ) : (
-              <Link href={`/organization/${organization.id}`} key={index}>
+              <Link href={`/organization/${organization.id}`} key={index} onDragStart={(e) => e.preventDefault()}>
                 <DropdownMenuItem className="flex flex-row gap-x-2">
                   <OrganizationAvatar
                     buildingClassName="w-4 h-4"

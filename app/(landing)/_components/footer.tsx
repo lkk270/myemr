@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import Link from "next/link";
@@ -10,7 +9,7 @@ export const Footer = () => {
 
       <div className="ml-auto w-full justify-end flex items-center gap-x-1 text-muted-foreground">
         <span className="text-sm">myemr © 2024</span>
-        <Link href="/privacy">
+        <Link href="/privacy" onDragStart={(e) => e.preventDefault()}>
           <Button variant="ghost" size="sm">
             Privacy
           </Button>

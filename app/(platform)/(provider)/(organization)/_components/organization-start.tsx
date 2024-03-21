@@ -39,7 +39,11 @@ export const OrganizationStart = () => {
             <div className="max-h-32 overflow-y-scroll">
               {organizations.map((organization, index) => (
                 <>
-                  <Link href={`/organization/${organization.id}/patients`} key={index} onDragStart={(e) => e.preventDefault()}>
+                  <Link
+                    href={`/organization/${organization.id}/patients`}
+                    key={index}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
                     <Button
                       variant="outline"
                       className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
@@ -69,7 +73,7 @@ export const OrganizationStart = () => {
           </>
         )}
         <div className="flex flex-col gap-y-3">
-          <Label>Join a organization</Label>
+          <Label>Join an organization</Label>
           <InviteMemberButton asChild>
             <Button variant={"outline"}>Enter invite code</Button>
           </InviteMemberButton>

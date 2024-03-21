@@ -6,12 +6,14 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@/components/user-button";
 import { OrganizationDropdown } from "./organization-dropdown";
 import { useOrganizationStore } from "./hooks/use-organizations";
+import { Notifications } from "@/components/notifications";
 interface NavbarProps {
+  numOfUnreadNotifications: number;
   isCollapsed: boolean;
   onResetWidth: () => void;
 }
 
-export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
+export const Navbar = ({ isCollapsed, onResetWidth, numOfUnreadNotifications }: NavbarProps) => {
   const pathName = usePathname();
   const { organizations } = useOrganizationStore();
   return (
@@ -27,6 +29,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
         <div className="flex items-center">
           <div className="flex items-center sm:flex gap-x-4">
             {pathName !== "/provider-home" && organizations.length > 0 && <OrganizationDropdown />}
+            <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
             <ModeToggle />
             <UserButton />
           </div>

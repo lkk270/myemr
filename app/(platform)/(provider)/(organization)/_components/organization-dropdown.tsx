@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Dot, ChevronsUpDown, Building2, Users, Activity, Settings } from "lucide-react";
+import {} from "lucide-react";
+import { ChevronsUpDown, Activity, Users, Settings, BriefcaseMedical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +38,7 @@ export const OrganizationDropdown = () => {
     const routes = [
       {
         label: "Patients",
-        icon: <Users className="h-4 w-4 mr-2" />,
+        icon: <BriefcaseMedical className="h-4 w-4 mr-2" />,
         href: `/organization/${id}/patients`,
       },
       {
@@ -46,9 +47,14 @@ export const OrganizationDropdown = () => {
         href: `/organization/${id}/activity`,
       },
       {
-        label: "Settings",
+        label: "View or Edit",
         icon: <Settings className="h-4 w-4 mr-2" />,
         href: `/organization/${id}/settings`,
+      },
+      {
+        label: "Members",
+        icon: <Users className="h-4 w-4 mr-2" />,
+        href: `/organization/${id}/members`,
       },
     ];
     return (

@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
-import { Activity, Users, Settings, Settings2, BriefcaseMedical, Building2 } from "lucide-react";
+import { Activity, Users, Settings, Settings2, BriefcaseMedical } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";

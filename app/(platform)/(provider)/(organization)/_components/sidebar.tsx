@@ -21,10 +21,15 @@ import { OrganizationWithRoleType } from "@/app/types";
 import { useOrganizationStore } from "./hooks/use-organizations";
 interface SidebarProps {
   // data: any[];
+  numOfUnreadNotifications: number;
   storageKey?: string;
   initialOrganizations: OrganizationWithRoleType[];
 }
-export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations }: SidebarProps) => {
+export const Sidebar = ({
+  storageKey = "myemr-storage-key",
+  initialOrganizations,
+  numOfUnreadNotifications,
+}: SidebarProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const { setOrganizations, organizations } = useOrganizationStore();
   const pathname = usePathname();
@@ -191,7 +196,11 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations
             isMobile && "left-0 w-full",
           )}
         >
-          <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
+          <Navbar
+            numOfUnreadNotifications={numOfUnreadNotifications}
+            isCollapsed={isCollapsed}
+            onResetWidth={resetWidth}
+          />
         </div>
       </>
     )

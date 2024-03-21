@@ -3,6 +3,7 @@ import prismadb from "@/lib/prismadb";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { OrganizationWithRoleType } from "@/app/types";
+import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 const OrganizationLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   const user = session?.user;
@@ -25,10 +26,17 @@ const OrganizationLayout = async ({ children }: { children: React.ReactNode }) =
     role: member.role,
   }));
 
+  let numOfUnreadNotifications = 0;
+  try {
+    numOfUnreadNotifications = await getNumberOfUnreadNotifications();
+  } catch {
+    numOfUnreadNotifications = 0;
+  }
+
   console.log(organizations);
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar initialOrganizations={organizations} />
+      <Sidebar initialOrganizations={organizations} numOfUnreadNotifications={numOfUnreadNotifications} />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
     </main>
   );

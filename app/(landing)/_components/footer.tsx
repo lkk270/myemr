@@ -9,7 +9,7 @@ export const Footer = () => {
 
       <div className="ml-auto w-full justify-end flex items-center gap-x-1 text-muted-foreground">
         <span className="text-sm">myemr © 2024</span>
-        <Link href="/privacy" onDragStart={(e) => e.preventDefault()}>
+        <Link href="/privacy">
           <Button variant="ghost" size="sm">
             Privacy
           </Button>

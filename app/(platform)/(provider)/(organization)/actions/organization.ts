@@ -83,6 +83,11 @@ export const editOrganization = async (values: z.infer<typeof OrganizationSchema
       return { error: "Invalid fields!" };
     }
 
+    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
+      return { error: "Unauthorized" };
+    }
+
     const currentAddresses = await prismadb.organizationAddress.findMany({
       where: { organizationId },
     });

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPhoneNumber } from "@/lib/utils";
+import { OrganizationAvatar } from "./organization-avatar";
 
 interface ViewOrganizationProps {
   editingAllowed: boolean;
@@ -39,13 +40,11 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
         <Separator className="bg-primary/10" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="justify-center sm:justify-start flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            {initialData.profileImageUrl ? (
-              <Image width={80} height={80} src={initialData.profileImageUrl} alt="image" />
-            ) : (
-              <div className="rounded-md p-[6px] bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white">
-                <Building2 className="w-5 h-5" />
-              </div>
-            )}
+            <OrganizationAvatar
+              buildingClassName="w-5 h-5"
+              profileImageUrl={initialData.profileImageUrl}
+              imageSize={80}
+            />
           </div>
           <div className="flex flex-col gap-y-2">
             <strong>Title:</strong>

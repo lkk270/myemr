@@ -65,7 +65,7 @@ export const DeleteMemberButton = ({ children, asChild, member }: DeleteMemberBu
             Are you sure you want to remove the member:{" "}
             <p className="break-words whitespace-normal italic font-semibold">
               {member.email}
-              <span className="not-italic font-normal">? This action cannot be undone</span>
+              <span className="not-italic font-normal">? This action cannot be undone.</span>
             </p>
           </p>
         </AlertDialogDescription>

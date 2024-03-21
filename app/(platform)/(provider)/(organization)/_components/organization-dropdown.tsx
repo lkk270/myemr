@@ -20,10 +20,12 @@ import Link from "next/link";
 import { useOrganizationStore } from "./hooks/use-organizations";
 import { usePathname } from "next/navigation";
 import { OrganizationAvatar } from "./organization-avatar";
+import { cn } from "@/lib/utils";
 
 type OrganizationType = {
   id: string;
   title: string;
+  profileImageUrl?: string | null;
 };
 export const OrganizationDropdown = () => {
   const pathname = usePathname();
@@ -31,7 +33,7 @@ export const OrganizationDropdown = () => {
   const { organizations, getOrganizationById } = useOrganizationStore();
   const currentOrganization = getOrganizationById(organizationId);
 
-  const DropdownMenuSubComponent = ({ id, title }: OrganizationType) => {
+  const DropdownMenuSubComponent = ({ id, title, profileImageUrl }: OrganizationType) => {
     const routes = [
       {
         label: "Patients",
@@ -51,17 +53,27 @@ export const OrganizationDropdown = () => {
     ];
     return (
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger>
+        <DropdownMenuSubTrigger className="text-[#44aaf7] font-bold bg-secondary">
           <div className="flex flex-row gap-x-3 items-center">
-            <Dot strokeWidth={10} className=" text-[#615cff]" />
+            <div className="border-2 border-[#44aaf7] rounded-sm">
+              {/* <Dot strokeWidth={5} className=" text-[#615cff]" /> */}
+              <OrganizationAvatar
+                buildingClassName="w-4 h-4"
+                profileImageUrl={profileImageUrl}
+                imageSize={30}
+                buildingParentDivPadding="p-[4px]"
+              />
+            </div>
             <div className="truncate w-full">{title}</div>
           </div>
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
             {routes.map((route, index) => (
-              <Link href={route.href} key={index}>
-                <DropdownMenuItem>
+              <Link href={route.href} key={index} className="">
+                <DropdownMenuItem
+                  className={cn(pathname === route.href && "text-[#44aaf7] font-bold focus:text-[#44aaf7]")}
+                >
                   {route.icon}
                   <span>{route.label}</span>
                 </DropdownMenuItem>
@@ -101,7 +113,12 @@ export const OrganizationDropdown = () => {
         <DropdownMenuGroup>
           {organizations.map((organization, index) =>
             organizationId === organization.id ? (
-              <DropdownMenuSubComponent key={index} id={organization.id} title={organization.title} />
+              <DropdownMenuSubComponent
+                key={index}
+                id={organization.id}
+                title={organization.title}
+                profileImageUrl={organization.profileImageUrl}
+              />
             ) : (
               <Link href={`/organization/${organization.id}`} key={index}>
                 <DropdownMenuItem className="flex flex-row gap-x-2">
@@ -111,7 +128,7 @@ export const OrganizationDropdown = () => {
                     imageSize={16}
                     buildingParentDivPadding="p-[4px]"
                   />
-                  <span className="truncate">{organization.title}</span>
+                  <span className="truncate">{organization.title}asdfsadfasdfsdfsdf</span>
                 </DropdownMenuItem>
               </Link>
             ),

@@ -6,11 +6,18 @@ import { revalidatePath } from "next/cache";
 
 import { v4 as uuidv4 } from "uuid";
 import prismadb from "@/lib/prismadb";
-import { OrganizationSchema, InviteMemberSchema, JoinOrganizationSchema } from "../schema/organization";
+import {
+  OrganizationSchema,
+  InviteMemberSchema,
+  JoinOrganizationSchema,
+  ChangeOrganizationMemberRoleSchema,
+  DeleteOrganizationMemberSchema,
+} from "../schema/organization";
 import { auth } from "@/auth";
 import {
   getInviteMemberCodeByEmail,
   getOrganizationMemberByEmail,
+  getOrganizationMemberByUserId,
   getOrganizationMemberById,
   getInviteMemberCodeByToken,
 } from "../data/organization";
@@ -174,7 +181,7 @@ export const inviteMember = async (values: z.infer<typeof InviteMemberSchema>) =
     }
 
     const { organizationId, email, role } = values;
-    const organizationMember = await getOrganizationMemberById(organizationId);
+    const organizationMember = await getOrganizationMemberByUserId(organizationId);
     if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
       return { error: "Unauthorized" };
     }
@@ -274,6 +281,78 @@ export const joinOrganization = async (values: z.infer<typeof JoinOrganizationSc
     return {
       success: "You have successfully joined the organization.",
       organizationId: existingCode.organizationId,
+    };
+  } catch (err) {
+    console.log(err);
+    return { error: "Something went wrong" };
+  }
+};
+
+export const changeRole = async (values: z.infer<typeof ChangeOrganizationMemberRoleSchema>) => {
+  try {
+    const session = await auth();
+    const user = session?.user;
+    const userId = user?.id;
+    if (!session || !userId || !user || !user.email || user.userType !== "PROVIDER") {
+      return { error: "Unauthorized" };
+    }
+
+    const validatedFields = ChangeOrganizationMemberRoleSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+    const { organizationId, memberId, role } = values;
+    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
+      return { error: "Unauthorized" };
+    }
+
+    await prismadb.organizationMember.update({
+      where: {
+        id: memberId,
+      },
+      data: {
+        role,
+      },
+    });
+
+    return {
+      success: "Role successfully changed",
+    };
+  } catch (err) {
+    console.log(err);
+    return { error: "Something went wrong" };
+  }
+};
+
+export const deleteMember = async (values: z.infer<typeof DeleteOrganizationMemberSchema>) => {
+  try {
+    const session = await auth();
+    const user = session?.user;
+    const userId = user?.id;
+    if (!session || !userId || !user || !user.email || user.userType !== "PROVIDER") {
+      return { error: "Unauthorized" };
+    }
+
+    const validatedFields = DeleteOrganizationMemberSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+    const { organizationId, memberId } = values;
+    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
+      return { error: "Unauthorized" };
+    }
+
+    await prismadb.organizationMember.delete({
+      where: {
+        id: memberId,
+        role: { not: "OWNER" },
+      },
+    });
+
+    return {
+      success: "Member successfully removed!",
     };
   } catch (err) {
     console.log(err);

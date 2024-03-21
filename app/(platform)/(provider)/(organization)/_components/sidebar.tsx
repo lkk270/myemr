@@ -156,7 +156,7 @@ export const Sidebar = ({ storageKey = "myemr-storage-key", initialOrganizations
             <div className="text-md font-medium flex items-center mb-1">
               <span>Organizations</span>
               <Button asChild type="button" size="icon" variant="ghost" className="ml-3">
-                <Link href="/provider-home">
+                <Link href="/provider-home" onDragStart={(e) => e.preventDefault()}>
                   <PackagePlus className="h-5 w-5" />
                 </Link>
               </Button>

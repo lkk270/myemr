@@ -4,7 +4,7 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 import { currentUser } from "@/auth/lib/auth";
 import prismadb from "@/lib/prismadb";
 
-export const getOrganizationMemberById = async (organizationId: string, userIdParam = "") => {
+export const getOrganizationMemberByUserId = async (organizationId: string, userIdParam = "") => {
   const user = await currentUser();
   const userPermissions = extractCurrentUserPermissions(user);
   const userId = user?.id;
@@ -17,6 +17,31 @@ export const getOrganizationMemberById = async (organizationId: string, userIdPa
     where: {
       organizationId,
       userId: !!userIdParam ? userIdParam : userId,
+    },
+    select: {
+      id: true,
+      role: true,
+      organization: {
+        select: { title: true },
+      },
+    },
+  });
+
+  return organizationMember;
+};
+
+export const getOrganizationMemberById = async (memberId: string) => {
+  const user = await currentUser();
+  const userPermissions = extractCurrentUserPermissions(user);
+  const userId = user?.id;
+
+  if (!user || !userId || !userPermissions.hasAccount) {
+    return null;
+  }
+
+  const organizationMember = await prismadb.organizationMember.findFirst({
+    where: {
+      id: memberId,
     },
     select: {
       id: true,
@@ -64,7 +89,6 @@ export const getInviteMemberCodeByEmail = async (email: string, organizationId: 
     return null;
   }
 };
-
 
 export const getInviteMemberCodeByToken = async (email: string, token: string) => {
   try {

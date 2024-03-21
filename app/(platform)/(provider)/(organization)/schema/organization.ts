@@ -127,3 +127,14 @@ export const InviteMemberSchema = z.object({
   email: z.string().email(),
   role: z.enum([OrganizationMemberRole.ADMIN, OrganizationMemberRole.USER]),
 });
+
+export const ChangeOrganizationMemberRoleSchema = z.object({
+  organizationId: z.string(),
+  memberId: z.string(),
+  role: z.enum([OrganizationMemberRole.OWNER, OrganizationMemberRole.ADMIN, OrganizationMemberRole.USER]),
+});
+
+export const DeleteOrganizationMemberSchema = z.object({
+  organizationId: z.string(),
+  memberId: z.string(),
+});

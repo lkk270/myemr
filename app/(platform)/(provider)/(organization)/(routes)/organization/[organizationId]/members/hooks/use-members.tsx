@@ -10,6 +10,7 @@ interface OrganizationMembersStore {
   deleteOrganizationMember: (organizationMemberId: string) => void;
   isOrganizationMemberEmailExist: (email: string) => boolean;
   getOrganizationMemberById: (id: string) => OrganizationMemberType | undefined;
+  getOrganizationMemberByUserId: (userId: string) => OrganizationMemberType | undefined;
 }
 
 export const useOrganizationMembersStore = create<OrganizationMembersStore>((set, get) => ({
@@ -37,5 +38,9 @@ export const useOrganizationMembersStore = create<OrganizationMembersStore>((set
   getOrganizationMemberById: (id) => {
     const state = get();
     return state.organizationMembers.find((organizationMember) => organizationMember.id === id);
+  },
+  getOrganizationMemberByUserId: (userId) => {
+    const state = get();
+    return state.organizationMembers.find((organizationMember) => organizationMember.user.id === userId);
   },
 }));

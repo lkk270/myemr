@@ -27,7 +27,6 @@ export function MembersTable({ data }: DataTableProps) {
   if (isMobile) {
     filteredColumns = filteredColumns.filter((column: any) => column.accessorKey !== "createdAt");
   }
-
   return (
     <DataTable
       showDataTableViewOptions={false}

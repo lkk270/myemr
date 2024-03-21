@@ -54,6 +54,7 @@ export const columns: ColumnDef<any>[] = [
   },
   {
     id: "permissions",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
     cell: ({ row }) => <PermissionsDropdown memberId={row.original.id as string} />,
   },
   //   {

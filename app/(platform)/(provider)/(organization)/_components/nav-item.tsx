@@ -12,6 +12,7 @@ import { Organization } from "@prisma/client";
 import Link from "next/link";
 
 interface NavItemProps {
+  defaultAccordionValue: string[];
   isExpanded: boolean;
   isActive: boolean;
   organization: Organization;
@@ -19,7 +20,14 @@ interface NavItemProps {
   width: number;
 }
 
-export const NavItem = ({ isExpanded, isActive, organization, onExpand, width }: NavItemProps) => {
+export const NavItem = ({
+  isExpanded,
+  isActive,
+  organization,
+  onExpand,
+  width,
+  defaultAccordionValue,
+}: NavItemProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -60,7 +68,7 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand, width }:
         onClick={() => !!onExpand && onExpand(organization.id)}
         className={cn(
           "flex items-center gap-x-2 p-2 rounded-md hover:bg-neutral-500/10 transition text-start no-underline hover:no-underline",
-          isActive && !isExpanded && "bg-sky-500/10 text-sky-700",
+          isActive && !isExpanded && "bg-neutral-500/10 ",
         )}
       >
         <div className="flex items-center gap-x-2">
@@ -92,7 +100,7 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand, width }:
                 size="sm"
                 className={cn(
                   "w-full font-normal justify-start pl-10 mb-1",
-                  pathname === route.href && "bg-sky-500/10 text-sky-700",
+                  pathname === route.href && "bg-neutral-500/10 text-primary",
                 )}
                 variant="ghost"
               >
@@ -101,12 +109,13 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand, width }:
               </Button>
             </Link>
           ) : (
-            <Accordion key={index} type="multiple" defaultValue={undefined} className="space-y-2">
-              <AccordionItem value={organization.id} className="border-none">
+            <Accordion key={index} type="multiple" defaultValue={defaultAccordionValue} className="space-y-2">
+              <AccordionItem value={organization.id + "settings"} className="border-none">
                 <AccordionTrigger
+                  onClick={() => !!onExpand && onExpand(organization.id + "settings")}
                   className={cn(
-                    "flex flex-row gap-x-4 py-2 w-full font-normal justify-start pl-10 hover:bg-neutral-500/10 transition text-start no-underline hover:no-underline",
-                    isActive && !isExpanded && "bg-sky-500/10 text-sky-700",
+                    "flex flex-row gap-x-4 rounded-md py-2 w-full font-normal justify-start pl-10 hover:bg-neutral-500/10 transition text-start no-underline hover:no-underline",
+                    isActive && !isExpanded && "bg-neutral-500/10 text-primary",
                   )}
                 >
                   <div className="flex flex-row">
@@ -121,7 +130,7 @@ export const NavItem = ({ isExpanded, isActive, organization, onExpand, width }:
                         size="sm"
                         className={cn(
                           "w-full font-normal justify-start pl-20 mb-1",
-                          pathname === routesRoute.href && "bg-sky-500/10 text-sky-700",
+                          pathname === routesRoute.href && "bg-neutral-500/10 text-primary",
                         )}
                         variant="ghost"
                       >

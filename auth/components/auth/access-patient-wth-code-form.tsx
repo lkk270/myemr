@@ -27,7 +27,6 @@ export const AccessPatientWithCodeForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof AccessPatientWithCodeSchema>) => {
-    console.log("IN 29");
     setError("");
     setSuccess("");
 
@@ -35,8 +34,8 @@ export const AccessPatientWithCodeForm = () => {
       accessPatientWithCode(values, "callbackUrl")
         .then((data) => {
           if (data?.error) {
-            // form.reset();
             setError(data.error);
+            form.reset();
           }
         })
         .catch(() => setError("Something went wrong"));

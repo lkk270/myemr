@@ -29,6 +29,7 @@ export const JoinOrganizationForm = ({ setOpen }: JoinOrganizationForm) => {
   });
 
   const onSubmit = (values: z.infer<typeof JoinOrganizationSchema>) => {
+    setError("");
     startTransition(() => {
       joinOrganization(values)
         .then((data) => {
@@ -37,6 +38,7 @@ export const JoinOrganizationForm = ({ setOpen }: JoinOrganizationForm) => {
             if (data.error === "Unauthorized") {
               logout();
             }
+            form.reset();
           }
           if (!!data.success && !!data.organizationId) {
             setOpen(false);

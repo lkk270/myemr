@@ -159,18 +159,22 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
     // }
 
     if (numFilesSuccessfullyUploaded > 0) {
-      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
-
       if (!!requestRecordsCode) {
         await createPatientNotification({
-          text: `${requestRecordsCode.providerEmail} has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText} in response to your "Request Your Records" request.`,
-          type: "REQUEST_RECORDS_UPLOAD",
-          requestRecordsCodeToken: requestRecordsCode.token,
+          notificationType: "REQUEST_RECORDS_FILE_UPLOAD",
+          dynamicData: {
+            email: requestRecordsCode.providerEmail,
+            numOfFiles: numFilesSuccessfullyUploaded,
+            requestRecordsCodeToken: requestRecordsCode.token,
+          },
         });
       } else {
         await createPatientNotification({
-          text: `An external user, whom you granted a temporary access code with "UPLOAD_FILES_ONLY" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
-          type: "ACCESS_CODE",
+          notificationType: "ACCESS_CODE_FILE_UPLOADED",
+          dynamicData: {
+            accessCodeType: "UPLOAD_FILES_ONLY",
+            numOfFiles: numFilesSuccessfullyUploaded,
+          },
         });
       }
     }

@@ -636,16 +636,29 @@ model FailedAccountDelete {
 }
 
 model Notification {
-  id     String  @id @default(cuid())
-  userId String
-  text   String
-  read   Boolean @default(false)
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String           @id @default(cuid())
+  userId           String
+  dynamicData      Json
+  notificationType NotificationType
+  read             Boolean          @default(false)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+enum NotificationType {
+  ADDED_TO_ORGANIZATION
+  ACCESS_CODE_NODE_RENAMED
+  ACCESS_CODE_FILE_UPLOADED
+  ACCESS_CODE_NODE_MOVED
+  ACCESS_CODE_ADDED_ROOT_FOLDER
+  ACCESS_CODE_ADDED_SUB_FOLDER
+  ACCESS_CODE_MEDICATION_ADDED
+  ACCESS_CODE_MEDICATION_EDITED
+  REQUEST_RECORDS_FILE_UPLOAD
 }
 
 model OrganizationInviteCode {
@@ -655,7 +668,7 @@ model OrganizationInviteCode {
   token          String                 @unique
   expires        DateTime
   organizationId String
-  organization   Organization          @relation(fields: [organizationId], references: [id])
+  organization   Organization           @relation(fields: [organizationId], references: [id])
 
   createdAt DateTime @default(now())
 

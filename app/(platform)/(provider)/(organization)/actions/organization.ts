@@ -206,14 +206,18 @@ export const inviteMember = async (values: z.infer<typeof InviteMemberSchema>) =
         },
       });
       await sendInvitedToOrganizationEmailHasAccount(email, organizationId, organizationTitle);
+
       await prismadb.notification.create({
         data: {
           userId: inviteeHasProviderAccount.id,
-          text: `You have been added to the organization: ${organizationTitle}. Your role is ${capitalizeFirstLetter(
-            role,
-          )}`,
+          notificationType: "ADDED_TO_ORGANIZATION",
+          dynamicData: {
+            organizationName: organizationTitle,
+            role: role,
+          },
         },
       });
+
       revalidatePath(`/organization/${organizationId}/members`);
       return {
         success:

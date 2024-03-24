@@ -12,11 +12,14 @@ export const createPatientNotification = async (values: z.infer<typeof Notificat
     const validatedFields = NotificationPostSchema.safeParse(values);
     // const session = await auth();
     if (!validatedFields.success) {
+      console.log(values);
+      console.log("IN 15");
       return { error: "Invalid fields!" };
     }
-    const { text, type, requestRecordsCodeToken } = validatedFields.data;
+    const { notificationType, dynamicData } = validatedFields.data;
+    console.log(dynamicData);
     let forUserId;
-    if (type === "ACCESS_CODE") {
+    if (notificationType.includes("ACCESS_CODE")) {
       const user = await currentUser();
       // const userPermissions = extractCurrentUserPermissions(user);
       const userId = user?.id;
@@ -24,10 +27,10 @@ export const createPatientNotification = async (values: z.infer<typeof Notificat
       if (!user || !userId) {
         return { error: "Unauthorized" };
       }
-    } else if (type === "REQUEST_RECORDS_UPLOAD") {
+    } else if (notificationType === "REQUEST_RECORDS_FILE_UPLOAD") {
       const requestRecordsCode = await prismadb.requestRecordsCode.findUnique({
         where: {
-          token: requestRecordsCodeToken,
+          token: dynamicData["requestRecordsCodeToken"],
           isValid: true,
           expires: { gt: new Date() },
         },
@@ -45,7 +48,8 @@ export const createPatientNotification = async (values: z.infer<typeof Notificat
     await prismadb.notification.create({
       data: {
         userId: forUserId!!,
-        text,
+        notificationType,
+        dynamicData: dynamicData,
       },
     });
     return { success: "notification created!" };

@@ -68,8 +68,11 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
 
     if (!currentUserPermissions.hasAccount) {
       await createPatientNotification({
-        text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the medication: "${name}"`,
-        type: "ACCESS_CODE",
+        notificationType: "ACCESS_CODE_MEDICATION_ADDED",
+        dynamicData: {
+          medicationName: name,
+          accessCodeType: user?.role,
+        },
       });
     }
 
@@ -172,8 +175,11 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
     }
     if (!currentUserPermissions.hasAccount) {
       await createPatientNotification({
-        text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has updated the medication: "${currentMedication.name}"`,
-        type: "ACCESS_CODE",
+        notificationType: "ACCESS_CODE_MEDICATION_EDITED",
+        dynamicData: {
+          medicationName: decryptedCurrentMedication.name,
+          accessCodeType: user?.role,
+        },
       });
     }
 

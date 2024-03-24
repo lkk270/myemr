@@ -110,8 +110,13 @@ export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
       await updateRecordViewActivity(userId, nodeId, true);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the file: "${currentFile.name}" to "${newName}"`,
-          type: "ACCESS_CODE",
+          notificationType: "ACCESS_CODE_NODE_RENAMED",
+          dynamicData: {
+            isFile: true,
+            accessCodeType: user?.role,
+            oldName: currentFile.name,
+            newName: newName,
+          },
         });
       }
     } else if (isFile === false) {
@@ -147,8 +152,13 @@ export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
 
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the folder: "${currentFolder.name}" to "${newName}"`,
-          type: "ACCESS_CODE",
+          notificationType: "ACCESS_CODE_NODE_RENAMED",
+          dynamicData: {
+            isFile: false,
+            accessCodeType: user?.role,
+            oldName: currentFolder.name,
+            newName: newName,
+          },
         });
       }
     }

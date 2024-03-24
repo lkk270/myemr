@@ -10,6 +10,9 @@ async function deleteAllFiles() {
   // await prismadb.insuranceFile.deleteMany({});
 }
 
+async function deleteAllNotifications() {
+  await prismadb.notification.deleteMany({});
+}
 async function main() {
   const files = await prismadb.file.findMany({});
   const folders = await prismadb.folder.findMany({});
@@ -81,5 +84,6 @@ async function createFolder(
 
   return folder;
 }
-deleteAllOrganizationInviteCodes()
+deleteAllNotifications();
+// deleteAllOrganizationInviteCodes();
 // deleteAllFiles();

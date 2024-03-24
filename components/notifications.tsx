@@ -113,7 +113,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
                       {new Date(item.createdAt).toLocaleString().split(",")[0]}
                       {!item.read && <Dot size={10} strokeWidth={24} className="ml-2 text-sky-500" />}
                     </span>
-                    <span className="text-primary/80">{item.text}</span>
+                    <span className="text-primary/80">{"item.text"}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </div>

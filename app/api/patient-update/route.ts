@@ -98,8 +98,13 @@ export async function POST(req: Request) {
         await updateRecordViewActivity(userId, nodeId, true);
         if (!currentUserPermissions.hasAccount) {
           await createPatientNotification({
-            text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the file: "${currentFile.name}" to "${newName}"`,
-            type: "ACCESS_CODE",
+            notificationType: "ACCESS_CODE_NODE_RENAMED",
+            dynamicData: {
+              isFile: true,
+              accessCodeType: user?.role,
+              oldName: currentFile.name,
+              newName: newName,
+            },
           });
         }
       } else if (isFile === false) {
@@ -135,8 +140,13 @@ export async function POST(req: Request) {
 
         if (!currentUserPermissions.hasAccount) {
           await createPatientNotification({
-            text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the folder: "${currentFolder.name}" to "${newName}"`,
-            type: "ACCESS_CODE",
+            notificationType: "ACCESS_CODE_NODE_RENAMED",
+            dynamicData: {
+              isFile: false,
+              accessCodeType: user?.role,
+              oldName: currentFolder.name,
+              newName: newName,
+            },
           });
         }
       }
@@ -146,8 +156,13 @@ export async function POST(req: Request) {
       await moveNodes(selectedIds, targetId, userId);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has moved nodes from "${body.fromName}" to "${body.toName}"`,
-          type: "ACCESS_CODE",
+          notificationType: "ACCESS_CODE_NODE_MOVED",
+          dynamicData: {
+            numOfNodes: selectedIds.length,
+            accessCodeType: user?.role,
+            fromFolder: body.fromName,
+            toFolder: body.toName,
+          },
         });
       }
     } else if (updateType === "trashNode") {
@@ -193,8 +208,11 @@ export async function POST(req: Request) {
       );
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the root folder: "${body.folderName}"`,
-          type: "ACCESS_CODE",
+          notificationType: "ACCESS_CODE_ADDED_ROOT_FOLDER",
+          dynamicData: {
+            accessCodeType: user?.role,
+            rootFolderName: body.folderName,
+          },
         });
       }
       return NextResponse.json({ folderId: folderId }, { status: 200 });
@@ -209,8 +227,11 @@ export async function POST(req: Request) {
       );
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added a sub folder: "${body.folderName}"`,
-          type: "ACCESS_CODE",
+          notificationType: "ACCESS_CODE_ADDED_SUB_FOLDER",
+          dynamicData: {
+            accessCodeType: user?.role,
+            subFolderName: body.folderName,
+          },
         });
       }
       return NextResponse.json({ folder: folder }, { status: 200 });

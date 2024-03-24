@@ -34,11 +34,10 @@ export const NewMedicationSchema = z.object({
   ),
   dosage: z
     .string()
-    .min(1, {
-      message: "Minimum of 1 character required",
-    })
-    .max(10, {
-      message: "No more than of 10 characters allowed",
+    .min(1, { message: "Minimum of 1 character required" })
+    .max(10, { message: "No more than 10 characters allowed" })
+    .refine((value) => !isNaN(parseFloat(value)) && parseFloat(value) > 0, {
+      message: "Dosage must be a positive number",
     }),
   dosageUnits: z.string().refine(
     (value) => {
@@ -90,11 +89,10 @@ export const EditMedicationSchema = z.object({
   ),
   dosage: z
     .string()
-    .min(1, {
-      message: "Minimum of 1 character required",
-    })
-    .max(10, {
-      message: "No more than of 10 characters allowed",
+    .min(1, { message: "Minimum of 1 character required" })
+    .max(10, { message: "No more than 10 characters allowed" })
+    .refine((value) => !isNaN(parseFloat(value)) && parseFloat(value) > 0, {
+      message: "Dosage must be a positive number",
     }),
   dosageUnits: z.string().refine(
     (value) => {

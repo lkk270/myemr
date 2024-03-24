@@ -214,10 +214,12 @@ export const UploadFilesModal = () => {
     //   await deleteNotUploadedFilesAndDecrement();
     // }
     if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
-      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
       await createPatientNotification({
-        text: `An external user, whom you granted a temporary access code with "${currentUser?.role}" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
-        type: "ACCESS_CODE",
+        notificationType: "ACCESS_CODE_FILE_UPLOADED",
+        dynamicData: {
+          accessCodeType: currentUser?.role,
+          numOfFiles: numFilesSuccessfullyUploaded,
+        },
       });
     }
 

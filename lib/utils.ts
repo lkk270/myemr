@@ -558,7 +558,7 @@ export const generatePatientNotificationText = (notification: Notification) => {
       return `${externalUserText}, has successfully uploaded ${nodeText}.`;
     case "ACCESS_CODE_NODE_MOVED":
       const numOfNodes = dynamicData["numOfNodes"];
-      nodeText = `${numOfNodes.toString()} nodes`;
+      nodeText = `${numOfNodes.toString()} node`;
       if (numOfNodes > 1) nodeText += "s";
       return `${externalUserText}, has moved ${nodeText} from the folder "${dynamicData["fromFolder"]}" to the folder "${dynamicData["toFolder"]}".`;
     case "ACCESS_CODE_ADDED_ROOT_FOLDER":

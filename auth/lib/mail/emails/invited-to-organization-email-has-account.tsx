@@ -40,9 +40,11 @@ export const InvitedToOrganizationEmailHasAccount = ({
             A MyEmr Provider is linked to this email address. By clicking the button below, you will be directed to{" "}
             <span className="italic">{organizationName}</span>'s view page.
           </Text>
-          <Button className="pb-6" style={button} href={`https://myemr.io/organization/${organizationId}/settings`}>
-            Go
-          </Button>
+          <div className="pb-6">
+            <Button style={button} href={`https://myemr.io/organization/${organizationId}/settings`}>
+              Go
+            </Button>
+          </div>
           <Section>
             <Link style={footerLink} href="https://myemr.io" target="_blank" rel="noopener noreferrer">
               Home

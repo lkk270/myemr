@@ -33,6 +33,9 @@ export const Sidebar = ({
   const [isMounted, setIsMounted] = useState(false);
   const { setOrganizations, organizations } = useOrganizationStore();
   const pathname = usePathname();
+  const currentOrganizationId = pathname.includes("/organization/")
+    ? pathname.split("/organization/")[1].split("/")[0]
+    : "";
 
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isResizingRef = useRef(false);
@@ -124,6 +127,12 @@ export const Sidebar = ({
     return acc;
   }, []);
 
+  if (!!currentOrganizationId && !defaultAccordionValue.includes(currentOrganizationId)) {
+    defaultAccordionValue.push(currentOrganizationId);
+    if (pathname.includes("/members") || pathname.includes("/settings")) {
+      defaultAccordionValue.push(currentOrganizationId + "settings");
+    }
+  }
   const onExpand = (id: string) => {
     setExpanded((curr) => ({
       ...curr,
@@ -134,7 +143,6 @@ export const Sidebar = ({
   return (
     isMounted && (
       <>
-        {/* <DragDropContext onDragEnd={onDragEnd}> */}
         <aside
           ref={sidebarRef}
           className={cn(

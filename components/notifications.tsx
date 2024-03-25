@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { NotificationsSkeleton } from "@/components/loading/notifications-skeleton";
 import { toast } from "sonner";
+import { generatePatientNotificationText } from "@/lib/utils";
 
 type NotificationProps = {
   numOfUnreadNotificationsParam: number;
@@ -113,7 +114,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
                       {new Date(item.createdAt).toLocaleString().split(",")[0]}
                       {!item.read && <Dot size={10} strokeWidth={24} className="ml-2 text-sky-500" />}
                     </span>
-                    <span className="text-primary/80">{"item.text"}</span>
+                    <span className="text-primary/80">{generatePatientNotificationText(item)}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </div>

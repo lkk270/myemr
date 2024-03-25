@@ -61,7 +61,6 @@ export const NavItem = ({
   ];
 
   const newWidth = (width - 100).toString();
-
   return (
     <AccordionItem value={organization.id} className="border-none">
       <AccordionTrigger

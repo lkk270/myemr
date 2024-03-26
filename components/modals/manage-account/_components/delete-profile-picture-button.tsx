@@ -15,15 +15,21 @@ import { useSession } from "next-auth/react";
 import { deleteProfilePicture } from "@/lib/actions/delete-profile-picture";
 
 interface DeleteProfilePictureButtonProps {
+  setIsProfilePictureLoading: (value: boolean) => void;
   children: React.ReactNode;
   asChild?: boolean;
 }
 
-export const DeleteProfilePictureButton = ({ children, asChild }: DeleteProfilePictureButtonProps) => {
+export const DeleteProfilePictureButton = ({
+  setIsProfilePictureLoading,
+  children,
+  asChild,
+}: DeleteProfilePictureButtonProps) => {
   const { update } = useSession();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
+    setIsProfilePictureLoading(true);
     startTransition(() => {
       deleteProfilePicture()
         .then((data) => {
@@ -34,7 +40,10 @@ export const DeleteProfilePictureButton = ({ children, asChild }: DeleteProfileP
             update();
           }
         })
-        .catch(() => toast.error("Something went wrong"));
+        .catch(() => toast.error("Something went wrong"))
+        .finally(() => {
+          setIsProfilePictureLoading(false);
+        });
     });
   };
 

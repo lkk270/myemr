@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { FormError } from "@/auth/components/form-error";
 import { FormSuccess } from "@/auth/components/form-success";
-import { UserRole } from "@prisma/client";
 
 export const SettingsForm = () => {
   const user = useCurrentUser();

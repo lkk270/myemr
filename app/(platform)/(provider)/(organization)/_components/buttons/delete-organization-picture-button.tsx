@@ -15,12 +15,14 @@ import { useSession } from "next-auth/react";
 import { deleteOrganizationProfilePicture } from "../../actions/organization";
 import { useOrganizationStore } from "../hooks/use-organizations";
 interface DeleteOrganizationProfilePictureButton {
+  setIsProfilePictureLoading: (value: boolean) => void;
   organizationId: string;
   children: React.ReactNode;
   asChild?: boolean;
 }
 
 export const DeleteOrganizationProfilePictureButton = ({
+  setIsProfilePictureLoading,
   organizationId,
   children,
   asChild,
@@ -29,6 +31,7 @@ export const DeleteOrganizationProfilePictureButton = ({
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
+    setIsProfilePictureLoading(true);
     startTransition(() => {
       deleteOrganizationProfilePicture(organizationId)
         .then((data) => {
@@ -39,7 +42,10 @@ export const DeleteOrganizationProfilePictureButton = ({
             patchOrganization(organizationId, { profileImageUrl: null });
           }
         })
-        .catch(() => toast.error("Something went wrong"));
+        .catch(() => toast.error("Something went wrong"))
+        .finally(() => {
+          setIsProfilePictureLoading(false);
+        });
     });
   };
 

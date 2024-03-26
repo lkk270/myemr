@@ -1,11 +1,4 @@
-import {
-  Organization,
-  OrganizationAddress,
-  OrganizationMember,
-  OrganizationMemberRole,
-  OrganizationTags,
-  OrganizationType,
-} from "@prisma/client";
+import { OrganizationMember, OrganizationMemberRole, OrganizationType } from "@prisma/client";
 
 type SpecialOrganizationAddress = {
   id: string;
@@ -30,6 +23,7 @@ type SpecialOrganizationType = {
   backgroundImageUrl?: string | null;
   profileImageUrl?: string | null;
   acceptMessages?: boolean;
+  numOfUnreadActivities: number;
   organizationType: OrganizationType;
   mainEmail?: string | null;
   mainPhone?: string | null;

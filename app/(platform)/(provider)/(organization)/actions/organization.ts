@@ -18,7 +18,6 @@ import {
   getInviteMemberCodeByEmail,
   getOrganizationMemberByEmail,
   getOrganizationMemberByUserId,
-  getOrganizationMemberById,
   getInviteMemberCodeByToken,
 } from "../data/organization";
 import { getUserByEmail } from "@/auth/data";
@@ -27,7 +26,7 @@ import {
   sendInvitedToOrganizationEmailHasAccount,
 } from "@/auth/lib/mail/mail";
 import { OrganizationMemberRole } from "@prisma/client";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { createOrganizationActivityLog } from "@/lib/actions/organization-activity-log";
 
 export const createOrganization = async (values: z.infer<typeof OrganizationSchema>) => {
   try {
@@ -63,8 +62,8 @@ export const createOrganization = async (values: z.infer<typeof OrganizationSche
       organizationId: organization.id,
     };
   } catch (e) {
-    console.log("TRUE ERROR");
-    console.log(e);
+    // console.log("TRUE ERROR");
+    // console.log(e);
     return { error: "something went wrong" };
   }
 };
@@ -135,8 +134,8 @@ export const editOrganization = async (values: z.infer<typeof OrganizationSchema
       success: "Organization updated!",
     };
   } catch (e) {
-    console.log("TRUE ERROR");
-    console.log(e);
+    // console.log("TRUE ERROR");
+    // console.log(e);
     return { error: "something went wrong" };
   }
 };
@@ -218,6 +217,18 @@ export const inviteMember = async (values: z.infer<typeof InviteMemberSchema>) =
         },
       });
 
+      await createOrganizationActivityLog(
+        {
+          organizationId,
+          type: "PROVIDER_ADDED",
+          dynamicData: {
+            email,
+            role,
+          },
+        },
+        true,
+      );
+
       revalidatePath(`/organization/${organizationId}/members`);
       return {
         success:
@@ -234,8 +245,8 @@ export const inviteMember = async (values: z.infer<typeof InviteMemberSchema>) =
       //otherwise create an OrganizationInviteCode send them an email
     }
   } catch (e) {
-    console.log("TRUE ERROR");
-    console.log(e);
+    // console.log("TRUE ERROR");
+    // console.log(e);
     return { error: "something went wrong" };
   }
 };
@@ -285,6 +296,15 @@ export const joinOrganization = async (values: z.infer<typeof JoinOrganizationSc
       where: { id: existingCode.id },
     });
 
+    await createOrganizationActivityLog({
+      organizationId: existingCode.organizationId,
+      type: "INVITE_ACCEPTED",
+      dynamicData: {
+        email: user.email,
+        role: existingCode.role,
+      },
+    });
+
     revalidatePath(`/organization/${existingCode.organizationId}/settings`);
 
     return {
@@ -292,7 +312,7 @@ export const joinOrganization = async (values: z.infer<typeof JoinOrganizationSc
       organizationId: existingCode.organizationId,
     };
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return { error: "Something went wrong" };
   }
 };
@@ -329,7 +349,7 @@ export const changeRole = async (values: z.infer<typeof ChangeOrganizationMember
       success: "Role successfully changed",
     };
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return { error: "Something went wrong" };
   }
 };
@@ -364,7 +384,7 @@ export const deleteMember = async (values: z.infer<typeof DeleteOrganizationMemb
       success: "Member successfully removed!",
     };
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return { error: "Something went wrong" };
   }
 };

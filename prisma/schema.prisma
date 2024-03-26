@@ -366,13 +366,15 @@ model Organization {
   addresses        OrganizationAddress[]
   organizationTags OrganizationTags[]
 
-  organizationMembers OrganizationMember[]
-  patients            PatientMember[]
-  inviteCodes         OrganizationInviteCode[]
-  mainEmail           String?
-  mainPhone           String?
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
+  organizationMembers  OrganizationMember[]
+  patients             PatientMember[]
+  inviteCodes          OrganizationInviteCode[]
+  mainEmail            String?
+  mainPhone            String?
+  organizationActivity OrganizationActivity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum PatientMemberRole {
@@ -633,6 +635,28 @@ model FailedAccountDelete {
   patientProfileId String
   reason           String?
   createdAt        DateTime @default(now())
+}
+
+model OrganizationActivity {
+  id             String                   @id @default(cuid())
+  dynamicData    Json
+  type           OrganizationActivityType
+  read           Boolean                  @default(false)
+  imageUrl       String?                  @db.Text
+  href           String?                  @db.Text
+  organizationId String
+  organization   Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+}
+
+enum OrganizationActivityType {
+  PROVIDER_ADDED
+  INVITE_ACCEPTED
+  ADDED_BY_PATIENT
 }
 
 model Notification {

@@ -49,7 +49,7 @@ export const createPatientNotification = async (values: z.infer<typeof Notificat
       data: {
         userId: forUserId!!,
         notificationType,
-        dynamicData: dynamicData,
+        dynamicData,
       },
     });
     return { success: "notification created!" };

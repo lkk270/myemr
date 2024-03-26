@@ -89,7 +89,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
           <div className="relative">
             <Bell className="w-5 h-5" />
             {numOfUnreadNotifications > 0 && (
-              <Badge className="absolute bottom-0 justify-center w-4 h-4 text-[10px] text-white bg-red-500 mb-[10px] left-100">
+              <Badge className="hover:bg-red-500 absolute bottom-0 justify-center w-4 h-4 text-[10px] text-white bg-red-500 mb-[10px] left-100">
                 {numOfUnreadNotifications > 9 ? "9+" : numOfUnreadNotifications.toString()}
               </Badge>
             )}

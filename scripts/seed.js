@@ -72,6 +72,22 @@ function deleteAllNotifications() {
         });
     });
 }
+function changeActivityLogsToReadFalse() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, prismadb.organizationActivity.updateMany({
+                        data: {
+                            read: false,
+                        },
+                    })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var files, folders;
@@ -145,6 +161,7 @@ function createFolder(name, path, namePath, parentId, patientProfileId, userId, 
         });
     });
 }
-deleteAllNotifications();
+changeActivityLogsToReadFalse();
+// deleteAllNotifications();
 // deleteAllOrganizationInviteCodes();
 // deleteAllFiles();

@@ -61,12 +61,12 @@ export const OrganizationDropdown = () => {
       <DropdownMenuSub>
         <DropdownMenuSubTrigger className="text-[#44aaf7] font-bold bg-secondary">
           <div className="flex flex-row gap-x-3 items-center">
-            <div className="border-2 border-[#44aaf7] rounded-sm">
+            <div className="border-2 border-[#44aaf7] rounded-sm shrink-0">
               {/* <Dot strokeWidth={5} className=" text-[#615cff]" /> */}
               <OrganizationAvatar
                 buildingClassName="w-4 h-4"
                 profileImageUrl={profileImageUrl}
-                imageSize={30}
+                imageSize={50}
                 buildingParentDivPadding="p-[4px]"
               />
             </div>

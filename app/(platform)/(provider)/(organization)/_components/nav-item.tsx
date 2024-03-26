@@ -1,26 +1,31 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Activity, Users, Settings, Settings2, BriefcaseMedical } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Organization } from "@prisma/client";
+import { OrganizationWithRoleType } from "@/app/types/organization-types";
 import Link from "next/link";
 import { OrganizationAvatar } from "./organization-avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface NavItemProps {
+  accordionValue: string[];
+  setAccordionValue: (values: string[]) => void;
   defaultAccordionValue: string[];
   isExpanded: boolean;
   isActive: boolean;
-  organization: Organization;
+  organization: OrganizationWithRoleType;
   onExpand?: (id: string) => void;
   width: number;
 }
 
 export const NavItem = ({
+  accordionValue,
+  setAccordionValue,
   isExpanded,
   isActive,
   organization,
@@ -28,7 +33,6 @@ export const NavItem = ({
   width,
   defaultAccordionValue,
 }: NavItemProps) => {
-  const router = useRouter();
   const pathname = usePathname();
 
   const routes = [
@@ -95,10 +99,23 @@ export const NavItem = ({
               >
                 {route.icon}
                 {route.label}
+
+                {route.label === "Activity" && organization.numOfUnreadActivities > 0 && (
+                  <Badge className="hover:bg-red-500 ml-3 justify-center w-4 h-4 text-[10px] text-white bg-red-500">
+                    {organization.numOfUnreadActivities > 9 ? "9+" : organization.numOfUnreadActivities.toString()}
+                  </Badge>
+                )}
               </Button>
             </Link>
           ) : (
-            <Accordion key={index} type="multiple" defaultValue={defaultAccordionValue} className="space-y-2">
+            <Accordion
+              key={index}
+              type="multiple"
+              onValueChange={setAccordionValue}
+              value={accordionValue}
+              defaultValue={defaultAccordionValue}
+              className="space-y-2"
+            >
               <AccordionItem value={organization.id + "settings"} className="border-none">
                 <AccordionTrigger
                   onClick={() => !!onExpand && onExpand(organization.id + "settings")}

@@ -66,7 +66,7 @@ export const OrganizationDropdown = () => {
                 buildingParentDivPadding="p-[3px]"
                 imageClassName="h-[30px] w-auto"
                 buildingClassName="h-[24px] w-[24px]"
-                profileImageUrl={organization.profileImageUrl}
+                profileImageUrl={profileImageUrl}
                 imageSize={28}
               />
             </div>
@@ -105,7 +105,7 @@ export const OrganizationDropdown = () => {
                 buildingParentDivPadding="p-[3px]"
                 imageClassName="h-[30px] w-auto"
                 buildingClassName="h-[24px] w-[24px]"
-                profileImageUrl={organization.profileImageUrl}
+                profileImageUrl={currentOrganization.profileImageUrl}
                 imageSize={28}
               />
             </div>

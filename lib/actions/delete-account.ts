@@ -13,7 +13,7 @@ export const deleteAccount = async () => {
     return { error: "Unauthorized" };
   }
   try {
-    await setScheduledToDelete("PATIENT", true, userId);
+    await setScheduledToDelete(user.userType, true, userId);
     return { success: "Account deleted!" };
   } catch {
     return { error: "Something went wrong" };

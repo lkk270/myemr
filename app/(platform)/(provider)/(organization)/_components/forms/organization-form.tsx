@@ -48,6 +48,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
   const { addOrganization, patchOrganization, getOrganizationById } = useOrganizationStore();
   const [initialDataDynamic, setInitialDataDynamic] = useState(initialData);
   const router = useRouter();
+  const [isProfilePictureLoading, setIsProfilePictureLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(!initialData);
 
@@ -295,6 +296,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                 {organizationById.profileImageUrl ? (
                   <div className="flex flex-col items-center justify-center border border-secondary rounded-lg shadow-md w-[150px] h-[150px]">
                     <Image
+                      style={{ animation: isProfilePictureLoading ? "pulse 1.5s infinite" : "" }}
                       className="h-[130px] w-auto rounded-lg"
                       draggable={false}
                       width={80}
@@ -309,7 +311,11 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   </div>
                 )}
                 <div className="flex flex-col gap-y-2">
-                  <UploadOrganizationPictureButton asChild organizationId={organizationById.id}>
+                  <UploadOrganizationPictureButton
+                    setIsProfilePictureLoading={setIsProfilePictureLoading}
+                    asChild
+                    organizationId={organizationById.id}
+                  >
                     <Button variant={"secondary"} className="w-20 h-8">
                       Upload
                     </Button>

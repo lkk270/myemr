@@ -21,7 +21,7 @@ import { FeedbackForm } from "../_components/feedback-form";
 
 export const ProviderManageAccountModal = () => {
   const user = useCurrentUser();
-
+  const [isProfilePictureLoading, setIsProfilePictureLoading] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
   const { isOpen, onOpen, onClose, defaultScrollTo } = useProviderManageAccountModal();
@@ -109,16 +109,16 @@ export const ProviderManageAccountModal = () => {
                       <Separator />
                     </div>
                     <div className="flex items-center gap-x-3">
-                      <AvatarComponent avatarClassName="w-16 h-16" />
+                      <AvatarComponent isLoading={isProfilePictureLoading} avatarClassName="w-16 h-16" />
                       <div className="hidden xs:flex">{user?.email}</div>
                       <div className="flex flex-col gap-y-2">
-                        <UploadProfilePictureButton asChild>
+                        <UploadProfilePictureButton setIsProfilePictureLoading={setIsProfilePictureLoading} asChild>
                           <Button variant={"secondary"} className="w-20 h-8">
                             Upload
                           </Button>
                         </UploadProfilePictureButton>
                         {user?.image && (
-                          <DeleteProfilePictureButton asChild>
+                          <DeleteProfilePictureButton setIsProfilePictureLoading={setIsProfilePictureLoading} asChild>
                             <Button className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]">
                               Delete
                             </Button>

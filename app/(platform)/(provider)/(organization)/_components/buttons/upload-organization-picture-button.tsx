@@ -17,12 +17,14 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import { useOrganizationStore } from "../hooks/use-organizations";
 
 interface UploadProfilePictureButtonProps {
+  setIsProfilePictureLoading: (value: boolean) => void;
   organizationId: string;
   children: React.ReactNode;
   asChild?: boolean;
 }
 
 export const UploadOrganizationPictureButton = ({
+  setIsProfilePictureLoading,
   children,
   asChild,
   organizationId,
@@ -36,6 +38,7 @@ export const UploadOrganizationPictureButton = ({
     let isError = false;
     if (!file) return;
     setIsLoading(true);
+    setIsProfilePictureLoading(true);
 
     let goodPsuResponse = false;
 
@@ -81,6 +84,7 @@ export const UploadOrganizationPictureButton = ({
       toast.error("Something went wrong!");
     }
     setIsLoading(false);
+    setIsProfilePictureLoading(false);
     if (!isError) {
       //   uploadInsuranceModal.onClose();
     }

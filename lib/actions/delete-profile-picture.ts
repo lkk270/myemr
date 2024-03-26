@@ -20,27 +20,39 @@ export const deleteProfilePicture = async () => {
   } catch (err) {
     return { error: "something went wrong" };
   }
-  await prismadb.$transaction(
-    async (prisma) => {
-      await prisma.patientProfile.update({
-        where: {
-          userId: userId,
-        },
-        data: {
-          imageUrl: null,
-        },
-      });
-      await prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          image: null,
-        },
-      });
-    },
-    { timeout: 20000 },
-  );
+  if (user.userType === "PATIENT") {
+    await prismadb.$transaction(
+      async (prisma) => {
+        await prisma.patientProfile.update({
+          where: {
+            userId: userId,
+          },
+          data: {
+            imageUrl: null,
+          },
+        });
+        await prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            image: null,
+          },
+        });
+      },
+      { timeout: 20000 },
+    );
+  } else if (user.userType === "PROVIDER") {
+    await prismadb.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        image: null,
+      },
+    });
+  }
+
   update({
     user: {
       image: null,
@@ -49,5 +61,3 @@ export const deleteProfilePicture = async () => {
 
   return { success: "Profile picture deleted!" };
 };
-
-

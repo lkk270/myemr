@@ -17,11 +17,16 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import { useSession } from "next-auth/react";
 
 interface UploadProfilePictureButtonProps {
+  setIsProfilePictureLoading: (value: boolean) => void;
   children: React.ReactNode;
   asChild?: boolean;
 }
 
-export const UploadProfilePictureButton = ({ children, asChild }: UploadProfilePictureButtonProps) => {
+export const UploadProfilePictureButton = ({
+  setIsProfilePictureLoading,
+  children,
+  asChild,
+}: UploadProfilePictureButtonProps) => {
   const { update } = useSession();
   const [file, setFile] = useState<FileWithStatus | null>(null);
   const { isLoading, setIsLoading } = useIsLoading();
@@ -31,6 +36,7 @@ export const UploadProfilePictureButton = ({ children, asChild }: UploadProfileP
     let isError = false;
     if (!file) return;
     setIsLoading(true);
+    setIsProfilePictureLoading(true);
 
     let goodPsuResponse = false;
 
@@ -75,6 +81,7 @@ export const UploadProfilePictureButton = ({ children, asChild }: UploadProfileP
       toast.error("Something went wrong!");
     }
     setIsLoading(false);
+    setIsProfilePictureLoading(false);
     if (!isError) {
       //   uploadInsuranceModal.onClose();
     }

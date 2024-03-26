@@ -92,7 +92,7 @@ export const UploadProfilePictureButton = ({
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogTitle className="text-md">Upload profile picture</AlertDialogTitle>
         <Dropzone insuranceSide={"front"} onChangeSingleFile={setFile} />
-        <div>{file?.file.name}</div>
+        <div className="max-h-[120px] overflow-y-scroll break-all whitespace-normal">{file?.file.name}</div>
         <AlertDialogFooter>
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
           <AlertDialogAction

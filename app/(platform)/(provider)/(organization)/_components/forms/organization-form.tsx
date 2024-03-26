@@ -306,7 +306,10 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                     />
                   </div>
                 ) : (
-                  <div className="border-dashed border-[3px] border-primary/40 rounded-lg p-6 w-20 h-20 flex flex-col">
+                  <div
+                    style={{ animation: isProfilePictureLoading ? "pulse 1.5s infinite" : "" }}
+                    className="border-dashed border-[3px] border-primary/40 rounded-lg p-6 w-20 h-20 flex flex-col"
+                  >
                     <Building2 className="text-muted-foreground" />
                   </div>
                 )}
@@ -321,7 +324,11 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                     </Button>
                   </UploadOrganizationPictureButton>
                   {organizationById.profileImageUrl && (
-                    <DeleteOrganizationProfilePictureButton asChild organizationId={organizationById.id}>
+                    <DeleteOrganizationProfilePictureButton
+                      setIsProfilePictureLoading={setIsProfilePictureLoading}
+                      asChild
+                      organizationId={organizationById.id}
+                    >
                       <Button className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]">
                         Delete
                       </Button>

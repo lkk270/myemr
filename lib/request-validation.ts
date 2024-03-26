@@ -70,7 +70,7 @@ const patientConditionals: any = {
   ppUpload: {
     requiredFields: ["contentType"],
     optionalFields: [],
-    mandatoryTruePermissions: ["canUploadFiles", "hasAccount"],
+    mandatoryTruePermissions: ["hasAccount"],
   },
   oppUpload: {
     requiredFields: ["contentType"],

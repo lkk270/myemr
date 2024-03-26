@@ -4,13 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
 import { sendFeedback } from "@/auth/lib/mail/mail";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 const formSchema = z.object({
   feedback: z.string().min(2, {
@@ -19,6 +20,7 @@ const formSchema = z.object({
 });
 
 export const FeedbackForm = () => {
+  const currentUser = useCurrentUser();
   const [isPending, startTransition] = useTransition();
 
   // 1. Define your form.
@@ -31,9 +33,8 @@ export const FeedbackForm = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const feedbackText = values.feedback;
-    console.log(feedbackText);
     startTransition(() => {
-      sendFeedback(feedbackText)
+      sendFeedback(`FROM USER TYPE: ${currentUser?.userType} ${feedbackText}`)
         .then(() => {
           toast.success("Feedback sent");
         })

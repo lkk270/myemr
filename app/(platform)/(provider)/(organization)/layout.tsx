@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { OrganizationWithRoleType } from "@/app/types";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
+import { ProviderManageAccountModal } from "@/components/modals/manage-account/provider-manage-account/provider-manage-account-modal";
 const OrganizationLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   const user = session?.user;
@@ -52,6 +53,7 @@ const OrganizationLayout = async ({ children }: { children: React.ReactNode }) =
   console.log(organizations);
   return (
     <main className="h-screen flex overflow-y-auto">
+      <ProviderManageAccountModal />
       <Sidebar initialOrganizations={organizations} numOfUnreadNotifications={numOfUnreadNotifications} />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
     </main>

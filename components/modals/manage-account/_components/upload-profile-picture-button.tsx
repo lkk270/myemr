@@ -70,6 +70,7 @@ export const UploadProfilePictureButton = ({ children, asChild }: UploadProfileP
         setFile(null);
       }
     } catch (error) {
+      console.log(error);
       setFile(null);
       toast.error("Something went wrong!");
     }

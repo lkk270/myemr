@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePatientManageAccountModal } from "../../../auth/hooks/use-patient-manage-account-modal";
+import { usePatientManageAccountModal } from "../../../../auth/hooks/use-patient-manage-account-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { User, Landmark, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useWindowScroll } from "@/auth/hooks/use-window-scroll";
 import { useMediaQuery } from "usehooks-ts";
-import { Separator } from "../../ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { SettingsForm } from "./settings-form";
 import { UploadProfilePictureButton } from "./upload-profile-picture-button";
-import { DeleteProfilePictureButton } from "./delete-profile-picture-button";
+import { DeleteProfilePictureButton } from "@/components/modals/manage-account/_components/delete-profile-picture-button";
 import { DeleteAccountButton } from "./delete-account-button";
 
 import { Button } from "@/components/ui/button";

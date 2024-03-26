@@ -40,11 +40,15 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
         <Separator className="bg-primary/10" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="justify-center sm:justify-start flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            <OrganizationAvatar
-              buildingClassName="w-5 h-5"
-              profileImageUrl={initialData.profileImageUrl}
-              imageSize={80}
-            />
+            <div className="flex flex-col items-center justify-center border-2 border-primary/20 rounded-lg shadow-md w-[150px] h-[150px]">
+              <OrganizationAvatar
+                roundedClassName="rounded-lg"
+                imageClassName="h-[136px] w-auto"
+                buildingClassName="w-[124px] h-[124px]"
+                profileImageUrl={initialData.profileImageUrl}
+                imageSize={130}
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-y-2">
             <strong>Title:</strong>

@@ -77,6 +77,7 @@ export const UploadOrganizationPictureButton = ({
       }
     } catch (error) {
       setFile(null);
+      console.log(error);
       toast.error("Something went wrong!");
     }
     setIsLoading(false);

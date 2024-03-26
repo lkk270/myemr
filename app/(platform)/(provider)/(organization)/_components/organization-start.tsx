@@ -49,12 +49,15 @@ export const OrganizationStart = () => {
                       className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
                     >
                       <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                        <OrganizationAvatar
-                          buildingClassName="w-5 h-5"
-                          profileImageUrl={organization.profileImageUrl}
-                          imageSize={32}
-                          imageClassName="rounded-sm object-cover"
-                        />
+                        <div className="flex flex-col items-center justify-center w-[40px] h-[40px] border-2 border-primary/20 rounded-sm shrink-0">
+                          <OrganizationAvatar
+                            buildingParentDivPadding="p-[5px]"
+                            imageClassName="h-[36px] w-auto"
+                            buildingClassName="h-[26px] w-[26px]"
+                            profileImageUrl={organization.profileImageUrl}
+                            imageSize={30}
+                          />
+                        </div>
                         <span className="text-left truncate text-sm flex-grow min-w-0">{organization.title}</span>
                       </div>
                       <div className="flex-shrink-0">

@@ -75,11 +75,15 @@ export const NavItem = ({
         )}
       >
         <div className="flex items-center gap-x-2">
-          <OrganizationAvatar
-            buildingClassName="w-5 h-5"
-            profileImageUrl={organization.profileImageUrl}
-            imageSize={30}
-          />
+          <div className="flex flex-col items-center justify-center w-[40px] h-[40px] border-2 border-primary/20 rounded-sm shrink-0">
+            <OrganizationAvatar
+              buildingParentDivPadding="p-[5px]"
+              imageClassName="h-[36px] w-auto"
+              buildingClassName="h-[26px] w-[26px]"
+              profileImageUrl={organization.profileImageUrl}
+              imageSize={30}
+            />
+          </div>
           <span className={`font-medium text-sm truncate`} style={{ maxWidth: `${newWidth}px` }}>
             {organization.title}
           </span>

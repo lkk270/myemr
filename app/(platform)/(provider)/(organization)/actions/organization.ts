@@ -27,6 +27,7 @@ import {
 } from "@/auth/lib/mail/mail";
 import { OrganizationMemberRole } from "@prisma/client";
 import { createOrganizationActivityLog } from "@/lib/actions/organization-activity-log";
+import { deleteS3ProfilePicture } from "@/lib/actions/files";
 
 export const createOrganization = async (values: z.infer<typeof OrganizationSchema>) => {
   try {
@@ -387,4 +388,35 @@ export const deleteMember = async (values: z.infer<typeof DeleteOrganizationMemb
     // console.log(err);
     return { error: "Something went wrong" };
   }
+};
+
+export const deleteOrganizationProfilePicture = async (organizationId: string) => {
+  const session = await auth();
+  const user = session?.user;
+  const userId = user?.id;
+  if (!session || !userId || !user || user.userType !== "PROVIDER") {
+    return { error: "Unauthorized" };
+  }
+
+  const organizationMember = await getOrganizationMemberByUserId(organizationId);
+  if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await deleteS3ProfilePicture(`organization/${organizationId}`);
+  } catch (err) {
+    return { error: "something went wrong" };
+  }
+
+  await prismadb.organization.update({
+    where: {
+      id: organizationId,
+    },
+    data: {
+      profileImageUrl: null,
+    },
+  });
+
+  return { success: "Profile picture deleted!" };
 };

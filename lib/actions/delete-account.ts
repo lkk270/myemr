@@ -2,13 +2,14 @@
 
 import { currentUser } from "@/auth/lib/auth";
 import { setScheduledToDelete } from "@/auth/actions/set-scheduled-to-delete";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const deleteAccount = async () => {
   const user = await currentUser();
   const userId = user?.id;
-  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
+  const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
 
-  if (!user || !userId || !isPatient) {
+  if (!user || !userId || !currentUserPermissions || !currentUserPermissions.isPatient) {
     return { error: "Unauthorized" };
   }
   try {

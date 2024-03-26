@@ -49,11 +49,11 @@ export const OrganizationStart = () => {
                       className="h-[50px] w-full flex flex-row justify-between items-center px-3 border-none"
                     >
                       <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-                        <div className="flex flex-col items-center justify-center w-[40px] h-[40px] border-2 border-primary/20 rounded-sm shrink-0">
+                        <div className="flex flex-col items-center justify-center w-[38px] h-[38px] border-2 border-primary/20 rounded-sm shrink-0">
                           <OrganizationAvatar
-                            buildingParentDivPadding="p-[5px]"
-                            imageClassName="h-[36px] w-auto"
-                            buildingClassName="h-[26px] w-[26px]"
+                            buildingParentDivPadding="p-[4px]"
+                            imageClassName="h-[32px] w-auto"
+                            buildingClassName="h-[24px] w-[24px]"
                             profileImageUrl={organization.profileImageUrl}
                             imageSize={30}
                           />

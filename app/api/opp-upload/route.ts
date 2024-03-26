@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { profileImageUrlPrefix, maxSystemFileSize } from "@/lib/constants";
 import { auth } from "@/auth";
-import { getOrganizationMemberById } from "@/app/(platform)/(provider)/(organization)/data/organization";
+import { getOrganizationMemberByUserId } from "@/app/(platform)/(provider)/(organization)/data/organization";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -25,8 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const organizationMember = await getOrganizationMemberById(organizationId);
-
+    const organizationMember = await getOrganizationMemberByUserId(organizationId);
     if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }

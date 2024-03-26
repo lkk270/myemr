@@ -1,16 +1,17 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
-import { update } from "@/auth";
+import { auth, update } from "@/auth";
 import { currentUser } from "@/auth/lib/auth";
 import { deleteS3ProfilePicture } from "./files";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const deleteProfilePicture = async () => {
   const user = await currentUser();
   const userId = user?.id;
-  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
+  const currentUserPermissions = extractCurrentUserPermissions(user);
 
-  if (!user || !userId || !isPatient) {
+  if (!user || !userId || !currentUserPermissions.hasAccount) {
     return { error: "Unauthorized" };
   }
 
@@ -48,3 +49,5 @@ export const deleteProfilePicture = async () => {
 
   return { success: "Profile picture deleted!" };
 };
+
+

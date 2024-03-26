@@ -7,13 +7,14 @@ import { GenerateCodeSchema } from "../schemas";
 import { generateAccessCode } from "@/lib/actions/access-codes";
 import { allotedStoragesInGb } from "@/lib/constants";
 import { getSumOfFilesSizes } from "@/lib/data/files";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => {
   const user = await currentUser();
   const userId = user?.id;
-  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
+  const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
 
-  if (!user || !userId || !isPatient) {
+  if (!user || !userId || !currentUserPermissions || !currentUserPermissions.isPatient) {
     return { error: "Unauthorized" };
   }
 

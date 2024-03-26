@@ -11,6 +11,7 @@ export const extractCurrentUserPermissions = (user: ExtendedUser | undefined) =>
   const userRole = user?.role;
   const userType = user?.userType;
   const isPatient = userRole === "ADMIN" && userType === "PATIENT";
+  const isProvider = userType === "PROVIDER";
   let ret = {
     canAdd: false,
     canEdit: false,
@@ -18,6 +19,7 @@ export const extractCurrentUserPermissions = (user: ExtendedUser | undefined) =>
     canUploadFiles: false,
     showActions: false,
     isPatient: isPatient,
+    isProvider: isProvider,
     hasAccount: userRole === "ADMIN" || userRole === "USER",
   };
   if (userRole === "FULL_ACCESS" || userRole === "READ_AND_ADD" || isPatient) {

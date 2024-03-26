@@ -61,13 +61,14 @@ export const OrganizationDropdown = () => {
       <DropdownMenuSub>
         <DropdownMenuSubTrigger className="text-[#44aaf7] font-bold bg-secondary">
           <div className="flex flex-row gap-x-3 items-center">
-            <div className="border-2 border-[#44aaf7] rounded-sm shrink-0">
+            <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
               {/* <Dot strokeWidth={5} className=" text-[#615cff]" /> */}
               <OrganizationAvatar
-                buildingClassName="w-4 h-4"
+                buildingParentDivPadding="p-[3px]"
+                imageClassName="h-[31px] w-auto"
+                buildingClassName="h-[25px] w-[25px]"
                 profileImageUrl={profileImageUrl}
-                imageSize={50}
-                buildingParentDivPadding="p-[4px]"
+                imageSize={28}
               />
             </div>
             <div className="truncate w-full">{title}</div>
@@ -100,11 +101,15 @@ export const OrganizationDropdown = () => {
       <DropdownMenuTrigger asChild className="w-42 xs:w-48">
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            <OrganizationAvatar
-              buildingClassName="w-5 h-5"
-              profileImageUrl={currentOrganization.profileImageUrl}
-              imageSize={30}
-            />
+            <div className="flex flex-col items-center justify-center border border-primary/20 rounded-sm w-[36px] h-[36px]">
+              <OrganizationAvatar
+                buildingParentDivPadding="p-[3px]"
+                imageClassName="h-[31px] w-auto"
+                buildingClassName="h-[25px] w-[25px]"
+                profileImageUrl={currentOrganization.profileImageUrl}
+                imageSize={28}
+              />
+            </div>
             <span className="text-left truncate text-sm flex-grow min-w-0">{currentOrganization.title}</span>
           </div>
           <div className="flex-shrink-0">
@@ -126,15 +131,22 @@ export const OrganizationDropdown = () => {
                 profileImageUrl={organization.profileImageUrl}
               />
             ) : (
-              <Link href={`/organization/${organization.id}`} key={index} onDragStart={(e) => e.preventDefault()}>
+              <Link
+                href={`/organization/${organization.id}/settings`}
+                key={index}
+                onDragStart={(e) => e.preventDefault()}
+              >
                 <DropdownMenuItem className="flex flex-row gap-x-2">
-                  <OrganizationAvatar
-                    buildingClassName="w-4 h-4"
-                    profileImageUrl={organization.profileImageUrl}
-                    imageSize={16}
-                    buildingParentDivPadding="p-[4px]"
-                  />
-                  <span className="truncate">{organization.title}asdfsadfasdfsdfsdf</span>
+                  <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
+                    <OrganizationAvatar
+                      buildingParentDivPadding="p-[3px]"
+                      imageClassName="h-[31px] w-auto"
+                      buildingClassName="h-[25px] w-[25px]"
+                      profileImageUrl={organization.profileImageUrl}
+                      imageSize={28}
+                    />
+                  </div>
+                  <span className="truncate">{organization.title}</span>
                 </DropdownMenuItem>
               </Link>
             ),

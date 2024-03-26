@@ -8,12 +8,14 @@ interface OrganizationAvatarProps {
   buildingClassName: string;
   buildingParentDivPadding?: string;
   imageSize: number;
+  roundedClassName?: string;
   imageClassName?: string;
 }
 export const OrganizationAvatar = ({
   profileImageUrl,
   buildingClassName,
   imageSize,
+  roundedClassName = "rounded-sm",
   imageClassName = "rounded-sm",
   buildingParentDivPadding = "p-[6px]",
 }: OrganizationAvatarProps) => {
@@ -22,7 +24,7 @@ export const OrganizationAvatar = ({
       {profileImageUrl ? (
         <Image
           draggable={false}
-          className={imageClassName}
+          className={cn(imageClassName, roundedClassName)}
           width={imageSize}
           height={imageSize}
           src={profileImageUrl}
@@ -31,8 +33,9 @@ export const OrganizationAvatar = ({
       ) : (
         <div
           className={cn(
-            "rounded-md bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white",
+            "bg-gradient-to-r from-indigo-400 via-violet-500 to-violet-600 text-white",
             buildingParentDivPadding,
+            roundedClassName,
           )}
         >
           <Building2 className={buildingClassName} />

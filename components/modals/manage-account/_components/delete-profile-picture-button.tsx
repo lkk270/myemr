@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { deleteProfilePicture } from "@/lib/actions/delete-profile-picture";

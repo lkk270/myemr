@@ -4,6 +4,7 @@ import prismadb from "@/lib/prismadb";
 import { currentUser } from "@/auth/lib/auth";
 import { FileStatus, InsuranceFile } from "@prisma/client";
 import { File } from "@prisma/client";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const updateRegularFileStatus = async (fileId: string, forRR = false) => {
   const user = await currentUser();
@@ -32,9 +33,9 @@ export const updateRegularFileStatus = async (fileId: string, forRR = false) => 
 
 export const updateInsuranceStatus = async (fileId: string) => {
   const user = await currentUser();
-  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
+  const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
 
-  if (!user || !isPatient) {
+  if (!user || !currentUserPermissions || !currentUserPermissions.isPatient) {
     return { error: "Unauthorized" };
   }
 

@@ -704,11 +704,11 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
 //   },
 // });
 
-export const deleteS3ProfilePicture = async (userId: string) => {
+export const deleteS3ProfilePicture = async (key: string) => {
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectCommand({
     Bucket: process.env.AWS_PROFILE_PICS_BUCKET_NAME as string,
-    Key: userId,
+    Key: key,
   });
   await client.send(command);
 };

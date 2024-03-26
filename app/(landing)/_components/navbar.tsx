@@ -1,7 +1,5 @@
 "use client";
 
-// import { useUser } from "@clerk/nextjs";
-import { SignUpButton, UserButton } from "@clerk/clerk-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -11,11 +9,12 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/loading/spinner";
 import { cn } from "@/lib/utils";
-
+import { LogIn } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { AccessWithCodeButton } from "@/auth/components/auth/access-patient-with-code-button";
 import { LoginButton } from "@/auth/components/auth/login-button";
 import { useMediaQuery } from "usehooks-ts";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 interface NavbarProps {
   scrolled: boolean;
 }
@@ -25,6 +24,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   const session = useSession();
   const sessionData = session.data;
   const user = sessionData?.user || null;
+  const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
   // console.log(sessionData);
   // console.log(sessionData?.user.role);
   // console.log(session);
@@ -60,6 +60,21 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
               </Button>
             </LoginButton>
           </>
+        )}
+        {!!currentUserPermissions && (!!user || session.status === "authenticated") && (
+          <Link
+            href={
+              currentUserPermissions.isPatient
+                ? "/patient-home"
+                : currentUserPermissions.hasAccount
+                ? "/provider-home"
+                : "tpa-home"
+            }
+          >
+            <Button variant="gooeyLeftSecondary" className="w-[150px] h-[38px]">
+              Enter MyEMR <LogIn className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         )}
         {session.status === "loading" && <Spinner />}
         {/* {user &&

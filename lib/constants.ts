@@ -86,9 +86,11 @@ interface AccessType {
   description: string;
 }
 
-export interface AccessTypeObjectType {
-  [key: string]: AccessType;
-}
+export type AllowedRoles = Exclude<UserRole, "USER" | "ADMIN">;
+
+export type AccessTypeObjectType = {
+  [key in AllowedRoles]: AccessType;
+};
 
 export const accessTypeTextObjForPatient: AccessTypeObjectType = {
   READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },

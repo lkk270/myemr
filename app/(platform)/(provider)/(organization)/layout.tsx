@@ -21,9 +21,25 @@ const OrganizationLayout = async ({ children }: { children: React.ReactNode }) =
     },
   });
 
-  const organizations: OrganizationWithRoleType[] = organizationsMembersOf.map((member) => ({
+  const organizationsWithUnreadCount = await Promise.all(
+    organizationsMembersOf.map(async (orgMember) => {
+      const unreadCount = await prismadb.organizationActivity.count({
+        where: {
+          organizationId: orgMember.organization.id,
+          read: false,
+        },
+      });
+      return {
+        ...orgMember,
+        numOfUnreadActivities: unreadCount,
+      };
+    }),
+  );
+
+  const organizations: OrganizationWithRoleType[] = organizationsWithUnreadCount.map((member) => ({
     ...member.organization,
     role: member.role,
+    numOfUnreadActivities: member.numOfUnreadActivities,
   }));
 
   let numOfUnreadNotifications = 0;

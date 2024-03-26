@@ -1,8 +1,18 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Notification, Unit } from "@prisma/client";
+import { Notification, OrganizationActivity, Unit } from "@prisma/client";
 import { NewMedicationType } from "@/app/types";
-import { genders, martialStatuses, races, heightsImperial, heightsMetric, states, dosageFrequency } from "./constants";
+import {
+  genders,
+  martialStatuses,
+  races,
+  heightsImperial,
+  heightsMetric,
+  states,
+  dosageFrequency,
+  accessTypeTextObjForTemp,
+  AllowedRoles,
+} from "./constants";
 export * from "./encryption";
 // export * from "./initial-profile";
 export * from "./request-validation";
@@ -26,6 +36,7 @@ import {
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { encryptPatientRecord } from "./encryption";
+import { TypeIcon } from "antd/es/message/PurePanel";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -577,5 +588,33 @@ export const generatePatientNotificationText = (notification: Notification) => {
 
     default:
       return notificationType;
+  }
+};
+
+export const generateOrganizationActivityText = (activityLog: OrganizationActivity) => {
+  const { type } = activityLog;
+  const dynamicData = activityLog.dynamicData as any;
+
+  if (!dynamicData) {
+    return "";
+  }
+
+  switch (type) {
+    case "PROVIDER_ADDED":
+      return `A provider with the email "${
+        dynamicData["email"]
+      }" has been added to this organization with the role of "${capitalizeFirstLetter(dynamicData["role"])}".`;
+    case "INVITE_ACCEPTED":
+      return `A user with the email "${
+        dynamicData["email"]
+      }" has successfully created a MyEmr Provider account and has accepted the invitation, thereby joining this organization with the assigned the role of "${capitalizeFirstLetter(
+        dynamicData["role"],
+      )}".`;
+    case "ADDED_BY_PATIENT":
+      const accessType = dynamicData["accessType"] as AllowedRoles;
+      const accessTypeTitle = accessTypeTextObjForTemp[accessType].title;
+      return `A patient registered under the email "${dynamicData["email"]}" has connected to this organization and has set the access type to "${accessTypeTitle}".`;
+    default:
+      return type;
   }
 };

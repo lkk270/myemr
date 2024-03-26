@@ -6,7 +6,6 @@ import { useMediaQuery } from "usehooks-ts";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Navbar } from "./navbar";
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
@@ -14,7 +13,6 @@ import Link from "next/link";
 import { useLocalStorage } from "usehooks-ts";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
 import { NavItem } from "./nav-item";
 import { OrganizationWithRoleType } from "@/app/types";
@@ -46,16 +44,40 @@ export const Sidebar = ({
   const [sidebarWidth, setSidebarWidth] = useState(isMobile ? window.innerWidth : 300);
 
   const [expanded, setExpanded] = useLocalStorage<Record<string, any>>(storageKey, {});
-
-  const currentUserPermissions = useCurrentUserPermissions();
+  const [accordionValue, setAccordionValue] = useState<string[]>([]);
+  const [defaultAccordionValue, setDefaultAccordionValue] = useState<string[]>([]);
   const session = useSession();
-  const plan = session?.data?.user?.plan;
+
+  const getPathnameSpecificAccordionValue = () => {
+    let ret: string[] = [currentOrganizationId];
+    if (pathname.includes("/members") || pathname.includes("/settings")) {
+      ret.push(currentOrganizationId + "settings");
+    }
+    return ret;
+  };
+
+  const getDefaultAccordionValue = (): string[] => {
+    const defaultAccordionValueTemp = Object.keys(expanded).reduce((acc: string[], key: string) => {
+      if (expanded[key]) {
+        acc.push(key);
+      }
+      return acc;
+    }, []);
+    const pathnameSpecificAccordionValue = getPathnameSpecificAccordionValue();
+    const combinedArray = [...new Set([...pathnameSpecificAccordionValue, ...defaultAccordionValueTemp])];
+    return combinedArray;
+  };
 
   useEffect(() => {
     setIsMounted(true);
-    // console.log(organizations);
     setOrganizations(initialOrganizations);
   }, [initialOrganizations]);
+
+  useEffect(() => {
+    const defaultAccordionValueTemp = getDefaultAccordionValue();
+    setDefaultAccordionValue(defaultAccordionValueTemp);
+    setAccordionValue(defaultAccordionValueTemp);
+  }, []);
 
   useEffect(() => {
     if (isMobile) {
@@ -71,6 +93,14 @@ export const Sidebar = ({
       collapse();
     }
   }, [pathname, isMobile]);
+
+  useEffect(() => {
+    if (pathname.includes("/organization/") && isMounted) {
+      const pathnameSpecificAccordionValue = getPathnameSpecificAccordionValue();
+      const combinedArray = [...new Set([...pathnameSpecificAccordionValue, ...accordionValue])];
+      setAccordionValue(combinedArray);
+    }
+  }, [pathname]);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.preventDefault();
@@ -120,19 +150,6 @@ export const Sidebar = ({
     }
   };
 
-  const defaultAccordionValue: string[] = Object.keys(expanded).reduce((acc: string[], key: string) => {
-    if (expanded[key]) {
-      acc.push(key);
-    }
-    return acc;
-  }, []);
-
-  if (!!currentOrganizationId && !defaultAccordionValue.includes(currentOrganizationId)) {
-    defaultAccordionValue.push(currentOrganizationId);
-    if (pathname.includes("/members") || pathname.includes("/settings")) {
-      defaultAccordionValue.push(currentOrganizationId + "settings");
-    }
-  }
   const onExpand = (id: string) => {
     setExpanded((curr) => ({
       ...curr,
@@ -174,9 +191,19 @@ export const Sidebar = ({
                 </Link>
               </Button>
             </div>
-            <Accordion type="multiple" defaultValue={defaultAccordionValue} className="space-y-2">
+            <Accordion
+              onValueChange={(value) => {
+                setAccordionValue(value);
+              }}
+              value={accordionValue}
+              type="multiple"
+              defaultValue={defaultAccordionValue}
+              className="space-y-2"
+            >
               {organizations.map((organization) => (
                 <NavItem
+                  accordionValue={accordionValue}
+                  setAccordionValue={setAccordionValue}
                   defaultAccordionValue={defaultAccordionValue}
                   width={sidebarWidth}
                   key={organization.id}

@@ -16,8 +16,8 @@ export const TermsParagraph = ({
       <h2 className={headerClassName ? headerClassName : "text-lg font-semibold"}>{title}</h2>
       {bullets ? (
         <ul className="list-disc list-inside space-y-2 pl-2">
-          {bullets.map((bullet) => {
-            return <li>{bullet}</li>;
+          {bullets.map((bullet, index) => {
+            return <li key={index}>{bullet}</li>;
           })}
         </ul>
       ) : (

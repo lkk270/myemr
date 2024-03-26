@@ -62,12 +62,11 @@ export const OrganizationDropdown = () => {
         <DropdownMenuSubTrigger className="text-[#44aaf7] font-bold bg-secondary">
           <div className="flex flex-row gap-x-3 items-center">
             <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
-              {/* <Dot strokeWidth={5} className=" text-[#615cff]" /> */}
               <OrganizationAvatar
                 buildingParentDivPadding="p-[3px]"
-                imageClassName="h-[31px] w-auto"
-                buildingClassName="h-[25px] w-[25px]"
-                profileImageUrl={profileImageUrl}
+                imageClassName="h-[30px] w-auto"
+                buildingClassName="h-[24px] w-[24px]"
+                profileImageUrl={organization.profileImageUrl}
                 imageSize={28}
               />
             </div>
@@ -101,12 +100,12 @@ export const OrganizationDropdown = () => {
       <DropdownMenuTrigger asChild className="w-42 xs:w-48">
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            <div className="flex flex-col items-center justify-center border border-primary/20 rounded-sm w-[36px] h-[36px]">
+            <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
               <OrganizationAvatar
                 buildingParentDivPadding="p-[3px]"
-                imageClassName="h-[31px] w-auto"
-                buildingClassName="h-[25px] w-[25px]"
-                profileImageUrl={currentOrganization.profileImageUrl}
+                imageClassName="h-[30px] w-auto"
+                buildingClassName="h-[24px] w-[24px]"
+                profileImageUrl={organization.profileImageUrl}
                 imageSize={28}
               />
             </div>
@@ -140,8 +139,8 @@ export const OrganizationDropdown = () => {
                   <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
                     <OrganizationAvatar
                       buildingParentDivPadding="p-[3px]"
-                      imageClassName="h-[31px] w-auto"
-                      buildingClassName="h-[25px] w-[25px]"
+                      imageClassName="h-[30px] w-auto"
+                      buildingClassName="h-[24px] w-[24px]"
                       profileImageUrl={organization.profileImageUrl}
                       imageSize={28}
                     />

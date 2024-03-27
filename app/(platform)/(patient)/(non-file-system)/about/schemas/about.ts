@@ -2,12 +2,22 @@ import * as z from "zod";
 import { genders, races, martialStatuses, heightsImperial, states } from "@/lib/constants";
 import { AddressSchema } from "@/lib/schemas/address";
 export const PersonalInformationSchema = z.object({
-  firstName: z.string().min(1, {
-    message: "Minimum of 1 characters required",
-  }),
-  lastName: z.string().min(1, {
-    message: "Minimum of 1 characters required",
-  }),
+  firstName: z
+    .string()
+    .min(1, {
+      message: "Minimum of 1 characters required",
+    })
+    .max(35, {
+      message: "Maximum of 35 characters required",
+    }),
+  lastName: z
+    .string()
+    .min(1, {
+      message: "Minimum of 1 characters required",
+    })
+    .max(35, {
+      message: "Maximum of 35 characters required",
+    }),
   dateOfBirth: z
     .string()
     .nullable()

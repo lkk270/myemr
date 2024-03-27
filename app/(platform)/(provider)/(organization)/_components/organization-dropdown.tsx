@@ -64,7 +64,7 @@ export const OrganizationDropdown = () => {
             <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
               <OrganizationAvatar
                 buildingParentDivPadding="p-[3px]"
-                imageClassName="h-[30px] w-auto"
+                imageClassName="max-h-[30px] max-w-[30px] w-auto"
                 buildingClassName="h-[24px] w-[24px]"
                 profileImageUrl={profileImageUrl}
                 imageSize={28}
@@ -103,7 +103,7 @@ export const OrganizationDropdown = () => {
             <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
               <OrganizationAvatar
                 buildingParentDivPadding="p-[3px]"
-                imageClassName="h-[30px] w-auto"
+                imageClassName="max-h-[30px] max-w-[30px] w-auto"
                 buildingClassName="h-[24px] w-[24px]"
                 profileImageUrl={currentOrganization.profileImageUrl}
                 imageSize={28}
@@ -139,7 +139,7 @@ export const OrganizationDropdown = () => {
                   <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
                     <OrganizationAvatar
                       buildingParentDivPadding="p-[3px]"
-                      imageClassName="h-[30px] w-auto"
+                      imageClassName="max-h-[30px] max-w-[30px] w-auto"
                       buildingClassName="h-[24px] w-[24px]"
                       profileImageUrl={organization.profileImageUrl}
                       imageSize={28}

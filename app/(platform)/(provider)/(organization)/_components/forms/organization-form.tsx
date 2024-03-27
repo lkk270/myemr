@@ -297,7 +297,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   <div className="flex flex-col items-center justify-center border border-secondary rounded-lg shadow-md w-[150px] h-[150px]">
                     <Image
                       style={{ animation: isProfilePictureLoading ? "pulse 1.5s infinite" : "" }}
-                      className="h-[130px] w-auto rounded-lg"
+                      className="max-h-[130px] max-w-[130px] w-auto rounded-lg"
                       draggable={false}
                       width={80}
                       height={80}

@@ -21,9 +21,14 @@ export const NewMedicationSchema = z.object({
         message: "Must be longer than 6 characters if specified",
       },
     ),
-  prescribedByName: z.string().min(6, {
-    message: "Minimum of 6 characters required",
-  }),
+  prescribedByName: z
+    .string()
+    .min(6, {
+      message: "Minimum of 6 characters required",
+    })
+    .max(70, {
+      message: "Maximum of 70 characters required",
+    }),
   category: z.string().refine(
     (value) => {
       return medicationCategories.some((item) => item.value === value);
@@ -76,9 +81,14 @@ export const EditMedicationSchema = z.object({
       },
     )
     .nullable(),
-  prescribedByName: z.string().min(6, {
-    message: "Minimum of 6 characters required",
-  }),
+  prescribedByName: z
+    .string()
+    .min(6, {
+      message: "Minimum of 6 characters required",
+    })
+    .max(70, {
+      message: "Maximum of 70 characters required",
+    }),
   category: z.string().refine(
     (value) => {
       return medicationCategories.some((item) => item.value === value);

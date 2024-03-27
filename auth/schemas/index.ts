@@ -9,8 +9,8 @@ export const SettingsSchema = z
     name: z
       .string()
       .optional()
-      .refine((value) => typeof value === "undefined" || (value.length > 1 && value.length <= 500), {
-        message: "Name must be longer than 1 character and not exceed 500 characters if specified",
+      .refine((value) => typeof value === "undefined" || (value.length > 1 && value.length <= 70), {
+        message: "Name must be longer than 1 character and not exceed 70 characters if specified",
       }),
 
     isTwoFactorEnabled: z.optional(z.boolean()),
@@ -80,18 +80,33 @@ export const LoginSchema = z.object({
 });
 
 export const RegisterSchema = z.object({
-  email: z.string().email({
-    message: "Email is required",
-  }),
+  email: z
+    .string()
+    .email({
+      message: "Email is required",
+    })
+    .max(320, {
+      message: "Minimum 320 characters required",
+    }),
   password: z.string().min(6, {
     message: "Minimum 6 characters required",
   }),
-  firstName: z.string().min(1, {
-    message: "First name is required",
-  }),
-  lastName: z.string().min(1, {
-    message: "Last name is required",
-  }),
+  firstName: z
+    .string()
+    .min(1, {
+      message: "First name is required",
+    })
+    .max(35, {
+      message: "Maximum 35 characters required",
+    }),
+  lastName: z
+    .string()
+    .min(1, {
+      message: "Last name is required",
+    })
+    .max(35, {
+      message: "Maximum 35 characters required",
+    }),
   userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
 });
 

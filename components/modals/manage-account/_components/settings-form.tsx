@@ -60,8 +60,6 @@ export const SettingsForm = () => {
     });
   };
   const watchedName = form.watch("name");
-  console.log(watchedName);
-  console.log(user?.name);
   const watchedPassword = form.watch("password");
   const watchedNewPassword = form.watch("newPassword");
   const watchedIsTwoFactorEnabled = form.watch("isTwoFactorEnabled");
@@ -93,7 +91,13 @@ export const SettingsForm = () => {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} type="name" disabled={isPending} />
+                        <Input
+                          className="truncate"
+                          {...field}
+                          value={field.value || ""}
+                          type="name"
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -36,8 +36,6 @@ export const SettingsForm = () => {
     },
   });
 
-  console.log(user);
-
   // useEffect(() => {
   //   form.
   // }, [user]);
@@ -61,7 +59,9 @@ export const SettingsForm = () => {
         .catch(() => setError("Something went wrong!"));
     });
   };
-
+  const watchedName = form.watch("name");
+  console.log(watchedName);
+  console.log(user?.name);
   const watchedPassword = form.watch("password");
   const watchedNewPassword = form.watch("newPassword");
   const watchedIsTwoFactorEnabled = form.watch("isTwoFactorEnabled");
@@ -184,7 +184,11 @@ export const SettingsForm = () => {
         <Button
           disabled={
             isPending ||
-            (!watchedPassword && !watchedNewPassword && !!watchedIsTwoFactorEnabled === !!user.isTwoFactorEnabled)
+            (watchedName === user.name &&
+              !!watchedName &&
+              !watchedPassword &&
+              !watchedNewPassword &&
+              !!watchedIsTwoFactorEnabled === !!user.isTwoFactorEnabled)
           }
           type="submit"
         >

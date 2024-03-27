@@ -1,14 +1,13 @@
 import { OrganizationWithRoleType } from "@/app/types";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building2 } from "lucide-react";
-import Image from "next/image";
-// import { AddressAccordion } from "./address-accordion";
 import { cn } from "@/lib/utils";
 import { PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPhoneNumber } from "@/lib/utils";
 import { OrganizationAvatar } from "./organization-avatar";
+import { useOrganizationStore } from "./hooks/use-organizations";
+import { useEffect, useState } from "react";
 
 interface ViewOrganizationProps {
   editingAllowed: boolean;
@@ -16,6 +15,13 @@ interface ViewOrganizationProps {
   initialData: OrganizationWithRoleType;
 }
 export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle }: ViewOrganizationProps) => {
+  const { organizations, getOrganizationById } = useOrganizationStore();
+  const [profilePicture, setProfilePicture] = useState(getOrganizationById(initialData.id)?.profileImageUrl);
+
+  useEffect(() => {
+    setProfilePicture(getOrganizationById(initialData.id)?.profileImageUrl);
+  }, [organizations]);
+
   return (
     <div className="h-full p-4 w-full max-w-3xl mx-auto">
       <div className="space-y-4">
@@ -43,9 +49,9 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
             <div className="flex flex-col items-center justify-center border-2 border-primary/20 rounded-lg shadow-md w-[150px] h-[150px]">
               <OrganizationAvatar
                 roundedClassName="rounded-lg"
-                imageClassName="h-[136px] w-auto"
+                imageClassName="max-h-[136px] max-w-[136px] w-auto"
                 buildingClassName="w-[124px] h-[124px]"
-                profileImageUrl={initialData.profileImageUrl}
+                profileImageUrl={profilePicture}
                 imageSize={130}
               />
             </div>

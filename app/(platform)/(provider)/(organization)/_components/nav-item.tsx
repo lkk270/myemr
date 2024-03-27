@@ -78,7 +78,7 @@ export const NavItem = ({
           <div className="flex flex-col items-center justify-center w-[38px] h-[38px] border-2 border-primary/20 rounded-sm shrink-0">
             <OrganizationAvatar
               buildingParentDivPadding="p-[4px]"
-              imageClassName="h-[32px] w-auto"
+              imageClassName="max-h-[32px] max-w-[32px] w-auto"
               buildingClassName="h-[24px] w-[24px]"
               profileImageUrl={organization.profileImageUrl}
               imageSize={30}

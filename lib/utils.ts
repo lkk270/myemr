@@ -501,15 +501,16 @@ export function buildUpdatePayload(data: any, symmetricKey: string) {
   return payload;
 }
 
-export function findChangesBetweenObjects(oldObject: any, newObject: any) {
+export function findChangesBetweenObjects(oldObject: any, newObject: any, includeUndefined = false) {
   //returns a new object that contains only the changed fields between oldObject & newObject
   //if there is a field in oldObject that is NOT in newObject then this field will NOT be included
   //however, if there is a field in newObject that is NOT in oldObject then this field will be included.
   const changesObject: any = {};
 
   Object.keys(newObject).forEach((key) => {
-    const oldValue = oldObject[key];
-    const newValue = newObject[key];
+    const oldValue = !!oldObject[key] ? oldObject[key] : includeUndefined ? "" : oldObject[key];
+    const newValue = !!newObject[key] ? newObject[key] : includeUndefined ? "" : newObject[key];
+
     if (
       oldValue !== newValue &&
       oldValue !== undefined &&

@@ -144,6 +144,7 @@ export const {
 
       if (session.user) {
         session.user.image = token.image as string;
+        session.user.name = token.name;
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
         session.user.email = token.email;
         session.user.userType = token.userType;
@@ -193,6 +194,7 @@ export const {
 
       token.isOAuth = !!existingAccount;
       token.email = existingUser.email;
+      token.name = existingUser.name;
       token.plan = plan;
       token.userType = existingUser.type;
       token.tempToken = code ? code.token : undefined;

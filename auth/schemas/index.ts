@@ -6,6 +6,13 @@ const transformedString = nonEmptyString.transform((str) => (str === "" ? undefi
 
 export const SettingsSchema = z
   .object({
+    name: z
+      .string()
+      .optional()
+      .refine((value) => typeof value === "undefined" || (value.length > 1 && value.length <= 500), {
+        message: "Name must be longer than 1 character and not exceed 500 characters if specified",
+      }),
+
     isTwoFactorEnabled: z.optional(z.boolean()),
     userType: z.enum([UserType.PATIENT, UserType.PROVIDER]),
     role: z.enum([

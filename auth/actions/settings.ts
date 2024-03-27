@@ -10,7 +10,7 @@ import { getUserByEmail, getUserById } from "@/auth/data/user";
 import { currentUser } from "@/auth/lib/auth";
 import { generateVerificationToken } from "@/auth/lib/tokens";
 import { sendVerificationEmail } from "@/auth/lib/mail/mail";
-import { UserType } from "@prisma/client";
+import { findChangesBetweenObjects } from "@/lib/utils";
 
 export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   const user = await currentUser();
@@ -56,13 +56,10 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     values.newPassword = undefined;
   }
 
+  const updatedData = findChangesBetweenObjects(dbUser, values);
   const updatedUser = await prismadb.user.update({
     where: { id: dbUser.id },
-    data: {
-      isTwoFactorEnabled: values.isTwoFactorEnabled,
-      role: values.role,
-      password: values.password,
-    },
+    data: updatedData,
   });
 
   update({

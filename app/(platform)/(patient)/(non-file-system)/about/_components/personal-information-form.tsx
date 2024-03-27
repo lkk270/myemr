@@ -4,7 +4,7 @@ import React, { useState, useTransition } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useIsLoading } from "@/hooks/use-is-loading";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -120,13 +120,14 @@ export const PersonalInformationForm = ({ personalInformation }: PersonalInforma
                     <FormLabel htmlFor="firstName">First Name</FormLabel>
                     <Input
                       {...field}
-                      className={inputClassName}
+                      className={cn(inputClassName, "truncate")}
                       id="firstName"
                       name="firstName"
                       autoComplete="off"
                       placeholder="First Name"
                       disabled={!isEditing || isPending}
                     />
+                    {/* <FormMessage className="absolute bottom-10 left-25" /> */}
                   </FormItem>
                 )}
               />
@@ -138,13 +139,14 @@ export const PersonalInformationForm = ({ personalInformation }: PersonalInforma
                     <FormLabel htmlFor="lastName">Last Name</FormLabel>
                     <Input
                       {...field}
-                      className={inputClassName}
+                      className={cn(inputClassName, "truncate")}
                       id="lastName"
                       name="lastName"
                       autoComplete="off"
                       placeholder="Last Name"
                       disabled={!isEditing || isPending}
                     />
+                    {/* <FormMessage className="absolute bottom-10 left-25" /> */}
                   </FormItem>
                 )}
               />

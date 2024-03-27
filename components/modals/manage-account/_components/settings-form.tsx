@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 import { Switch } from "@/components/ui/switch";
@@ -27,6 +27,7 @@ export const SettingsForm = () => {
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
       email: user?.email || undefined,
+      name: user?.name || undefined,
       password: undefined,
       newPassword: undefined,
       role: user?.role || undefined,
@@ -35,16 +36,25 @@ export const SettingsForm = () => {
     },
   });
 
+  console.log(user);
+
+  // useEffect(() => {
+  //   form.
+  // }, [user]);
   const onSubmit = (values: z.infer<typeof SettingsSchema>) => {
+    setSuccess("");
+    setError("");
     startTransition(() => {
       settings(values)
         .then((data) => {
           if (data.error) {
             setError(data.error);
           }
-
           if (data.success) {
             update();
+            form.setValue("isTwoFactorEnabled", values.isTwoFactorEnabled);
+            form.setValue("password", values.password);
+            form.setValue("newPassword", values.newPassword);
             setSuccess(data.success);
           }
         })
@@ -55,7 +65,7 @@ export const SettingsForm = () => {
   const watchedPassword = form.watch("password");
   const watchedNewPassword = form.watch("newPassword");
   const watchedIsTwoFactorEnabled = form.watch("isTwoFactorEnabled");
-  
+
   return (
     <Form {...form}>
       <form className="space-y-6 w-full" onSubmit={form.handleSubmit(onSubmit)}>
@@ -75,6 +85,21 @@ export const SettingsForm = () => {
                   </FormItem>
                 )}
               />
+              {user.userType === "PROVIDER" && (
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} type="name" disabled={isPending} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="password"
@@ -82,7 +107,13 @@ export const SettingsForm = () => {
                   <FormItem>
                     <FormLabel>Current Password</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="******" type="password" disabled={isPending} />
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder="******"
+                        type="password"
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -95,7 +126,13 @@ export const SettingsForm = () => {
                   <FormItem>
                     <FormLabel>New Password</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="******" type="password" disabled={isPending} />
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder="******"
+                        type="password"
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

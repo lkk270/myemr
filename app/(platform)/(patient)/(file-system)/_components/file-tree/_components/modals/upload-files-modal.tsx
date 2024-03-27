@@ -174,7 +174,7 @@ export const UploadFilesModal = () => {
               createdFile.namePath,
               createdFile.userId,
               createdFile.uploadedByUserId,
-              createdFile.uploadedByName,
+              createdFile.uploadedByName || "",
               createdFile.type || "",
               BigInt(createdFile.size),
             );

@@ -302,7 +302,7 @@ export function isViewableFile(fileType: string) {
 export function isValidNodeName(newName: string): boolean {
   // Check if the file name is empty
   const newNameLength = newName.trim().length;
-  if (!newName || newNameLength === 0 || newNameLength > 125) {
+  if (!newName || newNameLength === 0 || newNameLength > 70) {
     return false;
   }
   const invalidChars = /[\/\\?%*:|"<>&]/g;

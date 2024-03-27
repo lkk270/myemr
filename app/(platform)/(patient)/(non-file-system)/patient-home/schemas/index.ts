@@ -14,9 +14,14 @@ export const GenerateCodeSchema = z.object({
 });
 
 export const RequestRecordsSchema = z.object({
-  providerEmail: z.string().email({
-    message: "Provider email is required",
-  }),
+  providerEmail: z
+    .string()
+    .email({
+      message: "Provider email is required",
+    })
+    .max(320, {
+      message: "Minimum 320 characters required",
+    }),
   uploadToId: z.string().min(1, {
     message: "upload folder is required.",
   }),

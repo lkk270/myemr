@@ -4,8 +4,8 @@ import { OrganizationMemberRole, OrganizationType } from "@prisma/client";
 
 export const AddressSchema = z.object({
   id: z.string(),
-  name: z.string().refine((value) => value.length > 1 && value.length <= 100, {
-    message: "Must be longer than 1 character and not exceed 100 characters",
+  name: z.string().refine((value) => value.length > 1 && value.length <= 70, {
+    message: "Must be longer than 1 character and not exceed 70 characters",
   }),
   address: z.string().max(200, { message: "Address cannot be greater than 200 characters" }),
   address2: z
@@ -108,7 +108,11 @@ export const OrganizationSchema = z.object({
     OrganizationType.PRIVATE_PRACTICE,
   ]),
   // tags: z.array(TagSchema).max(8, { message: "Maximum of 8 tags allowed" }),
-  mainEmail: z.string().email({ message: "Not a valid email" }).optional(),
+  mainEmail: z
+    .string()
+    .email({ message: "Not a valid email" })
+    .max(320, { message: "Maximum of 320 characters" })
+    .optional(),
   mainPhone: z
     .string()
     .optional()
@@ -124,7 +128,7 @@ export const JoinOrganizationSchema = z.object({
 
 export const InviteMemberSchema = z.object({
   organizationId: z.string(),
-  email: z.string().email(),
+  email: z.string().email().max(320, { message: "Maximum of 320 characters" }),
   role: z.enum([OrganizationMemberRole.ADMIN, OrganizationMemberRole.USER]),
 });
 

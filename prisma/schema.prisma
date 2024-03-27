@@ -109,8 +109,8 @@ enum AccessCodeType {
 
 model PatientAddress {
   id       String  @id @default(cuid())
-  address  String
-  address2 String?
+  address  String  @db.LongText
+  address2 String? @db.LongText
   city     String
   state    String
   zipcode  String
@@ -145,10 +145,10 @@ model PatientAddress {
 
 model OrganizationAddress {
   id       String  @id @default(cuid())
-  name     String
+  name     String  @db.VarChar(70)
   phone    String?
-  address  String
-  address2 String?
+  address  String  @db.VarChar(200)
+  address2 String? @db.VarChar(200)
   city     String
   state    String
   zipcode  String
@@ -165,9 +165,9 @@ model OrganizationAddress {
 model DosageHistory {
   id           String     @id @default(cuid())
   medicationId String
-  dosage       String
-  dosageUnits  String
-  frequency    String
+  dosage       String     @db.LongText
+  dosageUnits  String     @db.LongText
+  frequency    String     @db.LongText
   Medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -177,15 +177,15 @@ model DosageHistory {
 
 model Medication {
   id               String          @id @default(cuid())
-  name             String
-  prescribedById   String?
-  prescribedByName String
-  category         String
-  dosage           String
-  dosageUnits      String
-  frequency        String
-  description      String?
-  status           String
+  name             String          @db.VarChar(500)
+  prescribedById   String?         @db.LongText
+  prescribedByName String          @db.VarChar(70)
+  category         String          @db.LongText
+  dosage           String          @db.LongText
+  dosageUnits      String          @db.LongText
+  frequency        String          @db.LongText
+  description      String?         @db.LongText
+  status           String          @db.LongText
   dosageHistory    DosageHistory[]
 
   createdAt        DateTime       @default(now())
@@ -247,13 +247,13 @@ model RecordViewActivity {
 
 model Folder {
   id            String   @id @default(cuid())
-  name          String
+  name          String   @db.VarChar(70)
   path          String   @db.LongText
   namePath      String   @db.LongText
   isFile        Boolean  @default(false)
   isRoot        Boolean  @default(false)
   addedByUserId String?
-  addedByName   String   @default("Charli Dog")
+  addedByName   String   @default("") @db.VarChar(70)
   // Relations
   parentId      String?
   parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -281,7 +281,7 @@ model InsuranceFile {
   id               String         @id @default(cuid())
   side             InsuranceSide
   uploadedByUserId String?
-  uploadedByName   String         @default("Charli Dog")
+  uploadedByName   String?        @db.LongText
   type             String
   size             BigInt
   status           FileStatus     @default(NOT_UPLOADED)
@@ -299,13 +299,13 @@ model InsuranceFile {
 
 model File {
   id                 String               @id @default(cuid())
-  name               String
+  name               String               @db.LongText
   isFile             Boolean              @default(true)
   path               String               @db.LongText
   namePath           String               @db.LongText
   parentId           String
   uploadedByUserId   String?
-  uploadedByName     String               @default("Charli Dog")
+  uploadedByName     String?              @db.LongText
   type               String?
   size               BigInt
   status             FileStatus           @default(NOT_UPLOADED)
@@ -342,7 +342,7 @@ model DeadFile {
 
 model OrganizationTags {
   id             String       @id @default(cuid())
-  name           String
+  name           String       @db.VarChar(70)
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -354,7 +354,7 @@ model OrganizationTags {
 
 model Organization {
   id                 String           @id @default(cuid())
-  title              String
+  title              String           @db.VarChar(125)
   category           String
   subTitle           String?          @db.Text
   description        String?          @db.Text
@@ -369,7 +369,7 @@ model Organization {
   organizationMembers  OrganizationMember[]
   patients             PatientMember[]
   inviteCodes          OrganizationInviteCode[]
-  mainEmail            String?
+  mainEmail            String?                  @db.VarChar(320)
   mainPhone            String?
   organizationActivity OrganizationActivity[]
 
@@ -416,7 +416,7 @@ model OrganizationMember {
   id     String                 @id @default(uuid())
   role   OrganizationMemberRole @default(USER)
   userId String
-  email  String
+  email  String                 @db.VarChar(320)
   user   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // providerProfileId String
@@ -437,11 +437,11 @@ model OrganizationMember {
 
 model User {
   id                 String               @id @default(cuid())
-  name               String?
-  email              String?
+  name               String?              @db.VarChar(70)
+  email              String?              @db.VarChar(320)
   emailVerified      DateTime?
-  image              String?
-  password           String?
+  image              String?              @db.LongText
+  password           String?              @db.LongText
   role               UserRole             @default(USER)
   type               UserType             @default(PATIENT)
   patientProfile     PatientProfile?
@@ -468,24 +468,24 @@ model User {
 model PatientProfile {
   id                 String           @id @default(cuid())
   userId             String           @unique
-  firstName          String
-  lastName           String
-  email              String           @unique
-  imageUrl           String?
-  gender             String?
-  dateOfBirth        String?
-  maritalStatus      String?
-  race               String?
-  height             String?
-  weight             String?
-  allergies          String?
+  firstName          String           @db.LongText
+  lastName           String           @db.LongText
+  email              String           @db.LongText
+  imageUrl           String?          @db.LongText
+  gender             String?          @db.LongText
+  dateOfBirth        String?          @db.LongText
+  maritalStatus      String?          @db.LongText
+  race               String?          @db.LongText
+  height             String?          @db.LongText
+  weight             String?          @db.LongText
+  allergies          String?          @db.LongText
   unit               Unit             @default(IMPERIAL)
-  mobilePhone        String?
-  homePhone          String?
+  mobilePhone        String?          @db.LongText
+  homePhone          String?          @db.LongText
   insuranceImagesSet Boolean          @default(false)
-  insuranceProvider  String?
-  policyNumber       String?
-  groupNumber        String?
+  insuranceProvider  String?          @db.LongText
+  policyNumber       String?          @db.LongText
+  groupNumber        String?          @db.LongText
   publicKey          String           @db.Text
   privateKey         String           @db.Text
   symmetricKey       String           @db.Text
@@ -544,7 +544,7 @@ model Account {
 
 model VerificationToken {
   id       String   @id @default(cuid())
-  email    String
+  email    String   @db.VarChar(320)
   userType UserType
   token    String   @unique
   expires  DateTime
@@ -554,7 +554,7 @@ model VerificationToken {
 
 model PasswordResetToken {
   id       String   @id @default(cuid())
-  email    String
+  email    String   @db.VarChar(320)
   userType UserType
   token    String   @unique
   expires  DateTime
@@ -564,7 +564,7 @@ model PasswordResetToken {
 
 model TwoFactorToken {
   id       String   @id @default(cuid())
-  email    String
+  email    String   @db.VarChar(320)
   userType UserType
   token    String   @unique
   expires  DateTime
@@ -598,7 +598,7 @@ model PatientProfileAccessCode {
 model RequestRecordsCode {
   id               String   @id @default(cuid())
   userId           String
-  providerEmail    String
+  providerEmail    String   @db.VarChar(320)
   parentFolderId   String
   patientProfileId String
   hasUploaded      Boolean  @default(false)
@@ -687,7 +687,7 @@ enum NotificationType {
 
 model OrganizationInviteCode {
   id             String                 @id @default(cuid())
-  email          String
+  email          String                 @db.VarChar(320)
   role           OrganizationMemberRole @default(USER)
   token          String                 @unique
   expires        DateTime

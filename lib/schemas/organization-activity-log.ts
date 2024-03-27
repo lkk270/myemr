@@ -3,12 +3,16 @@ import { OrganizationActivityType } from "@prisma/client";
 import * as z from "zod";
 
 const ProviderAddedSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email().max(320, {
+    message: "Minimum 320 characters required",
+  }),
   role: z.enum([OrganizationMemberRole.ADMIN, OrganizationMemberRole.OWNER, OrganizationMemberRole.USER]),
 });
 
 const AddedByPatientSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email().max(320, {
+    message: "Minimum 320 characters required",
+  }),
   name: z.string(),
   accessType: z.enum([UserRole.READ_ONLY, UserRole.UPLOAD_FILES_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
 });

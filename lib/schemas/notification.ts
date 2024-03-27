@@ -53,7 +53,9 @@ const RequestRecordsFileUploadSchema = z.object({
   requestRecordsCodeToken: z.string().min(1, {
     message: "Minimum requestRecordsCodeToken length not met ",
   }),
-  email: z.string().email(),
+  email: z.string().email().max(320, {
+    message: "Minimum 320 characters required",
+  }),
   numOfFiles: z.number().min(1),
 });
 

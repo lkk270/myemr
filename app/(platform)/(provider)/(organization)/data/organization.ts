@@ -30,6 +30,28 @@ export const getOrganizationMemberByUserId = async (organizationId: string, user
   return organizationMember;
 };
 
+export const getOrganizationMemberByUserIdBase = async (organizationId: string, userIdParam = "") => {
+  const user = await currentUser();
+  const userPermissions = extractCurrentUserPermissions(user);
+  const userId = user?.id;
+
+  if (!user || !userId || !userPermissions.hasAccount) {
+    return null;
+  }
+
+  const organizationMember = await prismadb.organizationMember.findFirst({
+    where: {
+      organizationId,
+      userId: !!userIdParam ? userIdParam : userId,
+    },
+    select: {
+      role: true,
+    },
+  });
+
+  return organizationMember;
+};
+
 export const getOrganizationMemberById = async (memberId: string) => {
   const user = await currentUser();
   const userPermissions = extractCurrentUserPermissions(user);

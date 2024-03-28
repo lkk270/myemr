@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { Suspense } from "react";
 
 import { ActivityList } from "./_components/activity-list";
-import prismadb from "@/lib/prismadb";
 import { Activity } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getActivityLogs, getNumberOfUnreadActivityLogs } from "./data/activity";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
+import { getOrganizationMemberByUserIdBase } from "../../../../data/organization";
 
 const ActivitySkeleton = ({ forEmptyState = false }: { forEmptyState?: boolean }) => {
   const activities = [1, 2, 3];
@@ -41,6 +42,11 @@ const ActivityLogPage = async ({ params }: ActivityLogPageProps) => {
 
   if (!session || !user || user.userType !== "PROVIDER") {
     return redirect("/");
+  }
+
+  const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
+  if (!organizationMember) {
+    return <SomethingNotFound title="404 No organization found" href="provider-home" />;
   }
 
   const numOfUnreadActivityLogs = await getNumberOfUnreadActivityLogs(organizationId);

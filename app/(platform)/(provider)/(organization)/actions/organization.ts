@@ -18,6 +18,7 @@ import {
   getInviteMemberCodeByEmail,
   getOrganizationMemberByEmail,
   getOrganizationMemberByUserId,
+  getOrganizationMemberByUserIdBase,
   getInviteMemberCodeByToken,
 } from "../data/organization";
 import { getUserByEmail } from "@/auth/data";
@@ -83,7 +84,7 @@ export const editOrganization = async (values: z.infer<typeof OrganizationSchema
       return { error: "Invalid fields!" };
     }
 
-    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
     if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
       return { error: "Unauthorized" };
     }
@@ -332,7 +333,7 @@ export const changeRole = async (values: z.infer<typeof ChangeOrganizationMember
       return { error: "Invalid fields!" };
     }
     const { organizationId, memberId, role } = values;
-    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
     if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
       return { error: "Unauthorized" };
     }
@@ -369,7 +370,7 @@ export const deleteMember = async (values: z.infer<typeof DeleteOrganizationMemb
       return { error: "Invalid fields!" };
     }
     const { organizationId, memberId } = values;
-    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
     if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
       return { error: "Unauthorized" };
     }
@@ -398,7 +399,7 @@ export const deleteOrganizationProfilePicture = async (organizationId: string) =
     return { error: "Unauthorized" };
   }
 
-  const organizationMember = await getOrganizationMemberByUserId(organizationId);
+  const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
   if (!organizationMember || (organizationMember.role !== "OWNER" && organizationMember.role !== "ADMIN")) {
     return { error: "Unauthorized" };
   }
@@ -430,7 +431,7 @@ export const deleteOrganization = async (organizationId: string) => {
       return { error: "Unauthorized" };
     }
 
-    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
     if (!organizationMember || organizationMember.role !== "OWNER") {
       return { error: "Unauthorized" };
     }

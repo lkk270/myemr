@@ -6,6 +6,8 @@ import { MembersTable } from "./_components/table/members-table";
 import { UserPlus } from "lucide-react";
 import { InviteMemberButton } from "./_components/invite-member-button";
 import { Button } from "@/components/ui/button";
+import { getOrganizationMemberByUserIdBase } from "../../../../data/organization";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 interface MembersPageProps {
   params: {
     organizationId: string;
@@ -20,6 +22,11 @@ const MembersPage = async ({ params }: MembersPageProps) => {
 
   if (!session || !user || user.userType !== "PROVIDER") {
     return redirect("/");
+  }
+
+  const organizationMember = await getOrganizationMemberByUserIdBase(organizationId);
+  if (!organizationMember) {
+    return <SomethingNotFound title="404 No organization found" href="provider-home" />;
   }
 
   const organizationMembers: OrganizationMemberType[] = await prismadb.organizationMember.findMany({

@@ -6,7 +6,7 @@ import { Activity } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getActivityLogs, getNumberOfUnreadActivityLogs } from "./data/activity";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
-import { getOrganizationMemberByUserIdBase } from "../../../../data/organization";
+import { getOrganizationMemberByUserIdBase } from "../../../../../data/organization";
 
 const ActivitySkeleton = ({ forEmptyState = false }: { forEmptyState?: boolean }) => {
   const activities = [1, 2, 3];

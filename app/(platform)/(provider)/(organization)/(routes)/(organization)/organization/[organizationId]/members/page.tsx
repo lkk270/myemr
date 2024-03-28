@@ -6,7 +6,7 @@ import { MembersTable } from "./_components/table/members-table";
 import { UserPlus } from "lucide-react";
 import { InviteMemberButton } from "./_components/invite-member-button";
 import { Button } from "@/components/ui/button";
-import { getOrganizationMemberByUserIdBase } from "../../../../data/organization";
+import { getOrganizationMemberByUserIdBase } from "../../../../../data/organization";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 interface MembersPageProps {
   params: {

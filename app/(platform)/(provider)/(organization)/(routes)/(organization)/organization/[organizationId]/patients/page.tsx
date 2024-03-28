@@ -2,7 +2,7 @@ import { PatientMemberType1, PatientMemberType2 } from "@/app/types";
 import { auth } from "@/auth";
 import prismadb from "@/lib/prismadb";
 import { redirect } from "next/navigation";
-import { getOrganizationMemberByUserIdBase } from "../../../../data/organization";
+import { getOrganizationMemberByUserIdBase } from "../../../../../data/organization";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { PatientsTable } from "./_components/table/patients-table";
@@ -83,7 +83,6 @@ const MembersPage = async ({ params }: MembersPageProps) => {
 
   return (
     <div className="pt-20 px-4 flex flex-col gap-y-3">
-      hello
       <PatientsTable data={formattedPatients} />
     </div>
   );

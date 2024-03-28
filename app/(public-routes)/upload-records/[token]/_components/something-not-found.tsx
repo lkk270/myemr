@@ -13,7 +13,7 @@ export const SomethingNotFound = ({ title, href, hrefTitle = "Go home" }: Someth
   return (
     <main className="h-screen w-full flex flex-col justify-center items-center">
       <div className="pb-10">
-        <Image alt="not-found" src={"/space.svg"} width={250} height={250} />
+        <Image draggable={false} alt="not-found" src={"/space.svg"} width={250} height={250} />
       </div>
       <div className="text-lg xs:text-xl sm:text-4xl font-bold p-3 xs:p-8">{title}</div>
       <Link href={href}>

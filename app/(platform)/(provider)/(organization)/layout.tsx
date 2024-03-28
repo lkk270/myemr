@@ -50,7 +50,7 @@ const OrganizationLayout = async ({ children }: { children: React.ReactNode }) =
     numOfUnreadNotifications = 0;
   }
 
-  console.log(organizations);
+  // console.log(organizations);
   return (
     <main className="h-screen flex overflow-y-auto">
       <ProviderManageAccountModal />

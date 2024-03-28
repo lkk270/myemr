@@ -1,6 +1,8 @@
 import { OrganizationForm } from "@/app/(platform)/(provider)/(organization)/_components/forms/organization-form";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { OrganizationWithRoleType } from "@/app/types";
 import { auth } from "@/auth";
+import { Logo } from "@/components/logo";
 import prismadb from "@/lib/prismadb";
 import { redirect } from "next/navigation";
 interface OrganizationSettingsPageProps {
@@ -34,15 +36,16 @@ const OrganizationSettingsPage = async ({ params }: OrganizationSettingsPageProp
   });
 
   if (!organizationMemberOf) {
-    return <div>Something went wrong</div>;
+    return <SomethingNotFound title="404 No organization found" href="provider-home" />;
   }
 
   const organization: OrganizationWithRoleType = {
     ...organizationMemberOf.organization,
     role: organizationMemberOf.role,
+    numOfUnreadActivities: 0,
   };
 
-  console.log(organization);
+  // console.log(organization);
 
   return (
     <div className="pt-20 flex flex-col justify-center items-center">

@@ -2,7 +2,7 @@ import { UploadFilesForm } from "@/app/(platform)/(access-patient-with-code)/(no
 import { UploadRecordsNavbar } from "./_components/upload-records-navbar";
 import { getCodeByToken } from "./data/token";
 import { redirect } from "next/navigation";
-import { CodeNotFound } from "./_components/code-not-found";
+import { SomethingNotFound } from "./_components/something-not-found";
 import { Logo } from "@/components/logo";
 interface UploadRecordsPageProps {
   params: {
@@ -20,7 +20,7 @@ const UploadRecordsPage = async ({ params }: UploadRecordsPageProps) => {
             <Logo />
           </div>
         </div>
-        <CodeNotFound />
+        <SomethingNotFound title="Code is not valid" href="/" />
       </div>
     );
   }

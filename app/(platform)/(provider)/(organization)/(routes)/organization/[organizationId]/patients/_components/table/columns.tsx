@@ -3,35 +3,34 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
-import { PermissionsDropdown } from "./permissions-dropdown";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaUser } from "react-icons/fa";
 
 export const columns: ColumnDef<any>[] = [
   {
-    accessorKey: "user.name",
+    accessorKey: "patientProfile.name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2 items-center">
           <Avatar className="w-8 h-8">
-            <AvatarImage src={row.original.user.image || ""} />
+            <AvatarImage src={row.original.patientProfile.imageUrl || ""} />
             <AvatarFallback className="bg-sky-500">
               <FaUser className="text-white" />
             </AvatarFallback>
           </Avatar>
-          <span className="max-w-[20vw] truncate font-medium">{row.original.user.name}</span>
+          <span className="max-w-[20vw] truncate font-medium">{row.original.patientProfile.name}</span>
         </div>
       );
     },
   },
   {
-    accessorKey: "user.email",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    accessorKey: "patientProfile.dateOfBirth",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="DOB" />,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[20vw] truncate font-medium">{row.original.user.email}</span>
+          <span className="max-w-[20vw] truncate font-medium">{row.original.patientProfile.dateOfBirth}</span>
         </div>
       );
     },
@@ -50,8 +49,18 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
-    id: "permissions",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
-    cell: ({ row }) => <PermissionsDropdown memberId={row.original.id as string} />,
+    accessorKey: "role",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Access Type" />,
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[20vw] truncate font-medium">{row.original.role}</span>
+        </div>
+      );
+    },
   },
+  //   {
+  //     id: "actions",
+  //     cell: ({ row }) => <CustomDataTableRowActions row={row} />,
+  //   },
 ];

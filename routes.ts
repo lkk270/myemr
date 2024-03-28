@@ -60,7 +60,13 @@ export const patientDynamicRoutes: string[] = ["/files/", "/file/"];
  * An array of routes that are provider specific
  * @type {string[]}
  */
-export const providerRoutes: string[] = ["/provider-home", "/patients", "/provider-settings", "/organization"];
+export const providerRoutes: string[] = ["/provider-home"];
+
+/**
+ * An array of routes that are dynamic provider specific
+ * @type {string[]}
+ */
+export const providerDynamicRoutes: string[] = ["/organization/", "/patient/"];
 
 /**
  * An array of routes that are patient access specific
@@ -100,3 +106,4 @@ export const accessPatientApiRoutes: string[] = ["/api/patient-update", "/api/tp
 export const PATIENT_DEFAULT_LOGIN_REDIRECT: string = "/patient-home";
 export const PROVIDER_DEFAULT_LOGIN_REDIRECT: string = "/provider-home";
 export const ACCESS_PATIENT_WITH_CODE_REDIRECT: string = "/tpa-home";
+

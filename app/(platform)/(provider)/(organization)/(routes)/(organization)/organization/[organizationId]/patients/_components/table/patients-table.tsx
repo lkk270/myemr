@@ -30,6 +30,7 @@ export function PatientsTable({ data }: DataTableProps) {
       showDataTableViewOptions={false}
       // filters={filters}
       // hiddenColumns={hiddenColumns}
+      isSingleClickLink={true}
       data={patients}
       isLoading={!patientsSet}
       columns={filteredColumns}

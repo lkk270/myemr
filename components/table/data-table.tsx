@@ -34,7 +34,8 @@ interface DataTableProps<TData, TValue> {
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
   isLoading?: boolean;
   className?: string;
-  isLink?: boolean;
+  isSingleClickLink?: boolean;
+  isDoubleClickLink?: boolean;
   showDataTableViewOptions?: boolean;
 }
 
@@ -47,7 +48,8 @@ export function DataTable<TData, TValue>({
   filters,
   isLoading = false,
   className = "",
-  isLink = false,
+  isSingleClickLink = false,
+  isDoubleClickLink = false,
   showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -91,7 +93,7 @@ export function DataTable<TData, TValue>({
           newOnOpen={newOnOpen}
           table={table}
         />
-        {isLink && (
+        {isDoubleClickLink && (
           <span style={{ fontSize: "10px" }} className="text-muted-foreground">
             Double click on a row to open it
           </span>
@@ -136,17 +138,19 @@ export function DataTable<TData, TValue>({
                       onClick={() => {
                         if (onOpen) {
                           onOpen(row.original, true);
+                        } else if (isSingleClickLink) {
+                          router.push(`/patient/${rowOriginal.id}/about`);
                         }
                       }}
                       onDoubleClick={() => {
-                        if (isLink && rowOriginal.restricted) {
+                        if (isDoubleClickLink && rowOriginal.restricted) {
                           toast.warning(
                             "You are out of storage, so this file is hidden. Please upgrade your plan to access it.",
                             {
                               duration: 3500,
                             },
                           );
-                        } else if (isLink && !rowOriginal.restricted) {
+                        } else if (isDoubleClickLink && !rowOriginal.restricted) {
                           router.push(
                             getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id),
                           );

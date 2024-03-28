@@ -12,6 +12,7 @@ import {
   dynamicPublicRoutes,
   patientRoutes,
   patientDynamicRoutes,
+  providerDynamicRoutes,
   providerRoutes,
   accessPatientRoutes,
   accessPatientDynamicRoutes,
@@ -45,7 +46,8 @@ export default auth(async (req) => {
   const isPatientDynamicRoute = patientDynamicRoutesRegex.test(nextUrlPathname);
   const isPatientRoute = patientRoutes.includes(nextUrlPathname) || isPatientDynamicRoute;
 
-  const isProviderRoute = providerRoutes.includes(nextUrlPathname);
+  const isProviderRoute =
+    providerRoutes.includes(nextUrlPathname) || providerDynamicRoutes.some((route) => nextUrlPathname.includes(route));
 
   const accessPatientDynamicRoutesRegex = new RegExp(`^(?:${accessPatientDynamicRoutes.join("|")})[^/]+/?$`);
   const isAccessPatientDynamicRoute = accessPatientDynamicRoutesRegex.test(nextUrlPathname);

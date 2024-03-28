@@ -12,30 +12,36 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { deleteAccount } from "@/lib/actions/delete-account";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { logout } from "@/auth/actions/logout";
+import { useRouter } from "next/navigation";
+import { deleteOrganization } from "../../actions/organization";
+import { useOrganizationStore } from "../hooks/use-organizations";
 
-interface DeleteAccountButtonProps {
+interface DeleteOrganizationButtonProps {
+  organizationId: string;
   children: React.ReactNode;
   asChild?: boolean;
 }
 
-export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonProps) => {
+export const DeleteOrganizationButton = ({ organizationId, children, asChild }: DeleteOrganizationButtonProps) => {
   const [confirmation, setConfirmation] = useState("");
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
+  const { deleteOrganization: deleteOrganizationState } = useOrganizationStore();
+  const router = useRouter();
 
   const handleDelete = () => {
     startTransition(() => {
-      deleteAccount()
+      deleteOrganization(organizationId)
         .then((data) => {
           if (data?.error) {
             toast.error("something went wrong on delete");
           }
           if (data?.success) {
-            logout();
+            deleteOrganizationState(organizationId);
+            toast.success("Organization successfully deleted");
+            router.push("/provider-home");
           }
         })
         .catch(() => toast.error("Something went wrong"));
@@ -53,31 +59,28 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
         {children}
       </AlertDialogTrigger>
       <AlertDialogContent className="flex flex-col xs:max-w-[500px]">
-        <AlertDialogTitle className="text-md">Delete account?</AlertDialogTitle>
+        <AlertDialogTitle className="text-md">Delete organization?</AlertDialogTitle>
         <AlertDialogDescription className="flex flex-col gap-y-2">
           <p>
-            Are you sure you want to delete your account? By confirming, you will initiate the deletion of your account,
-            which will be permanently and irreversibly completed within the next 48 hours. You will receive a
-            confirmation email once the deletion process is finalized.
-          </p>
-          <p>
-            Please note, if you sign in while your account is scheduled for deletion, the process will be automatically
-            canceled.
+            Are you sure you want to delete this organization? By confirming, the organization will be be permanently
+            and irreversibly deleted immediately. If you'd like to delete your account instead, you can do so in your
+            account settings. However, you will first need to make a different member the owner of this organization (if
+            is not the case already).
           </p>
         </AlertDialogDescription>
-        <Label>Confirm by typing: "Delete Account"</Label>
-        <Input placeholder="Delete Account" onChange={(e) => setConfirmation(e.target.value)} />
+        <Label>Confirm by typing: "Delete Organization"</Label>
+        <Input placeholder="Delete Organization" onChange={(e) => setConfirmation(e.target.value)} />
         <AlertDialogFooter>
           <AlertDialogCancel
+            className="w-20 h-8 text-sm"
             onClick={() => {
               setOpen(false);
             }}
-            className="w-20 h-8 text-sm"
           >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isPending || confirmation !== "Delete Account"}
+            disabled={isPending || confirmation !== "Delete Organization"}
             onClick={() => {
               handleDelete();
             }}

@@ -420,3 +420,37 @@ export const deleteOrganizationProfilePicture = async (organizationId: string) =
 
   return { success: "Profile picture deleted!" };
 };
+
+export const deleteOrganization = async (organizationId: string) => {
+  try {
+    const session = await auth();
+    const user = session?.user;
+    const userId = user?.id;
+    if (!session || !userId || !user || user.userType !== "PROVIDER") {
+      return { error: "Unauthorized" };
+    }
+
+    const organizationMember = await getOrganizationMemberByUserId(organizationId);
+    if (!organizationMember || organizationMember.role !== "OWNER") {
+      return { error: "Unauthorized" };
+    }
+
+    const organization = await prismadb.organization.delete({
+      where: {
+        id: organizationId,
+      },
+    });
+    console.log(organization);
+    if (!!organization.profileImageUrl) {
+      try {
+        await deleteS3ProfilePicture(`organization/${organizationId}`);
+      } catch (err) {
+        return { success: "Organization successfully deleted!" };
+      }
+    }
+
+    return { success: "Organization successfully deleted!" };
+  } catch (error) {
+    return { error: "Something went wrong" };
+  }
+};

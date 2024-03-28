@@ -25,6 +25,7 @@ interface DeleteAccountButtonProps {
 export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonProps) => {
   const [confirmation, setConfirmation] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
 
   const handleDelete = () => {
     startTransition(() => {
@@ -42,8 +43,15 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild={asChild}>{children}</AlertDialogTrigger>
+    <AlertDialog open={open}>
+      <AlertDialogTrigger
+        asChild={asChild}
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        {children}
+      </AlertDialogTrigger>
       <AlertDialogContent className="flex flex-col xs:max-w-[500px]">
         <AlertDialogTitle className="text-md">Delete account?</AlertDialogTitle>
         <AlertDialogDescription className="flex flex-col gap-y-2">
@@ -60,13 +68,20 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
         <Label>Confirm by typing: "Delete Account"</Label>
         <Input placeholder="Delete Account" onChange={(e) => setConfirmation(e.target.value)} />
         <AlertDialogFooter>
-          <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
+          <AlertDialogCancel
+            onClick={() => {
+              setOpen(false);
+            }}
+            className="w-20 h-8 text-sm"
+          >
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending || confirmation !== "Delete Account"}
             onClick={() => {
               handleDelete();
             }}
-            className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+            className="w-20 h-8 text-sm bg-secondary hover:bg-[#fdf0ef] dark:hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
           >
             Delete
           </AlertDialogAction>

@@ -2,21 +2,22 @@ import { OrganizationWithRoleType } from "@/app/types";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { PencilLine } from "lucide-react";
+import { PencilLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPhoneNumber } from "@/lib/utils";
 import { OrganizationAvatar } from "./organization-avatar";
 import { useOrganizationStore } from "./hooks/use-organizations";
 import { useEffect, useState } from "react";
-
+import { DeleteOrganizationButton } from "./buttons/delete-organization-button";
 interface ViewOrganizationProps {
-  editingAllowed: boolean;
   handleEditToggle: (e: any) => void;
   initialData: OrganizationWithRoleType;
 }
-export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle }: ViewOrganizationProps) => {
+export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganizationProps) => {
   const { organizations, getOrganizationById } = useOrganizationStore();
   const [profilePicture, setProfilePicture] = useState(getOrganizationById(initialData.id)?.profileImageUrl);
+  const editingAllowed =
+    (!!initialData && (initialData.role === "OWNER" || initialData.role === "ADMIN")) || !initialData;
 
   useEffect(() => {
     setProfilePicture(getOrganizationById(initialData.id)?.profileImageUrl);
@@ -30,18 +31,28 @@ export const ViewOrganization = ({ initialData, editingAllowed, handleEditToggle
             <h3 className="text-lg font-medium">General Information</h3>
             <p className="text-sm text-muted-foreground">General information about your organization</p>
           </div>
-          {editingAllowed && (
-            <Button
-              className="w-32 h-9 items-center"
-              variant={"outline"}
-              onClick={(e) => {
-                handleEditToggle(e);
-              }}
-            >
-              <PencilLine className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-          )}
+          <div className="flex flex-col gap-y-1">
+            {editingAllowed && (
+              <Button
+                className="w-32 h-9 items-center"
+                variant={"outline"}
+                onClick={(e) => {
+                  handleEditToggle(e);
+                }}
+              >
+                <PencilLine className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            )}
+            {initialData.role === "OWNER" && (
+              <DeleteOrganizationButton asChild organizationId={initialData.id}>
+                <Button className="w-32 h-9 text-sm bg-secondary hover:bg-[#fdf0ef] dark:hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]">
+                  <Trash2 className="w-4 h-4 xs:mr-2 flex" />
+                  <span className="hidden xs:flex">Delete</span>
+                </Button>
+              </DeleteOrganizationButton>
+            )}
+          </div>
         </div>
         <Separator className="bg-primary/10" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

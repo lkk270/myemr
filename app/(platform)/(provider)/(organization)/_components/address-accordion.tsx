@@ -55,7 +55,7 @@ export const AddressAccordion = ({ address }: AddressAccordionProps) => {
             <Button
               disabled={isPending || !isEditing}
               onClick={() => removeAddress(address.id)}
-              className="w-12 xs:w-20 h-9 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+              className="w-12 xs:w-20 h-9 text-sm bg-secondary hover:bg-[#fdf0ef] dark:hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
             >
               <Trash className="w-4 h-4 xs:mr-2 flex xs:hidden" />
               <span className="hidden xs:flex">Delete</span>

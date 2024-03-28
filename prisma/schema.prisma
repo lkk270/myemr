@@ -396,7 +396,7 @@ model PatientMember {
   accessibleRootFolders     Folder[]
   hasAccessToAllRootFolders Boolean        @default(true)
   organizationId            String?
-  organization              Organization?  @relation(fields: [organizationId], references: [id])
+  organization              Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -692,7 +692,7 @@ model OrganizationInviteCode {
   token          String                 @unique
   expires        DateTime
   organizationId String
-  organization   Organization           @relation(fields: [organizationId], references: [id])
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 

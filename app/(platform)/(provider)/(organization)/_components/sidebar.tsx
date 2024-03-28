@@ -198,7 +198,7 @@ export const Sidebar = ({
               value={accordionValue}
               type="multiple"
               defaultValue={defaultAccordionValue}
-              className="space-y-2"
+              className="space-y-2 h-[78vh] overflow-y-scroll border-b border-secondary"
             >
               {organizations.map((organization) => (
                 <NavItem

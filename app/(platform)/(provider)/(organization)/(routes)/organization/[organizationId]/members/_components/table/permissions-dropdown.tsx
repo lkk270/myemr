@@ -117,7 +117,7 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
         >
           <Button
             disabled={isLoading}
-            className="w-10 h-10 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+            className="w-10 h-10 text-sm bg-secondary hover:bg-[#fdf0ef] dark:hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
           >
             <Trash2 className="w-5 h-5 shrink-0" />
           </Button>

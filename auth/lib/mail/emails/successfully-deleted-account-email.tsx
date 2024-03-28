@@ -1,7 +1,6 @@
 import { Body, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import * as React from "react";
-import { UserType } from "@prisma/client";
 
 interface SuccessfullyDeletedAccountEmailProps {
   email: string;
@@ -37,15 +36,20 @@ export const SuccessfullyDeletedAccountEmail = ({ email, accountType }: Successf
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">Dear {email},</Text>
             <Text className="text-black text-[14px] leading-[24px]">
-              Your MyEmr {accountType} account has been successfully deleted, along with all associated records, which
-              have been permanently removed. Should you decide to return to MyEmr, you are welcome to create a new{" "}
-              {accountType} account using the same email address. We regret your departure and would be pleased to serve
-              you again in the future
+              Your MyEmr {accountType} account has been successfully deleted{" "}
+              {accountType === "Patient"
+                ? `, along with all associated records, which
+              have been permanently removed.`
+                : "."}
+              Should you decide to return to MyEmr, you are welcome to create a new {accountType} account using the same
+              email address. We regret your departure and would be pleased to serve you again in the future
             </Text>
-            <Text className="text-[#666666] text-[12px] leading-[24px]">
-              The deletion process complies with HIPAA regulations, guaranteeing the safeguarding of patient privacy and
-              confidentiality.
-            </Text>
+            {accountType === "Patient" && (
+              <Text className="text-[#666666] text-[12px] leading-[24px]">
+                The deletion process complies with HIPAA regulations, guaranteeing the safeguarding of patient privacy
+                and confidentiality.
+              </Text>
+            )}
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               Please refrain from replying to this email, as it is sent from an unmonitored inbox. Should you need to
               get in touch with MyEmr, kindly reach out to us via email at support@myemr.io.

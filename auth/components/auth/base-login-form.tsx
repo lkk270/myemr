@@ -14,7 +14,13 @@ export const BaseLoginForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const { showTwoFactor } = useShowTwoFactor();
-  const [userType, setUserType] = useState<UserType | "CODE">(callbackUrl?.includes("tpa-") ? "CODE" : "PATIENT");
+  const [userType, setUserType] = useState<UserType | "CODE">(
+    callbackUrl?.includes("tpa-")
+      ? "CODE"
+      : callbackUrl?.includes("provider-home") || callbackUrl?.includes("organization/")
+      ? "PROVIDER"
+      : "PATIENT",
+  );
 
   const handleUserTypeChange = (value: "PROVIDER" | "PATIENT") => {
     setUserType(value);

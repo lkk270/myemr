@@ -52,7 +52,7 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
       >
         {children}
       </AlertDialogTrigger>
-      <AlertDialogContent className="flex flex-col xs:max-w-[500px]">
+      <AlertDialogContent className="flex flex-col xs:max-w-[500px] overflow-y-scroll max-h-full">
         <AlertDialogTitle className="text-md">Delete account?</AlertDialogTitle>
         <AlertDialogDescription className="flex flex-col gap-y-2">
           <p>

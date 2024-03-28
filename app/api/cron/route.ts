@@ -9,6 +9,7 @@ import { deleteRequestRecordsCodes } from "@/lib/cron/delete-request-records-cod
 import { deleteTwoFactorTokens } from "@/lib/cron/delete-two-factor-tokens";
 import { deleteVerificationTokens } from "@/lib/cron/delete-verification-tokens";
 import { restrictFilesCron } from "@/lib/cron/restrict-files";
+import { deleteProviders } from "@/lib/cron/delete-providers";
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     await restrictFilesCron(authHeader);
 
     await deletePatients(authHeader);
-
+    await deleteProviders(authHeader);
     await deletePasswordResetTokens(authHeader);
     await deletePatientProfileAccessCodes(authHeader);
     await deleteRequestRecordsCodes(authHeader);

@@ -96,7 +96,11 @@ export const {
         } else if (existingUser.accountType === "CREDENTIALS") {
           throw new Error("Email is already being used through email & password sign in!");
         } else if (existingUser.scheduledToDelete) {
-          await setScheduledToDelete("PATIENT", false, existingUser.id);
+          try {
+            await setScheduledToDelete("PATIENT", false, existingUser.id);
+          } catch {
+            throw new Error("Something went wrong");
+          }
         }
       }
       // else if (user.forCode) {

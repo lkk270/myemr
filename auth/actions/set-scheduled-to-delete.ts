@@ -1,8 +1,29 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
+import { currentUser } from "../lib/auth";
+import { extractCurrentUserPermissions } from "../hooks/use-current-user-permissions";
 
-export const setScheduledToDelete = async (type: "PATIENT" | "PROVIDER", newValue: boolean, userId: string) => {
+export const setScheduledToDelete = async (type: "PATIENT" | "PROVIDER", newValue: boolean, userIdTemp = "") => {
+  let userType = type;
+  let userId = userIdTemp;
+  if (!userIdTemp && newValue === true) {
+    const user = await currentUser();
+    userId = user?.id || "";
+    const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
+
+    if (
+      !user ||
+      !userId ||
+      !currentUserPermissions ||
+      !currentUserPermissions.hasAccount ||
+      userType !== user.userType
+    ) {
+      console.log("IN HERE");
+      throw new Error("Unauthorized");
+    }
+  }
+
   await prismadb.$transaction(
     async (prisma) => {
       if (type === "PATIENT") {
@@ -14,17 +35,7 @@ export const setScheduledToDelete = async (type: "PATIENT" | "PROVIDER", newValu
             scheduledToDelete: newValue,
           },
         });
-      } else if (type === "PROVIDER") {
-        // await prisma.providerProfile.update({
-        //   where: {
-        //     userId: userId,
-        //   },
-        //   data: {
-        //     scheduledToDelete: newValue,
-        //   },
-        // });
       }
-
       await prisma.user.update({
         where: {
           id: userId,

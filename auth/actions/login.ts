@@ -89,7 +89,11 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
     }
   }
   if (existingUser.scheduledToDelete) {
-    await setScheduledToDelete(existingUser.type, false, existingUser.id);
+    try {
+      await setScheduledToDelete(existingUser.type, false, existingUser.id);
+    } catch {
+      return { error: "Something went wrong" };
+    }
   }
 
   try {

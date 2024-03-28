@@ -32,7 +32,7 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
       deleteAccount()
         .then((data) => {
           if (data?.error) {
-            toast.error("something went wrong on delete");
+            toast.error(data.error, { duration: 12000 });
           }
           if (data?.success) {
             logout();
@@ -52,13 +52,17 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
       >
         {children}
       </AlertDialogTrigger>
-      <AlertDialogContent className="flex flex-col xs:max-w-[500px]">
+      <AlertDialogContent className="flex flex-col xs:max-w-[500px] overflow-y-scroll max-h-full">
         <AlertDialogTitle className="text-md">Delete account?</AlertDialogTitle>
         <AlertDialogDescription className="flex flex-col gap-y-2">
           <p>
             Are you sure you want to delete your account? By confirming, you will initiate the deletion of your account,
             which will be permanently and irreversibly completed within the next 48 hours. You will receive a
             confirmation email once the deletion process is finalized.
+          </p>
+          <p>
+            If you are the sole owner of any organizations, you will first need to either make an existing member the
+            owner or delete the organization(s) before continuing with your account deletion.
           </p>
           <p>
             Please note, if you sign in while your account is scheduled for deletion, the process will be automatically

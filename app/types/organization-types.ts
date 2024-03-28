@@ -1,4 +1,4 @@
-import { OrganizationMember, OrganizationMemberRole, OrganizationType } from "@prisma/client";
+import { OrganizationMember, OrganizationMemberRole, OrganizationType, PatientMember } from "@prisma/client";
 
 type SpecialOrganizationAddress = {
   id: string;
@@ -41,5 +41,27 @@ export type OrganizationMemberType = OrganizationMember & {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+  };
+};
+
+export type PatientMemberType1 = PatientMember & {
+  patientProfile: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    dateOfBirth?: string | null;
+    imageUrl?: string | null;
+    symmetricKey: string;
+  };
+};
+
+export type PatientMemberType2 = PatientMember & {
+  patientProfile: {
+    id: string;
+    name: string;
+    email: string;
+    dateOfBirth?: string | null;
+    imageUrl?: string | null;
   };
 };

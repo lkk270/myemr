@@ -7,13 +7,13 @@ export const AddressSchema = z.object({
   name: z.string().refine((value) => value.length > 1 && value.length <= 70, {
     message: "Must be longer than 1 character and not exceed 70 characters",
   }),
-  address: z.string().max(200, { message: "Address cannot be greater than 200 characters" }),
+  address: z.string().max(100, { message: "Address cannot be greater than 100 characters" }),
   address2: z
     .string()
-    .max(200, { message: "Second address cannot be greater than 200 characters" })
+    .max(100, { message: "Second address cannot be greater than 100 characters" })
     .optional()
     .nullable(),
-  city: z.string().max(200, { message: "City cannot be greater than 200 characters" }),
+  city: z.string().max(100, { message: "City cannot be greater than 100 characters" }),
   state: z.string().refine(
     (value) => {
       // Perform validation against states array

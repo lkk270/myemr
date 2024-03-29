@@ -3,8 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import prismadb from "@/lib/prismadb";
-import { Demographics } from "./_components/demographics";
-
+import { About } from "./_components/about-form";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 
 const PatientDemographics = async () => {
@@ -44,7 +43,6 @@ const PatientDemographics = async () => {
       userId: user.id,
     },
     select: {
-      imageUrl: true,
       email: true,
       firstName: true,
       lastName: true,
@@ -80,7 +78,7 @@ const PatientDemographics = async () => {
   const { symmetricKey, ...safeObject } = decryptedPatientDemographics;
   return (
     <div className="flex pt-4 pb-6 px-2 xs:px-10 min-h-[calc(100vh-64px)] justify-center">
-      <Demographics patientDemographics={safeObject} />
+      <About initialData={safeObject} />
     </div>
   );
 };

@@ -83,7 +83,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     placeholder="Name"
                     // disabled={isPending}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />
                 </FormItem>
               )}
             />
@@ -101,7 +101,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     number={field.value}
                     // disabled={isPending}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />{" "}
                 </FormItem>
               )}
             />
@@ -124,7 +124,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     placeholder="Address"
                     // disabled={isPending}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />
                 </FormItem>
               )}
             />
@@ -147,7 +147,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     placeholder="Address 2"
                     // disabled={isPending}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />
                 </FormItem>
               )}
             />
@@ -169,7 +169,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     placeholder="City"
                     // disabled={isPending}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />
                 </FormItem>
               )}
             />
@@ -194,7 +194,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     items={states}
                     transparentPopoverBg={true}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />
                 </FormItem>
               )}
             />
@@ -216,7 +216,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
                     placeholder="Zipcode"
                     // disabled={isPending}
                   />
-                  <FormMessage />
+                  <FormMessage className="absolute" />
                 </FormItem>
               )}
             />

@@ -40,6 +40,7 @@ import { AddressSchema } from "@/lib/schemas/address";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { PhoneNumber } from "@/components/phone-number";
 import { ViewAbout } from "./view-about";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 const inputClassName = "bg-secondary border-primary/10";
 
 interface AboutProps {
@@ -59,6 +60,7 @@ const tabsData = [
 ];
 
 export const About = ({ initialData }: AboutProps) => {
+  const { patientMember } = usePatientMemberStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isFetchingInsuranceImages, setIsFetchingInsuranceImages] = useState(false);
   const { imagesUrls, setInsuranceImageUrls } = useInsuranceImages();
@@ -105,9 +107,11 @@ export const About = ({ initialData }: AboutProps) => {
         try {
           setIsFetchingInsuranceImages(true);
           setIsLoading(true);
+          let patientProfileId = null;
+          if (!!patientMember) patientProfileId = patientMember.patientProfileId;
 
-          const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT);
-          const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK);
+          const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT, false, patientProfileId);
+          const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK, false, patientProfileId);
 
           const frontUrl = frontUrlData.presignedUrl;
           const backUrl = backUrlData.presignedUrl;
@@ -332,25 +336,29 @@ export const About = ({ initialData }: AboutProps) => {
                         <div className="flex flex-row gap-x-2">
                           {!isPending && (
                             <Button
-                              className="w-32 h-9 items-center"
+                              className="w-10 xs:w-24 h-9 items-center"
                               variant={"outline"}
                               onClick={(e) => {
                                 handleEditToggle(e);
                               }}
                             >
-                              {isEditing ? <Ban className="w-4 h-4 mr-2" /> : <PencilLine className="w-4 h-4 mr-2" />}
-                              {isEditing ? "Cancel" : "Edit"}
+                              {isEditing ? (
+                                <Ban className="shrink-0 w-4 h-4 xs:mr-2" />
+                              ) : (
+                                <PencilLine className="shrink-0 w-4 h-4 xs:mr-2" />
+                              )}
+                              <span className="hidden xs:flex">{isEditing ? "Cancel" : "Edit"}</span>
                             </Button>
                           )}
                           {isEditing && (
                             <Button
                               type="submit"
                               disabled={isPending}
-                              className="w-32 h-9 items-center bg-[#12623b] hover:bg-[#176d44]"
+                              className="w-10 xs:w-24 h-9 items-center bg-[#12623b] hover:bg-[#176d44]"
                               variant={"outline"}
                             >
-                              <Save className="w-4 h-4 mr-2" />
-                              {isPending ? "Saving..." : "Save"}
+                              <Save className="shrink-0 w-4 h-4 xs:mr-2" />
+                              <span className="hidden xs:flex">{isPending ? "Saving..." : "Save"}</span>
                             </Button>
                           )}
                         </div>

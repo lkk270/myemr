@@ -14,7 +14,7 @@ export const columns: ColumnDef<any>[] = [
       return (
         <div className="flex space-x-2 items-center">
           <Avatar className="w-8 h-8">
-            <AvatarImage src={row.original.patientProfile.imageUrl || ""} />
+            <AvatarImage draggable={false} src={row.original.patientProfile.imageUrl || ""} />
             <AvatarFallback className="bg-sky-500">
               <FaUser className="text-white" />
             </AvatarFallback>

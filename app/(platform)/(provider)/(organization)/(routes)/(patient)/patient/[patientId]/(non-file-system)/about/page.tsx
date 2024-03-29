@@ -3,8 +3,8 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import prismadb from "@/lib/prismadb";
-import { About } from "@/app/(platform)/(patient)/(non-file-system)/about/_components/about-form";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
+import { AboutWrapper } from "./_components/about-wrapper";
 
 interface PatientDemographicsProps {
   params: {
@@ -24,7 +24,6 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
   if (!session) {
     return redirect("/");
   }
-  const user = session?.user;
 
   const patientMember = await prismadb.patientMember.findUnique({
     where: {
@@ -33,7 +32,7 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
   });
 
   if (!patientMember) {
-    return <div>something went wrong 58</div>;
+    return <div>something went wrong</div>;
   }
 
   const patientDemographics = await prismadb.patientProfile.findUnique({
@@ -64,7 +63,7 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
   });
 
   if (!patientDemographics) {
-    return <div>something went wrong 58</div>;
+    return <div>something went wrong</div>;
   }
   let decryptedPatientDemographics;
   try {
@@ -77,8 +76,8 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
   const { symmetricKey, ...safeObject } = decryptedPatientDemographics;
 
   return (
-    <div className="flex pt-4 px-2 xs:px-10 h-full justify-center">
-      <About initialData={safeObject} />
+    <div className="flex pt-4 pb-6 px-2 xs:px-10 min-h-[calc(100vh-64px)] justify-center">
+      <AboutWrapper patientMember={patientMember} initialData={safeObject} />
     </div>
   );
 };

@@ -30,7 +30,7 @@ export function PatientsTable({ data }: DataTableProps) {
       showDataTableViewOptions={false}
       // filters={filters}
       // hiddenColumns={hiddenColumns}
-      isSingleClickLink={true}
+      singleClickLink={{ firstPart: "patient", idName: "id", lastPart: "about" }}
       data={patients}
       isLoading={!patientsSet}
       columns={filteredColumns}

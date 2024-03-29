@@ -21,7 +21,9 @@ import Link from "next/link";
 import { useOrganizationStore } from "./hooks/use-organizations";
 import { usePathname } from "next/navigation";
 import { OrganizationAvatar } from "./organization-avatar";
+import { usePatientMemberStore } from "../(routes)/(patient)/hooks/use-patient-member-store";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 type OrganizationType = {
   id: string;
@@ -29,9 +31,23 @@ type OrganizationType = {
   profileImageUrl?: string | null;
 };
 export const OrganizationDropdown = () => {
-  const pathname = usePathname();
-  const organizationId = pathname.split("/organization/")[1].split("/")[0];
+  const [isMounted, setIsMounted] = useState(false);
+  const { patientMember } = usePatientMemberStore();
   const { organizations, getOrganizationById } = useOrganizationStore();
+  const pathname = usePathname();
+  const organizationId = pathname.includes("/organization/")
+    ? pathname.split("/organization/")[1].split("/")[0]
+    : !!patientMember
+    ? patientMember.organizationId
+    : null;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!organizationId || !isMounted) {
+    return null;
+  }
   const currentOrganization = getOrganizationById(organizationId);
 
   const DropdownMenuSubComponent = ({ id, title, profileImageUrl }: OrganizationType) => {

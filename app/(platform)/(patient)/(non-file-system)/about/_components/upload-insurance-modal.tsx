@@ -163,7 +163,7 @@ export const UploadInsuranceModal = () => {
 
             if (!data.success) throw new Error(data.error || "Status update failed");
           }
-          const imageS3Data = await getPresignedInsuranceUrl(side);
+          const imageS3Data = await getPresignedInsuranceUrl(side, false, null);
           const imageUrl = imageS3Data.presignedUrl;
           if (imageUrl) imageUrls[insuranceSide] = imageUrl;
 

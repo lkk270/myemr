@@ -231,11 +231,11 @@ export const Sidebar = ({
             isMobile && "left-0 w-full",
           )}
         >
-          {/* <Navbar
+          <Navbar
             numOfUnreadNotifications={numOfUnreadNotifications}
             isCollapsed={isCollapsed}
             onResetWidth={resetWidth}
-          /> */}
+          />
         </div>
       </>
     )

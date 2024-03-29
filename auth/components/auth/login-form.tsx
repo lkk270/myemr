@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -22,6 +22,7 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ userType }: LoginFormProps) => {
+  console.log(userType);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   let urlError = "";
@@ -49,11 +50,14 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
       userType: userType,
     },
   });
+  const { setValue } = form;
+  useEffect(() => {
+    setValue("userType", userType);
+  }, [userType]);
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
     setSuccess("");
-
     startTransition(() => {
       login(values, callbackUrl)
         .then((data) => {
@@ -72,7 +76,6 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
           }
         })
         .catch(() => {
-          console.log("IN HERE");
           setError("Something went wrong");
         });
     });
@@ -87,7 +90,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
               control={form.control}
               name="code"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-y-4 items-center">
+                <FormItem className="flex flex-col gap-y-4 items-center pt-4">
                   <FormLabel htmlFor="inviteCode">Two factor code</FormLabel>
                   <div className="relative flex flex-row items-center justify-center gap-x-3 w-full">
                     <div className="flex justify-center">

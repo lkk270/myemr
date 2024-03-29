@@ -266,15 +266,15 @@ model Folder {
   patientProfileId String
   PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  patientMember   PatientMember? @relation(fields: [patientMemberId], references: [id])
-  patientMemberId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // patientMember   PatientMember? @relation(fields: [patientMemberId], references: [id])
+  // patientMemberId String?
+  // @@index([patientMemberId])
 
   // @@unique([userId, namePath])
   @@index([parentId])
   @@index([patientProfileId])
-  @@index([patientMemberId])
 }
 
 model InsuranceFile {
@@ -393,10 +393,10 @@ model PatientMember {
 
   patientProfileId          String
   patientProfile            PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
-  accessibleRootFolders     Folder[]
+  // accessibleRootFolders     Folder[]
   hasAccessToAllRootFolders Boolean        @default(true)
-  organizationId            String?
-  organization              Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId            String
+  organization              Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

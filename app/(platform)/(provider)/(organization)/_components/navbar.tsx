@@ -10,18 +10,24 @@ import { Notifications } from "@/components/notifications";
 import { useMediaQuery } from "usehooks-ts";
 interface NavbarProps {
   numOfUnreadNotifications: number;
-  isCollapsed: boolean;
-  onResetWidth: () => void;
+  isCollapsed?: boolean;
+  onResetWidth?: () => void;
+  withSidebar?: boolean;
 }
 
-export const Navbar = ({ isCollapsed, onResetWidth, numOfUnreadNotifications }: NavbarProps) => {
+export const Navbar = ({
+  isCollapsed = false,
+  onResetWidth,
+  numOfUnreadNotifications,
+  withSidebar = true,
+}: NavbarProps) => {
   const pathName = usePathname();
   const { organizations } = useOrganizationStore();
   const isMobile = useMediaQuery("(max-width: 365px)");
   return (
     <>
       <nav className="justify-between px-3 py-4 w-full flex items-center gap-x-4">
-        {isCollapsed && (
+        {withSidebar && isCollapsed && !!onResetWidth && (
           <div className="flex items-center gap-x-4 xs:gap-x-6">
             <Building2 role="button" onClick={onResetWidth} className="w-6 h-6" />
             {/* <Logo textColor="#4f5eff" /> */}

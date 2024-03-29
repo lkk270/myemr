@@ -41,7 +41,7 @@ export const PhoneNumber = ({
 
   return (
     <div className="relative flex items-center">
-      <span className="px-3 text-2xl">🇺🇸</span>
+      <span className="pr-3 text-2xl">🇺🇸</span>
       <Input
         type="tel"
         autoComplete="tel"

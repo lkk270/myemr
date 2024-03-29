@@ -70,7 +70,11 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
 };
 
-export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload = false) => {
+export const getPresignedInsuranceUrl = async (
+  side: InsuranceSide,
+  forDownload = false,
+  patientProfileId: string | null,
+) => {
   const session = await auth();
 
   if (!session) {
@@ -79,23 +83,23 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
   const user = session.user;
   const currentUserPermissions = extractCurrentUserPermissions(user);
 
-  if (!user || user.role === "UPLOAD_FILES_ONLY") {
+  if (!user) {
     return redirect("/");
   }
 
-  if (!currentUserPermissions.isPatient) {
+  if (!currentUserPermissions.isPatient && !currentUserPermissions.hasAccount) {
     const code = await getAccessPatientCodeByToken(session.tempToken);
-    if (!code) {
+    if (!code || code.accessType === "UPLOAD_FILES_ONLY") {
       return redirect("/");
     }
   }
 
+  const whereClause = !patientProfileId ? { side, userId: user.id } : { side, patientProfileId: patientProfileId };
+
   const file = await prismadb.insuranceFile.findFirst({
-    where: {
-      userId: user.id,
-      side: side,
-    },
+    where: whereClause,
   });
+  
   if (!file) {
     return { error: "File not found" };
   }

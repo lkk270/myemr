@@ -18,7 +18,7 @@ export const useDownloadFile = () => {
     // Call your API endpoint to get the presigned URL
     console.log(fileId);
     const data = forInsurance
-      ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true)
+      ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true, null)
       : await getPresignedUrl(fileId, true);
     if (!data.presignedUrl) {
       toast.error("Something went wrong", { duration: 2500 });

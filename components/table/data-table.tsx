@@ -34,7 +34,7 @@ interface DataTableProps<TData, TValue> {
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
   isLoading?: boolean;
   className?: string;
-  isSingleClickLink?: boolean;
+  singleClickLink?: { firstPart: string; idName: string; lastPart: string } | null;
   isDoubleClickLink?: boolean;
   showDataTableViewOptions?: boolean;
 }
@@ -48,7 +48,7 @@ export function DataTable<TData, TValue>({
   filters,
   isLoading = false,
   className = "",
-  isSingleClickLink = false,
+  singleClickLink = null,
   isDoubleClickLink = false,
   showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
@@ -137,9 +137,13 @@ export function DataTable<TData, TValue>({
                       )}
                       onClick={() => {
                         if (onOpen) {
-                          onOpen(row.original, true);
-                        } else if (isSingleClickLink) {
-                          router.push(`/patient/${rowOriginal.id}/about`);
+                          onOpen(rowOriginal, true);
+                        } else if (!!singleClickLink) {
+                          router.push(
+                            `/${singleClickLink.firstPart}/${rowOriginal[singleClickLink.idName]}/${
+                              singleClickLink.lastPart
+                            }`,
+                          );
                         }
                       }}
                       onDoubleClick={() => {
@@ -159,7 +163,7 @@ export function DataTable<TData, TValue>({
                       key={row.id}
                       data-state={row.getIsSelected() ? "selected" : undefined}
                     >
-                      {row.getVisibleCells().map((cell) => (
+                      {row.getVisibleCells().map((cell: any) => (
                         <TableCell className="max-w-[325px]" key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>

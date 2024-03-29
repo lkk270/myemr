@@ -111,9 +111,9 @@ model PatientAddress {
   id       String  @id @default(cuid())
   address  String  @db.LongText
   address2 String? @db.LongText
-  city     String
-  state    String
-  zipcode  String
+  city     String  @db.LongText
+  state    String  @db.LongText
+  zipcode  String  @db.LongText
 
   patientProfileId String
   PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
@@ -147,9 +147,9 @@ model OrganizationAddress {
   id       String  @id @default(cuid())
   name     String  @db.VarChar(70)
   phone    String?
-  address  String  @db.VarChar(200)
-  address2 String? @db.VarChar(200)
-  city     String
+  address  String  @db.VarChar(100)
+  address2 String? @db.VarChar(100)
+  city     String  @db.VarChar(100)
   state    String
   zipcode  String
 

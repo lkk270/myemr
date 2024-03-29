@@ -336,8 +336,10 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               name="title"
               control={form.control}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
+                <FormItem className="space-y-0">
+                  <div className="py-2">
+                    <FormLabel>Title</FormLabel>
+                  </div>
                   {/* <FormControl> */}
                   <Input placeholder="Hippocrates Associates" {...field} />
                   {/* </FormControl> */}
@@ -433,8 +435,10 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               name="subTitle"
               control={form.control}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtitle...</FormLabel>
+                <FormItem className="space-y-0">
+                  <div className="py-2">
+                    <FormLabel>Subtitle...</FormLabel>
+                  </div>
                   {/* <FormControl> */}
                   <Textarea rows={2} className="bg-background resize-none" placeholder={"Subtitle"} {...field} />
                   {/* </FormControl> */}
@@ -448,8 +452,10 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               control={form.control}
               disabled={isPending || !isEditing}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
+                <FormItem className="space-y-0">
+                  <div className="py-2">
+                    <FormLabel>Description</FormLabel>
+                  </div>
                   {/* <FormControl> */}
                   <Textarea rows={5} className="bg-background resize-none" placeholder={"Description..."} {...field} />
                   {/* </FormControl> */}
@@ -477,8 +483,10 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
               name="mainEmail"
               control={form.control}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Main Email</FormLabel>
+                <FormItem className="space-y-0">
+                  <div className="py-2">
+                    <FormLabel>Main Email</FormLabel>
+                  </div>
                   {/* <FormControl> */}
                   <Input placeholder="Hippocrates@earth.com" {...field} />
                   {/* </FormControl> */}

@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import prismadb from "@/lib/prismadb";
-import { Demographics } from "@/app/(platform)/(patient)/(non-file-system)/about/_components/demographics";
+import { About } from "@/app/(platform)/(patient)/(non-file-system)/about/_components/about-form";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 
 const PatientDemographics = async () => {
@@ -80,7 +80,7 @@ const PatientDemographics = async () => {
 
   return (
     <div className="flex pt-4 px-2 xs:px-10 h-full justify-center">
-      <Demographics patientDemographics={safeObject} />
+      <About initialData={safeObject} />
     </div>
   );
 };

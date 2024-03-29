@@ -13,7 +13,7 @@ import { states } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { PhoneNumber } from "@/components/phone-number";
-import { AddressSchema } from "../../schema/organization";
+import { AddressSchema } from "@/lib/schemas/address";
 import { findChangesBetweenObjects } from "@/lib/utils";
 
 interface AddressFormProps {
@@ -26,9 +26,6 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
   const form = useForm<z.infer<typeof AddressSchema>>({
     resolver: zodResolver(AddressSchema),
     defaultValues: initialData || {
-      id: `new-address-${(numOfCurrentAddresses + 1).toString()}`,
-      name: undefined,
-      phone: undefined,
       address: undefined,
       address2: undefined,
       city: undefined,
@@ -66,46 +63,6 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
             <Separator className="bg-primary/10" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="space-y-0">
-                  <div className="py-2">
-                    <FormLabel htmlFor="name">Name</FormLabel>
-                  </div>
-                  <Input
-                    {...field}
-                    value={field.value || ""}
-                    id="name"
-                    name="name"
-                    autoComplete="off"
-                    placeholder="Name"
-                    // disabled={isPending}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="phone">Phone</FormLabel>
-                  <PhoneNumber
-                    {...field}
-                    fieldName="phone"
-                    className="border-primary/10"
-                    handleChange={(value) => setValue("phone", value)}
-                    number={field.value}
-                    // disabled={isPending}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={control}
               name="address"

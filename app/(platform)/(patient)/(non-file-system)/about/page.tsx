@@ -60,6 +60,7 @@ const PatientDemographics = async () => {
       groupNumber: true,
       addresses: true,
       symmetricKey: true,
+      imageUrl: true,
       insuranceImagesSet: true,
     },
   });

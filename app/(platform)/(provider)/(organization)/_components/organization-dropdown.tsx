@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {} from "lucide-react";
 import { ChevronsUpDown, Activity, Users, Settings, BriefcaseMedical } from "lucide-react";
@@ -24,16 +23,21 @@ import { OrganizationAvatar } from "./organization-avatar";
 import { usePatientMemberStore } from "../(routes)/(patient)/hooks/use-patient-member-store";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { OrganizationWithRoleType } from "@/app/types";
 
 type OrganizationType = {
   id: string;
   title: string;
   profileImageUrl?: string | null;
 };
-export const OrganizationDropdown = () => {
+
+interface OrganizationDropdownProp {
+  initialOrganizations?: OrganizationWithRoleType[];
+}
+export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropdownProp) => {
   const [isMounted, setIsMounted] = useState(false);
   const { patientMember } = usePatientMemberStore();
-  const { organizations, getOrganizationById } = useOrganizationStore();
+  const { organizations, getOrganizationById, setOrganizations } = useOrganizationStore();
   const pathname = usePathname();
   const organizationId = pathname.includes("/organization/")
     ? pathname.split("/organization/")[1].split("/")[0]
@@ -43,12 +47,18 @@ export const OrganizationDropdown = () => {
 
   useEffect(() => {
     setIsMounted(true);
+    if (!!initialOrganizations) {
+      setOrganizations(initialOrganizations);
+    }
   }, []);
 
   if (!organizationId || !isMounted) {
+    console.log(organizationId);
     return null;
   }
   const currentOrganization = getOrganizationById(organizationId);
+  console.log(organizations);
+  console.log(currentOrganization);
 
   const DropdownMenuSubComponent = ({ id, title, profileImageUrl }: OrganizationType) => {
     const routes = [

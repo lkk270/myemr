@@ -1,6 +1,10 @@
 "use client";
 
-import { patientNavRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
+import {
+  patientRoutesForProvider,
+  tempPatientAccessNavRoutes,
+  tempPatientUploadAccessNavRoutes,
+} from "@/lib/constants";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
@@ -8,18 +12,23 @@ import { usePathname } from "next/navigation";
 import { SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePatientMemberStore } from "../hooks/use-patient-member-store";
+import { useState, useEffect } from "react";
 
 export const Sidebar = () => {
-  const currentUser = useCurrentUser();
-  const currentUserPermissions = useCurrentUserPermissions();
+  const [isMounted, setIsMounted] = useState(false);
+  const { patientMember } = usePatientMemberStore();
+
   const pathname = usePathname();
 
-  const routes = currentUserPermissions.isPatient
-    ? patientNavRoutes
-    : currentUser?.role === "UPLOAD_FILES_ONLY"
-    ? tempPatientUploadAccessNavRoutes
-    : tempPatientAccessNavRoutes;
-
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  if (!patientMember) {
+    return null;
+  }
+  const routes = patientRoutesForProvider(patientMember.id);
   return (
     <>
       <div className={cn("h-full bg-secondary overflow-y-auto relative flex w-full flex-col")}>

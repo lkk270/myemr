@@ -7,8 +7,7 @@ import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { ProviderManageAccountModal } from "@/components/modals/manage-account/provider-manage-account/provider-manage-account-modal";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { getOrganizationMemberByUserIdBase } from "../../../../../data/organization";
-import { Navbar } from "@/app/(platform)/(provider)/(organization)/_components/navbar";
-
+import { Navbar } from "../../../_components/navbar";
 interface PatientLayoutProps {
   children: React.ReactNode;
 }
@@ -62,9 +61,7 @@ const PatientLayout = async ({ children }: PatientLayoutProps) => {
   return (
     <div className="flex overflow-auto h-screen">
       <ProviderManageAccountModal />
-      <div className={"bg-[#f8f7f7] dark:bg-[#1f1f1f] absolute top-0 z-[50] left-[300px] w-[calc(100%-300px)]"}>
-        <Navbar numOfUnreadNotifications={numOfUnreadNotifications} withSidebar={false} />
-      </div>
+      <Navbar initialOrganizations={organizations} numOfUnreadNotifications={numOfUnreadNotifications} />
       <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>
   );

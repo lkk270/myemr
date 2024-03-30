@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatPhoneNumber } from "@/lib/utils";
 import { calculateBMI } from "@/lib/utils";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-
+import { OrganizationAvatar } from "@/app/(platform)/(provider)/(organization)/_components/organization-avatar";
 interface ViewAboutProps {
   handleEditToggle: (e: any) => void;
   initialData: PatientDemographicsType;
@@ -38,7 +38,29 @@ export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => 
           </div>
         </div>
         <Separator className="bg-primary/10" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="justify-center sm:justify-start flex flex-row gap-x-2 items-center flex-grow min-w-0">
+          <div className="flex sm:hidden flex-col items-center justify-center border-2 border-primary/20 rounded-lg shadow-md w-[100px] h-[100px]">
+            <OrganizationAvatar
+              roundedClassName="rounded-lg"
+              imageClassName="max-h-[86px] max-w-[86px] w-auto"
+              buildingClassName="w-[74px] h-[74px]"
+              profileImageUrl={initialData.imageUrl}
+              imageSize={80}
+              forUser={true}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+          <div className="hidden sm:flex flex-col items-center justify-center border-2 border-primary/20 rounded-lg shadow-md w-[100px] h-[100px]">
+            <OrganizationAvatar
+              roundedClassName="rounded-lg"
+              imageClassName="max-h-[86px] max-w-[86px] w-auto"
+              buildingClassName="w-[74px] h-[74px]"
+              profileImageUrl={initialData.imageUrl}
+              imageSize={80}
+              forUser={true}
+            />
+          </div>
           <div className="flex flex-col gap-y-2">
             <strong>Name:</strong>
             <p className="break-all whitespace-normal">
@@ -80,7 +102,6 @@ export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => 
             </p>
           </div>
         </div>
-
         <div className="space-y-2 w-full">
           <h3 className="text-lg font-medium">Contact Information</h3>
           <Separator className="bg-primary/10" />
@@ -99,7 +120,6 @@ export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => 
             <p>{initialData.email}</p>
           </div>
         </div>
-
         <div className="space-y-2 w-full">
           <h3 className="text-lg font-medium">Address</h3>
           <Separator className="bg-primary/10" />

@@ -43,7 +43,7 @@ export const Navbar = ({ isCollapsed, onResetWidth, numOfUnreadNotifications }: 
         )}
 
         {/* <div className="flex-grow"></div> */}
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-3">
           <GenericNavigationMenu />
           {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
             <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />

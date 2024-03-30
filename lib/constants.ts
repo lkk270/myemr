@@ -72,7 +72,7 @@ export const tempPatientUploadAccessNavRoutes = [
 ];
 
 export const patientRoutesForProvider = (patientMemberId: string) => {
-  const baseRoute = `patient/${patientMemberId}/`;
+  const baseRoute = `/patient/${patientMemberId}`;
   return [
     {
       icon: Contact,

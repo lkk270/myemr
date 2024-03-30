@@ -2,7 +2,7 @@ import { SubscriptionTierType } from "@/app/types";
 import { UserRole } from "@prisma/client";
 import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings, Upload } from "lucide-react";
 
-export const navRoutes = [
+export const patientNavRoutes = [
   {
     icon: Home,
     href: "/patient-home",
@@ -70,6 +70,27 @@ export const tempPatientUploadAccessNavRoutes = [
     label: "Upload",
   },
 ];
+
+export const patientRoutesForProvider = (patientMemberId: string) => {
+  const baseRoute = `patient/${patientMemberId}/`;
+  return [
+    {
+      icon: Contact,
+      href: `${baseRoute}/about`,
+      label: "About",
+    },
+    {
+      icon: FolderClosed,
+      href: `${baseRoute}/files`,
+      label: "Files",
+    },
+    {
+      icon: Pill,
+      href: `${baseRoute}/medications`,
+      label: "Meds",
+    },
+  ];
+};
 
 export interface SelectItemType {
   value: string;

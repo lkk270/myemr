@@ -4,39 +4,49 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "./mobile-sidebar";
-import { patientNavRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
+import { patientRoutesForProvider } from "@/lib/constants";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@/components/user-button";
 import Link from "next/link";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { usePatientMemberStore } from "../hooks/use-patient-member-store";
 import { Notifications } from "@/components/notifications";
 // import { Notifications } from "@/components/notifications";
+import { useEffect, useState } from "react";
+import { OrganizationDropdown } from "../../../_components/organization-dropdown";
+import { OrganizationWithRoleType } from "@/app/types";
+import { useMediaQuery } from "usehooks-ts";
 
 interface NavbarProps {
-  tempAccess?: boolean;
+  initialOrganizations?: OrganizationWithRoleType[];
   numOfUnreadNotifications?: number;
 }
 
-export const Navbar = ({ tempAccess = false, numOfUnreadNotifications }: NavbarProps) => {
-  const currentUser = useCurrentUser();
+export const Navbar = ({ numOfUnreadNotifications, initialOrganizations }: NavbarProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 350px)");
+  const { patientMember } = usePatientMemberStore();
   const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
 
-  const routes = currentUserPermissions.isPatient
-    ? patientNavRoutes
-    : currentUser?.role === "UPLOAD_FILES_ONLY"
-    ? tempPatientUploadAccessNavRoutes
-    : tempPatientAccessNavRoutes;
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted || !patientMember) {
+    return null;
+  }
+  const routes = patientRoutesForProvider(patientMember.id);
 
   return (
-    <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10">
-      <div className="flex items-center">
+    <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center w-full h-16 px-4 py-2 border-b border-primary/10">
+      <div className="flex items-center justify-start flex-1">
         <MobileSidebar />
-        <Logo />
+        {!isMobile && <Logo showText={false} />}
       </div>
-      <div className="items-center sm:flex hidden">
-        <div className="flex items-center sm:flex gap-x-1 lg:gap-x-4">
+      <div className="flex-1 flex justify-center hidden sm:flex">
+        <div className="flex items-center gap-x-1 lg:gap-x-4">
           {routes.map((route, index) => (
             <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>
               <div
@@ -54,15 +64,13 @@ export const Navbar = ({ tempAccess = false, numOfUnreadNotifications }: NavbarP
           ))}
         </div>
       </div>
-      <div className="flex items-center">
-        <div className="flex items-center sm:flex gap-x-4 justify-center">
-          {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
-            <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
-          )}
-          <ModeToggle />
-          {/* <UserButton afterSignOutUrl="/" /> */}
-          <UserButton />
-        </div>
+      <div className="flex items-center justify-end flex-1 gap-x-4">
+        <OrganizationDropdown initialOrganizations={initialOrganizations} />
+        {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
+          <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
+        )}
+        {!isMobile && <ModeToggle />}
+        <UserButton />
       </div>
     </div>
   );

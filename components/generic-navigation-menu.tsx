@@ -12,7 +12,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import { navRoutes, tempPatientAccessNavRoutes } from "@/lib/constants";
+import { patientNavRoutes, tempPatientAccessNavRoutes } from "@/lib/constants";
 import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -27,7 +27,7 @@ export const GenericNavigationMenu = ({}: GenericNavigationMenuProps) => {
   const routes =
     currentRole === "FULL_ACCESS" || currentRole === "READ_AND_ADD" || currentRole === "READ_ONLY"
       ? tempPatientAccessNavRoutes
-      : navRoutes;
+      : patientNavRoutes;
 
   return (
     <NavigationMenu>

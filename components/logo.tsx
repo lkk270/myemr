@@ -30,7 +30,15 @@ export const Logo = ({ textColor, showText = true }: LogoProps) => {
   return (
     <Link href="/" className={cn(showText ? "sm:w-32" : "")} onDragStart={(e) => e.preventDefault()}>
       <div className="flex items-center gap-x-2">
-        <Image priority={true} src="/logo.svg" height={size} width={size} alt="Logo" draggable={false} />
+        <Image
+          className="shrink-0"
+          priority={true}
+          src="/logo.svg"
+          height={size}
+          width={size}
+          alt="Logo"
+          draggable={false}
+        />
         {showText && !isMobile && (
           <p
             className={cn(

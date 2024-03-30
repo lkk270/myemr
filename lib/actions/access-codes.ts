@@ -13,6 +13,7 @@ export const generateAccessCode = async (
   validFor: AccessCodeValidTime,
   accessType: UserRole,
   uploadToId: string,
+  accessibleRootFolderIds: string,
 ) => {
   const user = await currentUser();
   const userId = user?.id;
@@ -31,7 +32,7 @@ export const generateAccessCode = async (
       userId: userId,
       validFor: validFor,
       accessType: accessType,
-      accessibleRootFolders: "ALL",
+      accessibleRootFolders: accessibleRootFolderIds,
       parentFolderId: !!uploadToId ? uploadToId : null,
       token,
       expires,

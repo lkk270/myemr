@@ -8,7 +8,7 @@ import { GenerateCodeSchema } from "../schemas";
 import { Button } from "@/components/ui/button";
 
 import { Spinner } from "@/components/loading/spinner";
-import { Copy, Check, RefreshCw, History } from "lucide-react";
+import { Copy, Check, RefreshCw, History, Info } from "lucide-react";
 import { useMediaQuery } from "usehooks-ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { AccessCodeValidTime, UserRole } from "@prisma/client";
@@ -17,8 +17,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { GenerateCodePopover } from "./generate-code-popover";
+import { AboutAccessibleRootFoldersPopover } from "./about-accessible-root-folders-popover";
 import { accessCode } from "../actions/generate-access-code";
 import { ChooseFolderButton } from "./choose-folder-button";
+import { ChooseAccessibleRootFolderButton } from "./chose-accessible-root-folders-button";
 import { toast } from "sonner";
 import { ViewActiveCodesButton } from "./view-active-codes-button";
 import { FolderNameType } from "@/app/types/file-types";
@@ -39,7 +41,11 @@ export const GenerateCode = () => {
   const [accessType, setAccessType] = useState(UserRole.READ_ONLY);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const isMobile = useMediaQuery("(max-width:640px)");
+  const isMobile2 = useMediaQuery("(max-width: 420px)");
   const [chosenFolder, setChosenFolder] = useState<FolderNameType>({ name: "", namePath: "" });
+  const [accessibleRootFolderIds, setAccessibleRootFolderIds] = useState<string>("ALL");
+
   const [isPending, startTransition] = useTransition();
 
   const [isCopied, setIsCopied] = useState(false);
@@ -49,10 +55,10 @@ export const GenerateCode = () => {
       validFor: AccessCodeValidTime.MINUTE_30,
       accessType: UserRole.READ_ONLY,
       uploadToId: "",
+      accessibleRootFolderIds: "ALL",
     },
   });
 
-  const isMobile = useMediaQuery("(max-width:640px)");
   const { setValue, control } = form;
 
   const handleValidForChange = (value: AccessCodeValidTime) => {
@@ -75,6 +81,11 @@ export const GenerateCode = () => {
   const onCopy = () => {
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000); // Reset the copied state after 2 seconds
+  };
+
+  const handleAccessibleRootFoldersChange = (accessibleRootFolderIds: string) => {
+    setAccessibleRootFolderIds(accessibleRootFolderIds);
+    setValue("accessibleRootFolderIds", accessibleRootFolderIds);
   };
 
   const onSubmit = (values: z.infer<typeof GenerateCodeSchema>) => {
@@ -105,7 +116,13 @@ export const GenerateCode = () => {
   const watchedValidFor = form.watch("validFor");
   const watchedAccessType = form.watch("accessType");
   const watchedUploadToId = form.watch("uploadToId");
-
+  const watchedAccessibleRootFolderIds = form.watch("accessibleRootFolderIds");
+  const numOfRootFolders = watchedAccessibleRootFolderIds.split(",").length;
+  const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
+  const crfButtonLabel =
+    watchedAccessibleRootFolderIds === "ALL"
+      ? "All Root Folders"
+      : `${numOfRootFolders.toString()} Root ${foldersText}`;
   return (
     <Form {...form}>
       {/*  onSubmit={form.handleSubmit(onSubmit)} */}
@@ -138,18 +155,21 @@ export const GenerateCode = () => {
           render={({ field }) => (
             <FormItem>
               <ToggleGroup {...field} type="single" onValueChange={handleValidForChange}>
-                {validTimes.map((obj, index) => (
-                  <ToggleGroupItem
-                    key={obj.value}
-                    className={cn(
-                      "text-xs lg:text-md hover:bg-primary/10",
-                      obj.value === watchedValidFor && "data-[state=on]:bg-primary/10",
-                    )}
-                    value={obj.value}
-                  >
-                    {obj.label}
-                  </ToggleGroupItem>
-                ))}
+                {validTimes.map(
+                  (obj, index) =>
+                    ((isMobile2 && obj.value !== "MINUTE_30") || !isMobile2) && (
+                      <ToggleGroupItem
+                        key={obj.value}
+                        className={cn(
+                          "text-xs lg:text-md hover:bg-primary/10",
+                          obj.value === watchedValidFor && "data-[state=on]:bg-primary/10",
+                        )}
+                        value={obj.value}
+                      >
+                        {obj.label}
+                      </ToggleGroupItem>
+                    ),
+                )}
               </ToggleGroup>
             </FormItem>
           )}
@@ -163,26 +183,28 @@ export const GenerateCode = () => {
                 {accessTypesText.map((obj, index) => {
                   const restrict = !currentUser || (obj.requiresSubscription && currentUser.plan.includes("_FREE"));
                   return (
-                    <ToggleGroupItem
-                      onClick={() => {
-                        if (restrict) {
-                          toast.warning(
-                            "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan or select a different access type",
-                          );
-                          return;
-                        }
-                      }}
-                      key={obj.value}
-                      className={cn(
-                        "text-xs lg:text-md",
-                        !restrict && "hover:bg-primary/10",
-                        restrict && "cursor-not-allowed text-muted-foreground",
-                        obj.value === watchedAccessType && "data-[state=on]:bg-primary/10",
-                      )}
-                      value={restrict ? "" : obj.value}
-                    >
-                      {obj.label}
-                    </ToggleGroupItem>
+                    ((isMobile2 && obj.value !== "READ_AND_ADD") || !isMobile2) && (
+                      <ToggleGroupItem
+                        onClick={() => {
+                          if (restrict) {
+                            toast.warning(
+                              "We're unable to generate a code for the selected access type. To proceed, please upgrade to our Pro or Pro+ plan or select a different access type",
+                            );
+                            return;
+                          }
+                        }}
+                        key={obj.value}
+                        className={cn(
+                          "text-xs lg:text-md",
+                          !restrict && "hover:bg-primary/10",
+                          restrict && "cursor-not-allowed text-muted-foreground",
+                          obj.value === watchedAccessType && "data-[state=on]:bg-primary/10",
+                        )}
+                        value={restrict ? "" : obj.value}
+                      >
+                        {obj.label}
+                      </ToggleGroupItem>
+                    )
                   );
                 })}
               </ToggleGroup>
@@ -190,7 +212,7 @@ export const GenerateCode = () => {
           )}
         />
 
-        <div className="flex flex-row mb-2">
+        <div className="grid grid-cols-2 xs:grid-cols-3 xs:mb-2 gap-y-2">
           <CopyToClipboard text={code} onCopy={onCopy}>
             <Button
               disabled={!code || isPending}
@@ -223,23 +245,39 @@ export const GenerateCode = () => {
             )}
             Generate
           </Button>
-          {watchedAccessType === UserRole.UPLOAD_FILES_ONLY && (
-            <ChooseFolderButton asChild handleChange={handleFolderChange}>
-              <Button variant={"outline"}>
-                {!watchedUploadToId ? (
-                  "Choose folder"
-                ) : (
-                  <div
-                    title={chosenFolder.namePath}
-                    className="flex flex-col flex-grow min-w-0 items-start max-w-[100px]"
-                  >
-                    <span className="truncate text-left w-full">{chosenFolder.name}</span>
-                    <span className="truncate text-left w-full text-xs text-primary/40">{chosenFolder.namePath}</span>
-                  </div>
-                )}
-              </Button>
-            </ChooseFolderButton>
-          )}
+          <div className="col-span-2 xs:col-span-1 flex justify-center items-center">
+            {watchedAccessType === UserRole.UPLOAD_FILES_ONLY ? (
+              <ChooseFolderButton asChild handleChange={handleFolderChange}>
+                <Button variant={"outline"} className="text-xs min-w-[130px]">
+                  {!watchedUploadToId ? (
+                    "Choose folder"
+                  ) : (
+                    <div
+                      title={chosenFolder.namePath}
+                      className="flex flex-col flex-grow min-w-0 items-start max-w-[100px]"
+                    >
+                      <span className="truncate text-left w-full">{chosenFolder.name}</span>
+                      <span className="truncate text-left w-full text-xs text-primary/40">{chosenFolder.namePath}</span>
+                    </div>
+                  )}
+                </Button>
+              </ChooseFolderButton>
+            ) : (
+              <div className="flex gap-x-1 items-center">
+                <ChooseAccessibleRootFolderButton
+                  defaultRootFolderIds={watchedAccessibleRootFolderIds}
+                  crfButtonLabel={crfButtonLabel}
+                  asChild
+                  handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}
+                >
+                  <Button variant={"outline"} className="text-xs min-w-[130px]">
+                    {crfButtonLabel}
+                  </Button>
+                </ChooseAccessibleRootFolderButton>
+                <AboutAccessibleRootFoldersPopover />
+              </div>
+            )}
+          </div>
         </div>
       </form>
     </Form>

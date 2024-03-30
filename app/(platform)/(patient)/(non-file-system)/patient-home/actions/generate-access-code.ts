@@ -36,7 +36,7 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
     return { error: "Invalid fields!" };
   }
 
-  const { validFor, accessType, uploadToId } = validatedFields.data;
+  const { validFor, accessType, uploadToId, accessibleRootFolderIds } = validatedFields.data;
 
   if (!validFor || !accessType || (accessType === "UPLOAD_FILES_ONLY" && !values.uploadToId)) {
     return { error: "Invalid body" };
@@ -63,7 +63,7 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
         "We're unable to generate a code for the selected access type because it requires you to have 500 Mb of available storage.",
     };
   }
-  const accessCode = await generateAccessCode(patient.id, validFor, accessType, uploadToId);
+  const accessCode = await generateAccessCode(patient.id, validFor, accessType, uploadToId, accessibleRootFolderIds);
   if (accessCode) {
     return { success: "Confirmation email sent!", code: accessCode.token };
   } else {

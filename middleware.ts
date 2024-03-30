@@ -125,7 +125,6 @@ export default auth(async (req) => {
   }
 
   if (!isLoggedIn && !isPublicRoute && !isTermRoute) {
-    console.log("IN 82222");
     let callbackUrl = nextUrlPathname;
     if (nextUrl.search) {
       callbackUrl += nextUrl.search;

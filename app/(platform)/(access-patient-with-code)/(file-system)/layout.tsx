@@ -22,8 +22,6 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   const user = session?.user;
 
-  console.log(user);
-
   const allFolders = await fetchAllFoldersForPatient(null, user.id, user.accessibleRootFolders);
   const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
@@ -40,7 +38,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
   const allNodesArray = Array.from(allNodesMap.values());
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-  console.log(singleLayerNodes);
+  
   const sumOfAllSuccessFilesSizes = singleLayerNodes.reduce((accumulator, file) => {
     if (!!file.size && file.isFile === true) {
       return accumulator + file.size;

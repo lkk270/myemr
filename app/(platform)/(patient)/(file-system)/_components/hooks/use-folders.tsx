@@ -181,7 +181,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       // console.log(allUpdatedNodes);
       // console.log(finalUpdatedSingleLayerNodes);
       const sortedFolders = sortRootNodes(updatedFolders);
-      console.log(sortedFolders);
+      // console.log(sortedFolders);
       return {
         ...state,
         singleLayerNodes: finalUpdatedSingleLayerNodes,
@@ -323,10 +323,10 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       let allUpdatedNodes: any[] = extractNodes(updatedFolders);
 
       // Create a map for quick lookup
-      console.log(allUpdatedNodes);
+      // console.log(allUpdatedNodes);
       const updatedNodeMap = new Map(allUpdatedNodes.map((node) => [node.id, { ...node, children: undefined }]));
 
-      console.log(updatedNodeMap);
+      // console.log(updatedNodeMap);
       // Update the singleLayerNodes array
       const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
         if (updatedNodeMap.has(node.id)) {
@@ -335,7 +335,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
         return node;
       });
 
-      console.log(updatedSingleLayerNodes);
+      // console.log(updatedSingleLayerNodes);
 
       const selectedNodes = updatedSingleLayerNodes.filter((node) => selectedIds.includes(node.id));
 
@@ -345,11 +345,11 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       // Concatenate the selected nodes at the beginning and the non-selected nodes
       const finalUpdatedSingleLayerNodes = selectedNodes.concat(nonSelectedNodes);
 
-      console.log(allUpdatedNodes);
-      console.log(finalUpdatedSingleLayerNodes);
+      // console.log(allUpdatedNodes);
+      // console.log(finalUpdatedSingleLayerNodes);
       const sortedFoldersTemp = updatedFolders.map((folder) => sortFolderChildren(folder));
       const sortedFolders = sortRootNodes(sortedFoldersTemp);
-      console.log(sortedFolders);
+      // console.log(sortedFolders);
       return {
         ...state,
         singleLayerNodes: finalUpdatedSingleLayerNodes,
@@ -440,8 +440,8 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       }
       const sortedFolders = updatedFolders.map((folder) => sortFolderChildren(folder));
 
-      console.log(updatedFolders);
-      console.log(updatedSingleLayerNodes);
+      // console.log(updatedFolders);
+      // console.log(updatedSingleLayerNodes);
       return { ...state, folders: sortedFolders, singleLayerNodes: updatedSingleLayerNodes };
     });
   },
@@ -623,7 +623,7 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   },
 
   updateLastViewedAt: (nodeId) => {
-    console.log("Updating lastViewedAt for nodeId:", nodeId); // Log the nodeId
+    // console.log("Updating lastViewedAt for nodeId:", nodeId); // Log the nodeId
 
     set((state) => {
       // First, update the node's lastViewedAt using map

@@ -22,7 +22,7 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ userType }: LoginFormProps) => {
-  console.log(userType);
+  // console.log(userType);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   let urlError = "";

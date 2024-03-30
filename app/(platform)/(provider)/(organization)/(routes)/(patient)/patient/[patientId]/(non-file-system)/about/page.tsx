@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { AboutWrapper } from "./_components/about-wrapper";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 
 interface PatientDemographicsProps {
   params: {
@@ -25,45 +26,76 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
     return redirect("/");
   }
 
+  // const patientMember = await prismadb.patientMember.findUnique({
+  //   where: {
+  //     id: params.patientId,
+  //   },
+  // });
+
+  // if (!patientMember) {
+  //   return <div>something went wrong</div>;
+  // }
+
   const patientMember = await prismadb.patientMember.findUnique({
-    where: {
-      id: params.patientId,
+    where: { id: params.patientId },
+    include: {
+      patientProfile: {
+        select: {
+          imageUrl: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          dateOfBirth: true,
+          maritalStatus: true,
+          race: true,
+          mobilePhone: true,
+          homePhone: true,
+          height: true,
+          weight: true,
+          unit: true,
+          insuranceProvider: true,
+          policyNumber: true,
+          groupNumber: true,
+          addresses: true,
+          symmetricKey: true,
+          insuranceImagesSet: true,
+        },
+      },
     },
   });
 
-  if (!patientMember) {
-    return <div>something went wrong</div>;
-  }
+  const patientDemographics = patientMember?.patientProfile;
 
-  const patientDemographics = await prismadb.patientProfile.findUnique({
-    where: {
-      id: patientMember.patientProfileId,
-    },
-    select: {
-      imageUrl: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      gender: true,
-      dateOfBirth: true,
-      maritalStatus: true,
-      race: true,
-      mobilePhone: true,
-      homePhone: true,
-      height: true,
-      weight: true,
-      unit: true,
-      insuranceProvider: true,
-      policyNumber: true,
-      groupNumber: true,
-      addresses: true,
-      symmetricKey: true,
-      insuranceImagesSet: true,
-    },
-  });
+  // const patientDemographics = await prismadb.patientProfile.findUnique({
+  //   where: {
+  //     id: patientMember.patientProfileId,
+  //   },
+  //   select: {
+  //     imageUrl: true,
+  //     email: true,
+  //     firstName: true,
+  //     lastName: true,
+  //     gender: true,
+  //     dateOfBirth: true,
+  //     maritalStatus: true,
+  //     race: true,
+  //     mobilePhone: true,
+  //     homePhone: true,
+  //     height: true,
+  //     weight: true,
+  //     unit: true,
+  //     insuranceProvider: true,
+  //     policyNumber: true,
+  //     groupNumber: true,
+  //     addresses: true,
+  //     symmetricKey: true,
+  //     insuranceImagesSet: true,
+  //   },
+  // });
 
   if (!patientDemographics) {
-    return <div>something went wrong</div>;
+    return <SomethingNotFound title="No patient found" href="provider-home" />;
   }
   let decryptedPatientDemographics;
   try {

@@ -4,6 +4,8 @@ import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
 import { allotedStoragesInGb } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { auth } from "@/auth";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -16,6 +18,26 @@ type FileToUnrestrict = {
   id: string;
   size: bigint;
 };
+
+async function validateUser(requiredPermissions: "canEdit" | "canAdd" | "canDelete") {
+  const session = await auth();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  const user = session?.user;
+  const userId = user?.id;
+  if (!userId || !user) {
+    throw new Error("Unauthorized");
+  }
+
+  const currentUserPermissions = extractCurrentUserPermissions(user);
+  if (!currentUserPermissions.isProvider && !currentUserPermissions[requiredPermissions]) {
+    throw new Error("Unauthorized");
+  }
+  else if(currentUserPermissions.isProvider){
+    
+  }
+}
 
 export async function updateDescendantsForRename(
   prisma: any,

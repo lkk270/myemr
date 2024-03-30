@@ -8,16 +8,30 @@ import { ProviderManageAccountModal } from "@/components/modals/manage-account/p
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { getOrganizationMemberByUserIdBase } from "../../../../../data/organization";
 import { Navbar } from "../../../_components/navbar";
+
 interface PatientLayoutProps {
+  params: {
+    patientId: string;
+  };
   children: React.ReactNode;
 }
 
-const PatientLayout = async ({ children }: PatientLayoutProps) => {
+const PatientLayout = async ({ children, params }: PatientLayoutProps) => {
   const session = await auth();
   const user = session?.user;
 
   if (!session || !user || user.userType !== "PROVIDER") {
     return redirect("/");
+  }
+
+  const patientMember = await prismadb.patientMember.findUnique({
+    where: {
+      id: params.patientId,
+    },
+  });
+
+  if (!patientMember) {
+    return <SomethingNotFound title="404 No patient found" href="provider-home" />;
   }
 
   const organizationsMembersOf = await prismadb.organizationMember.findMany({
@@ -29,25 +43,33 @@ const PatientLayout = async ({ children }: PatientLayoutProps) => {
     },
   });
 
-  const organizationsWithUnreadCount = await Promise.all(
-    organizationsMembersOf.map(async (orgMember) => {
-      const unreadCount = await prismadb.organizationActivity.count({
-        where: {
-          organizationId: orgMember.organization.id,
-          read: false,
-        },
-      });
-      return {
-        ...orgMember,
-        numOfUnreadActivities: unreadCount,
-      };
-    }),
+  const validProviderAccess = organizationsMembersOf.some(
+    (object) => object.organization.id === patientMember.organizationId,
   );
 
-  const organizations: OrganizationWithRoleType[] = organizationsWithUnreadCount.map((member) => ({
+  if (!validProviderAccess) {
+    return <SomethingNotFound title="No patient found" href="provider-home" />;
+  }
+
+  // const organizationsWithUnreadCount = await Promise.all(
+  //   organizationsMembersOf.map(async (orgMember) => {
+  //     const unreadCount = await prismadb.organizationActivity.count({
+  //       where: {
+  //         organizationId: orgMember.organization.id,
+  //         read: false,
+  //       },
+  //     });
+  //     return {
+  //       ...orgMember,
+  //       numOfUnreadActivities: unreadCount,
+  //     };
+  //   }),
+  // );
+
+  const organizations: OrganizationWithRoleType[] = organizationsMembersOf.map((member) => ({
     ...member.organization,
     role: member.role,
-    numOfUnreadActivities: member.numOfUnreadActivities,
+    numOfUnreadActivities: 0,
   }));
 
   let numOfUnreadNotifications = 0;

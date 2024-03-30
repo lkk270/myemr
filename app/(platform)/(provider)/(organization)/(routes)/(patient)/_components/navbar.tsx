@@ -26,6 +26,8 @@ interface NavbarProps {
 export const Navbar = ({ numOfUnreadNotifications, initialOrganizations }: NavbarProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const isMobile = useMediaQuery("(max-width: 350px)");
+  const isMobile2 = useMediaQuery("(max-width: 305px)");
+
   const { patientMember } = usePatientMemberStore();
   const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
@@ -43,9 +45,9 @@ export const Navbar = ({ numOfUnreadNotifications, initialOrganizations }: Navba
     <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center w-full h-16 px-4 py-2 border-b border-primary/10">
       <div className="flex items-center justify-start flex-1">
         <MobileSidebar />
-        {!isMobile && <Logo showText={false} />}
+        {!isMobile2 && <Logo showText={!isMobile} />}
       </div>
-      <div className="flex-1 flex justify-center hidden sm:flex">
+      <div className="flex-1 justify-center hidden sm:flex">
         <div className="flex items-center gap-x-1 lg:gap-x-4">
           {routes.map((route, index) => (
             <Link key={index} href={route.href} onDragStart={(e) => e.preventDefault()}>

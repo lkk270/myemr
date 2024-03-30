@@ -255,10 +255,12 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2 w-full col-span-2">
-                <div className="flex flex-row justify-between">
+                <div className="flex flex-row justify-between items-center gap-x-2">
                   <div className="flex flex-col">
                     <h3 className="text-lg font-medium">General Information</h3>
-                    <p className="text-sm text-muted-foreground">General information about your organization</p>
+                    <p className="hidden xs:flex text-sm text-muted-foreground">
+                      General information about your organization
+                    </p>
                   </div>
                   {!!initialData && editingAllowed && (
                     <Button

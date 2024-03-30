@@ -30,10 +30,12 @@ export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganiza
       <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
         <div className="h-full p-4 w-full max-w-3xl mx-auto">
           <div className="space-y-4">
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row justify-between items-center gap-x-2">
               <div className="flex flex-col">
                 <h3 className="text-lg font-medium">General Information</h3>
-                <p className="text-sm text-muted-foreground">General information about your organization</p>
+                <p className="hidden xs:flex text-sm text-muted-foreground">
+                  General information about your organization
+                </p>
               </div>
               <div className="flex flex-row gap-x-2">
                 {editingAllowed && (

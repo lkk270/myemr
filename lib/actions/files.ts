@@ -267,7 +267,7 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
       where: { id: nodeId },
       data: { parentId: null, path: newPath, namePath: newNamePath },
     });
-    await batchUpdateDescendants(prisma, node!.path, node!.namePath, newPath, newNamePath);
+    await batchUpdateDescendants(prisma, node!.id, node!.path, node!.namePath, newPath, newNamePath);
   });
   await updateRecordViewActivity(userId, nodeId, isFile);
 }
@@ -301,7 +301,7 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
           where: { id: nodeId },
           data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
         });
-        await batchUpdateDescendants(prisma, node.path, node.namePath, newPath, newNamePath);
+        await batchUpdateDescendants(prisma, node.id, node.path, node.namePath, newPath, newNamePath);
       });
       await updateRecordViewActivity(userId, nodeId, isFile);
     }
@@ -326,6 +326,7 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
 
 async function batchUpdateDescendants(
   prisma: any,
+  originalNodeId: string,
   originalPath: string,
   originalNamePath: string,
   newParentPath: string,
@@ -343,7 +344,7 @@ async function batchUpdateDescendants(
   UPDATE \`Folder\`
   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`path\` LIKE ${originalPath + "%"}
+  WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
 `;
 
   // Use tagged template literals for the raw SQL query for updating file descendants
@@ -351,7 +352,7 @@ async function batchUpdateDescendants(
   UPDATE \`File\`
   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`path\` LIKE ${originalPath + "%"}
+  WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
 `;
 }
 

@@ -92,7 +92,7 @@ export const Sidebar = ({
         const user = session?.data?.user;
         const userId = user?.id;
         if (!user || !userId) return;
-        fetchAllFoldersForPatient(null, userId, user.accessibleRootFolders)
+        fetchAllFoldersForPatient(null, userId)
           .then((data) => {
             if (!!data) {
               const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));

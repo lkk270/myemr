@@ -783,7 +783,6 @@ export async function fetchAllFoldersForPatient(parentId: string | null, userId:
   };
   if (!parentId) {
     const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canRead");
-
     if (accessibleRootFolderIds !== "ALL") {
       // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
       whereCondition = {
@@ -832,6 +831,29 @@ export async function fetchAllFoldersForPatient(parentId: string | null, userId:
   }
 
   return folders;
+}
+
+export async function fetchAllRootFolders() {
+  // Fetch folders and their files
+  const user = await serverUser();
+  if (!user) return { error: "Unauthorized" };
+  const currentUserPermissions = extractCurrentUserPermissions(user);
+  if (!currentUserPermissions.isPatient) {
+    return { error: "Unauthorized" };
+  }
+
+  const rootFolders = await prismadb.folder.findMany({
+    where: {
+      userId: user.id,
+      isRoot: true,
+      namePath: {
+        not: {
+          startsWith: "/Trash",
+        },
+      },
+    },
+  });
+  return { rootFolders };
 }
 
 // const singleLayerFolders = await prismadb.folder.findMany({

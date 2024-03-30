@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
-
+import { Check, ChevronsUpDown, icons } from "lucide-react";
+import { ComboboxItemType } from "@/app/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-interface ComboboxItem {
-  value: string;
-  label: string;
-  namePath?: string;
-}
 
 interface GenericComboboxProps {
-  items: ComboboxItem[];
+  items: ComboboxItemType[];
   width?: string;
   valueParam?: string | null;
   placeholder?: string;

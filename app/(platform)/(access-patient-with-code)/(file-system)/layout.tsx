@@ -31,6 +31,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     const title = e.message === "Unauthorized" ? "Unauthorized" : "Something went wrong";
     return <SomethingNotFound title={title} href="tpa-home" />;
   }
+
   const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({

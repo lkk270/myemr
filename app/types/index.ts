@@ -50,3 +50,10 @@ export type currentUserPermissionsType = {
   isProvider: boolean;
   hasAccount: boolean;
 };
+
+export type ComboboxItemType = {
+  id?: string;
+  value: string;
+  label: string;
+  namePath?: string;
+};

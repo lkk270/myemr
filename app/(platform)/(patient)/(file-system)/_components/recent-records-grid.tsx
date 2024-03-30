@@ -46,7 +46,7 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
       }}
       key={record.name}
       className={cn(
-        "w-full h-[175px] transition border-0 bg-primary/10 rounded-xl",
+        "shadow-md shadow-secondary border border-primary/10 hover:bg-primary/15 dark:hover:bg-secondary w-full h-[175px] transition bg-primary/10 rounded-xl",
         record.restricted && "opacity-60 cursor-not-allowed",
       )}
     >

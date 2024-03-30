@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { OrganizationWithRoleType } from "@/app/types";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { ProviderManageAccountModal } from "@/components/modals/manage-account/provider-manage-account/provider-manage-account-modal";
+
 const OrganizationLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   const user = session?.user;

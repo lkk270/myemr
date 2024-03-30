@@ -79,14 +79,18 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
     <div className="flex flex-row gap-x-2 items-center">
       <Select
         onValueChange={(role) => {
-          console.log(role);
           onRoleChange({
             organizationId: organizationMember.organizationId,
             memberId,
             role: role as OrganizationMemberRole,
           });
         }}
-        disabled={isLoading || isPending || !hasEditPermissions || organizationMember?.role === "OWNER"}
+        disabled={
+          isLoading ||
+          isPending ||
+          !hasEditPermissions ||
+          (organizationMember?.role === "OWNER" && currentUserMember?.role !== "OWNER")
+        }
         //   onValueChange={field.onChange}
         value={permissionType}
         defaultValue={organizationMember?.role}
@@ -110,7 +114,8 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
           })}
         </SelectContent>
       </Select>
-      {hasEditPermissions && organizationMember?.role !== "OWNER" && (
+      {((hasEditPermissions && organizationMember?.role !== "OWNER") ||
+        (currentUserMember?.role === "OWNER" && organizationMember?.role === "OWNER")) && (
         <DeleteMemberButton
           asChild
           member={{ id: memberId, email: organizationMember.email, organizationId: organizationMember.organizationId }}

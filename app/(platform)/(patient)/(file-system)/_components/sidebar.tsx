@@ -27,7 +27,12 @@ interface SidebarProps {
   sumOfAllSuccessFilesSizes: bigint;
   numOfUnreadNotifications?: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, numOfUnreadNotifications = 0 }: SidebarProps) => {
+export const Sidebar = ({
+  data,
+  singleLayerNodes,
+  sumOfAllSuccessFilesSizes,
+  numOfUnreadNotifications = 0,
+}: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -84,9 +89,10 @@ export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, num
   useEffect(() => {
     const fetchFiles = () => {
       startTransition(() => {
-        const userId = session?.data?.user.id;
-        if (!userId) return;
-        fetchAllFoldersForPatient(null, userId)
+        const user = session?.data?.user;
+        const userId = user?.id;
+        if (!user || !userId) return;
+        fetchAllFoldersForPatient(null, userId, user.accessibleRootFolders)
           .then((data) => {
             if (!!data) {
               const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));

@@ -154,6 +154,7 @@ export const {
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
         session.user.plan = token.plan as Plan;
+        session.user.accessibleRootFolders = token.accessibleRootFolders as string;
       }
 
       if (token.customExpiresAt) {
@@ -205,6 +206,7 @@ export const {
       token.role = code ? code.accessType : existingUser.role;
       token.isTwoFactorEnabled = code ? false : existingUser.isTwoFactorEnabled;
       token.image = existingUser.image;
+      token.accessibleRootFolders = code ? code.accessibleRootFolders : "ALL";
       return token;
     },
   },

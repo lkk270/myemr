@@ -273,6 +273,14 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
 }
 
 export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
+  const user = await serverUser();
+  if (!user) return { error: "Unauthorized", status: 400 };
+  const currentUserPermissions = extractCurrentUserPermissions(user);
+  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canEdit", {
+    user,
+    currentUserPermissions,
+  });
+
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
   if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
@@ -287,7 +295,11 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
       if (!node) continue; // Skip if node is not found
       isFile = true;
     }
-
+    if (accessibleRootFolderIds !== "ALL" && !accessibleRootFolderIds.includes(node.path.split("/")[1])) {
+      //safe even for moving to trash because accessibleRootFolderIds will equal ALL for moving to trash because only
+      //the patient can move to trash
+      continue;
+    }
     const newPath = `${targetNode.path}${targetNode.id}/`;
     const newNamePath = `${targetNode.namePath}/${node.name}`;
 
@@ -692,6 +704,14 @@ export const addSubFolder = async (
   patientProfileId: string,
   addedByName: string,
 ) => {
+  const user = await serverUser();
+  if (!user) return { error: "Unauthorized", status: 400 };
+  const currentUserPermissions = extractCurrentUserPermissions(user);
+  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canAdd", {
+    user,
+    currentUserPermissions,
+  });
+
   let folder: Folder | undefined;
 
   const parentFolder = await prismadb.folder.findUnique({
@@ -700,7 +720,10 @@ export const addSubFolder = async (
     },
   });
 
-  if (!parentFolder) {
+  if (
+    !parentFolder ||
+    (accessibleRootFolderIds !== "ALL" && !accessibleRootFolderIds.includes(parentFolder.path.split("/")[1]))
+  ) {
     throw new Error("Failed to create folder");
   }
 

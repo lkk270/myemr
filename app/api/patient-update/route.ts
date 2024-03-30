@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import prismadb from "@/lib/prismadb";
 
-import { patientUpdateVerification, isValidNodeName } from "@/lib/utils";
+import { patientUpdateVerification } from "@/lib/utils";
 import {
   moveNodes,
   deleteFiles,

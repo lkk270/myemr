@@ -84,7 +84,9 @@ export async function POST(req: Request) {
       }
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;
+      console.log(selectedIds);
       const targetId = body.targetId;
+      console.log(targetId);
       await moveNodes(selectedIds, targetId, userId);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({

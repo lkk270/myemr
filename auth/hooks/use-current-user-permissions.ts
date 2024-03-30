@@ -1,3 +1,4 @@
+import { currentUserPermissionsType } from "@/app/types";
 import { ExtendedUser } from "@/next-auth";
 import { useSession } from "next-auth/react";
 
@@ -7,12 +8,13 @@ export const useCurrentUserPermissions = () => {
   return extractCurrentUserPermissions(user);
 };
 
-export const extractCurrentUserPermissions = (user: ExtendedUser | undefined) => {
+export const extractCurrentUserPermissions = (user: ExtendedUser | undefined | null): currentUserPermissionsType => {
   const userRole = user?.role;
   const userType = user?.userType;
   const isPatient = userRole === "ADMIN" && userType === "PATIENT";
   const isProvider = userType === "PROVIDER";
   let ret = {
+    canRead: false,
     canAdd: false,
     canEdit: false,
     canDelete: false,
@@ -35,6 +37,9 @@ export const extractCurrentUserPermissions = (user: ExtendedUser | undefined) =>
   }
   if (isPatient) {
     ret["canDelete"] = true;
+  }
+  if (userRole === "FULL_ACCESS" || userRole === "READ_AND_ADD" || userRole === "READ_ONLY" || isPatient) {
+    ret["canRead"] = true;
   }
   ret["showActions"] = ret["canAdd"] || ret["canEdit"] || ret["canDelete"] || isPatient;
   return ret;

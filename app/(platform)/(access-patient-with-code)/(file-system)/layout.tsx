@@ -13,6 +13,7 @@ import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -22,7 +23,14 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   const user = session?.user;
 
-  const allFolders = await fetchAllFoldersForPatient(null, user.id, user.accessibleRootFolders);
+  let allFolders = [];
+
+  try {
+    allFolders = await fetchAllFoldersForPatient(null, user.id);
+  } catch (e: any) {
+    const title = e.message === "Unauthorized" ? "Unauthorized" : "Something went wrong";
+    return <SomethingNotFound title={title} href="tpa-home" />;
+  }
   const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({
@@ -38,7 +46,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
   const allNodesArray = Array.from(allNodesMap.values());
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-  
+
   const sumOfAllSuccessFilesSizes = singleLayerNodes.reduce((accumulator, file) => {
     if (!!file.size && file.isFile === true) {
       return accumulator + file.size;

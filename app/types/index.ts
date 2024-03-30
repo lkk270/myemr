@@ -38,3 +38,15 @@ export type TermsParagraphType = {
   headerClassName?: string;
   bullets?: string[];
 };
+
+export type currentUserPermissionsType = {
+  canRead: boolean;
+  canAdd: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canUploadFiles: boolean;
+  showActions: boolean;
+  isPatient: boolean;
+  isProvider: boolean;
+  hasAccount: boolean;
+};

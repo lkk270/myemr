@@ -7,8 +7,6 @@ import prismadb from "@/lib/prismadb";
 
 import { patientUpdateVerification, isValidNodeName } from "@/lib/utils";
 import {
-  updateDescendantsForRename,
-  updateRecordViewActivity,
   moveNodes,
   deleteFiles,
   deleteFolders,
@@ -18,6 +16,7 @@ import {
   getAllObjectsToDelete,
   deleteS3Objects,
   unrestrictFiles,
+  renameNode,
 } from "@/lib/actions/files";
 
 import { createPatientNotification } from "@/lib/actions/notifications";
@@ -77,78 +76,11 @@ export async function POST(req: Request) {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const newName = body.newName;
-      if (!isValidNodeName(newName)) {
-        return new NextResponse("Invalid new name", { status: 400 });
-      }
-      if (isFile === true) {
-        const currentFile = await prismadb.file.findUnique({
-          where: { id: nodeId },
-        });
-        if (!currentFile) {
-          return new NextResponse("File not found", { status: 400 });
-        }
-        const oldPath = currentFile.namePath;
-        const newNamePath = oldPath.replace(/[^/]*$/, newName);
-        await prismadb.file.update({
-          where: {
-            id: nodeId,
-          },
-          data: { name: newName, namePath: newNamePath },
-        });
-        await updateRecordViewActivity(userId, nodeId, true);
-        if (!currentUserPermissions.hasAccount) {
-          await createPatientNotification({
-            notificationType: "ACCESS_CODE_NODE_RENAMED",
-            dynamicData: {
-              isFile: true,
-              accessCodeType: user?.role,
-              oldName: currentFile.name,
-              newName: newName,
-            },
-          });
-        }
-      } else if (isFile === false) {
-        const currentFolder = await prismadb.folder.findUnique({
-          where: { id: nodeId },
-        });
-
-        if (!currentFolder) {
-          return new NextResponse("Folder not found", { status: 400 });
-        }
-
-        const oldNamePath = currentFolder.namePath;
-        const newNamePath = oldNamePath.substring(0, oldNamePath.lastIndexOf("/") + 1) + newName;
-
-        await prismadb.$transaction(
-          async (prisma) => {
-            // Update the folder
-            await prisma.folder.update({
-              where: { id: nodeId },
-              data: {
-                name: newName,
-                namePath: newNamePath,
-              },
-            });
-
-            // Retrieve and update descendants
-            // Pass the transactional Prisma client to the function
-            await updateDescendantsForRename(prisma, nodeId, oldNamePath, newNamePath);
-          },
-          { timeout: 20000 },
-        );
-        await updateRecordViewActivity(userId, nodeId, false);
-
-        if (!currentUserPermissions.hasAccount) {
-          await createPatientNotification({
-            notificationType: "ACCESS_CODE_NODE_RENAMED",
-            dynamicData: {
-              isFile: false,
-              accessCodeType: user?.role,
-              oldName: currentFolder.name,
-              newName: newName,
-            },
-          });
-        }
+      const result = await renameNode(isFile, nodeId, newName);
+      if (result.error) {
+        console.log(result.error);
+        console.log("IN HERE 81111 route");
+        return new NextResponse(result.error, { status: result.status });
       }
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;

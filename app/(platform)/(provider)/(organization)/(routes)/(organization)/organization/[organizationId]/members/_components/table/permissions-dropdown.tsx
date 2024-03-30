@@ -33,7 +33,7 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
   }
   const currentUserMember = getOrganizationMemberByUserId(currentUser.id);
   const [permissionType, setPermissionType] = useState(organizationMember.role);
-  console.log(currentUserMember);
+  // console.log(currentUserMember);
   if (currentUser.id === organizationMember.user.id) {
     return (
       <Badge
@@ -49,7 +49,7 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
     setPermissionType(values.role);
     setIsLoading(true);
     startTransition(() => {
-      console.log(values);
+      // console.log(values);
       changeRole(values)
         .then((data) => {
           if (!!data.error) {

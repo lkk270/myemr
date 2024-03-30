@@ -252,7 +252,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   const disableDrag = () => {
     const currentAllSelectedHaveSameParent = allSelectedHaveSameParent;
     if (currentAllSelectedHaveSameParent === false) {
-      console.log(currentAllSelectedHaveSameParent);
+      // console.log(currentAllSelectedHaveSameParent);
     }
     return !draggedNode.parentId || !currentAllSelectedHaveSameParent || !currentUserPermissions.canEdit;
   };

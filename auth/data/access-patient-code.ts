@@ -67,7 +67,7 @@ export const getAccessPatientCodeByToken = async (token?: string | null) => {
       },
     },
   });
-  console.log(code);
+  // console.log(code);
   return code;
   // return { accessType: "READ_ONLY" };
 };

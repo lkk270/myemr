@@ -174,8 +174,8 @@ export async function POST(req: Request) {
       await restoreRootFolder(selectedId, userId);
     } else if (updateType === "deleteNode") {
       const selectedIds = body.selectedIds;
-      console.log("selectedIds");
-      console.log(selectedIds);
+      // console.log("selectedIds");
+      // console.log(selectedIds);
       const forEmptyTrash = body.forEmptyTrash;
       const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);

@@ -37,7 +37,13 @@ export const Navbar = ({ numOfUnreadNotifications, initialOrganizations }: Navba
   }, []);
 
   if (!isMounted || !patientMember) {
-    return null;
+    return (
+      <div className="dark:bg-[#1f1f1f] bg-[#f8f7f7] fixed z-[50] flex items-center w-full h-16 px-4 py-2 border-b border-primary/10">
+        <div className="flex items-center justify-start flex-1">
+          <Logo />
+        </div>
+      </div>
+    );
   }
   const routes = patientRoutesForProvider(patientMember.id);
 

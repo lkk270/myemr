@@ -4,21 +4,23 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { toast } from "sonner";
 import { InsuranceSide } from "@prisma/client";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 
 function isNotNull<T>(value: T | null): value is T {
   return value !== null;
 }
 
 export const useDownloadFile = () => {
+  const { patientMember } = usePatientMemberStore();
+  let patientProfileId = !!patientMember ? patientMember.patientProfileId : null;
   // const { isLoading, setIsLoading } = useIsLoading();
 
   const downloadFile = useCallback(async (fileId: string, forInsurance = false) => {
     // if (isLoading) return;
     // setIsLoading(true);
     // Call your API endpoint to get the presigned URL
-    console.log(fileId);
     const data = forInsurance
-      ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true, null)
+      ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true, patientProfileId)
       : await getPresignedUrl(fileId, true);
     if (!data.presignedUrl) {
       toast.error("Something went wrong", { duration: 2500 });

@@ -614,12 +614,39 @@ export const addSubFolder = async (
   }
 };
 
-export async function fetchAllFoldersForPatient(parentId: string | null = null, userId: string) {
+function removeTrailingComma(str: string) {
+  if (str.endsWith(",")) {
+    return str.slice(0, -1); // Removes the last character
+  }
+  return str;
+}
+
+export async function fetchAllFoldersForPatient(
+  parentId: string | null,
+  userId: string,
+  accessibleRootFolderIdsParam: string | null = null,
+) {
   // Fetch folders and their files
-  const folders = (await prismadb.folder.findMany({
-    where: {
+  let whereCondition: any;
+
+  if (!!accessibleRootFolderIdsParam && accessibleRootFolderIdsParam !== "ALL") {
+    const accessibleRootFolderIdsArray = removeTrailingComma(accessibleRootFolderIdsParam)
+      .split(",")
+      .map((id) => id.trim()); // trim to remove any accidental whitespace
+
+    // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIdsArray
+    whereCondition = {
+      AND: [{ userId: userId }, { parentId: parentId }, { id: { in: accessibleRootFolderIdsArray } }],
+    };
+  } else {
+    // Base condition when accessibleRootFolderIds is not specified or "ALL"
+    whereCondition = {
       AND: [{ userId: userId }, { parentId: parentId }],
-    },
+    };
+  }
+
+  const folders = (await prismadb.folder.findMany({
+    where: whereCondition,
     include: {
       files: {
         where: {

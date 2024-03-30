@@ -31,6 +31,7 @@ export const generateAccessCode = async (
       userId: userId,
       validFor: validFor,
       accessType: accessType,
+      accessibleRootFolders: "ALL",
       parentFolderId: !!uploadToId ? uploadToId : null,
       token,
       expires,

@@ -391,12 +391,13 @@ model PatientMember {
   // providerProfileId String
   // providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
 
-  patientProfileId          String
-  patientProfile            PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   // accessibleRootFolders     Folder[]
-  hasAccessToAllRootFolders Boolean        @default(true)
-  organizationId            String
-  organization              Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  accessibleRootFolders String       @db.LongText
+  organizationId        String
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -582,17 +583,18 @@ model TwoFactorConfirmation {
 }
 
 model PatientProfileAccessCode {
-  id               String              @id @default(cuid())
-  patientProfileId String
-  userId           String
-  validFor         AccessCodeValidTime
-  accessType       UserRole
-  parentFolderId   String?
-  token            String              @unique
-  expires          DateTime
-  isValid          Boolean             @default(true)
-  files            File[]
-  createdAt        DateTime            @default(now())
+  id                    String              @id @default(cuid())
+  patientProfileId      String
+  userId                String
+  validFor              AccessCodeValidTime
+  accessType            UserRole
+  accessibleRootFolders String
+  parentFolderId        String?
+  token                 String              @unique
+  expires               DateTime
+  isValid               Boolean             @default(true)
+  files                 File[]
+  createdAt             DateTime            @default(now())
 }
 
 model RequestRecordsCode {

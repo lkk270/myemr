@@ -1,14 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {} from "lucide-react";
 import { ChevronsUpDown, Activity, Users, Settings, BriefcaseMedical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuGroup,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuPortal,
@@ -57,8 +54,6 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
     return null;
   }
   const currentOrganization = getOrganizationById(organizationId);
-  console.log(organizations);
-  console.log(currentOrganization);
 
   const DropdownMenuSubComponent = ({ id, title, profileImageUrl }: OrganizationType) => {
     const isActiveOrganization = organizationId === id;
@@ -129,13 +124,13 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
       <DropdownMenuTrigger asChild className="w-42 xs:w-48">
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
-            <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
+            <div className="flex flex-col items-center justify-center w-[33px] h-[33px] border-2 border-primary/20 rounded-sm shrink-0">
               <OrganizationAvatar
-                buildingParentDivPadding="p-[3px]"
-                imageClassName="max-h-[30px] max-w-[30px] w-auto"
-                buildingClassName="h-[24px] w-[24px]"
+                buildingParentDivPadding="p-[2px]"
+                imageClassName="max-h-[27px] max-w-[27px] w-auto"
+                buildingClassName="h-[22px] w-[22x]"
                 profileImageUrl={currentOrganization.profileImageUrl}
-                imageSize={28}
+                imageSize={25}
               />
             </div>
             <span className="text-left truncate text-sm flex-grow min-w-0">{currentOrganization.title}</span>

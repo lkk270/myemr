@@ -61,6 +61,7 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
   console.log(currentOrganization);
 
   const DropdownMenuSubComponent = ({ id, title, profileImageUrl }: OrganizationType) => {
+    const isActiveOrganization = organizationId === id;
     const routes = [
       {
         label: "Patients",
@@ -85,8 +86,10 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
     ];
     return (
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger className="text-[#44aaf7] font-bold bg-secondary">
-          <div className="flex flex-row gap-x-3 items-center">
+        <DropdownMenuSubTrigger
+          className={cn(isActiveOrganization && "text-[#44aaf7] border shadow-md shadow-secondary", "font-bold h-12")}
+        >
+          <div className="flex flex-row gap-x-3 items-center truncate">
             <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
               <OrganizationAvatar
                 buildingParentDivPadding="p-[3px]"
@@ -96,7 +99,7 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
                 imageSize={28}
               />
             </div>
-            <div className="truncate w-full">{title}</div>
+            <div className="truncate">{title}</div>
           </div>
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
@@ -146,35 +149,43 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
       <DropdownMenuContent className="w-56">
         {/* <DropdownMenuLabel>Organization</DropdownMenuLabel>
         <DropdownMenuSeparator /> */}
-        <DropdownMenuGroup>
-          {organizations.map((organization, index) =>
-            organizationId === organization.id ? (
+        <DropdownMenuGroup className="flex flex-col gap-y-1">
+          {organizations.map(
+            (organization, index) => (
               <DropdownMenuSubComponent
                 key={index}
                 id={organization.id}
                 title={organization.title}
                 profileImageUrl={organization.profileImageUrl}
               />
-            ) : (
-              <Link
-                href={`/organization/${organization.id}/settings`}
-                key={index}
-                onDragStart={(e) => e.preventDefault()}
-              >
-                <DropdownMenuItem className="flex flex-row gap-x-2">
-                  <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
-                    <OrganizationAvatar
-                      buildingParentDivPadding="p-[3px]"
-                      imageClassName="max-h-[30px] max-w-[30px] w-auto"
-                      buildingClassName="h-[24px] w-[24px]"
-                      profileImageUrl={organization.profileImageUrl}
-                      imageSize={28}
-                    />
-                  </div>
-                  <span className="truncate">{organization.title}</span>
-                </DropdownMenuItem>
-              </Link>
             ),
+            // organizationId === organization.id ? (
+            //   <DropdownMenuSubComponent
+            //     key={index}
+            //     id={organization.id}
+            //     title={organization.title}
+            //     profileImageUrl={organization.profileImageUrl}
+            //   />
+            // ) : (
+            //   <Link
+            //     href={`/organization/${organization.id}/settings`}
+            //     key={index}
+            //     onDragStart={(e) => e.preventDefault()}
+            //   >
+            //     <DropdownMenuItem className="flex flex-row gap-x-2">
+            //       <div className="flex flex-col items-center justify-center w-[36px] h-[36px] border-2 border-primary/20 rounded-sm shrink-0">
+            //         <OrganizationAvatar
+            //           buildingParentDivPadding="p-[3px]"
+            //           imageClassName="max-h-[30px] max-w-[30px] w-auto"
+            //           buildingClassName="h-[24px] w-[24px]"
+            //           profileImageUrl={organization.profileImageUrl}
+            //           imageSize={28}
+            //         />
+            //       </div>
+            //       <span className="truncate">{organization.title}</span>
+            //     </DropdownMenuItem>
+            //   </Link>
+            // ),
           )}
         </DropdownMenuGroup>
       </DropdownMenuContent>

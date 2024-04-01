@@ -25,7 +25,7 @@ import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { EditMedicationSchema } from "@/lib/schemas/medication";
-
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 const inputClassName = "bg-secondary border-primary/10";
 
 interface MedicationProps {
@@ -36,6 +36,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   if (!medicationParam) {
     return null;
   }
+  const { patientMember } = usePatientMemberStore();
   const [isPending, startTransition] = useTransition();
 
   const currentUserPermissions = useCurrentUserPermissions();
@@ -46,6 +47,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   const form = useForm<z.infer<typeof EditMedicationSchema>>({
     resolver: zodResolver(EditMedicationSchema),
     defaultValues: {
+      patientMemberId: currentUserPermissions.isProvider ? patientMember?.id : null,
       id: medicationParam.id,
       prescribedById: medicationParam.prescribedById,
       prescribedByName: medicationParam.prescribedByName,

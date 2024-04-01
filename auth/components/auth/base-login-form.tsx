@@ -17,7 +17,12 @@ export const BaseLoginForm = () => {
   const [userType, setUserType] = useState<UserType | "CODE">(
     callbackUrl?.includes("tpa-")
       ? "CODE"
-      : callbackUrl?.includes("provider-home") || callbackUrl?.includes("organization/")
+      : callbackUrl?.includes("provider-home") ||
+        callbackUrl?.includes("organization/") ||
+        callbackUrl?.includes("patient/") ||
+        callbackUrl?.includes("activity/") ||
+        callbackUrl?.includes("patients/") ||
+        callbackUrl?.includes("members/")
       ? "PROVIDER"
       : "PATIENT",
   );

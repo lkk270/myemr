@@ -23,7 +23,7 @@ export const ViewMedicationModal = () => {
   }
   return (
     <Dialog open={viewMedicationModal.isOpen} onOpenChange={viewMedicationModal.onClose}>
-      <DialogContent className="overflow-y-scroll h-5/6 xs:h-3/5 max-w-[850px] w-full">
+      <DialogContent className="overflow-y-scroll h-5/6 max-w-[850px] w-full xs:h-[75%] max-h-[550px]">
         <MedicationForm medicationParam={viewMedicationModal.medication} />
       </DialogContent>
     </Dialog>

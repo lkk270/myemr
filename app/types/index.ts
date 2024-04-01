@@ -51,6 +51,15 @@ export type currentUserPermissionsType = {
   hasAccount: boolean;
 };
 
+export type currentProviderPermissionsType = {
+  canRead: boolean;
+  canAdd: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canUploadFiles: boolean;
+  showActions: boolean;
+};
+
 export type ComboboxItemType = {
   id?: string;
   value: string;

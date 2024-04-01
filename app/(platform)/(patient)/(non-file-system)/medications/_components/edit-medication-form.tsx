@@ -81,7 +81,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
         .then((data) => {
           if (data.error) {
             toast.error(data.error);
-            if (data.error === "Unauthorized") {
+            if (data.error === "Unauthorized" && !currentUserPermissions.hasAccount) {
               viewMedicationModal.onClose();
               logout();
             }
@@ -112,7 +112,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   const { setValue, control } = form;
 
   const handleEditToggle = () => setIsEditing(!isEditing);
-  console.log(form.getValues());
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex justify-center w-full max-w-[850px]">
@@ -135,7 +135,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
             )}
           </div>
           {/* Personal Information Card */}
-          <Card className="w-full ">
+          <Card className="w-full border-none">
             <CardContent className="pt-2">
               <div className="grid gap-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">

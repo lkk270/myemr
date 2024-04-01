@@ -8,18 +8,18 @@ const AddedToOrganizationSchema = z.object({
 });
 const AccessCodeFileRenamedSchema = z.object({
   isFile: z.boolean(),
-  accessCodeType: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   oldName: z.string(),
   newName: z.string(),
 });
 const AccessCodeNodeMovedSchema = z.object({
   numOfNodes: z.number().min(1),
-  accessCodeType: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   fromFolder: z.string(),
   toFolder: z.string(),
 });
 const AccessCodeAddedRootFolderSchema = z.object({
-  accessCodeType: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   rootFolderName: z.string().refine(
     (value) => {
       return rootFolderCategories.some((item) => item.value === value);
@@ -30,12 +30,12 @@ const AccessCodeAddedRootFolderSchema = z.object({
   ),
 });
 const AccessCodeAddedSubFolderSchema = z.object({
-  accessCodeType: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   subFolderName: z.string().min(1),
 });
 const AccessCodeFileUploadedSchema = z.object({
   numOfFiles: z.number().min(1),
-  accessCodeType: z.enum([UserRole.UPLOAD_FILES_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  role: z.enum([UserRole.UPLOAD_FILES_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
 });
 const AccessCodeMedicationSchema = z.object({
   medicationName: z.string().refine(
@@ -46,8 +46,42 @@ const AccessCodeMedicationSchema = z.object({
       message: "Name must match a value in the medicationsList",
     },
   ),
-  accessCodeType: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
 });
+
+const ProviderFileRenamedSchema = AccessCodeFileRenamedSchema.merge(
+  z.object({
+    organizationName: z.string(),
+  }),
+);
+const ProviderNodeMovedSchema = AccessCodeNodeMovedSchema.merge(
+  z.object({
+    organizationName: z.string(),
+  }),
+);
+const ProviderAddedRootFolderSchema = AccessCodeAddedRootFolderSchema.merge(
+  z.object({
+    organizationName: z.string(),
+  }),
+);
+
+const ProviderAddedSubFolderSchema = AccessCodeAddedSubFolderSchema.merge(
+  z.object({
+    organizationName: z.string(),
+  }),
+);
+
+const ProviderFileUploadedSchema = AccessCodeFileUploadedSchema.merge(
+  z.object({
+    organizationName: z.string(),
+  }),
+);
+
+const ProviderMedicationSchema = AccessCodeMedicationSchema.merge(
+  z.object({
+    organizationName: z.string(),
+  }),
+);
 
 const RequestRecordsFileUploadSchema = z.object({
   requestRecordsCodeToken: z.string().min(1, {
@@ -62,6 +96,7 @@ const RequestRecordsFileUploadSchema = z.object({
 // Define a base schema for common fields
 const NotificationPostSchema = z
   .object({
+    patientUserId: z.string().optional().nullable(),
     notificationType: z.enum([
       NotificationType.ADDED_TO_ORGANIZATION,
       NotificationType.ACCESS_CODE_NODE_RENAMED,
@@ -71,6 +106,13 @@ const NotificationPostSchema = z
       NotificationType.ACCESS_CODE_ADDED_SUB_FOLDER,
       NotificationType.ACCESS_CODE_MEDICATION_ADDED,
       NotificationType.ACCESS_CODE_MEDICATION_EDITED,
+      NotificationType.PROVIDER_NODE_RENAMED,
+      NotificationType.PROVIDER_NODE_MOVED,
+      NotificationType.PROVIDER_FILE_UPLOADED,
+      NotificationType.PROVIDER_ADDED_ROOT_FOLDER,
+      NotificationType.PROVIDER_ADDED_SUB_FOLDER,
+      NotificationType.PROVIDER_MEDICATION_ADDED,
+      NotificationType.PROVIDER_MEDICATION_EDITED,
       NotificationType.REQUEST_RECORDS_FILE_UPLOAD,
     ]),
     dynamicData: z.any(), // Temporarily set to `any`, will refine based on the type
@@ -81,14 +123,11 @@ const NotificationPostSchema = z
       case "ADDED_TO_ORGANIZATION":
         schema = AddedToOrganizationSchema;
         break;
-      case "ACCESS_CODE_NODE_MOVED":
-        schema = AccessCodeNodeMovedSchema;
-        break;
       case "ACCESS_CODE_NODE_RENAMED":
         schema = AccessCodeFileRenamedSchema;
         break;
-      case "ACCESS_CODE_FILE_UPLOADED":
-        schema = AccessCodeFileUploadedSchema;
+      case "ACCESS_CODE_NODE_MOVED":
+        schema = AccessCodeNodeMovedSchema;
         break;
       case "ACCESS_CODE_ADDED_ROOT_FOLDER":
         schema = AccessCodeAddedRootFolderSchema;
@@ -96,11 +135,35 @@ const NotificationPostSchema = z
       case "ACCESS_CODE_ADDED_SUB_FOLDER":
         schema = AccessCodeAddedSubFolderSchema;
         break;
+      case "ACCESS_CODE_FILE_UPLOADED":
+        schema = AccessCodeFileUploadedSchema;
+        break;
       case "ACCESS_CODE_MEDICATION_ADDED":
         schema = AccessCodeMedicationSchema;
         break;
       case "ACCESS_CODE_MEDICATION_EDITED":
         schema = AccessCodeMedicationSchema;
+        break;
+      case "PROVIDER_NODE_RENAMED":
+        schema = ProviderFileRenamedSchema;
+        break;
+      case "PROVIDER_NODE_MOVED":
+        schema = ProviderNodeMovedSchema;
+        break;
+      case "PROVIDER_ADDED_ROOT_FOLDER":
+        schema = ProviderAddedRootFolderSchema;
+        break;
+      case "PROVIDER_ADDED_SUB_FOLDER":
+        schema = ProviderAddedSubFolderSchema;
+        break;
+      case "PROVIDER_FILE_UPLOADED":
+        schema = ProviderFileUploadedSchema;
+        break;
+      case "PROVIDER_MEDICATION_ADDED":
+        schema = ProviderMedicationSchema;
+        break;
+      case "PROVIDER_MEDICATION_EDITED":
+        schema = ProviderMedicationSchema;
         break;
       case "REQUEST_RECORDS_FILE_UPLOAD":
         schema = RequestRecordsFileUploadSchema;

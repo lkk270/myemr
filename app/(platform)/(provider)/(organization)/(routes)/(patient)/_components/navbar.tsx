@@ -17,22 +17,27 @@ import { useEffect, useState } from "react";
 import { OrganizationDropdown } from "../../../_components/organization-dropdown";
 import { OrganizationWithRoleType } from "@/app/types";
 import { useMediaQuery } from "usehooks-ts";
+import { PatientMember } from "@prisma/client";
 
 interface NavbarProps {
+  initialPatientMember: PatientMember;
   initialOrganizations?: OrganizationWithRoleType[];
   numOfUnreadNotifications?: number;
 }
 
-export const Navbar = ({ numOfUnreadNotifications, initialOrganizations }: NavbarProps) => {
+export const Navbar = ({ initialPatientMember, numOfUnreadNotifications, initialOrganizations }: NavbarProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const { patientMember, setPatientMember } = usePatientMemberStore();
+
   const isMobile = useMediaQuery("(max-width: 350px)");
   const isMobile2 = useMediaQuery("(max-width: 305px)");
 
-  const { patientMember } = usePatientMemberStore();
+  // const { patientMember } = usePatientMemberStore();
   const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
 
   useEffect(() => {
+    setPatientMember(initialPatientMember);
     setIsMounted(true);
   }, []);
 

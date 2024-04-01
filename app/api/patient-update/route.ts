@@ -93,7 +93,7 @@ export async function POST(req: Request) {
           notificationType: "ACCESS_CODE_NODE_MOVED",
           dynamicData: {
             numOfNodes: selectedIds.length,
-            accessCodeType: user?.role,
+            role: user?.role,
             fromFolder: body.fromName,
             toFolder: body.toName,
           },
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_ROOT_FOLDER",
           dynamicData: {
-            accessCodeType: user?.role,
+            role: user?.role,
             rootFolderName: body.folderName,
           },
         });
@@ -163,7 +163,7 @@ export async function POST(req: Request) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_SUB_FOLDER",
           dynamicData: {
-            accessCodeType: user?.role,
+            role: user?.role,
             subFolderName: body.folderName,
           },
         });

@@ -1,9 +1,10 @@
 import { create } from "zustand";
 import { MedicationType } from "@/app/types";
 import { DosageHistory } from "@prisma/client";
+
 interface MedicationStore {
   medications: MedicationType[];
-  medicationsSet: boolean; // New field to track if medications have been set
+  medicationsSet: boolean;
   setMedications: (medications: MedicationType[]) => void;
   addMedication: (medication: MedicationType) => void;
   updateMedication: (updatedMedication: MedicationType, newDosageHistory?: DosageHistory | null) => void;

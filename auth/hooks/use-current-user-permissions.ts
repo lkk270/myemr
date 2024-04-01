@@ -1,11 +1,15 @@
 import { currentUserPermissionsType } from "@/app/types";
 import { ExtendedUser } from "@/next-auth";
+import { PatientMember, PatientMemberRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 
 export const useCurrentUserPermissions = () => {
   const session = useSession();
   const user = session.data?.user;
-  return extractCurrentUserPermissions(user);
+  const { patientMember } = usePatientMemberStore();
+  const effectiveUser = !!user && !!patientMember ? { ...user, role: patientMember.role } : user;
+  return extractCurrentUserPermissions(effectiveUser);
 };
 
 export const extractCurrentUserPermissions = (user: ExtendedUser | undefined | null): currentUserPermissionsType => {
@@ -22,7 +26,7 @@ export const extractCurrentUserPermissions = (user: ExtendedUser | undefined | n
     showActions: false,
     isPatient: isPatient,
     isProvider: isProvider,
-    hasAccount: userRole === "ADMIN" || userRole === "USER",
+    hasAccount: isPatient || isProvider,
   };
   if (userRole === "FULL_ACCESS" || userRole === "READ_AND_ADD" || isPatient) {
     ret["canAdd"] = true;

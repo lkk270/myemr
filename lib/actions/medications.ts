@@ -8,44 +8,57 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 import { decryptMultiplePatientFields, buildUpdatePayload, decryptKey, findChangesBetweenObjects } from "../utils";
 import { auth } from "@/auth";
 import { getAccessPatientCodeByToken } from "@/auth/data";
+import { getPatientMember } from "@/auth/actions/patient-member";
 
 export const createMedication = async (values: z.infer<typeof NewMedicationSchema>) => {
   try {
+    const validatedFields = NewMedicationSchema.safeParse(values);
+    // const session = await auth();
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+    const { name, patientMemberId: patientMemberIdParam } = validatedFields.data;
     const session = await auth();
     const user = session?.user;
+    console.log(user);
     const userId = user?.id;
     const currentUserPermissions = extractCurrentUserPermissions(user);
-
-    if (!session || !userId || !user || !currentUserPermissions.canEdit) {
+    console.log(values);
+    let patientMember = null;
+    if (!session || !userId || !user || (!currentUserPermissions.isProvider && !currentUserPermissions.canEdit)) {
       return { error: "Unauthorized" };
     }
-    if (!currentUserPermissions.isPatient) {
+
+    if (!!patientMemberIdParam && currentUserPermissions.isProvider) {
+      console.log("IN HERE");
+      patientMember = await getPatientMember(patientMemberIdParam, "canAdd", { user, currentUserPermissions });
+    } else if (!currentUserPermissions.isProvider && !currentUserPermissions.isPatient) {
       const code = await getAccessPatientCodeByToken(session.tempToken);
       if (!code) {
         return { error: "Unauthorized" };
       }
     }
 
+    const whereClause = !!patientMember?.patientProfileId
+      ? {
+          id: patientMember?.patientProfileId,
+        }
+      : {
+          userId: userId,
+        };
+
     const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        userId: userId,
-      },
+      where: whereClause,
       select: {
         id: true,
         symmetricKey: true,
       },
     });
+
     if (!patient || !patient.symmetricKey) {
       return { error: "Decryption key not found!" };
     }
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-
-    const validatedFields = NewMedicationSchema.safeParse(values);
-    // const session = await auth();
-    if (!validatedFields.success) {
-      return { error: "Invalid fields!" };
-    }
-    const { name } = validatedFields.data;
 
     const currentMedicationNames = await prismadb.medication.findMany({
       where: {
@@ -60,24 +73,41 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
     if (decryptedCurrentMedicationNames.some((medication: { name: string }) => medication.name === name)) {
       return { error: "Medication already exists" };
     }
-    const encryptedMedication = buildUpdatePayload(validatedFields.data, decryptedSymmetricKey);
+    const { patientMemberId, ...rest } = validatedFields.data;
+
+    const encryptedMedication = buildUpdatePayload(rest, decryptedSymmetricKey);
 
     const newMedication = await prismadb.medication.create({
       data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
     });
+
+    console.log(currentUserPermissions);
+    console.log(patientMember);
 
     if (!currentUserPermissions.hasAccount) {
       await createPatientNotification({
         notificationType: "ACCESS_CODE_MEDICATION_ADDED",
         dynamicData: {
           medicationName: name,
-          accessCodeType: user?.role,
+          role: user?.role,
+        },
+      });
+    } else if (currentUserPermissions.isProvider && !!patientMember) {
+      console.log("IN 93");
+      console.log(patientMember);
+      await createPatientNotification({
+        notificationType: "PROVIDER_MEDICATION_ADDED",
+        patientUserId: patientMember.patientUserId,
+        dynamicData: {
+          organizationName: patientMember.organizationName,
+          medicationName: name,
+          role: patientMember.role,
         },
       });
     }
 
     return { success: "medication created!", medicationId: newMedication.id };
-  } catch {
+  } catch (e) {
     return { error: "something went wrong" };
   }
 };
@@ -178,7 +208,7 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
         notificationType: "ACCESS_CODE_MEDICATION_EDITED",
         dynamicData: {
           medicationName: decryptedCurrentMedication.name,
-          accessCodeType: user?.role,
+          role: user?.role,
         },
       });
     }

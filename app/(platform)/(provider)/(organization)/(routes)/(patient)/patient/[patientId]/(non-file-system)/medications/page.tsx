@@ -7,6 +7,7 @@ import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 // import { CustomDataTable } from "./_components/table/custom-data-table";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { MedicationsWrapper } from "./_components/medications-wrapper";
+import { CustomDataTable } from "@/app/(platform)/(patient)/(non-file-system)/medications/_components/table/custom-data-table";
 
 interface PatientMedicationsProps {
   params: {
@@ -71,7 +72,8 @@ const PatientMedications = async ({ params }: PatientMedicationsProps) => {
             <h2 className="text-2xl font-bold tracking-tight pt-2">Medications</h2>
           </div>
         </div>
-        <MedicationsWrapper patientMember={patientMember} initialData={decryptedPatientMedications} />
+        <CustomDataTable data={decryptedPatientMedications} />
+        {/* <MedicationsWrapper patientMember={patientMember} initialData={decryptedPatientMedications} /> */}
       </div>
     </div>
   );

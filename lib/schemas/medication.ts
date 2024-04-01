@@ -66,6 +66,7 @@ export const NewMedicationSchema = z.object({
 });
 
 export const EditMedicationSchema = z.object({
+  patientMemberId: z.string().optional().nullable(),
   id: z.string().min(6, {
     message: "Minimum of 6 characters required",
   }),

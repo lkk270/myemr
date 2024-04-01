@@ -20,17 +20,14 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
     const { name, patientMemberId: patientMemberIdParam } = validatedFields.data;
     const session = await auth();
     const user = session?.user;
-    console.log(user);
     const userId = user?.id;
     const currentUserPermissions = extractCurrentUserPermissions(user);
-    console.log(values);
     let patientMember = null;
-    if (!session || !userId || !user || (!currentUserPermissions.isProvider && !currentUserPermissions.canEdit)) {
+    if (!session || !userId || !user || (!currentUserPermissions.isProvider && !currentUserPermissions.canAdd)) {
       return { error: "Unauthorized" };
     }
 
     if (!!patientMemberIdParam && currentUserPermissions.isProvider) {
-      console.log("IN HERE");
       patientMember = await getPatientMember(patientMemberIdParam, "canAdd", { user, currentUserPermissions });
     } else if (!currentUserPermissions.isProvider && !currentUserPermissions.isPatient) {
       const code = await getAccessPatientCodeByToken(session.tempToken);
@@ -81,9 +78,6 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
       data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
     });
 
-    console.log(currentUserPermissions);
-    console.log(patientMember);
-
     if (!currentUserPermissions.hasAccount) {
       await createPatientNotification({
         notificationType: "ACCESS_CODE_MEDICATION_ADDED",
@@ -93,8 +87,6 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
         },
       });
     } else if (currentUserPermissions.isProvider && !!patientMember) {
-      console.log("IN 93");
-      console.log(patientMember);
       await createPatientNotification({
         notificationType: "PROVIDER_MEDICATION_ADDED",
         patientUserId: patientMember.patientUserId,
@@ -114,26 +106,43 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
 
 export const editMedication = async (values: z.infer<typeof EditMedicationSchema>) => {
   try {
+    const validatedFields = EditMedicationSchema.safeParse(values);
+    // const session = await auth();
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+
+    const { id, patientMemberId: patientMemberIdParam } = validatedFields.data;
+
     let newDosageHistory = null;
+    let patientMember = null;
     const session = await auth();
     const user = session?.user;
     const userId = user?.id;
     const currentUserPermissions = extractCurrentUserPermissions(user);
 
-    if (!session || !userId || !user || !currentUserPermissions.canAdd) {
+    if (!session || !userId || !user || (!currentUserPermissions.isProvider && !currentUserPermissions.canEdit)) {
       return { error: "Unauthorized" };
     }
-    if (!currentUserPermissions.isPatient) {
+    if (!!patientMemberIdParam && currentUserPermissions.isProvider) {
+      patientMember = await getPatientMember(patientMemberIdParam, "canAdd", { user, currentUserPermissions });
+    } else if (!currentUserPermissions.isProvider && !currentUserPermissions.isPatient) {
       const code = await getAccessPatientCodeByToken(session.tempToken);
       if (!code) {
         return { error: "Unauthorized" };
       }
     }
 
+    const whereClause = !!patientMember?.patientProfileId
+      ? {
+          id: patientMember?.patientProfileId,
+        }
+      : {
+          userId: userId,
+        };
+
     const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        userId: userId,
-      },
+      where: whereClause,
       select: {
         id: true,
         symmetricKey: true,
@@ -143,13 +152,6 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       return { error: "Decryption key not found!" };
     }
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-
-    const validatedFields = EditMedicationSchema.safeParse(values);
-    // const session = await auth();
-    if (!validatedFields.success) {
-      return { error: "Invalid fields!" };
-    }
-    const { id } = validatedFields.data;
 
     const currentMedication = await prismadb.medication.findUnique({
       where: {
@@ -174,8 +176,9 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
     }
 
     const decryptedCurrentMedication = decryptMultiplePatientFields(currentMedication, decryptedSymmetricKey);
+    const { patientMemberId, ...rest } = validatedFields.data;
 
-    const changesObject = findChangesBetweenObjects(decryptedCurrentMedication, validatedFields.data);
+    const changesObject = findChangesBetweenObjects(decryptedCurrentMedication, rest);
     if (Object.keys(changesObject).length === 0) {
       return { error: "No changes made!" };
     }
@@ -203,12 +206,23 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
         createdAt: newDosageHistoryDb.createdAt,
       };
     }
+
     if (!currentUserPermissions.hasAccount) {
       await createPatientNotification({
         notificationType: "ACCESS_CODE_MEDICATION_EDITED",
         dynamicData: {
           medicationName: decryptedCurrentMedication.name,
           role: user?.role,
+        },
+      });
+    } else if (currentUserPermissions.isProvider && !!patientMember) {
+      await createPatientNotification({
+        notificationType: "PROVIDER_MEDICATION_EDITED",
+        patientUserId: patientMember.patientUserId,
+        dynamicData: {
+          organizationName: patientMember.organizationName,
+          medicationName: decryptedCurrentMedication.name,
+          role: patientMember.role,
         },
       });
     }
@@ -219,7 +233,7 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       newDosageHistory: newDosageHistory,
       createdAt: currentMedication.createdAt,
     };
-  } catch {
+  } catch (e) {
     return { error: "something went wrong" };
   }
 };

@@ -2,6 +2,7 @@ import * as z from "zod";
 import { medicationsList, medicationCategories, dosageUnits, dosageFrequency } from "../constants";
 
 export const NewMedicationSchema = z.object({
+  patientMemberId: z.string().optional().nullable(),
   name: z.string().refine(
     (value) => {
       return medicationsList.some((item) => item.value === value);
@@ -23,8 +24,8 @@ export const NewMedicationSchema = z.object({
     ),
   prescribedByName: z
     .string()
-    .min(6, {
-      message: "Minimum of 6 characters required",
+    .min(2, {
+      message: "Minimum of 2 characters required",
     })
     .max(70, {
       message: "Maximum of 70 characters required",

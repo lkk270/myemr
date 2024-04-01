@@ -6,6 +6,7 @@ import prismadb from "@/lib/prismadb";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { AboutWrapper } from "./_components/about-wrapper";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
+import { About } from "@/app/(platform)/(patient)/(non-file-system)/about/_components/about-form";
 
 interface PatientDemographicsProps {
   params: {
@@ -109,7 +110,7 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
 
   return (
     <div className="flex pt-4 pb-6 px-2 xs:px-10 min-h-[calc(100vh-64px)] justify-center">
-      <AboutWrapper patientMember={patientMember} initialData={safeObject} />
+      <About initialData={safeObject} />
     </div>
   );
 };

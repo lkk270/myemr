@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import { format } from "date-fns";
 
 import { useState, startTransition } from "react";
 import Image from "next/image";
@@ -110,9 +110,13 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
               return (
                 <div key={index}>
                   <DropdownMenuItem className="flex flex-col items-start">
-                    <span className="flex items-center mb-1 text-primary/40">
-                      {new Date(item.createdAt).toLocaleString().split(",")[0]}
-                      {!item.read && <Dot size={10} strokeWidth={24} className="ml-2 text-sky-500" />}
+                    <span className="flex flex-row items-center mb-1 text-xs text-muted-foreground">
+                      {format(new Date(item.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                      {!item.read && (
+                        <span className="ml-2 flex-shrink-0">
+                          <Dot className="text-sky-500" size={10} strokeWidth={50} />
+                        </span>
+                      )}
                     </span>
                     <span className="text-primary/80">{generatePatientNotificationText(item)}</span>
                   </DropdownMenuItem>

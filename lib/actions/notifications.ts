@@ -11,21 +11,25 @@ export const createPatientNotification = async (values: z.infer<typeof Notificat
   try {
     const validatedFields = NotificationPostSchema.safeParse(values);
     // const session = await auth();
+    console.log(values);
+    console.log(validatedFields);
     if (!validatedFields.success) {
-      console.log(values);
-      console.log("IN 15");
+      console.log("IN ERROR 16");
       return { error: "Invalid fields!" };
     }
-    const { notificationType, dynamicData } = validatedFields.data;
+    const { patientUserId, notificationType, dynamicData } = validatedFields.data;
     console.log(dynamicData);
     let forUserId;
-    if (notificationType.includes("ACCESS_CODE")) {
+    if (notificationType.includes("ACCESS_CODE") || notificationType.includes("PROVIDER")) {
       const user = await currentUser();
       // const userPermissions = extractCurrentUserPermissions(user);
       const userId = user?.id;
-      forUserId = userId;
       if (!user || !userId) {
         return { error: "Unauthorized" };
+      }
+      forUserId = userId;
+      if (notificationType.includes("PROVIDER") && !!patientUserId) {
+        forUserId = patientUserId;
       }
     } else if (notificationType === "REQUEST_RECORDS_FILE_UPLOAD") {
       const requestRecordsCode = await prismadb.requestRecordsCode.findUnique({

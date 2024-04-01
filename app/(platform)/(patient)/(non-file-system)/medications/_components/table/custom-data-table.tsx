@@ -9,29 +9,31 @@ import { useMedicationStore } from "../hooks/use-medications";
 import { useEffect } from "react";
 import { MedicationType } from "@/app/types";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+
 interface DataTableProps {
   data: MedicationType[];
 }
 
 export function CustomDataTable({ data }: DataTableProps) {
   const currentUserPermissions = useCurrentUserPermissions();
-  const onOpen = useViewMedicationModal().onOpen;
-  const newOnOpen = currentUserPermissions.canAdd ? useNewMedicationModal().onOpen : undefined;
-  const medicationStore = useMedicationStore();
+
+  const { onOpen: onViewOpen } = useViewMedicationModal();
+  const { onOpen: newOnOpen } = useNewMedicationModal();
+  const { medications, setMedications, medicationsSet } = useMedicationStore();
 
   useEffect(() => {
-    medicationStore.setMedications(data);
+    setMedications(data);
     // trunk-ignore(eslint/react-hooks/exhaustive-deps)
   }, [data]);
 
   return (
     <DataTable
       filters={filters}
-      newOnOpen={newOnOpen}
-      onOpen={onOpen}
+      newOnOpen={currentUserPermissions.canAdd ? newOnOpen : undefined}
+      onOpen={onViewOpen}
       hiddenColumns={hiddenColumns}
-      data={medicationStore.medications}
-      isLoading={!medicationStore.medicationsSet}
+      data={medications}
+      isLoading={!medicationsSet}
       columns={columns}
       // className={"xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
     />

@@ -217,7 +217,7 @@ export const UploadFilesModal = () => {
       await createPatientNotification({
         notificationType: "ACCESS_CODE_FILE_UPLOADED",
         dynamicData: {
-          accessCodeType: currentUser?.role,
+          role: currentUser?.role,
           numOfFiles: numFilesSuccessfullyUploaded,
         },
       });

@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Notification, OrganizationActivity, Unit } from "@prisma/client";
-import { NewMedicationType } from "@/app/types";
+
 import {
   genders,
   martialStatuses,
@@ -552,34 +552,44 @@ export const generatePatientNotificationText = (notification: Notification) => {
   }
   let nodeText = "";
   let numOfFiles = 0;
-  let externalUserText = !!dynamicData["accessCodeType"]
-    ? `An external user, whom you granted a temporary access code with "${dynamicData["accessCodeType"]}" permissions`
-    : "";
+  let externalUserText =
+    !!dynamicData["role"] && !!dynamicData["organizationName"]
+      ? `The organization "${dynamicData["organizationName"]}" (with "${dynamicData["role"]}" permissions)`
+      : !!dynamicData["role"]
+      ? `An external user, whom you granted a temporary access code with "${dynamicData["role"]}" permissions`
+      : "";
   switch (notificationType) {
     case "ADDED_TO_ORGANIZATION":
       return `You have been added to the organization: "${
         dynamicData["organizationName"]
       }". Your role is ${capitalizeFirstLetter(dynamicData["role"])}`;
     case "ACCESS_CODE_NODE_RENAMED":
+    case "PROVIDER_NODE_RENAMED":
       nodeText = dynamicData["isFile"] ? "file" : "folder";
       return `${externalUserText}, has renamed the ${nodeText}: "${dynamicData["oldName"]}" to "${dynamicData["newName"]}"`;
     case "ACCESS_CODE_FILE_UPLOADED":
+    case "PROVIDER_FILE_UPLOADED":
       numOfFiles = dynamicData["numOfFiles"];
       nodeText = `${numOfFiles.toString()} file`;
       if (numOfFiles > 1) nodeText += "s";
       return `${externalUserText}, has successfully uploaded ${nodeText}.`;
     case "ACCESS_CODE_NODE_MOVED":
+    case "PROVIDER_NODE_MOVED":
       const numOfNodes = dynamicData["numOfNodes"];
       nodeText = `${numOfNodes.toString()} node`;
       if (numOfNodes > 1) nodeText += "s";
       return `${externalUserText}, has moved ${nodeText} from the folder "${dynamicData["fromFolder"]}" to the folder "${dynamicData["toFolder"]}".`;
     case "ACCESS_CODE_ADDED_ROOT_FOLDER":
+    case "PROVIDER_ADDED_ROOT_FOLDER":
       return `${externalUserText}, has added the root folder: "${dynamicData["rootFolderName"]}".`;
     case "ACCESS_CODE_ADDED_SUB_FOLDER":
+    case "PROVIDER_ADDED_SUB_FOLDER":
       return `${externalUserText}, has added a sub folder: "${dynamicData["subFolderName"]}".`;
     case "ACCESS_CODE_MEDICATION_ADDED":
+    case "PROVIDER_MEDICATION_ADDED":
       return `${externalUserText}, has added the medication: "${dynamicData["medicationName"]}".`;
     case "ACCESS_CODE_MEDICATION_EDITED":
+    case "PROVIDER_MEDICATION_EDITED":
       return `${externalUserText}, has edited the medication: "${dynamicData["medicationName"]}".`;
     case "REQUEST_RECORDS_FILE_UPLOAD":
       numOfFiles = dynamicData["numOfFiles"];

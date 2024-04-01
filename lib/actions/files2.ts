@@ -113,7 +113,7 @@ export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
           notificationType: "ACCESS_CODE_NODE_RENAMED",
           dynamicData: {
             isFile: true,
-            accessCodeType: user?.role,
+            role: user?.role,
             oldName: currentFile.name,
             newName: newName,
           },
@@ -155,7 +155,7 @@ export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
           notificationType: "ACCESS_CODE_NODE_RENAMED",
           dynamicData: {
             isFile: false,
-            accessCodeType: user?.role,
+            role: user?.role,
             oldName: currentFolder.name,
             newName: newName,
           },

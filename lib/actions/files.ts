@@ -4,14 +4,12 @@ import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
 import { allotedStoragesInGb } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { auth } from "@/auth";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { isValidNodeName } from "../utils";
-import { User } from "next-auth";
-import { serverUser } from "@/auth/actions/user";
 import { ExtendedUser } from "@/next-auth";
 import { currentUserPermissionsType } from "@/app/types";
 import { createPatientNotification } from "./notifications";
+import { currentUser } from "@/auth/lib/auth";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -32,7 +30,7 @@ async function validateUserAndGetAccessibleRootFolders(
   let user: ExtendedUser | null = userParam && userParam.user;
   let currentUserPermissions = userParam && userParam.currentUserPermissions;
   if (!userParam) {
-    user = await serverUser();
+    user = await currentUser();
     currentUserPermissions = extractCurrentUserPermissions(user);
   }
   if (!user || !currentUserPermissions) {
@@ -54,7 +52,7 @@ async function validateUserAndGetAccessibleRootFolders(
 }
 
 export async function renameNode(isFile: boolean, nodeId: string, newName: string) {
-  const user = await serverUser();
+  const user = await currentUser();
   if (!user) return { error: "Unauthorized", status: 400 };
   const currentUserPermissions = extractCurrentUserPermissions(user);
   const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canEdit", {
@@ -130,7 +128,7 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
         notificationType: "ACCESS_CODE_NODE_RENAMED",
         dynamicData: {
           isFile: true,
-          accessCodeType: user?.role,
+          role: user?.role,
           oldName: currentFile.name,
           newName: newName,
         },
@@ -175,7 +173,7 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
         notificationType: "ACCESS_CODE_NODE_RENAMED",
         dynamicData: {
           isFile: false,
-          accessCodeType: user?.role,
+          role: user?.role,
           oldName: currentFolder.name,
           newName: newName,
         },
@@ -273,7 +271,7 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
 }
 
 export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
-  const user = await serverUser();
+  const user = await currentUser();
   if (!user) return { error: "Unauthorized", status: 400 };
   const currentUserPermissions = extractCurrentUserPermissions(user);
   const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canEdit", {
@@ -704,7 +702,7 @@ export const addSubFolder = async (
   patientProfileId: string,
   addedByName: string,
 ) => {
-  const user = await serverUser();
+  const user = await currentUser();
   if (!user) return { error: "Unauthorized", status: 400 };
   const currentUserPermissions = extractCurrentUserPermissions(user);
   const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canAdd", {
@@ -835,7 +833,7 @@ export async function fetchAllFoldersForPatient(parentId: string | null, userId:
 
 export async function fetchAllRootFolders() {
   // Fetch folders and their files
-  const user = await serverUser();
+  const user = await currentUser();
   if (!user) return { error: "Unauthorized" };
   const currentUserPermissions = extractCurrentUserPermissions(user);
   if (!currentUserPermissions.isPatient) {

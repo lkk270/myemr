@@ -83,7 +83,11 @@ const PatientLayout = async ({ children, params }: PatientLayoutProps) => {
   return (
     <div className="flex overflow-auto h-screen">
       <ProviderManageAccountModal />
-      <Navbar initialOrganizations={organizations} numOfUnreadNotifications={numOfUnreadNotifications} />
+      <Navbar
+        initialPatientMember={patientMember}
+        initialOrganizations={organizations}
+        numOfUnreadNotifications={numOfUnreadNotifications}
+      />
       <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>
   );

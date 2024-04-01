@@ -172,7 +172,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
         await createPatientNotification({
           notificationType: "ACCESS_CODE_FILE_UPLOADED",
           dynamicData: {
-            accessCodeType: "UPLOAD_FILES_ONLY",
+            role: "UPLOAD_FILES_ONLY",
             numOfFiles: numFilesSuccessfullyUploaded,
           },
         });

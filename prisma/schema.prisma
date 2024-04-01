@@ -390,12 +390,13 @@ model PatientMember {
 
   // providerProfileId String
   // providerProfile   ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
-
+  patientUserId    String
   patientProfileId String
   patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   // accessibleRootFolders     Folder[]
 
   accessibleRootFolders String       @db.LongText
+  organizationName      String       @db.VarChar(125)
   organizationId        String
   organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -684,6 +685,13 @@ enum NotificationType {
   ACCESS_CODE_ADDED_SUB_FOLDER
   ACCESS_CODE_MEDICATION_ADDED
   ACCESS_CODE_MEDICATION_EDITED
+  PROVIDER_NODE_RENAMED
+  PROVIDER_FILE_UPLOADED
+  PROVIDER_NODE_MOVED
+  PROVIDER_ADDED_ROOT_FOLDER
+  PROVIDER_ADDED_SUB_FOLDER
+  PROVIDER_MEDICATION_ADDED
+  PROVIDER_MEDICATION_EDITED
   REQUEST_RECORDS_FILE_UPLOAD
 }
 

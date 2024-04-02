@@ -40,13 +40,12 @@ async function validateUserAndGetAccessibleRootFolders(
     if (!currentUserPermissions[requiredPermissions]) {
       throw new Error("Unauthorized");
     } else {
-      return user.accessibleRootFolders === "ALL"
-        ? "ALL"
-        : removeTrailingComma(user.accessibleRootFolders)
-            .split(",")
-            .map((id) => id.trim());
+      return await extractRootFolderIds(user.accessibleRootFolders);
     }
   } else if (currentUserPermissions.isProvider) {
+    console.log(user);
+    console.log(currentUserPermissions);
+    console.log("IN HERE 50");
   }
   return [];
 }
@@ -102,16 +101,17 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
     return { error: "Invalid new name", status: 400 };
   }
   if (isFile === true) {
-    let validFile = true;
+    let isValidFile = true;
     const currentFile = await prismadb.file.findUnique({
       where: { id: nodeId },
     });
 
-    if (accessibleRootFolderIds !== "ALL") {
-      console.log(accessibleRootFolderIds);
-      validFile = accessibleRootFolderIds.some((id) => currentFile?.path.startsWith(`/${id}/`));
+    if (accessibleRootFolderIds === "ALL_EXTERNAL" && currentFile?.namePath.startsWith("/Trash")) {
+      isValidFile = false;
+    } else if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
+      isValidFile = accessibleRootFolderIds.some((id) => currentFile?.path.startsWith(`/${id}/`));
     }
-    if (!currentFile || !validFile) {
+    if (!currentFile || !isValidFile) {
       return { error: "File not found", status: 400 };
     }
     const oldPath = currentFile.namePath;
@@ -135,14 +135,17 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
       });
     }
   } else if (isFile === false) {
-    let validFolder = true;
+    let isValidFolder = true;
     const currentFolder = await prismadb.folder.findUnique({
       where: { id: nodeId },
     });
-    if (accessibleRootFolderIds !== "ALL") {
-      validFolder = accessibleRootFolderIds.some((id) => currentFolder?.path.startsWith(`/${id}/`));
+
+    if (accessibleRootFolderIds === "ALL_EXTERNAL" && currentFolder?.namePath.startsWith("/Trash")) {
+      isValidFolder = false;
+    } else if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
+      isValidFolder = accessibleRootFolderIds.some((id) => currentFolder?.path.startsWith(`/${id}/`));
     }
-    if (!currentFolder || !validFolder) {
+    if (!currentFolder || !isValidFolder) {
       return { error: "Folder not found", status: 400 };
     }
 
@@ -720,7 +723,10 @@ export const addSubFolder = async (
 
   if (
     !parentFolder ||
-    (accessibleRootFolderIds !== "ALL" && !accessibleRootFolderIds.includes(parentFolder.path.split("/")[1]))
+    parentFolder.namePath.startsWith("/Trash") ||
+    (accessibleRootFolderIds !== "ALL" &&
+      accessibleRootFolderIds !== "ALL_EXTERNAL" &&
+      !accessibleRootFolderIds.includes(parentFolder.path.split("/")[1]))
   ) {
     throw new Error("Failed to create folder");
   }
@@ -766,6 +772,16 @@ export const addSubFolder = async (
   }
 };
 
+export async function extractRootFolderIds(accessibleRootFoldersString: string) {
+  return accessibleRootFoldersString === "ALL"
+    ? "ALL"
+    : accessibleRootFoldersString === "ALL_EXTERNAL"
+    ? "ALL_EXTERNAL"
+    : removeTrailingComma(accessibleRootFoldersString)
+        .split(",")
+        .map((id) => id.trim());
+}
+
 function removeTrailingComma(str: string) {
   if (str.endsWith(",")) {
     return str.slice(0, -1); // Removes the last character
@@ -773,18 +789,39 @@ function removeTrailingComma(str: string) {
   return str;
 }
 
-export async function fetchAllFoldersForPatient(parentId: string | null, userId: string) {
+export async function fetchAllFoldersForPatient(
+  parentId: string | null,
+  userId: string,
+  accessibleRootFolderIdsParam: string[] | "ALL" | "ALL_EXTERNAL" | null = null,
+) {
   // Fetch folders and their files
 
   let whereCondition: any = {
     AND: [{ userId: userId }, { parentId: parentId }],
   };
   if (!parentId) {
-    const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canRead");
-    if (accessibleRootFolderIds !== "ALL") {
+    const accessibleRootFolderIds = !!accessibleRootFolderIdsParam
+      ? accessibleRootFolderIdsParam
+      : await validateUserAndGetAccessibleRootFolders("canRead");
+
+      if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
       // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
       whereCondition = {
         AND: [{ userId: userId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+      };
+    } else if (accessibleRootFolderIds === "ALL_EXTERNAL") {
+      whereCondition = {
+        AND: [
+          { userId: userId },
+          { parentId: parentId },
+          {
+            namePath: {
+              not: {
+                startsWith: "/Trash",
+              },
+            },
+          },
+        ],
       };
     }
   }

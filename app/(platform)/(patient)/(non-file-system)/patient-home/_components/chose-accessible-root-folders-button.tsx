@@ -67,7 +67,7 @@ export const ChooseAccessibleRootFolderButton = ({
       handleSelectChange(items[0]);
       handleAccessibleRootFoldersChange(items[0].id);
     } else if (checkedItems.length === items.length) {
-      handleAccessibleRootFoldersChange("ALL");
+      handleAccessibleRootFoldersChange("ALL_EXTERNAL");
     } else {
       const idsString = checkedItems.map((item) => item.id).join(",");
       handleAccessibleRootFoldersChange(idsString);
@@ -87,7 +87,7 @@ export const ChooseAccessibleRootFolderButton = ({
               return a.name.localeCompare(b.name);
             });
             const items = folders.map((obj) => ({
-              checked: defaultRootFolderIds === "ALL" ? true : defaultRootFolderIdsArray.includes(obj.id),
+              checked: defaultRootFolderIds === "ALL_EXTERNAL" ? true : defaultRootFolderIdsArray.includes(obj.id),
               id: obj.id,
               name: obj.name,
             }));

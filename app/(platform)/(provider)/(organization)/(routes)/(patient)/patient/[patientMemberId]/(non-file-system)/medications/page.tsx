@@ -11,19 +11,18 @@ import { CustomDataTable } from "@/app/(platform)/(patient)/(non-file-system)/me
 
 interface PatientMedicationsProps {
   params: {
-    patientId: string;
+    patientMemberId: string;
   };
 }
 
 const PatientMedications = async ({ params }: PatientMedicationsProps) => {
-
   const session = await auth();
 
   if (!session) {
     return redirect("/");
   }
   const patientMember = await prismadb.patientMember.findUnique({
-    where: { id: params.patientId },
+    where: { id: params.patientMemberId },
     include: {
       patientProfile: {
         select: {

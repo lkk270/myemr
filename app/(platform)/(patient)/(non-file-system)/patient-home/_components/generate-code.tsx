@@ -44,7 +44,7 @@ export const GenerateCode = () => {
   const isMobile = useMediaQuery("(max-width:640px)");
   const isMobile2 = useMediaQuery("(max-width: 420px)");
   const [chosenFolder, setChosenFolder] = useState<FolderNameType>({ name: "", namePath: "" });
-  const [accessibleRootFolderIds, setAccessibleRootFolderIds] = useState<string>("ALL");
+  const [accessibleRootFolderIds, setAccessibleRootFolderIds] = useState<string>("ALL_EXTERNAL");
 
   const [isPending, startTransition] = useTransition();
 
@@ -55,7 +55,7 @@ export const GenerateCode = () => {
       validFor: AccessCodeValidTime.MINUTE_30,
       accessType: UserRole.READ_ONLY,
       uploadToId: "",
-      accessibleRootFolderIds: "ALL",
+      accessibleRootFolderIds: "ALL_EXTERNAL",
     },
   });
 
@@ -120,7 +120,7 @@ export const GenerateCode = () => {
   const numOfRootFolders = watchedAccessibleRootFolderIds.split(",").length;
   const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
   const crfButtonLabel =
-    watchedAccessibleRootFolderIds === "ALL"
+    watchedAccessibleRootFolderIds === "ALL_EXTERNAL"
       ? "All Root Folders"
       : `${numOfRootFolders.toString()} Root ${foldersText}`;
   return (

@@ -31,17 +31,19 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const { isLoading } = useIsLoading();
   let node = folderStore.getNode(nodeId);
 
+  const filesHomeHref = currentUserPermissions.isPatient
+    ? "/files"
+    : currentUserPermissions.isProvider
+    ? `${pathname.split("/file")[0]}/files`
+    : "/tpa-files";
+
   useEffect(() => {
     node = folderStore.getNode(nodeId);
     setIsMounted(true);
     if (!node) {
-      router.push(
-        currentUserPermissions.isPatient
-          ? "/files"
-          : !currentUserPermissions.hasAccount
-          ? "/tpa-files"
-          : `${pathname.split("/files")[0]}/files`,
-      );
+      console.log(pathname);
+      console.log("IN HERE 39");
+      router.push(filesHomeHref);
     }
   }, []);
 
@@ -56,36 +58,39 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const folders = namePath ? namePath.split("/").filter((folder) => folder) : [];
   const currentFolder = folders.pop();
   const foldersLength = folders.length;
+
   return (
-    <div className="pb-4 gap-y-2 flex flex-col">
+    <div className="py-3 gap-y-2 flex flex-col">
       {!isFile && !node.namePath.startsWith("/Trash") && currentUserPermissions.canAdd && (
-        <div className="grid grid-cols-2 gap-y-2 xs:flex-row xs:flex gap-x-2">
+        <div className="gap-y-2 flex-row flex gap-x-2">
           <Button
+            title="Upload"
             disabled={isLoading}
             onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
             className={cn(
               isLoading && "cursor-not-allowed",
-              "border border-primary/10 flex flex-col items-start justify-center w-[126px] xxs:w-40 px-3 py-8",
+              "border border-primary/10 flex flex-col items-center xxs:items-start justify-center w-[66px] xxs:w-40 px-3 py-8",
             )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <Upload className="w-5 h-5" />
-              <div>Upload</div>
+              <div className="hidden xxs:flex">Upload</div>
             </div>
           </Button>
           <Button
+            title="Add a subfolder"
             disabled={isLoading}
             onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}
             variant="secondary"
             className={cn(
               isLoading && "cursor-not-allowed",
-              "border border-primary/10 flex flex-col items-start justify-center w-[126px] xxs:w-40 px-3 py-8",
+              "border border-primary/10 flex flex-col items-center xxs:items-start justify-center w-[66px] xxs:w-40 px-3 py-8",
             )}
           >
             <div className="gap-y-2 flex flex-col items-start flex-shrink-0">
               <FolderPlus className="w-5 h-5" />
-              <div>Add subfolder</div>
+              <div className="hidden xxs:flex">Add subfolder</div>
             </div>
           </Button>
         </div>
@@ -96,12 +101,12 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
             const pathSegment = paths ? paths[index] : "";
             const node = folderStore.getNode(pathSegment);
             const id = node ? node.id : null;
+            const nodeHref = !!id
+              ? getNodeHref(currentUserPermissions.isPatient, currentUserPermissions.isProvider, false, id, pathname)
+              : "/files";
             return (
               <span key={index} style={{ marginRight: "5px" }}>
-                <Link
-                  href={id ? getNodeHref(currentUserPermissions.isPatient, false, id) : "/files"}
-                  onDragStart={(e) => e.preventDefault()}
-                >
+                <Link href={nodeHref} onDragStart={(e) => e.preventDefault()}>
                   <span className="hover:underline cursor-pointer">{folder}</span>
                 </Link>
                 {" / "}
@@ -110,10 +115,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
           })
         ) : (
           <span key={0} style={{ marginRight: "5px" }}>
-            <Link
-              href={currentUserPermissions.isPatient ? "/files" : "/tpa-files"}
-              onDragStart={(e) => e.preventDefault()}
-            >
+            <Link href={filesHomeHref} onDragStart={(e) => e.preventDefault()}>
               <span className="hover:underline cursor-pointer whitespace-normal break-all">/</span>
             </Link>
           </span>

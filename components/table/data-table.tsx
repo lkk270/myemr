@@ -18,7 +18,7 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { cn, getNodeHref } from "@/lib/utils";
@@ -53,6 +53,7 @@ export function DataTable<TData, TValue>({
   showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
+  const pathname = isDoubleClickLink ? usePathname() : null;
   const currentUserPermissions = useCurrentUserPermissions();
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(hiddenColumns);
@@ -156,7 +157,13 @@ export function DataTable<TData, TValue>({
                           );
                         } else if (isDoubleClickLink && !rowOriginal.restricted) {
                           router.push(
-                            getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id),
+                            getNodeHref(
+                              currentUserPermissions.isPatient,
+                              currentUserPermissions.isProvider,
+                              rowOriginal.isFile,
+                              rowOriginal.id,
+                              pathname,
+                            ),
                           );
                         }
                       }}

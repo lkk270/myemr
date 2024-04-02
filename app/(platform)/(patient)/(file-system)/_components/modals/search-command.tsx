@@ -19,8 +19,10 @@ import { useUploadFilesModal } from "../file-tree/_components/hooks";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { toast } from "sonner";
+import { usePathname } from "next/navigation";
 
 export const SearchCommand = () => {
+  const pathname = usePathname();
   const currentUserPermissions = useCurrentUserPermissions();
   const foldersStore = useFolderStore();
   const addFolderModal = useAddFolderModal();
@@ -146,7 +148,13 @@ export const SearchCommand = () => {
             ) : (
               <Link
                 key={node.id}
-                href={getNodeHref(currentUserPermissions.isPatient, node.isFile, node.id)}
+                href={getNodeHref(
+                  currentUserPermissions.isPatient,
+                  currentUserPermissions.isProvider,
+                  node.isFile,
+                  node.id,
+                  pathname,
+                )}
                 onClick={onClose}
                 onDragStart={(e) => e.preventDefault()}
               >

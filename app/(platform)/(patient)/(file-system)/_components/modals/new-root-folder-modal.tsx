@@ -139,7 +139,7 @@ export const NewRootFolder = () => {
 
   return (
     <CommandDialog open={isOpen} onOpenChange={onClose}>
-      <CommandInput placeholder={`Search categories`} />
+      <CommandInput placeholder={`Search for a new root category`} />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Root Categories">

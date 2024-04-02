@@ -3,11 +3,13 @@
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useMediaQuery } from "usehooks-ts";
 import { cn } from "@/lib/utils";
 import { useSearch } from "@/app/(platform)/(patient)/(file-system)/_components/hooks/use-search";
 
 export const SearchBox = () => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const search = useSearch();
   const isMobile = useMediaQuery("(max-width: 450px)");
   return isMobile ? (
@@ -21,7 +23,10 @@ export const SearchBox = () => {
       onClick={search.onOpen}
       role="button"
       className={cn(
-        "hover:bg-primary/10 rounded-md px-2 w-[150px] sm:xs:min-w-[300px] group cursor-pointer min-h-[40px] text-sm py-1 pr-3 bg-primary/5 flex items-center text-muted-foreground font-medium",
+        currentUserPermissions.isProvider
+          ? "w-[120px] md:min-w-[120px] lg:min-w-[250px]"
+          : "w-[150px] sm:min-w-[300px]",
+        "hover:bg-primary/10 rounded-md px-2 group cursor-pointer min-h-[40px] text-sm py-1 pr-3 bg-primary/5 flex items-center text-muted-foreground font-medium",
       )}
     >
       <div role="button" className="h-full rounded-sm  mr-1">

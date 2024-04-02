@@ -434,8 +434,25 @@ export const extractNewNodeIdFromPath = (pathnameVar: string) => {
   return "";
 };
 
-export const getNodeHref = (isPatient: boolean, isFile: boolean, nodeId: string) => {
-  return `${isPatient ? (isFile ? "/file/" : "/files/") : isFile ? "/tpa-file/" : "/tpa-files/"}${nodeId}`;
+export const getNodeHref = (
+  isPatient: boolean,
+  isProvider: boolean,
+  isFile: boolean,
+  nodeId: string,
+  pathname: string | null = null,
+) => {
+  const fileText = isFile ? "file" : "files";
+  let basePath = `/tpa-${fileText}`;
+  if (isPatient) {
+    basePath = `/${fileText}`;
+  } else if (isProvider) {
+    let basePathTemp = !!pathname ? pathname.split("/file")[0] : null;
+    if (!basePathTemp) {
+      return "/";
+    }
+    basePath = `${basePathTemp}/${fileText}`;
+  }
+  return `${basePath}/${nodeId}`;
 };
 
 export function getTimeUntil(date: Date): string {

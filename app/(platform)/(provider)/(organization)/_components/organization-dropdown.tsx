@@ -19,8 +19,7 @@ import { usePathname } from "next/navigation";
 import { OrganizationAvatar } from "./organization-avatar";
 import { usePatientMemberStore } from "../(routes)/(patient)/hooks/use-patient-member-store";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { OrganizationWithRoleType } from "@/app/types";
+import { useState } from "react";
 
 type OrganizationType = {
   id: string;
@@ -29,12 +28,12 @@ type OrganizationType = {
 };
 
 interface OrganizationDropdownProp {
-  initialOrganizations?: OrganizationWithRoleType[];
+  // initialOrganizations?: OrganizationWithRoleType[];
 }
-export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropdownProp) => {
-  const [isMounted, setIsMounted] = useState(false);
+export const OrganizationDropdown = ({}: OrganizationDropdownProp) => {
+  // const [isMounted, setIsMounted] = useState(false);
   const { patientMember } = usePatientMemberStore();
-  const { organizations, getOrganizationById, setOrganizations } = useOrganizationStore();
+  const { organizations, getOrganizationById } = useOrganizationStore();
   const pathname = usePathname();
   const organizationId = pathname.includes("/organization/")
     ? pathname.split("/organization/")[1].split("/")[0]
@@ -42,14 +41,7 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
     ? patientMember.organizationId
     : null;
 
-  useEffect(() => {
-    setIsMounted(true);
-    if (!!initialOrganizations) {
-      setOrganizations(initialOrganizations);
-    }
-  }, []);
-
-  if (!organizationId || !isMounted) {
+  if (!organizationId) {
     console.log(organizationId);
     return null;
   }
@@ -121,7 +113,10 @@ export const OrganizationDropdown = ({ initialOrganizations }: OrganizationDropd
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild className="w-42 xs:w-48">
+      <DropdownMenuTrigger
+        asChild
+        className={cn(pathname.includes("/file") ? "w-[130px] xxs:w-[150px] lg:w-48" : "w-40 xxs:w-48")}
+      >
         <Button variant="outline" className="flex flex-row justify-between items-center p-1">
           <div className="flex flex-row gap-x-2 items-center flex-grow min-w-0">
             <div className="flex flex-col items-center justify-center w-[33px] h-[33px] border-2 border-primary/20 rounded-sm shrink-0">

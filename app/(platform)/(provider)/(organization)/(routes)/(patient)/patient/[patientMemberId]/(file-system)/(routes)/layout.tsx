@@ -18,6 +18,8 @@ import { OrganizationWithRoleType } from "@/app/types";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { getPatientMember } from "@/auth/actions/patient-member";
 import { extractRootFolderIds } from "@/lib/actions/files";
+import { ProviderManageAccountModal } from "@/components/modals/manage-account/provider-manage-account/provider-manage-account-modal";
+import { SidebarWrapper } from "./_components/sidebar-wrapper";
 interface FileSystemLayoutProps {
   params: {
     patientMemberId: string;
@@ -111,9 +113,11 @@ const FileSystemLayout = async ({ children, params }: FileSystemLayoutProps) => 
   // const allotedStorageInGb = allotedStoragesInGb[user.plan];
   return (
     <main className="h-screen flex overflow-y-auto">
-      <Sidebar
+      <SidebarWrapper
+        initialOrganizations={organizations}
+        initialPatientMember={patientMember}
         sumOfAllSuccessFilesSizes={sumOfAllSuccessFilesSizes}
-        // allotedStorageInGb={allotedStorageInGb}
+        numOfUnreadNotifications={numOfUnreadNotifications}
         data={sortedFolders}
         singleLayerNodes={singleLayerNodes}
       />
@@ -122,6 +126,7 @@ const FileSystemLayout = async ({ children, params }: FileSystemLayoutProps) => 
       <MoveModal />
       <AddFolderModal />
       <UploadFilesModal />
+      <ProviderManageAccountModal />
       <div className="flex-1 h-full overflow-y-auto">{children}</div>
       <div className="flex h-screen pt-16">
         <SearchCommand />

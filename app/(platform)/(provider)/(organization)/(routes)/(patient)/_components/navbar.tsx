@@ -11,6 +11,7 @@ import { UserButton } from "@/components/user-button";
 import Link from "next/link";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { usePatientMemberStore } from "../hooks/use-patient-member-store";
+import { useOrganizationStore } from "../../../_components/hooks/use-organizations";
 import { Notifications } from "@/components/notifications";
 // import { Notifications } from "@/components/notifications";
 import { useEffect, useState } from "react";
@@ -21,14 +22,14 @@ import { PatientMember } from "@prisma/client";
 
 interface NavbarProps {
   initialPatientMember: PatientMember;
-  initialOrganizations?: OrganizationWithRoleType[];
+  initialOrganizations: OrganizationWithRoleType[];
   numOfUnreadNotifications?: number;
 }
 
 export const Navbar = ({ initialPatientMember, numOfUnreadNotifications, initialOrganizations }: NavbarProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const { patientMember, setPatientMember } = usePatientMemberStore();
-
+  const { setOrganizations } = useOrganizationStore();
   const isMobile = useMediaQuery("(max-width: 350px)");
   const isMobile2 = useMediaQuery("(max-width: 305px)");
 
@@ -38,6 +39,7 @@ export const Navbar = ({ initialPatientMember, numOfUnreadNotifications, initial
 
   useEffect(() => {
     setPatientMember(initialPatientMember);
+    setOrganizations(initialOrganizations);
     setIsMounted(true);
   }, []);
 
@@ -78,7 +80,7 @@ export const Navbar = ({ initialPatientMember, numOfUnreadNotifications, initial
         </div>
       </div>
       <div className="flex items-center justify-end flex-1 gap-x-4">
-        <OrganizationDropdown initialOrganizations={initialOrganizations} />
+        <OrganizationDropdown />
         {currentUserPermissions.hasAccount && typeof numOfUnreadNotifications === "number" && (
           <Notifications numOfUnreadNotificationsParam={numOfUnreadNotifications} />
         )}

@@ -19,7 +19,6 @@ export const setScheduledToDelete = async (type: "PATIENT" | "PROVIDER", newValu
       !currentUserPermissions.hasAccount ||
       userType !== user.userType
     ) {
-      console.log("IN HERE");
       throw new Error("Unauthorized");
     }
   }

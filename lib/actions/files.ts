@@ -45,7 +45,6 @@ async function validateUserAndGetAccessibleRootFolders(
   } else if (currentUserPermissions.isProvider) {
     console.log(user);
     console.log(currentUserPermissions);
-    console.log("IN HERE 50");
   }
   return [];
 }
@@ -795,7 +794,6 @@ export async function fetchAllFoldersForPatient(
   accessibleRootFolderIdsParam: string[] | "ALL" | "ALL_EXTERNAL" | null = null,
 ) {
   // Fetch folders and their files
-
   let whereCondition: any = {
     AND: [{ userId: userId }, { parentId: parentId }],
   };

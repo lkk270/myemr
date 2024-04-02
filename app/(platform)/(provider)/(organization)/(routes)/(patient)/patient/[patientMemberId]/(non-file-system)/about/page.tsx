@@ -10,7 +10,7 @@ import { About } from "@/app/(platform)/(patient)/(non-file-system)/about/_compo
 
 interface PatientDemographicsProps {
   params: {
-    patientId: string;
+    patientMemberId: string;
   };
 }
 
@@ -29,7 +29,7 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
 
   // const patientMember = await prismadb.patientMember.findUnique({
   //   where: {
-  //     id: params.patientId,
+  //     id: params.patientMemberId,
   //   },
   // });
 
@@ -38,7 +38,7 @@ const PatientDemographics = async ({ params }: PatientDemographicsProps) => {
   // }
 
   const patientMember = await prismadb.patientMember.findUnique({
-    where: { id: params.patientId },
+    where: { id: params.patientMemberId },
     include: {
       patientProfile: {
         select: {

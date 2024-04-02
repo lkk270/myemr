@@ -10,7 +10,7 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAddFolderModal } from "./file-tree/_components/hooks";
 import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
 import { NodeDataType } from "@/app/types/file-types";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
@@ -23,6 +23,7 @@ interface NodePageHeaderProps {
 export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
   const currentUserPermissions = useCurrentUserPermissions();
   const router = useRouter();
+  const pathname = usePathname();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
   const folderStore = useFolderStore();
@@ -34,7 +35,13 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
     node = folderStore.getNode(nodeId);
     setIsMounted(true);
     if (!node) {
-      router.push("/files");
+      router.push(
+        currentUserPermissions.isPatient
+          ? "/files"
+          : !currentUserPermissions.hasAccount
+          ? "/tpa-files"
+          : `${pathname.split("/files")[0]}/files`,
+      );
     }
   }, []);
 

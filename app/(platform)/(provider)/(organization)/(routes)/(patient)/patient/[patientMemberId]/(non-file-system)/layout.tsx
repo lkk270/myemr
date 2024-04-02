@@ -11,7 +11,7 @@ import { Navbar } from "../../../_components/navbar";
 
 interface PatientLayoutProps {
   params: {
-    patientId: string;
+    patientMemberId: string;
   };
   children: React.ReactNode;
 }
@@ -26,7 +26,7 @@ const PatientLayout = async ({ children, params }: PatientLayoutProps) => {
 
   const patientMember = await prismadb.patientMember.findUnique({
     where: {
-      id: params.patientId,
+      id: params.patientMemberId,
     },
   });
 

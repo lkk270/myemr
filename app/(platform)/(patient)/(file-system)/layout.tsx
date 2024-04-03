@@ -25,6 +25,7 @@ import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { getSumOfFilesSizes } from "@/lib/data/files";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -34,7 +35,10 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   const user = session?.user;
 
-  const allFolders = await fetchAllFoldersForPatient(null, user.id);
+  const allFolders = await fetchAllFoldersForPatient(null, user.id, null);
+  if (allFolders === "Unauthorized") {
+    return <SomethingNotFound title={"Unauthorized"} href="tpa-home" />;
+  }
   const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({

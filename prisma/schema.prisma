@@ -235,14 +235,16 @@ model RecordViewActivity {
   id           Int      @id @default(autoincrement())
   lastViewedAt DateTime @default(now())
   userId       String
-  fileId       String?  @unique
-  folderId     String?  @unique
+  fileId       String?
+  folderId     String?
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   file         File?    @relation(fields: [fileId], references: [id], onDelete: Cascade)
   folder       Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
 
   @@unique([userId, fileId])
   @@unique([userId, folderId])
+  @@index([fileId])
+  @@index([folderId])
 }
 
 model Folder {

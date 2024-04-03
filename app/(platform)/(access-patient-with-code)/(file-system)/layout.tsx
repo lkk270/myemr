@@ -23,11 +23,16 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   const user = session?.user;
 
-  let allFolders = [];
+  let allFolders: any[] | "Unauthorized" = [];
 
   try {
-    allFolders = await fetchAllFoldersForPatient(null, user.id);
+    allFolders = await fetchAllFoldersForPatient(null, user.id, null);
+    if (allFolders === "Unauthorized") {
+      console.log("IN 31");
+      return <SomethingNotFound title={"Unauthorized"} href="tpa-home" />;
+    }
   } catch (e: any) {
+    console.log("IN 35");
     const title = e.message === "Unauthorized" ? "Unauthorized" : "Something went wrong";
     return <SomethingNotFound title={title} href="tpa-home" />;
   }

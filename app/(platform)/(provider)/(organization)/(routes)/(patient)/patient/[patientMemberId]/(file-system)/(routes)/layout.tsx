@@ -32,7 +32,6 @@ const FileSystemLayout = async ({ children, params }: FileSystemLayoutProps) => 
   const user = session?.user;
 
   if (!session || !user || user.userType !== "PROVIDER") {
-    console.log("IN 32");
     return redirect("/");
   }
 
@@ -77,10 +76,13 @@ const FileSystemLayout = async ({ children, params }: FileSystemLayoutProps) => 
     numOfUnreadNotifications = 0;
   }
 
-  let allFolders = [];
+  let allFolders: any[] | "Unauthorized" = [];
 
   try {
     allFolders = await fetchAllFoldersForPatient(null, patientMember.patientUserId, accessibleRootFolderIds);
+    if (allFolders === "Unauthorized") {
+      return <SomethingNotFound title={"Unauthorized"} href="tpa-home" />;
+    }
   } catch (e: any) {
     const title = e.message === "Unauthorized" ? "Unauthorized" : "Something went wrong";
     return <SomethingNotFound title={title} href="tpa-home" />;
@@ -102,7 +104,7 @@ const FileSystemLayout = async ({ children, params }: FileSystemLayoutProps) => 
   const allNodesArray = Array.from(allNodesMap.values());
   const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
 
-  console.log(singleLayerNodes);
+  // console.log(singleLayerNodes);
 
   const sumOfAllSuccessFilesSizes = singleLayerNodes.reduce((accumulator, file) => {
     if (!!file.size && file.isFile === true) {

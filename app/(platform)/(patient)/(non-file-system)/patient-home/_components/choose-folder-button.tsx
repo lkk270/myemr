@@ -45,9 +45,9 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
   const openDialog = () => {
     if (!currentUser) return;
     startTransition(() => {
-      fetchAllFoldersForPatient(null, currentUser.id)
+      fetchAllFoldersForPatient(null, currentUser.id, null, null)
         .then((data) => {
-          if (!data) {
+          if (!data || data === "Unauthorized") {
             toast.error("something went wrong");
             return;
           } else {

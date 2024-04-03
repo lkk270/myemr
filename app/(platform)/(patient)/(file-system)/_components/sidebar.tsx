@@ -20,6 +20,7 @@ import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-ac
 import { allotedStoragesInGb } from "@/lib/constants";
 import { usePathname, useSearchParams } from "next/navigation";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
+import { toast } from "sonner";
 
 interface SidebarProps {
   data: any[];
@@ -51,6 +52,7 @@ export const Sidebar = ({
   const plan = session?.data?.user?.plan;
   const { onOpen } = usePatientManageAccountModal();
   const allotedStorageInGb = !!session && !!session.data ? allotedStoragesInGb[session.data.user.plan] : 1;
+
   useEffect(() => {
     setIsMounted(true);
     // console.log(data);
@@ -91,22 +93,26 @@ export const Sidebar = ({
       startTransition(() => {
         const user = session?.data?.user;
         const userId = user?.id;
-        if (!user || !userId) return;
-        fetchAllFoldersForPatient(null, userId)
+
+        if (!user || !userId || !currentUserPermissions.isPatient) return;
+        fetchAllFoldersForPatient(null, userId, null, null)
           .then((data) => {
-            if (!!data) {
-              const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));
-              const sortedFolders = sortRootNodes(sortedFoldersTemp);
-
-              let rawAllNodes = extractNodes(data);
-              const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
-              const allNodesArray = Array.from(allNodesMap.values());
-
-              const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-
-              folderStore.setFolders(sortedFolders);
-              folderStore.setSingleLayerNodes(singleLayerNodes);
+            if (!data || data === "Unauthorized") {
+              toast.error("Something went wrong");
+              return;
             }
+
+            const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));
+            const sortedFolders = sortRootNodes(sortedFoldersTemp);
+
+            let rawAllNodes = extractNodes(data);
+            const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
+            const allNodesArray = Array.from(allNodesMap.values());
+
+            const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
+
+            folderStore.setFolders(sortedFolders);
+            folderStore.setSingleLayerNodes(singleLayerNodes);
           })
           .catch((error) => {
             console.log(error);

@@ -10,6 +10,7 @@ import * as mime from "mime-types";
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { validateUserAndGetAccessibleRootFolders } from "@/lib/actions/files";
 
 const getFileName = (fileNameTemp: string, fileType: string) => {
   const currentMimeType = mime.lookup(fileNameTemp);
@@ -26,7 +27,7 @@ const getFileName = (fileNameTemp: string, fileType: string) => {
   return `${fileNameTemp}.${newExtension}`;
 };
 
-export const getPresignedUrl = async (fileId: string, forDownload = false) => {
+export const getPresignedUrl = async (fileId: string, forDownload = false, patientMemberId?: string) => {
   const session = await auth();
 
   if (!session) {
@@ -39,21 +40,45 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
     return redirect("/");
   }
 
-  if (!currentUserPermissions.isPatient) {
+  if (!currentUserPermissions.isPatient && !currentUserPermissions.isProvider) {
     const code = await getAccessPatientCodeByToken(session.tempToken);
     if (!code) {
       return redirect("/");
     }
   }
 
-  const file = await prismadb.file.findUnique({
-    where: {
-      id: fileId,
-      status: "SUCCESS",
-      restricted: false,
-    },
+  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canRead", {
+    user,
+    currentUserPermissions,
+    patientMemberId,
   });
-  if (!file) {
+
+  let whereClause: any = {
+    id: fileId,
+    status: "SUCCESS",
+    restricted: false,
+  };
+
+  if (accessibleRootFolderIds !== "ALL") {
+    whereClause.namePath = {
+      not: {
+        startsWith: "/Trash",
+      },
+    };
+  }
+
+  const file = await prismadb.file.findUnique({
+    where: whereClause,
+  });
+
+  const isAccessible =
+    typeof accessibleRootFolderIds === "object"
+      ? accessibleRootFolderIds.some((folderId) => file?.path.startsWith(`/${folderId}/`))
+      : true;
+
+  //http://localhost:3000/patient/05874842-e031-4124-8845-3197d716a5bb/file/cluigbr550001kk7pfy508uom
+
+  if (!file || !isAccessible || accessibleRootFolderIds === "Unauthorized") {
     return { error: "File not found" };
   }
 
@@ -99,7 +124,7 @@ export const getPresignedInsuranceUrl = async (
   const file = await prismadb.insuranceFile.findFirst({
     where: whereClause,
   });
-  
+
   if (!file) {
     return { error: "File not found" };
   }

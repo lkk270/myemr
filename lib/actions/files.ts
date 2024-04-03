@@ -10,6 +10,7 @@ import { ExtendedUser } from "@/next-auth";
 import { currentUserPermissionsType } from "@/app/types";
 import { createPatientNotification } from "./notifications";
 import { currentUser } from "@/auth/lib/auth";
+import { getPatientMember } from "@/auth/actions/patient-member";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -23,9 +24,13 @@ type FileToUnrestrict = {
   size: bigint;
 };
 
-async function validateUserAndGetAccessibleRootFolders(
+export async function validateUserAndGetAccessibleRootFolders(
   requiredPermissions: "canEdit" | "canAdd" | "canDelete" | "canRead",
-  userParam: { user: ExtendedUser | null; currentUserPermissions: currentUserPermissionsType } | null = null,
+  userParam: {
+    user: ExtendedUser | null;
+    currentUserPermissions: currentUserPermissionsType;
+    patientMemberId?: string | null;
+  } | null = null,
 ) {
   let user: ExtendedUser | null = userParam && userParam.user;
   let currentUserPermissions = userParam && userParam.currentUserPermissions;
@@ -34,17 +39,26 @@ async function validateUserAndGetAccessibleRootFolders(
     currentUserPermissions = extractCurrentUserPermissions(user);
   }
   if (!user || !currentUserPermissions) {
-    throw new Error("Unauthorized");
+    return "Unauthorized";
   }
   if (!currentUserPermissions.isProvider) {
     if (!currentUserPermissions[requiredPermissions]) {
-      throw new Error("Unauthorized");
+      return "Unauthorized";
     } else {
       return await extractRootFolderIds(user.accessibleRootFolders);
     }
   } else if (currentUserPermissions.isProvider) {
-    console.log(user);
-    console.log(currentUserPermissions);
+    if (!userParam || !userParam.patientMemberId) {
+      return "Unauthorized";
+    }
+    const patientMember = await getPatientMember(userParam.patientMemberId, "canRead", {
+      user,
+      currentUserPermissions,
+    });
+    if (!patientMember) {
+      return "Unauthorized";
+    }
+    return await extractRootFolderIds(patientMember.accessibleRootFolders);
   }
   return [];
 }
@@ -57,6 +71,10 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
     user,
     currentUserPermissions,
   });
+
+  if (accessibleRootFolderIds === "Unauthorized") {
+    return { error: "Unauthorized", status: 400 };
+  }
 
   async function updateDescendantsForRename(
     prisma: any,
@@ -186,9 +204,10 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
 }
 
 export async function updateRecordViewActivity(userId: string, nodeId: string, isFile: boolean) {
+  // console.log(userId);
   const whereClause = isFile ? { userId: userId, fileId: nodeId } : { userId: userId, folderId: nodeId };
 
-  const existingActivity = await prismadb.recordViewActivity.findUnique({
+  const existingActivity = await prismadb.recordViewActivity.findFirst({
     where: whereClause,
   });
 
@@ -280,6 +299,10 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
     user,
     currentUserPermissions,
   });
+
+  if (accessibleRootFolderIds === "Unauthorized") {
+    return { error: "Unauthorized", status: 400 };
+  }
 
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
@@ -712,6 +735,10 @@ export const addSubFolder = async (
     currentUserPermissions,
   });
 
+  if (accessibleRootFolderIds === "Unauthorized") {
+    return { error: "Unauthorized", status: 400 };
+  }
+
   let folder: Folder | undefined;
 
   const parentFolder = await prismadb.folder.findUnique({
@@ -790,27 +817,42 @@ function removeTrailingComma(str: string) {
 
 export async function fetchAllFoldersForPatient(
   parentId: string | null,
-  userId: string,
+  patientUserId: string,
   accessibleRootFolderIdsParam: string[] | "ALL" | "ALL_EXTERNAL" | null = null,
+  userParam: { user: ExtendedUser | null; currentUserPermissions: currentUserPermissionsType } | null = null,
 ) {
+  let user: ExtendedUser | null = userParam && userParam.user;
+  let currentUserPermissions = userParam && userParam.currentUserPermissions;
+  if (!userParam) {
+    user = await currentUser();
+    currentUserPermissions = extractCurrentUserPermissions(user);
+  }
+  if (!user || !currentUserPermissions) {
+    return "Unauthorized";
+  }
   // Fetch folders and their files
   let whereCondition: any = {
-    AND: [{ userId: userId }, { parentId: parentId }],
+    AND: [{ userId: patientUserId }, { parentId: parentId }],
   };
   if (!parentId) {
     const accessibleRootFolderIds = !!accessibleRootFolderIdsParam
       ? accessibleRootFolderIdsParam
-      : await validateUserAndGetAccessibleRootFolders("canRead");
-
-      if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
+      : await validateUserAndGetAccessibleRootFolders("canRead", {
+          user,
+          currentUserPermissions,
+        });
+    if (accessibleRootFolderIds === "Unauthorized") {
+      return "Unauthorized";
+    }
+    if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
       // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
       whereCondition = {
-        AND: [{ userId: userId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+        AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
       };
     } else if (accessibleRootFolderIds === "ALL_EXTERNAL") {
       whereCondition = {
         AND: [
-          { userId: userId },
+          { userId: patientUserId },
           { parentId: parentId },
           {
             namePath: {
@@ -834,7 +876,7 @@ export async function fetchAllFoldersForPatient(
         include: {
           recordViewActivity: {
             where: {
-              userId: userId,
+              userId: user.id,
             },
             select: {
               lastViewedAt: true,
@@ -844,7 +886,7 @@ export async function fetchAllFoldersForPatient(
       },
       recordViewActivity: {
         where: {
-          userId: userId,
+          userId: user.id,
         },
         select: {
           lastViewedAt: true,
@@ -854,7 +896,14 @@ export async function fetchAllFoldersForPatient(
   })) as any[];
   for (const folder of folders) {
     // Recursively fetch subfolders
-    const subFolders = await fetchAllFoldersForPatient(folder.id, userId);
+    const subFolders = await fetchAllFoldersForPatient(folder.id, patientUserId, null, {
+      user,
+      currentUserPermissions,
+    });
+
+    if (subFolders === "Unauthorized") {
+      return "Unauthorized";
+    }
 
     // Combine files and subfolders into the children array
     folder.children = [...folder.files, ...subFolders];

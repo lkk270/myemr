@@ -41,8 +41,6 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
     node = folderStore.getNode(nodeId);
     setIsMounted(true);
     if (!node) {
-      console.log(pathname);
-      console.log("IN HERE 39");
       router.push(filesHomeHref);
     }
   }, []);

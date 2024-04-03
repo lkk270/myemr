@@ -8,6 +8,7 @@ import { updateRecordViewActivity } from "@/lib/actions/files";
 
 interface FilePagePageProps {
   params: {
+    patientMemberId: string;
     fileId: string;
   };
 }
@@ -15,14 +16,12 @@ interface FilePagePageProps {
 const FilePagePage = async ({ params }: FilePagePageProps) => {
   const fileId = params.fileId;
   const session = await auth();
-
   if (!session) {
     return redirect("/");
   }
   const user = session?.user;
   const userId = user?.id;
-
-  if (!user || !userId || user.role === "UPLOAD_FILES_ONLY") {
+  if (!user || !userId || user.userType !== "PROVIDER") {
     return redirect("/");
   }
 
@@ -37,9 +36,9 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   //   ResponseContentDisposition: `filename="${file.name}"`, // Sets the filename for the download
   // });
   // const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
-  const response = await getPresignedUrl(fileId);
+  const response = await getPresignedUrl(fileId, false, params.patientMemberId);
   if (response.error === "File not found") {
-    return redirect("/files");
+    return redirect(`/patient/${params.patientMemberId}/files`);
   }
   try {
     updateRecordViewActivity(user.id, fileId, true);

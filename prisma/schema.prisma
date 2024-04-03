@@ -192,9 +192,9 @@ model Medication {
   updatedAt        DateTime       @updatedAt
   patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   patientProfileId String
+  // @@index([patientProfileId])
 
   @@unique([patientProfileId, name])
-  @@index([patientProfileId])
 }
 
 // model PatientProfile {

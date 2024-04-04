@@ -23,13 +23,10 @@ export const useDownloadFile = () => {
       // console.log(patientProfileId);
       // setIsLoading(true);
       // Call your API endpoint to get the presigned URL
-      console.log(forInsurance, patientMemberIdOrPatientId);
       const data = forInsurance
         ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true, patientMemberIdOrPatientId)
         : await getPresignedUrl(fileId, true, patientMemberIdOrPatientId);
       if (!data || !data.presignedUrl) {
-        console.log(data);
-        console.log("IN HEWW");
         toast.error("Something went wrong", { duration: 2500 });
       } else {
         // Client-side logic to trigger the download
@@ -59,47 +56,49 @@ export const useDownloadFile = () => {
 export const useDownloadZip = () => {
   // const { isLoading, setIsLoading } = useIsLoading();
 
-  const downloadZip = useCallback(async (fileIds: string[], parentNamePath: string, parentName: string) => {
-    // Example fileIds could be an array of IDs or keys that identify what you want to download
-    const filesData = await getPresignedUrls(fileIds, parentNamePath);
-    // console.log(filesData);
-    if (!Array.isArray(filesData)) {
-      // Since it's not an array, we now assume it's the error object - handle the error
-      console.error(filesData.error || "An unknown error occurred");
-      toast.error("Something went wrong", { duration: 2500 });
-      return;
-    } else if (filesData.length === 0) {
-      // It's an array but it's empty - handle this case as needed
-      toast.error("No files found", { duration: 2500 });
+  const downloadZip = useCallback(
+    async (fileIds: string[], parentNamePath: string, parentName: string, patientMemberId?: string | null) => {
+      // Example fileIds could be an array of IDs or keys that identify what you want to download
+      const filesData = await getPresignedUrls(fileIds, parentNamePath, patientMemberId);
+      // console.log(filesData);
+      if (!Array.isArray(filesData)) {
+        // Since it's not an array, we now assume it's the error object - handle the error
+        toast.error("Something went wrong", { duration: 2500 });
+        return;
+      } else if (filesData.length === 0) {
+        // It's an array but it's empty - handle this case as needed
+        toast.error("No files found", { duration: 2500 });
 
-      return;
-    }
-    const zip = new JSZip();
-    const filteredFilesData = filesData.filter(isNotNull);
-    // console.log(filteredFilesData);
-    // Load files and add them to the zip with their full paths
-    const filePromises = filteredFilesData.map(async ({ presignedUrl, path }) => {
-      try {
-        const response = await fetch(presignedUrl);
-        const blob = await response.blob();
-        // Add the file to the zip, using `path` for the folder structure
-        zip.file(path, blob, { binary: true });
-      } catch (error) {
-        toast.error("Error downloading or adding file to zip", { duration: 2500 });
-
-        // console.error("Error downloading or adding file to zip:", error);
-        // Consider how you want to handle errors for individual files
+        return;
       }
-    });
+      const zip = new JSZip();
+      const filteredFilesData = filesData.filter(isNotNull);
+      // console.log(filteredFilesData);
+      // Load files and add them to the zip with their full paths
+      const filePromises = filteredFilesData.map(async ({ presignedUrl, path }) => {
+        try {
+          const response = await fetch(presignedUrl);
+          const blob = await response.blob();
+          // Add the file to the zip, using `path` for the folder structure
+          zip.file(path, blob, { binary: true });
+        } catch (error) {
+          toast.error("Error downloading or adding file to zip", { duration: 2500 });
 
-    // Wait for all files to be processed
-    await Promise.all(filePromises);
+          // console.error("Error downloading or adding file to zip:", error);
+          // Consider how you want to handle errors for individual files
+        }
+      });
 
-    // Generate zip file and trigger download
-    zip.generateAsync({ type: "blob" }).then((content) => {
-      saveAs(content, `${parentName}.zip`);
-    });
-  }, []);
+      // Wait for all files to be processed
+      await Promise.all(filePromises);
+
+      // Generate zip file and trigger download
+      zip.generateAsync({ type: "blob" }).then((content) => {
+        saveAs(content, `${parentName}.zip`);
+      });
+    },
+    [],
+  );
 
   return downloadZip;
 };

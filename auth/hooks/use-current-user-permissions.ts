@@ -45,6 +45,6 @@ export const extractCurrentUserPermissions = (user: ExtendedUser | undefined | n
   if (userRole === "FULL_ACCESS" || userRole === "READ_AND_ADD" || userRole === "READ_ONLY" || isPatient) {
     ret["canRead"] = true;
   }
-  ret["showActions"] = ret["canAdd"] || ret["canEdit"] || ret["canDelete"] || isPatient;
+  ret["showActions"] = ret["canRead"] || ret["canAdd"] || ret["canEdit"] || ret["canDelete"] || isPatient;
   return ret;
 };

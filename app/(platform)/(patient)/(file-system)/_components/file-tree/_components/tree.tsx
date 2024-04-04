@@ -383,7 +383,7 @@ const FileTree = ({ width }: FileTreeProps) => {
               height={
                 currentUserPermissions.isPatient
                   ? screenHeight - 180
-                  : currentUserPermissions.showActions
+                  : currentUserPermissions.canAdd
                   ? screenHeight - 180 + 45
                   : screenHeight - 180 + 95
               }

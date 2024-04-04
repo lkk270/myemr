@@ -29,6 +29,7 @@ const getFileName = (fileNameTemp: string, fileType: string) => {
 
 export const getPresignedUrl = async (fileId: string, forDownload = false, patientMemberId?: string) => {
   const session = await auth();
+  console.log(session);
 
   if (!session) {
     return redirect("/");
@@ -47,11 +48,16 @@ export const getPresignedUrl = async (fileId: string, forDownload = false, patie
     }
   }
 
-  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canRead", {
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canRead", {
     user,
     currentUserPermissions,
     patientMemberId,
   });
+
+  if (!accessibleRootFolderIdsResult) {
+    return redirect("/");
+  }
+  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
 
   let whereClause: any = {
     id: fileId,

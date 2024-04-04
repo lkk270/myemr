@@ -5,10 +5,10 @@ import { NextResponse } from "next/server";
 import { patientUpdateVerification } from "@/lib/utils";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { File } from "@prisma/client";
 import { allotedStoragesInGb, maxFileUploadSize } from "@/lib/constants";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { getSumOfFilesSizes } from "@/lib/data/files";
+import { getAccessPatientCodeByToken } from "@/auth/data";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -30,12 +30,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Invalid body" }, { status: 400 });
     }
 
-    const accessCode = await prismadb.patientProfileAccessCode.findUnique({
-      where: {
-        token: accessToken,
-        isValid: true,
-      },
-    });
+    const accessCode = await getAccessPatientCodeByToken(accessToken);
+    // const accessCode = await prismadb.patientProfileAccessCode.findUnique({
+    //   where: {
+    //     token: accessToken,
+    //     isValid: true,
+    //   },
+    // });
     if (!accessCode) {
       return redirect("/");
     }
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!parentFolder) {
+    if (!parentFolder || parentFolder.namePath.startsWith("/Trash")) {
       return NextResponse.json({ message: "parentFolder not found" }, { status: 400 });
     }
 
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
         namePath: `${parentFolder.namePath}/${fileName}`,
         path: `${parentFolder.path}${parentFolder.id}/`,
         uploadedByUserId: userId,
-        uploadedByName: `${patient.firstName} ${patient.lastName}`,
+        uploadedByName: `Temporary Access User`,
         type: contentType,
         size: size,
         userId: userId,

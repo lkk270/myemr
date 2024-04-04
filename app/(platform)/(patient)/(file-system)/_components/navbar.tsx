@@ -26,7 +26,9 @@ export const Navbar = ({ isCollapsed, onResetWidth, numOfUnreadNotifications }: 
   const { organizations } = useOrganizationStore();
   const currentUserPermissions = useCurrentUserPermissions();
 
-  const isIconVisibleForMobile = !isMobile2 && currentUserPermissions.isProvider;
+  const isIconVisibleForMobile = !currentUserPermissions.isProvider
+    ? true
+    : !isMobile2 && currentUserPermissions.isProvider;
 
   return (
     <>

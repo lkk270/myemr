@@ -203,10 +203,10 @@ export const Sidebar = ({
           <FileTree width={sidebarWidth} />
           <div
             className={cn(
-              currentUserPermissions.showActions && "flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10",
+              currentUserPermissions.canAdd && "flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10",
             )}
           >
-            {currentUserPermissions.showActions && <NewRootFolderBox />}
+            {currentUserPermissions.canAdd && <NewRootFolderBox />}
             {currentUserPermissions.isPatient && (
               <>
                 <Separator />

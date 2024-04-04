@@ -107,7 +107,7 @@ export const DownloadModal = () => {
             onClick={async () => {
               downloadNodes[0].isFile && downloadNodes.length === 1
                 ? downloadFile(firstDownloadNode.id, false, patientMemberId)
-                : downloadZip(fileIds, parentNamePath, parentName);
+                : downloadZip(fileIds, parentNamePath, parentName, patientMemberId);
               downloadModal.onClose();
             }}
           >

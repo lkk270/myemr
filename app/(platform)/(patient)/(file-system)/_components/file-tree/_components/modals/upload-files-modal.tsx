@@ -26,9 +26,15 @@ import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { createPatientNotification } from "@/lib/actions/notifications";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
+import { logout } from "@/auth/actions/logout";
 
 export const UploadFilesModal = () => {
   const currentUser = useCurrentUser();
+  const { patientMember } = usePatientMemberStore();
+  if (!!patientMember && !!currentUser) {
+    currentUser.role = patientMember?.role;
+  }
   const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const folderStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
@@ -79,13 +85,10 @@ export const UploadFilesModal = () => {
     let errorOccurred = false;
     let numFilesSuccessfullyUploaded = 0;
 
-    console.log("IN 82");
     if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
-
-    console.log("IN 88");
     setIsLoading(true);
 
     // if (singleFileObj) {
@@ -127,6 +130,7 @@ export const UploadFilesModal = () => {
               parentId: parentNode?.id,
               parentNamePath: parentNode?.namePath,
               parentPath: parentNode?.path,
+              patientMemberId: currentUserPermissions.isProvider ? patientMember?.id : undefined,
             }),
             signal: tempFile.controller.signal,
           });
@@ -141,7 +145,10 @@ export const UploadFilesModal = () => {
             goodPsuResponse = true;
           } else {
             const errorMessage = responseObj.message;
-            if (errorMessage && errorMessage.includes("Out of storage")) {
+            if (!!errorMessage && errorMessage === "Unauthorized") {
+              logout();
+            }
+            if (!!errorMessage && errorMessage.includes("Out of storage")) {
               toast.error(responseObj.message || "Upload failed", { duration: 3000 });
             }
             throw new Error(responseObj.message || "Upload failed");
@@ -215,8 +222,10 @@ export const UploadFilesModal = () => {
     // }
     if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
       await createPatientNotification({
-        notificationType: "ACCESS_CODE_FILE_UPLOADED",
+        notificationType: currentUserPermissions.isProvider ? "PROVIDER_FILE_UPLOADED" : "ACCESS_CODE_FILE_UPLOADED",
+        patientUserId: patientMember?.patientUserId,
         dynamicData: {
+          organizationName: patientMember?.organizationName,
           role: currentUser?.role,
           numOfFiles: numFilesSuccessfullyUploaded,
         },

@@ -8,8 +8,8 @@ import { Navbar } from "../../(patient)/_components/navbar";
 import { logout } from "@/auth/actions/logout";
 
 import { startTransition, useEffect, useState } from "react";
-import { NewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
-import { ViewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
+// import { NewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
+// import { ViewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const sessionObj = useSession();

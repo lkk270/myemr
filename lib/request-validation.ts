@@ -9,6 +9,7 @@ const validUpdateTypes = [
   "addRootNode",
   "addSubFolder",
   "uploadFiles",
+  "uploadFilesByProvider",
   "insuranceUpload",
   "tpaUploadFiles",
   "rrUploadFiles",
@@ -51,6 +52,11 @@ const patientConditionals: any = {
     requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
     optionalFields: ["folderPath"],
     mandatoryTruePermissions: ["canAdd", "canUploadFiles"],
+  },
+  uploadFilesByProvider: {
+    requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath", "patientMemberId"],
+    optionalFields: ["folderPath"],
+    mandatoryTruePermissions: [],
   },
   insuranceUpload: {
     requiredFields: ["side", "contentType", "size"],

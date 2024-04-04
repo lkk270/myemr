@@ -11,14 +11,11 @@ export const createPatientNotification = async (values: z.infer<typeof Notificat
   try {
     const validatedFields = NotificationPostSchema.safeParse(values);
     // const session = await auth();
-    console.log(values);
-    console.log(validatedFields);
     if (!validatedFields.success) {
-      console.log("IN ERROR 16");
       return { error: "Invalid fields!" };
     }
     const { patientUserId, notificationType, dynamicData } = validatedFields.data;
-    console.log(dynamicData);
+
     let forUserId;
     if (notificationType.includes("ACCESS_CODE") || notificationType.includes("PROVIDER")) {
       const user = await currentUser();

@@ -39,43 +39,47 @@ export async function validateUserAndGetAccessibleRootFolders(
     currentUserPermissions = extractCurrentUserPermissions(user);
   }
   if (!user || !currentUserPermissions) {
-    return "Unauthorized";
+    return null;
   }
   if (!currentUserPermissions.isProvider) {
     if (!currentUserPermissions[requiredPermissions]) {
-      return "Unauthorized";
+      return null;
     } else {
-      return await extractRootFolderIds(user.accessibleRootFolders);
+      const accessibleRootFolderIds = await extractRootFolderIds(user.accessibleRootFolders);
+      return { accessibleRootFolderIds, patientUserId: user.id };
     }
   } else if (currentUserPermissions.isProvider) {
     if (!userParam || !userParam.patientMemberId) {
-      return "Unauthorized";
+      return null;
     }
     const patientMember = await getPatientMember(userParam.patientMemberId, "canRead", {
       user,
       currentUserPermissions,
     });
     if (!patientMember) {
-      return "Unauthorized";
+      return null;
     }
-    return await extractRootFolderIds(patientMember.accessibleRootFolders);
+    const accessibleRootFolderIds = await extractRootFolderIds(patientMember.accessibleRootFolders);
+
+    return { accessibleRootFolderIds, patientUserId: patientMember.patientUserId };
   }
-  return [];
+  return null;
 }
 
 export async function renameNode(isFile: boolean, nodeId: string, newName: string) {
   const user = await currentUser();
   if (!user) return { error: "Unauthorized", status: 400 };
   const currentUserPermissions = extractCurrentUserPermissions(user);
-  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canEdit", {
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canEdit", {
     user,
     currentUserPermissions,
   });
 
-  if (accessibleRootFolderIds === "Unauthorized") {
+  if (!accessibleRootFolderIdsResult) {
     return { error: "Unauthorized", status: 400 };
   }
 
+  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
   async function updateDescendantsForRename(
     prisma: any,
     parentId: string,
@@ -125,7 +129,7 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
 
     if (accessibleRootFolderIds === "ALL_EXTERNAL" && currentFile?.namePath.startsWith("/Trash")) {
       isValidFile = false;
-    } else if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
+    } else if (typeof accessibleRootFolderIds === "object") {
       isValidFile = accessibleRootFolderIds.some((id) => currentFile?.path.startsWith(`/${id}/`));
     }
     if (!currentFile || !isValidFile) {
@@ -159,7 +163,7 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
 
     if (accessibleRootFolderIds === "ALL_EXTERNAL" && currentFolder?.namePath.startsWith("/Trash")) {
       isValidFolder = false;
-    } else if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
+    } else if (typeof accessibleRootFolderIds === "object") {
       isValidFolder = accessibleRootFolderIds.some((id) => currentFolder?.path.startsWith(`/${id}/`));
     }
     if (!currentFolder || !isValidFolder) {
@@ -295,14 +299,15 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
   const user = await currentUser();
   if (!user) return { error: "Unauthorized", status: 400 };
   const currentUserPermissions = extractCurrentUserPermissions(user);
-  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canEdit", {
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canEdit", {
     user,
     currentUserPermissions,
   });
 
-  if (accessibleRootFolderIds === "Unauthorized") {
+  if (!accessibleRootFolderIdsResult) {
     return { error: "Unauthorized", status: 400 };
   }
+  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
 
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
@@ -730,14 +735,15 @@ export const addSubFolder = async (
   const user = await currentUser();
   if (!user) return { error: "Unauthorized", status: 400 };
   const currentUserPermissions = extractCurrentUserPermissions(user);
-  const accessibleRootFolderIds = await validateUserAndGetAccessibleRootFolders("canAdd", {
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canAdd", {
     user,
     currentUserPermissions,
   });
 
-  if (accessibleRootFolderIds === "Unauthorized") {
+  if (!accessibleRootFolderIdsResult) {
     return { error: "Unauthorized", status: 400 };
   }
+  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
 
   let folder: Folder | undefined;
 
@@ -835,15 +841,18 @@ export async function fetchAllFoldersForPatient(
     AND: [{ userId: patientUserId }, { parentId: parentId }],
   };
   if (!parentId) {
-    const accessibleRootFolderIds = !!accessibleRootFolderIdsParam
-      ? accessibleRootFolderIdsParam
-      : await validateUserAndGetAccessibleRootFolders("canRead", {
-          user,
-          currentUserPermissions,
-        });
-    if (accessibleRootFolderIds === "Unauthorized") {
-      return "Unauthorized";
+    let accessibleRootFolderIds = accessibleRootFolderIdsParam ? accessibleRootFolderIdsParam : "";
+    if (!accessibleRootFolderIdsParam) {
+      const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canRead", {
+        user,
+        currentUserPermissions,
+      });
+      if (!accessibleRootFolderIdsResult) {
+        return "Unauthorized";
+      }
+      accessibleRootFolderIds = accessibleRootFolderIdsResult.accessibleRootFolderIds;
     }
+
     if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
       // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
       whereCondition = {

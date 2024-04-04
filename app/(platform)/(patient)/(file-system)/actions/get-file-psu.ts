@@ -12,7 +12,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { validateUserAndGetAccessibleRootFolders } from "@/lib/actions/files";
 
-const getFileName = (fileNameTemp: string, fileType: string) => {
+export const getFileName = (fileNameTemp: string, fileType: string) => {
   const currentMimeType = mime.lookup(fileNameTemp);
 
   const newExtension = mime.extension(fileType);
@@ -98,7 +98,7 @@ export const getPresignedUrl = async (fileId: string, forDownload = false, patie
   });
   const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
 
-  return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
+  return { success: "PSU retrieved!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
 };
 
 export const getPresignedInsuranceUrl = async (

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useIsLoading } from "@/hooks/use-is-loading";
+import { useEffect, useState } from "react";
+// import { useIsLoading } from "@/hooks/use-is-loading";
 // import Viewer from "react-viewer";
-import Image from "next/image";
+// import Image from "next/image";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 import { ImageViewer } from "./image-viewer";
 import { Spinner } from "@/components/loading/spinner";
 import { useFolderStore } from "../hooks/use-folders";
@@ -24,19 +25,21 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
   const [fileSrc, setFileSrc] = useState(initialFileSrc);
   const { updateLastViewedAt } = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
-  const { isLoading } = useIsLoading();
+  // const { isLoading } = useIsLoading();
+  const { patientMember } = usePatientMemberStore();
   const [linkSet, setLinkSet] = useState(false);
   const [attemptedRefresh, setAttemptedRefresh] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const isViewable = isViewableFile(fileType);
-
   useEffect(() => {
     const checkAndRefreshLink = async () => {
       if (isLinkExpired(fileSrc) && !attemptedRefresh && isMounted) {
         setAttemptedRefresh(true); // Mark that an attempt was made
         try {
-          const response = await getPresignedUrl(fileId);
+          const patientMemberId = patientMember?.id;
+          console.log(patientMemberId);
+          const response = await getPresignedUrl(fileId, false, patientMemberId);
           const newSrc = response?.presignedUrl;
           if (!newSrc) {
             setErrorMessage("Something went wrong");

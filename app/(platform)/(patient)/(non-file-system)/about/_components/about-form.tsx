@@ -105,6 +105,7 @@ export const About = ({ initialData }: AboutProps) => {
           isLinkExpired(imagesUrls["front"]))
       ) {
         try {
+          console.log("108");
           setIsFetchingInsuranceImages(true);
           setIsLoading(true);
           let patientProfileId = null;
@@ -210,7 +211,6 @@ export const About = ({ initialData }: AboutProps) => {
   const InsuranceContent = () => {
     // Decide the content based on the state
     let contentElements;
-
     if (!isFetchingInsuranceImages && imagesUrls.front && imagesUrls.back) {
       // Render ImageViewer components for front and back images
       contentElements = (

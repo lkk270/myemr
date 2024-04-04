@@ -11,39 +11,47 @@ function isNotNull<T>(value: T | null): value is T {
 }
 
 export const useDownloadFile = () => {
-  const { patientMember } = usePatientMemberStore();
-  let patientProfileId = !!patientMember ? patientMember.patientProfileId : null;
-  // const { isLoading, setIsLoading } = useIsLoading();
+  // const { patientMember } = usePatientMemberStore();
+  // let patientMemberId = !!patientMember ? patientMember.id : undefined;
+  // let patientProfileId = !!patientMember ? patientMember.patientProfileId : null;
+  // // const { isLoading, setIsLoading } = useIsLoading();
 
-  const downloadFile = useCallback(async (fileId: string, forInsurance = false) => {
-    // if (isLoading) return;
-    // setIsLoading(true);
-    // Call your API endpoint to get the presigned URL
-    const data = forInsurance
-      ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true, patientProfileId)
-      : await getPresignedUrl(fileId, true);
-    if (!data.presignedUrl) {
-      toast.error("Something went wrong", { duration: 2500 });
-      return;
-    }
-
-    // Client-side logic to trigger the download
-    const link = document.createElement("a");
-    link.href = data.presignedUrl;
-    link.setAttribute("download", data.fileName || "download");
-    link.addEventListener(
-      "click",
-      (e) => {
-        e.preventDefault(); // Prevent default anchor tag behavior
-        e.stopImmediatePropagation(); // Stop the event from propagating
-        window.location.href = link.href; // Manually navigate to trigger the download
-      },
-      true,
-    ); // Capture phase
-    document.body.appendChild(link);
-    link.click(); // This should now prevent the toploader from activating
-    document.body.removeChild(link);
-  }, []);
+  const downloadFile = useCallback(
+    async (fileId: string, forInsurance = false, patientMemberIdOrPatientId?: string | null) => {
+      // if (isLoading) return;
+      // console.log(patientMemberId);
+      // console.log(patientProfileId);
+      // setIsLoading(true);
+      // Call your API endpoint to get the presigned URL
+      console.log(forInsurance, patientMemberIdOrPatientId);
+      const data = forInsurance
+        ? await getPresignedInsuranceUrl(fileId as InsuranceSide, true, patientMemberIdOrPatientId)
+        : await getPresignedUrl(fileId, true, patientMemberIdOrPatientId);
+      if (!data || !data.presignedUrl) {
+        console.log(data);
+        console.log("IN HEWW");
+        toast.error("Something went wrong", { duration: 2500 });
+      } else {
+        // Client-side logic to trigger the download
+        const link = document.createElement("a");
+        link.href = data.presignedUrl;
+        link.setAttribute("download", data.fileName || "download");
+        link.addEventListener(
+          "click",
+          (e) => {
+            e.preventDefault(); // Prevent default anchor tag behavior
+            e.stopImmediatePropagation(); // Stop the event from propagating
+            window.location.href = link.href; // Manually navigate to trigger the download
+          },
+          true,
+        ); // Capture phase
+        document.body.appendChild(link);
+        link.click(); // This should now prevent the toploader from activating
+        document.body.removeChild(link);
+      }
+    },
+    [],
+  );
   // setIsLoading(false);
   return downloadFile;
 };

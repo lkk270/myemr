@@ -6,31 +6,14 @@ import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isViewableFile } from "@/lib/utils";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import * as mime from "mime-types";
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { validateUserAndGetAccessibleRootFolders } from "@/lib/actions/files";
+import { getFileName } from "@/lib/utils";
 
-export const getFileName = (fileNameTemp: string, fileType: string) => {
-  const currentMimeType = mime.lookup(fileNameTemp);
-
-  const newExtension = mime.extension(fileType);
-
-  if (!newExtension) {
-    console.error("Unsupported file type", fileNameTemp, fileType);
-    return fileNameTemp; // Or handle this case as needed
-  }
-  if (currentMimeType === fileType) {
-    return fileNameTemp;
-  }
-  return `${fileNameTemp}.${newExtension}`;
-};
-
-export const getPresignedUrl = async (fileId: string, forDownload = false, patientMemberId?: string) => {
+export const getPresignedUrl = async (fileId: string, forDownload = false, patientMemberId?: string | null) => {
   const session = await auth();
-  console.log(session);
-
   if (!session) {
     return redirect("/");
   }
@@ -54,7 +37,9 @@ export const getPresignedUrl = async (fileId: string, forDownload = false, patie
     patientMemberId,
   });
 
+  console.log(accessibleRootFolderIdsResult);
   if (!accessibleRootFolderIdsResult) {
+    return { error: "AN issuE OCCUREd" };
     return redirect("/");
   }
   const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
@@ -90,6 +75,7 @@ export const getPresignedUrl = async (fileId: string, forDownload = false, patie
 
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
   const fileName = getFileName(file.name, file.type as string);
+  console.log(fileName);
   const command = new GetObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `${file.patientProfileId}/${fileId}`,
@@ -104,7 +90,7 @@ export const getPresignedUrl = async (fileId: string, forDownload = false, patie
 export const getPresignedInsuranceUrl = async (
   side: InsuranceSide,
   forDownload = false,
-  patientProfileId: string | null,
+  patientProfileId?: string | null,
 ) => {
   const session = await auth();
 

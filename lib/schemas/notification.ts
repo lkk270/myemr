@@ -6,7 +6,7 @@ const AddedToOrganizationSchema = z.object({
   organizationName: z.string(),
   role: z.enum([OrganizationMemberRole.ADMIN, OrganizationMemberRole.OWNER, OrganizationMemberRole.USER]),
 });
-const AccessCodeFileRenamedSchema = z.object({
+const AccessCodeNodeRenamedSchema = z.object({
   isFile: z.boolean(),
   role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   oldName: z.string(),
@@ -32,10 +32,12 @@ const AccessCodeAddedRootFolderSchema = z.object({
 const AccessCodeAddedSubFolderSchema = z.object({
   role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   subFolderName: z.string().min(1),
+  parentFolderName: z.string().min(1),
 });
 const AccessCodeFileUploadedSchema = z.object({
   numOfFiles: z.number().min(1),
   role: z.enum([UserRole.UPLOAD_FILES_ONLY, UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
+  parentFolderName: z.string().min(1),
 });
 const AccessCodeMedicationSchema = z.object({
   medicationName: z.string().refine(
@@ -49,7 +51,7 @@ const AccessCodeMedicationSchema = z.object({
   role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
 });
 
-const ProviderFileRenamedSchema = AccessCodeFileRenamedSchema.merge(
+const ProviderNodeRenamedSchema = AccessCodeNodeRenamedSchema.merge(
   z.object({
     organizationName: z.string(),
   }),
@@ -91,6 +93,7 @@ const RequestRecordsFileUploadSchema = z.object({
     message: "Minimum 320 characters required",
   }),
   numOfFiles: z.number().min(1),
+  parentFolderName: z.string().min(1),
 });
 
 // Define a base schema for common fields
@@ -124,7 +127,7 @@ const NotificationPostSchema = z
         schema = AddedToOrganizationSchema;
         break;
       case "ACCESS_CODE_NODE_RENAMED":
-        schema = AccessCodeFileRenamedSchema;
+        schema = AccessCodeNodeRenamedSchema;
         break;
       case "ACCESS_CODE_NODE_MOVED":
         schema = AccessCodeNodeMovedSchema;
@@ -145,7 +148,7 @@ const NotificationPostSchema = z
         schema = AccessCodeMedicationSchema;
         break;
       case "PROVIDER_NODE_RENAMED":
-        schema = ProviderFileRenamedSchema;
+        schema = ProviderNodeRenamedSchema;
         break;
       case "PROVIDER_NODE_MOVED":
         schema = ProviderNodeMovedSchema;

@@ -590,7 +590,7 @@ export const generatePatientNotificationText = (notification: Notification) => {
       numOfFiles = dynamicData["numOfFiles"];
       nodeText = `${numOfFiles.toString()} file`;
       if (numOfFiles > 1) nodeText += "s";
-      return `${externalUserText}, has successfully uploaded ${nodeText}.`;
+      return `${externalUserText}, has successfully uploaded ${nodeText} to the folder: "${dynamicData["parentFolderName"]}".`;
     case "ACCESS_CODE_NODE_MOVED":
     case "PROVIDER_NODE_MOVED":
       const numOfNodes = dynamicData["numOfNodes"];
@@ -602,7 +602,7 @@ export const generatePatientNotificationText = (notification: Notification) => {
       return `${externalUserText}, has added the root folder: "${dynamicData["rootFolderName"]}".`;
     case "ACCESS_CODE_ADDED_SUB_FOLDER":
     case "PROVIDER_ADDED_SUB_FOLDER":
-      return `${externalUserText}, has added a sub folder: "${dynamicData["subFolderName"]}".`;
+      return `${externalUserText}, has added a sub folder: "${dynamicData["subFolderName"]}" to the folder: "${dynamicData["parentFolderName"]}".`;
     case "ACCESS_CODE_MEDICATION_ADDED":
     case "PROVIDER_MEDICATION_ADDED":
       return `${externalUserText}, has added the medication: "${dynamicData["medicationName"]}".`;
@@ -613,7 +613,7 @@ export const generatePatientNotificationText = (notification: Notification) => {
       numOfFiles = dynamicData["numOfFiles"];
       nodeText = `${numOfFiles.toString()} file`;
       if (numOfFiles > 1) nodeText += "s";
-      return `${dynamicData["email"]} has successfully uploaded ${nodeText} in response to your "Request Your Records" request.`;
+      return `${dynamicData["email"]} has successfully uploaded ${nodeText} to the folder: "${dynamicData["parentFolderName"]}" in response to your "Request Your Records" request.`;
 
     default:
       return notificationType;

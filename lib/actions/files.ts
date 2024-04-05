@@ -11,6 +11,7 @@ import { currentUserPermissionsType } from "@/app/types";
 import { createPatientNotification } from "./notifications";
 import { currentUser } from "@/auth/lib/auth";
 import { getPatientMember } from "@/auth/actions/patient-member";
+import { pl } from "date-fns/locale";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -90,6 +91,7 @@ export async function renameNode(
   // }
 
   // const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+
   async function updateDescendantsForRename(
     prisma: any,
     parentId: string,
@@ -129,8 +131,10 @@ export async function renameNode(
   }
 
   if (!isValidNodeName(newName)) {
-    return { error: "Invalid new name", status: 400 };
+    console.log("IN HERE");
+    return { error: "Invalid new name", status: 500 };
   }
+  let oldName = null;
   if (isFile === true) {
     const currentFile = await prismadb.file.findUnique({
       where: { id: nodeId, userId: userIds.patient },
@@ -147,6 +151,7 @@ export async function renameNode(
     if (!currentFile || !isValidFile) {
       return { error: "File not found", status: 400 };
     }
+    oldName = currentFile.name;
     const oldPath = currentFile.namePath;
     const newNamePath = oldPath.replace(/[^/]*$/, newName);
     await prismadb.file.update({
@@ -187,7 +192,7 @@ export async function renameNode(
     if (!currentFolder || !isValidFolder) {
       return { error: "Folder not found", status: 400 };
     }
-
+    oldName = currentFolder.name;
     const oldNamePath = currentFolder.namePath;
     const newNamePath = oldNamePath.substring(0, oldNamePath.lastIndexOf("/") + 1) + newName;
 
@@ -232,7 +237,7 @@ export async function renameNode(
     //   });
     // }
   }
-  return { success: true };
+  return { success: true, oldName };
 }
 
 export async function updateRecordViewActivity(userId: string, nodeId: string, isFile: boolean) {
@@ -899,6 +904,7 @@ export const addSubFolder = async (
     return {
       id: folder.id,
       name: folder.name,
+      parentFolderName: parentFolder.name,
       parentId: folder.parentId,
       path: folder.path,
       namePath: folder.namePath,

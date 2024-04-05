@@ -180,6 +180,17 @@ export async function POST(req: Request) {
           },
         });
       }
+      if (currentUserPermissions.isProvider) {
+        await createPatientNotification({
+          notificationType: "PROVIDER_ADDED_ROOT_FOLDER",
+          patientUserId: patientUserId,
+          dynamicData: {
+            organizationName: patientMember?.organizationName,
+            role: user?.role,
+            rootFolderName: body.folderName,
+          },
+        });
+      }
       return NextResponse.json({ folderId: folderId }, { status: 200 });
     } else if (updateType === "addSubFolder") {
       const folder = await addSubFolder(

@@ -680,6 +680,7 @@ export const addRootNode = async (
   patientObj: { profileId: string; userId: string },
   updateAccessibleRootIdsObj: {
     userType: "provider" | "accessCode";
+    providerUserId: string;
     id: string;
     accessibleRootFolders: string;
   } | null,
@@ -704,6 +705,17 @@ export const addRootNode = async (
 
   let folder: Folder | undefined;
 
+  const recordViewActivitiesToCreate = [
+    {
+      userId: patientObj.userId,
+    },
+  ];
+  if (!!updateAccessibleRootIdsObj && updateAccessibleRootIdsObj.userType === "provider") {
+    recordViewActivitiesToCreate.push({
+      userId: updateAccessibleRootIdsObj.providerUserId,
+    });
+  }
+
   await prismadb.$transaction(
     async (prisma) => {
       folder = await prisma.folder.create({
@@ -716,15 +728,10 @@ export const addRootNode = async (
           isRoot: true,
           userId: patientObj.userId,
           patientProfileId: patientObj.profileId,
-          ...(addedBy.id && {
-            recordViewActivity: {
-              create: [
-                {
-                  userId: addedBy.id,
-                },
-              ],
-            },
-          }),
+
+          recordViewActivity: {
+            create: recordViewActivitiesToCreate,
+          },
         },
       });
 
@@ -770,6 +777,7 @@ export const addSubFolder = async (
   folderObj: { name: string; parentId: string },
   addedBy: { id: string | null; name: string },
   patientObj: { profileId: string; userId: string },
+  providerUserId: string | null,
   accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
 ) => {
   // const user = await currentUser();
@@ -793,6 +801,17 @@ export const addSubFolder = async (
   //   : `Me`;
 
   let folder: Folder | undefined;
+
+  const recordViewActivitiesToCreate = [
+    {
+      userId: patientObj.userId,
+    },
+  ];
+  if (!!providerUserId) {
+    recordViewActivitiesToCreate.push({
+      userId: providerUserId,
+    });
+  }
 
   const parentFolder = await prismadb.folder.findUnique({
     where: {
@@ -821,15 +840,10 @@ export const addSubFolder = async (
           addedByName: addedBy.name,
           userId: patientObj.userId,
           patientProfileId: patientObj.profileId,
-          ...(addedBy.id && {
-            recordViewActivity: {
-              create: [
-                {
-                  userId: addedBy.id,
-                },
-              ],
-            },
-          }),
+
+          recordViewActivity: {
+            create: recordViewActivitiesToCreate,
+          },
         },
       });
     },

@@ -58,7 +58,7 @@ export const NewMedicationForm = () => {
             toast.error(data.error);
             if (data.error === "Unauthorized" && !currentUserPermissions.hasAccount) {
               newMedicationModal.onClose();
-              logout();
+              window.location.reload();
             }
           }
           if (data.success && !!data.medicationId) {

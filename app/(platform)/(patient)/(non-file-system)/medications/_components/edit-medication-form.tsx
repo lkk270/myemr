@@ -85,7 +85,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
             toast.error(data.error);
             if (data.error === "Unauthorized" && !currentUserPermissions.hasAccount) {
               viewMedicationModal.onClose();
-              logout();
+              window.location.reload();
             }
           }
           if (data.success && !!data.medicationName && !!data.createdAt) {

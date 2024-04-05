@@ -105,7 +105,7 @@ export const UploadFilesModal = () => {
     //     })),
     //   );
     // }
-
+    let parentFolderName = null;
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
     const uploadPromises = tempFileList
@@ -136,7 +136,8 @@ export const UploadFilesModal = () => {
           });
           updateFileStatus(tempFile, "gotPSU", 0);
           const responseObj = await response.json();
-          const { url, fields, fileIdResponse } = responseObj;
+          const { url, fields, fileIdResponse, parentFolderNameResponse } = responseObj;
+          parentFolderName = parentFolderNameResponse;
           fileId = fileIdResponse;
           // if (fields.key) {
           //   fileId = fileIdResponse;
@@ -225,6 +226,7 @@ export const UploadFilesModal = () => {
         notificationType: currentUserPermissions.isProvider ? "PROVIDER_FILE_UPLOADED" : "ACCESS_CODE_FILE_UPLOADED",
         patientUserId: patientMember?.patientUserId,
         dynamicData: {
+          parentFolderName: parentFolderName,
           organizationName: patientMember?.organizationName,
           role: currentUser?.role,
           numOfFiles: numFilesSuccessfullyUploaded,

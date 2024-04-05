@@ -78,22 +78,23 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
       data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
     });
 
-    if (!currentUserPermissions.hasAccount) {
+    if (!currentUserPermissions.isPatient) {
+      let role = patientMember?.role;
+      if (!currentUserPermissions.hasAccount) {
+        role =
+          user?.role !== "USER" && user?.role !== "ADMIN" && user?.role !== "UPLOAD_FILES_ONLY"
+            ? user?.role
+            : undefined;
+      }
       await createPatientNotification({
-        notificationType: "ACCESS_CODE_MEDICATION_ADDED",
+        notificationType: currentUserPermissions.isProvider
+          ? "PROVIDER_MEDICATION_ADDED"
+          : "ACCESS_CODE_MEDICATION_ADDED",
+        patientUserId: patientMember?.patientUserId,
         dynamicData: {
+          organizationName: patientMember?.organizationName,
           medicationName: name,
-          role: user?.role,
-        },
-      });
-    } else if (currentUserPermissions.isProvider && !!patientMember) {
-      await createPatientNotification({
-        notificationType: "PROVIDER_MEDICATION_ADDED",
-        patientUserId: patientMember.patientUserId,
-        dynamicData: {
-          organizationName: patientMember.organizationName,
-          medicationName: name,
-          role: patientMember.role,
+          role: role,
         },
       });
     }
@@ -207,22 +208,23 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       };
     }
 
-    if (!currentUserPermissions.hasAccount) {
+    if (!currentUserPermissions.isPatient) {
+      let role = patientMember?.role;
+      if (!currentUserPermissions.hasAccount) {
+        role =
+          user?.role !== "USER" && user?.role !== "ADMIN" && user?.role !== "UPLOAD_FILES_ONLY"
+            ? user?.role
+            : undefined;
+      }
       await createPatientNotification({
-        notificationType: "ACCESS_CODE_MEDICATION_EDITED",
+        notificationType: currentUserPermissions.isProvider
+          ? "PROVIDER_MEDICATION_EDITED"
+          : "ACCESS_CODE_MEDICATION_EDITED",
+        patientUserId: patientMember?.patientUserId,
         dynamicData: {
+          organizationName: patientMember?.organizationName,
           medicationName: decryptedCurrentMedication.name,
-          role: user?.role,
-        },
-      });
-    } else if (currentUserPermissions.isProvider && !!patientMember) {
-      await createPatientNotification({
-        notificationType: "PROVIDER_MEDICATION_EDITED",
-        patientUserId: patientMember.patientUserId,
-        dynamicData: {
-          organizationName: patientMember.organizationName,
-          medicationName: decryptedCurrentMedication.name,
-          role: patientMember.role,
+          role: role,
         },
       });
     }

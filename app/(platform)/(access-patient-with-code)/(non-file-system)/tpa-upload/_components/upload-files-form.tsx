@@ -68,6 +68,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
     }
     setIsLoading(true);
 
+    let parentFolderName = null;
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
     const uploadPromises = tempFileList
@@ -99,7 +100,8 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
 
           updateFileStatus(tempFile, "gotPSU", 0);
           const responseObj = await response.json();
-          const { url, fields, fileIdResponse } = responseObj;
+          const { url, fields, fileIdResponse, parentFolderNameResponse } = responseObj;
+          parentFolderName = parentFolderNameResponse;
           fileId = fileIdResponse;
 
           if (response.ok) {
@@ -163,6 +165,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
         await createPatientNotification({
           notificationType: "REQUEST_RECORDS_FILE_UPLOAD",
           dynamicData: {
+            parentFolderName: parentFolderName,
             email: requestRecordsCode.providerEmail,
             numOfFiles: numFilesSuccessfullyUploaded,
             requestRecordsCodeToken: requestRecordsCode.token,
@@ -172,6 +175,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
         await createPatientNotification({
           notificationType: "ACCESS_CODE_FILE_UPLOADED",
           dynamicData: {
+            parentFolderName: parentFolderName,
             role: "UPLOAD_FILES_ONLY",
             numOfFiles: numFilesSuccessfullyUploaded,
           },

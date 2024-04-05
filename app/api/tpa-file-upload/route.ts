@@ -50,6 +50,7 @@ export async function POST(request: Request) {
       },
       select: {
         id: true,
+        userId: true,
         firstName: true,
         lastName: true,
       },
@@ -65,6 +66,7 @@ export async function POST(request: Request) {
       },
       select: {
         id: true,
+        name: true,
         path: true,
         namePath: true,
       },
@@ -93,7 +95,7 @@ export async function POST(request: Request) {
         uploadedByName: `Temporary Access User`,
         type: contentType,
         size: size,
-        userId: userId,
+        userId: patient.userId,
         patientProfileId: patient.id,
         restricted: restricted,
         patientProfileAccessCodeToken: accessToken,
@@ -122,7 +124,7 @@ export async function POST(request: Request) {
         },
         Expires: 600, // Seconds before the presigned post expires. 3600 by default.
       });
-      return Response.json({ url, fields, fileIdResponse: file.id });
+      return Response.json({ url, fields, fileIdResponse: file.id, parentFolderNameResponse: parentFolder.name });
     } else {
       return Response.json({ error: "No file made" }, { status: 500 });
     }

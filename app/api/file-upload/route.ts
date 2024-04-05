@@ -9,7 +9,6 @@ import { allotedStoragesInGb, maxFileUploadSizes, maxFileUploadSize } from "@/li
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { getSumOfFilesSizes } from "@/lib/data/files";
 import { getAccessPatientCodeByToken } from "@/auth/data";
-import { getPatientMember } from "@/auth/actions/patient-member";
 import { validateUserAndGetAccessibleRootFolders } from "@/lib/actions/files";
 
 export async function POST(request: Request) {
@@ -73,6 +72,7 @@ export async function POST(request: Request) {
       },
       select: {
         id: true,
+        name: true,
         namePath: true,
         path: true,
       },
@@ -147,7 +147,7 @@ export async function POST(request: Request) {
           : `Me`,
         type: contentType,
         size: size,
-        userId: userId,
+        userId: patientUserId,
         restricted,
         patientProfileId: patient.id,
         recordViewActivity: {
@@ -173,7 +173,7 @@ export async function POST(request: Request) {
         },
         Expires: 600, // Seconds before the presigned post expires. 3600 by default.
       });
-      return Response.json({ url, fields, fileIdResponse: file.id });
+      return Response.json({ url, fields, fileIdResponse: file.id, parentFolderNameResponse: parentFolder.name });
     } else {
       return Response.json({ error: "No file made" }, { status: 500 });
     }

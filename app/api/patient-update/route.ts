@@ -141,6 +141,20 @@ export async function POST(req: Request) {
       if (result.error) {
         return new NextResponse(result.error, { status: result.status });
       }
+
+      if (!currentUserPermissions.isPatient) {
+        await createPatientNotification({
+          notificationType: currentUserPermissions.isProvider ? "PROVIDER_NODE_RENAMED" : "ACCESS_CODE_NODE_RENAMED",
+          patientUserId: patientUserId,
+          dynamicData: {
+            organizationName: patientMember?.organizationName,
+            isFile: isFile,
+            role: user?.role,
+            oldName: result.oldName || "N/A",
+            newName: newName,
+          },
+        });
+      }
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
@@ -148,10 +162,13 @@ export async function POST(req: Request) {
       if (result.error) {
         return new NextResponse(result.error, { status: result.status });
       }
-      if (!currentUserPermissions.hasAccount) {
+
+      if (!currentUserPermissions.isPatient) {
         await createPatientNotification({
-          notificationType: "ACCESS_CODE_NODE_MOVED",
+          notificationType: currentUserPermissions.isProvider ? "PROVIDER_NODE_MOVED" : "ACCESS_CODE_NODE_MOVED",
+          patientUserId: patientUserId,
           dynamicData: {
+            organizationName: patientMember?.organizationName,
             numOfNodes: selectedIds.length,
             role: user?.role,
             fromFolder: body.fromName,
@@ -217,18 +234,11 @@ export async function POST(req: Request) {
           : null;
       const folderId = await addRootNode(body.folderName, addedBy, patientObj, updateAccessibleRootIdsObj);
 
-      if (!currentUserPermissions.hasAccount) {
+      if (!currentUserPermissions.isPatient) {
         await createPatientNotification({
-          notificationType: "ACCESS_CODE_ADDED_ROOT_FOLDER",
-          dynamicData: {
-            role: user?.role,
-            rootFolderName: body.folderName,
-          },
-        });
-      }
-      if (currentUserPermissions.isProvider) {
-        await createPatientNotification({
-          notificationType: "PROVIDER_ADDED_ROOT_FOLDER",
+          notificationType: currentUserPermissions.isProvider
+            ? "PROVIDER_ADDED_ROOT_FOLDER"
+            : "ACCESS_CODE_ADDED_ROOT_FOLDER",
           patientUserId: patientUserId,
           dynamicData: {
             organizationName: patientMember?.organizationName,
@@ -237,6 +247,7 @@ export async function POST(req: Request) {
           },
         });
       }
+
       return NextResponse.json({ folderId: folderId }, { status: 200 });
     } else if (updateType === "addSubFolder") {
       const addedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
@@ -251,15 +262,22 @@ export async function POST(req: Request) {
       const patientObj = { profileId: patient.id, userId: patientUserId };
       const providerUserId = currentUserPermissions.isProvider ? user.id : null;
       const folder = await addSubFolder(folderObj, addedBy, patientObj, providerUserId, accessibleRootFolderIds);
-      if (!currentUserPermissions.hasAccount) {
+
+      if (!currentUserPermissions.isPatient) {
         await createPatientNotification({
-          notificationType: "ACCESS_CODE_ADDED_SUB_FOLDER",
+          notificationType: currentUserPermissions.isProvider
+            ? "PROVIDER_ADDED_SUB_FOLDER"
+            : "ACCESS_CODE_ADDED_SUB_FOLDER",
+          patientUserId: patientUserId,
           dynamicData: {
+            organizationName: patientMember?.organizationName,
             role: user?.role,
+            parentFolderName: folder.parentFolderName,
             subFolderName: body.folderName,
           },
         });
       }
+
       return NextResponse.json({ folder: folder }, { status: 200 });
     }
     return new NextResponse("Success", { status: 200 });

@@ -136,8 +136,6 @@ export async function POST(req: Request) {
       const newName = body.newName;
       const result = await renameNode(isFile, nodeId, newName);
       if (result.error) {
-        console.log(result.error);
-        console.log("IN HERE 81111 route");
         return new NextResponse(result.error, { status: result.status });
       }
     } else if (updateType === "moveNode") {

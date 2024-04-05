@@ -44,7 +44,7 @@ const patientConditionals: any = {
     mandatoryTruePermissions: ["canAdd"],
   },
   addSubFolder: {
-    requiredFields: ["parentId", "folderName", "addedByUserId", "patientUserId", "addedByName"],
+    requiredFields: ["parentId", "folderName"],
     optionalFields: ["patientProfileId"],
     mandatoryTruePermissions: ["canAdd"],
   },

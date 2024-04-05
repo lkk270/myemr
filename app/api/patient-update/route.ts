@@ -2,6 +2,8 @@
 "use server";
 
 import { auth } from "@/auth";
+import { headers } from "next/headers";
+
 import { NextResponse } from "next/server";
 import prismadb from "@/lib/prismadb";
 
@@ -26,6 +28,11 @@ import { getSumOfFilesSizes } from "@/lib/data/files";
 
 export async function POST(req: Request) {
   try {
+    const headersList = headers();
+    // const domain = headersList.get("host") || "";
+    const fullUrl = headersList.get("referer") || "";
+
+    console.log(fullUrl);
     const body = await req.json();
     const updateType = body.updateType;
 

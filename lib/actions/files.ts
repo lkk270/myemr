@@ -672,6 +672,11 @@ export const addRootNode = async (
   patientProfileId: string,
   addedByName: string,
 ) => {
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canAdd");
+
+  if (accessibleRootFolderIdsResult) {
+    throw new Error("Unauthorized");
+  }
   const existingRoot = await prismadb.folder.findFirst({
     where: {
       isRoot: true,
@@ -840,6 +845,7 @@ export async function fetchAllFoldersForPatient(
   let whereCondition: any = {
     AND: [{ userId: patientUserId }, { parentId: parentId }],
   };
+
   if (!parentId) {
     let accessibleRootFolderIds = accessibleRootFolderIdsParam ? accessibleRootFolderIdsParam : "";
     if (!accessibleRootFolderIdsParam) {
@@ -855,8 +861,16 @@ export async function fetchAllFoldersForPatient(
 
     if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
       // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
+
       whereCondition = {
-        AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+        OR: [
+          {
+            AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+          },
+          {
+            addedByUserId: user.id,
+          },
+        ],
       };
     } else if (accessibleRootFolderIds === "ALL_EXTERNAL") {
       whereCondition = {

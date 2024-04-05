@@ -117,12 +117,16 @@ export const patientUpdateVerification = (body: any, currentUserPermissions: Per
         return false;
       }
     }
+    // const exemptUpdateTypes = ["addRootNode", "addSubFolder", "renameNode", "moveNode"];
     // Check that the user has valid permissions
+    // if (!exemptUpdateTypes.includes(updateType)) {
     for (const permission of permissions) {
       if (!currentUserPermissions[permission]) {
         return false;
       }
     }
+    // }
+
     if (updateType === "insuranceUpload" && !insuranceFileNames.includes(body.side)) {
       return false;
     }

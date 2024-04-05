@@ -172,7 +172,9 @@ export const NewRootFolder = () => {
           value={commonProps.value}
           title={commonProps.title}
           onSelect={() => onSelect(obj.label)}
-          className={cn(isLoading ? disabledClassName : "text-md text-primary/70 hover:text-primary")}
+          className={cn(
+            isLoading ? `${disabledClassName} animate-pulse` : "text-md text-primary/70 hover:text-primary",
+          )}
         >
           <div className="flex gap-x-4 items-center justify-center">
             <div className="bg-primary/10 rounded-md p-2">

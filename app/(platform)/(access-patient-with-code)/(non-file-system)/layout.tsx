@@ -26,14 +26,16 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkValidCode = () => {
       startTransition(() => {
+        console.log(session);
         if (!session) {
           logout();
+        } else {
+          getAccessPatientCodeByToken(session?.tempToken).then((data) => {
+            if (!data) {
+              logout();
+            }
+          });
         }
-        getAccessPatientCodeByToken(session?.tempToken).then((data) => {
-          if (!data) {
-            logout();
-          }
-        });
       });
     };
     checkValidCode();

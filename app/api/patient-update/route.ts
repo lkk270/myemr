@@ -25,6 +25,8 @@ import { createPatientNotification } from "@/lib/actions/notifications";
 
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { getSumOfFilesSizes } from "@/lib/data/files";
+import { getPatientMember } from "@/auth/actions/patient-member";
+import { getAccessPatientCodeByToken } from "@/auth/data";
 
 export async function POST(req: Request) {
   try {
@@ -32,7 +34,6 @@ export async function POST(req: Request) {
     // const domain = headersList.get("host") || "";
     const fullUrl = headersList.get("referer") || "";
 
-    console.log(fullUrl);
     const body = await req.json();
     const updateType = body.updateType;
 
@@ -46,12 +47,35 @@ export async function POST(req: Request) {
     }
 
     const user = session?.user;
-    const userId = user?.id;
-    const currentUserPermissions = extractCurrentUserPermissions(user);
+    let patientUserId = user?.id;
+    let currentUserPermissions = extractCurrentUserPermissions(user);
+    const patientMemberId = currentUserPermissions.isProvider ? fullUrl.split("/patient/")[1].split("/")[0] : null;
+    const requiredPermissions = updateType.startsWith("add") ? "canAdd" : "canEdit";
+    let patientMember = !!patientMemberId
+      ? await getPatientMember(patientMemberId, requiredPermissions, { user, currentUserPermissions })
+      : null;
+    if (currentUserPermissions.isProvider) {
+      if (!!patientMember) {
+        user.role = patientMember?.role;
+      }
+      currentUserPermissions = extractCurrentUserPermissions(user);
+      if (!patientMember) {
+        return new NextResponse("Unauthorized", { status: 401 });
+      }
+      patientUserId = patientMember.patientUserId;
+    }
 
-    if (!userId || !user || !currentUserPermissions.canEdit) {
+    if (!currentUserPermissions.hasAccount) {
+      const code = await getAccessPatientCodeByToken(session.tempToken);
+      if (!code) {
+        return new NextResponse("Unauthorized", { status: 401 });
+      }
+    }
+
+    if (!patientUserId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+
     if (!patientUpdateVerification(body, currentUserPermissions)) {
       return new NextResponse("Invalid body", { status: 400 });
     }
@@ -69,7 +93,7 @@ export async function POST(req: Request) {
 
     const patient = await prismadb.patientProfile.findUnique({
       where: {
-        userId: userId,
+        userId: patientUserId,
       },
       select: {
         id: true,
@@ -94,7 +118,7 @@ export async function POST(req: Request) {
       console.log(selectedIds);
       const targetId = body.targetId;
       console.log(targetId);
-      await moveNodes(selectedIds, targetId, userId);
+      await moveNodes(selectedIds, targetId, patientUserId);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_NODE_MOVED",
@@ -109,10 +133,10 @@ export async function POST(req: Request) {
     } else if (updateType === "trashNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
-      await moveNodes(selectedIds, targetId, userId, true);
+      await moveNodes(selectedIds, targetId, patientUserId, true);
     } else if (updateType === "restoreRootFolder") {
       const selectedId = body.selectedId;
-      await restoreRootFolder(selectedId, userId);
+      await restoreRootFolder(selectedId, patientUserId);
     } else if (updateType === "deleteNode") {
       const selectedIds = body.selectedIds;
       // console.log("selectedIds");
@@ -143,7 +167,7 @@ export async function POST(req: Request) {
       const folderId = await addRootNode(
         body.folderName,
         body.addedByUserId,
-        body.patientUserId,
+        patientUserId,
         patient.id,
         body.addedByName,
       );

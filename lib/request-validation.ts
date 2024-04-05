@@ -39,7 +39,7 @@ const patientConditionals: any = {
     mandatoryTruePermissions: ["canDelete"],
   },
   addRootNode: {
-    requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
+    requiredFields: ["folderName"],
     optionalFields: ["patientProfileId"],
     mandatoryTruePermissions: ["canAdd"],
   },

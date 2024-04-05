@@ -100,9 +100,6 @@ export const NewRootFolder = () => {
       const promise = axios
         .post("/api/patient-update", {
           folderName: label,
-          addedByUserId: userId,
-          patientUserId: userId,
-          addedByName: email,
           updateType: "addRootNode",
         })
         .then(({ data }) => {

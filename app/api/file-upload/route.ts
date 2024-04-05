@@ -84,7 +84,7 @@ export async function POST(request: Request) {
             (folderId) => parentFolder?.path.startsWith(`/${folderId}/`) || folderId === parentFolder?.id,
           )
         : true;
- 
+
     if (
       !parentFolder ||
       parentFolder.namePath.startsWith("/Trash") ||
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
         parentId: parentId,
         namePath: `${parentNamePath}/${fileName}`,
         path: `${parentPath}${parentId}/`,
-        uploadedByUserId: patientUserId,
+        uploadedByUserId: !currentUserPermissions.hasAccount ? null : user.id,
         uploadedByName: currentUserPermissions.isProvider
           ? user.name
           : !currentUserPermissions.hasAccount

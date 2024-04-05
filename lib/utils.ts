@@ -662,3 +662,20 @@ export const getFileName = (fileNameTemp: string, fileType: string) => {
   }
   return `${fileNameTemp}.${newExtension}`;
 };
+
+export function extractRootFolderIds(accessibleRootFoldersString: string) {
+  return accessibleRootFoldersString === "ALL"
+    ? "ALL"
+    : accessibleRootFoldersString === "ALL_EXTERNAL"
+    ? "ALL_EXTERNAL"
+    : removeTrailingComma(accessibleRootFoldersString)
+        .split(",")
+        .map((id) => id.trim());
+}
+
+export function removeTrailingComma(str: string) {
+  if (str.endsWith(",")) {
+    return str.slice(0, -1); // Removes the last character
+  }
+  return str;
+}

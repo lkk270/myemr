@@ -5,7 +5,7 @@ import prismadb from "../prismadb";
 import { allotedStoragesInGb, rootFolderCategories } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { isValidNodeName } from "../utils";
+import { isValidNodeName, extractRootFolderIds, removeTrailingComma } from "../utils";
 import { ExtendedUser } from "@/next-auth";
 import { currentUserPermissionsType } from "@/app/types";
 import { createPatientNotification } from "./notifications";
@@ -45,8 +45,8 @@ export async function validateUserAndGetAccessibleRootFolders(
     if (!currentUserPermissions[requiredPermissions]) {
       return null;
     } else {
-      const accessibleRootFolderIds = await extractRootFolderIds(user.accessibleRootFolders);
-      return { accessibleRootFolderIds, patientUserId: user.id };
+      const accessibleRootFolderIds = extractRootFolderIds(user.accessibleRootFolders);
+      return { accessibleRootFolderIds, patientUserId: user.id, patientProfileId: null };
     }
   } else if (currentUserPermissions.isProvider) {
     if (!userParam || !userParam.patientMemberId) {
@@ -59,9 +59,13 @@ export async function validateUserAndGetAccessibleRootFolders(
     if (!patientMember) {
       return null;
     }
-    const accessibleRootFolderIds = await extractRootFolderIds(patientMember.accessibleRootFolders);
+    const accessibleRootFolderIds = extractRootFolderIds(patientMember.accessibleRootFolders);
 
-    return { accessibleRootFolderIds, patientUserId: patientMember.patientUserId };
+    return {
+      accessibleRootFolderIds,
+      patientUserId: patientMember.patientUserId,
+      patientProfileId: patientMember.patientProfileId,
+    };
   }
   return null;
 }
@@ -665,12 +669,20 @@ export const restrictFiles = async (patient: { id: string; sumOfAllSuccessFilesS
   return []; // If no files need to be restricted, return an empty array.
 };
 
+// folderObj: { name: string; parentId: string },
+// patient: { profileId: string; userId: string },
+// addedBy: { id: string | null; name: string },
+// accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+
 export const addRootNode = async (
   folderName: string,
-  addedByUserId: string | null,
-  patientUserId: string,
-  patientProfileId: string,
-  addedByName: string,
+  addedBy: { id: string | null; name: string },
+  patientObj: { profileId: string; userId: string },
+  updateAccessibleRootIdsObj: {
+    userType: "provider" | "accessCode";
+    id: string;
+    accessibleRootFolders: string;
+  } | null,
 ) => {
   if (!rootFolderCategories.some((item) => item.value === folderName)) {
     throw new Error("Root folder does not exist in rootFolderCategories!");
@@ -681,8 +693,8 @@ export const addRootNode = async (
       name: folderName,
       namePath: `/${folderName}`,
       path: "/",
-      userId: patientUserId,
-      patientProfileId: patientProfileId,
+      userId: patientObj.userId,
+      patientProfileId: patientObj.profileId,
     },
   });
 
@@ -699,22 +711,49 @@ export const addRootNode = async (
           name: folderName,
           namePath: `/${folderName}`,
           path: "/",
-          addedByUserId: addedByUserId,
-          addedByName: addedByName,
+          addedByUserId: addedBy.id,
+          addedByName: addedBy.name,
           isRoot: true,
-          userId: patientUserId,
-          patientProfileId: patientProfileId,
-          ...(addedByUserId && {
+          userId: patientObj.userId,
+          patientProfileId: patientObj.profileId,
+          ...(addedBy.id && {
             recordViewActivity: {
               create: [
                 {
-                  userId: addedByUserId,
+                  userId: addedBy.id,
                 },
               ],
             },
           }),
         },
       });
+
+      const accessibleRootFolders = !!updateAccessibleRootIdsObj
+        ? updateAccessibleRootIdsObj.accessibleRootFolders
+        : null;
+      if (
+        !!updateAccessibleRootIdsObj &&
+        !!accessibleRootFolders &&
+        accessibleRootFolders !== "ALL" &&
+        accessibleRootFolders !== "ALL_EXTERNAL"
+      ) {
+        const newAccessibleRootFolders = `${removeTrailingComma(accessibleRootFolders)},${folder.id},`;
+        if (updateAccessibleRootIdsObj.userType === "accessCode") {
+          await prisma.patientProfileAccessCode.update({
+            where: { id: updateAccessibleRootIdsObj.id },
+            data: {
+              accessibleRootFolders: newAccessibleRootFolders,
+            },
+          });
+        } else if (updateAccessibleRootIdsObj.userType === "provider") {
+          await prisma.patientMember.update({
+            where: { id: updateAccessibleRootIdsObj.id },
+            data: {
+              accessibleRootFolders: newAccessibleRootFolders,
+            },
+          });
+        }
+      }
     },
     { timeout: 20000 },
   );
@@ -723,66 +762,70 @@ export const addRootNode = async (
     return folder.id;
   } else {
     // Handle the case where the folder creation failed or the transaction was rolled back
-    throw new Error("Failed to create folder");
+    throw new Error("Failed to create folder 0");
   }
 };
 
 export const addSubFolder = async (
-  folderName: string,
-  parentId: string,
-  addedByUserId: string | null,
-  patientUserId: string,
-  patientProfileId: string,
-  addedByName: string,
+  folderObj: { name: string; parentId: string },
+  addedBy: { id: string | null; name: string },
+  patientObj: { profileId: string; userId: string },
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
 ) => {
-  const user = await currentUser();
-  if (!user) return { error: "Unauthorized", status: 400 };
-  const currentUserPermissions = extractCurrentUserPermissions(user);
-  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canAdd", {
-    user,
-    currentUserPermissions,
-  });
+  // const user = await currentUser();
+  // if (!user) return { error: "Unauthorized", status: 400 };
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
+  // const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canAdd", {
+  //   user,
+  //   currentUserPermissions,
+  // });
 
-  if (!accessibleRootFolderIdsResult) {
-    return { error: "Unauthorized", status: 400 };
-  }
-  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+  // if (!accessibleRootFolderIdsResult) {
+  //   return { error: "Unauthorized", status: 400 };
+  // }
+  // const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+
+  // const addedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
+  // const addedByName = currentUserPermissions.isProvider
+  //   ? user.name || "N/A"
+  //   : !currentUserPermissions.hasAccount
+  //   ? `Temporary Access User`
+  //   : `Me`;
 
   let folder: Folder | undefined;
 
   const parentFolder = await prismadb.folder.findUnique({
     where: {
-      id: parentId,
+      id: folderObj.parentId,
     },
   });
-
-  if (
-    !parentFolder ||
-    parentFolder.namePath.startsWith("/Trash") ||
-    (accessibleRootFolderIds !== "ALL" &&
-      accessibleRootFolderIds !== "ALL_EXTERNAL" &&
-      !accessibleRootFolderIds.includes(parentFolder.path.split("/")[1]))
-  ) {
-    throw new Error("Failed to create folder");
+  let isValidFolder = true;
+  if (typeof accessibleRootFolderIds === "object") {
+    isValidFolder = parentFolder?.isRoot
+      ? accessibleRootFolderIds.some((id) => parentFolder.id === id)
+      : accessibleRootFolderIds.some((id) => parentFolder?.path.startsWith(`/${id}/`));
+  }
+  if (!parentFolder || parentFolder.namePath.startsWith("/Trash") || !isValidFolder) {
+    throw new Error("Failed to create folder 111");
   }
 
   await prismadb.$transaction(
     async (prisma) => {
       folder = await prisma.folder.create({
         data: {
-          name: folderName,
-          parentId: parentId,
-          namePath: `${parentFolder.namePath}/${folderName}`,
+          name: folderObj.name,
+          parentId: folderObj.parentId,
+          namePath: `${parentFolder.namePath}/${folderObj.name}`,
           path: `${parentFolder.path}${parentFolder.id}/`,
-          addedByUserId: addedByUserId,
-          addedByName: addedByName,
-          userId: patientUserId,
-          patientProfileId: patientProfileId,
-          ...(addedByUserId && {
+          addedByUserId: addedBy.id,
+          addedByName: addedBy.name,
+          userId: patientObj.userId,
+          patientProfileId: patientObj.profileId,
+          ...(addedBy.id && {
             recordViewActivity: {
               create: [
                 {
-                  userId: addedByUserId,
+                  userId: addedBy.id,
                 },
               ],
             },
@@ -803,26 +846,9 @@ export const addSubFolder = async (
     };
   } else {
     // Handle the case where the folder creation failed or the transaction was rolled back
-    throw new Error("Failed to create folder");
+    throw new Error("Failed to create folder 22");
   }
 };
-
-export async function extractRootFolderIds(accessibleRootFoldersString: string) {
-  return accessibleRootFoldersString === "ALL"
-    ? "ALL"
-    : accessibleRootFoldersString === "ALL_EXTERNAL"
-    ? "ALL_EXTERNAL"
-    : removeTrailingComma(accessibleRootFoldersString)
-        .split(",")
-        .map((id) => id.trim());
-}
-
-function removeTrailingComma(str: string) {
-  if (str.endsWith(",")) {
-    return str.slice(0, -1); // Removes the last character
-  }
-  return str;
-}
 
 export async function fetchAllFoldersForPatient(
   parentId: string | null,
@@ -860,15 +886,19 @@ export async function fetchAllFoldersForPatient(
     if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
       // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
 
+      // whereCondition = {
+      //   OR: [
+      //     {
+      //       AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+      //     },
+      //     {
+      //       addedByUserId: user.id,
+      //     },
+      //   ],
+      // };
+
       whereCondition = {
-        OR: [
-          {
-            AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
-          },
-          {
-            addedByUserId: user.id,
-          },
-        ],
+        AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
       };
     } else if (accessibleRootFolderIds === "ALL_EXTERNAL") {
       whereCondition = {

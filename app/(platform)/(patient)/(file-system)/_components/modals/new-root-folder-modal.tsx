@@ -57,7 +57,6 @@ export const NewRootFolder = () => {
       startTransition(() => {
         fetchAllRootFolders(patientMember?.patientUserId)
           .then((data) => {
-            console.log(data);
             if (!data || !!data.error) {
               toast.error("Error fetching root folders");
               return;
@@ -156,7 +155,12 @@ export const NewRootFolder = () => {
               {obj.label}
             </div>
             <Badge className="border-primary/10 border-[1px] flex justify-end text-primary/30" variant="outline">
-              {isInTrash ? "Already exists (in trash)" : "Already exists"}
+              {isInTrash
+                ? "Already exists (in trash)"
+                : !currentUserPermissions.isPatient &&
+                  !singleLayerNodes.some((node) => node.isRoot && node.name === commonProps.value)
+                ? "Already exists (no access)"
+                : "Already exists"}
             </Badge>
           </div>
         </CommandItem>

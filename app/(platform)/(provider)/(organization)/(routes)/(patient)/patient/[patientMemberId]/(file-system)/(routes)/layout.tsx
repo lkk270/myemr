@@ -11,13 +11,18 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
-import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
+import {
+  sortFolderChildren,
+  sortRootNodes,
+  extractNodes,
+  addLastViewedAtAndSort,
+  extractRootFolderIds,
+} from "@/lib/utils";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { OrganizationWithRoleType } from "@/app/types";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { getPatientMember } from "@/auth/actions/patient-member";
-import { extractRootFolderIds } from "@/lib/actions/files";
 import { ProviderManageAccountModal } from "@/components/modals/manage-account/provider-manage-account/provider-manage-account-modal";
 import { SidebarWrapper } from "./_components/sidebar-wrapper";
 interface FileSystemLayoutProps {
@@ -44,7 +49,7 @@ const FileSystemLayout = async ({ children, params }: FileSystemLayoutProps) => 
     return <SomethingNotFound title="404 No patient found" href="provider-home" />;
   }
 
-  const accessibleRootFolderIds = await extractRootFolderIds(patientMember.accessibleRootFolders);
+  const accessibleRootFolderIds = extractRootFolderIds(patientMember.accessibleRootFolders);
 
   const organizationsMembersOf = await prismadb.organizationMember.findMany({
     where: {

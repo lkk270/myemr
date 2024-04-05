@@ -203,12 +203,13 @@ export async function POST(req: Request) {
         ? "accessCode"
         : null;
       const idToUse = userType == "accessCode" ? codeId : patientMemberId;
+      const providerUserId = currentUserPermissions.isProvider ? user.id : "";
       const updateAccessibleRootIdsObj =
         !!userType && !!idToUse
-          ? { userType: userType, id: idToUse, accessibleRootFolders: accessibleRootFolderIdsString }
+          ? { userType: userType, providerUserId, id: idToUse, accessibleRootFolders: accessibleRootFolderIdsString }
           : null;
       const folderId = await addRootNode(body.folderName, addedBy, patientObj, updateAccessibleRootIdsObj);
-      
+
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_ROOT_FOLDER",
@@ -241,7 +242,8 @@ export async function POST(req: Request) {
       const addedBy = { id: addedByUserId, name: addedByName };
       const folderObj = { name: body.folderName, parentId: body.parentId };
       const patientObj = { profileId: patient.id, userId: patientUserId };
-      const folder = await addSubFolder(folderObj, addedBy, patientObj, accessibleRootFolderIds);
+      const providerUserId = currentUserPermissions.isProvider ? user.id : null;
+      const folder = await addSubFolder(folderObj, addedBy, patientObj, providerUserId, accessibleRootFolderIds);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_SUB_FOLDER",

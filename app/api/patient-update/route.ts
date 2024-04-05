@@ -164,13 +164,13 @@ export async function POST(req: Request) {
         JSON.stringify({ totalSize: totalSize, newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
       );
     } else if (updateType === "addRootNode") {
-      const folderId = await addRootNode(
-        body.folderName,
-        body.addedByUserId,
-        patientUserId,
-        patient.id,
-        body.addedByName,
-      );
+      const uploadedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
+      const uploadedByName = currentUserPermissions.isProvider
+        ? user.name || "N/A"
+        : !currentUserPermissions.hasAccount
+        ? `Temporary Access User`
+        : `Me`;
+      const folderId = await addRootNode(body.folderName, uploadedByUserId, patientUserId, patient.id, uploadedByName);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_ROOT_FOLDER",
@@ -193,13 +193,19 @@ export async function POST(req: Request) {
       }
       return NextResponse.json({ folderId: folderId }, { status: 200 });
     } else if (updateType === "addSubFolder") {
+      const uploadedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
+      const uploadedByName = currentUserPermissions.isProvider
+        ? user.name || "N/A"
+        : !currentUserPermissions.hasAccount
+        ? `Temporary Access User`
+        : `Me`;
       const folder = await addSubFolder(
         body.folderName,
         body.parentId,
-        body.addedByUserId,
-        body.patientUserId,
+        uploadedByUserId,
+        patientUserId,
         patient.id,
-        body.addedByName,
+        uploadedByName,
       );
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({

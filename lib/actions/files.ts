@@ -2,7 +2,7 @@
 
 import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
-import { allotedStoragesInGb } from "../constants";
+import { allotedStoragesInGb, rootFolderCategories } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { isValidNodeName } from "../utils";
@@ -667,15 +667,13 @@ export const restrictFiles = async (patient: { id: string; sumOfAllSuccessFilesS
 
 export const addRootNode = async (
   folderName: string,
-  addedByUserId: string,
+  addedByUserId: string | null,
   patientUserId: string,
   patientProfileId: string,
   addedByName: string,
 ) => {
-  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canAdd");
-
-  if (accessibleRootFolderIdsResult) {
-    throw new Error("Unauthorized");
+  if (!rootFolderCategories.some((item) => item.value === folderName)) {
+    throw new Error("Root folder does not exist in rootFolderCategories!");
   }
   const existingRoot = await prismadb.folder.findFirst({
     where: {
@@ -688,7 +686,7 @@ export const addRootNode = async (
     },
   });
 
-  if (existingRoot) {
+  if (!!existingRoot) {
     throw new Error("Root folder with same name already exists!");
   }
 
@@ -732,7 +730,7 @@ export const addRootNode = async (
 export const addSubFolder = async (
   folderName: string,
   parentId: string,
-  addedByUserId: string,
+  addedByUserId: string | null,
   patientUserId: string,
   patientProfileId: string,
   addedByName: string,

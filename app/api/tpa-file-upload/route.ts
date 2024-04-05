@@ -89,7 +89,7 @@ export async function POST(request: Request) {
         parentId: parentFolder.id,
         namePath: `${parentFolder.namePath}/${fileName}`,
         path: `${parentFolder.path}${parentFolder.id}/`,
-        uploadedByUserId: userId,
+        uploadedByUserId: null,
         uploadedByName: `Temporary Access User`,
         type: contentType,
         size: size,

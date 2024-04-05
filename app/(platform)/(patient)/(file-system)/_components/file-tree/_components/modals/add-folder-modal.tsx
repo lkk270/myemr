@@ -71,9 +71,6 @@ export const AddFolderModal = () => {
       .post("/api/patient-update", {
         parentId: parentId,
         folderName: folderName,
-        addedByUserId: userId,
-        patientUserId: userId,
-        addedByName: email,
         updateType: "addSubFolder",
       })
       .then(({ data }) => {

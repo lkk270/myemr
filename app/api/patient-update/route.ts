@@ -130,21 +130,24 @@ export async function POST(req: Request) {
     if (!accessibleRootFolderIds || !accessibleRootFolderIdsString) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+
+    const userIds = { patient: patientUserId, provider: currentUserPermissions.isProvider ? user.id : null };
+
     if (updateType === "renameNode") {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const newName = body.newName;
-      const userIds = { patient: patientUserId, provider: currentUserPermissions.isProvider ? user.id : null };
       const result = await renameNode(isFile, nodeId, newName, userIds, accessibleRootFolderIds);
       if (result.error) {
         return new NextResponse(result.error, { status: result.status });
       }
     } else if (updateType === "moveNode") {
       const selectedIds = body.selectedIds;
-      console.log(selectedIds);
       const targetId = body.targetId;
-      console.log(targetId);
-      await moveNodes(selectedIds, targetId, patientUserId);
+      const result = await moveNodes(selectedIds, targetId, false, userIds, accessibleRootFolderIds);
+      if (result.error) {
+        return new NextResponse(result.error, { status: result.status });
+      }
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_NODE_MOVED",
@@ -159,7 +162,10 @@ export async function POST(req: Request) {
     } else if (updateType === "trashNode") {
       const selectedIds = body.selectedIds;
       const targetId = body.targetId;
-      await moveNodes(selectedIds, targetId, patientUserId, true);
+      const result = await moveNodes(selectedIds, targetId, true, userIds, accessibleRootFolderIds);
+      if (result.error) {
+        return new NextResponse(result.error, { status: result.status });
+      }
     } else if (updateType === "restoreRootFolder") {
       const selectedId = body.selectedId;
       await restoreRootFolder(selectedId, patientUserId);

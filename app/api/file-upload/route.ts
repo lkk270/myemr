@@ -78,15 +78,13 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log(accessibleRootFolderIds);
     const isAccessible =
       typeof accessibleRootFolderIds === "object"
         ? accessibleRootFolderIds.some(
             (folderId) => parentFolder?.path.startsWith(`/${folderId}/`) || folderId === parentFolder?.id,
           )
         : true;
-    console.log(parentFolder);
-    console.log(isAccessible);
+ 
     if (
       !parentFolder ||
       parentFolder.namePath.startsWith("/Trash") ||

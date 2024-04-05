@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 
 interface PhoneNumberProps {
@@ -18,25 +18,31 @@ export const PhoneNumber = ({
   fieldName,
   className = "bg-secondary border-primary/10",
 }: PhoneNumberProps) => {
+  // Helper function to format the phone number.
   const formatPhoneNumber = (inputNumber: string) => {
     if (!inputNumber) {
       return "";
     }
 
     const digits = inputNumber.replace(/\D/g, "");
-    const length = digits.length;
-
-    if (length < 4) return digits;
-    if (length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-
+    if (digits.length < 4) return digits;
+    if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   };
-  let value = formatPhoneNumber(number || "");
+
+  // Initialize the state with the formatted version of the `number` prop.
+  const [value, setValue] = useState(formatPhoneNumber(number || ""));
+
+  // Effect hook to update the state when the `number` prop changes.
+  // This ensures that the input field updates if the prop changes from the outside.
+  useEffect(() => {
+    setValue(formatPhoneNumber(number || ""));
+  }, [number]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedNumber = formatPhoneNumber(e.target.value);
-    value = formattedNumber;
-    handleChange(formattedNumber.replace(/\D/g, "")); // Pass the selected value directly
+    setValue(formattedNumber); // Schedule state update.
+    handleChange(formattedNumber.replace(/\D/g, "")); // Lifting state up as plain digits.
   };
 
   return (
@@ -46,7 +52,7 @@ export const PhoneNumber = ({
         type="tel"
         autoComplete="tel"
         className={className}
-        value={value}
+        value={value} // Controlled component.
         onChange={onChange}
         placeholder="(000) 000-0000"
         disabled={disabled}

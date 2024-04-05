@@ -283,7 +283,7 @@ export const About = ({ initialData }: AboutProps) => {
             <CardContent>
               <ViewAbout
                 handleEditToggle={handleEditToggle}
-                initialData={{ ...initialDataDynamic, email: currentUser.email!! }}
+                initialData={{ ...initialDataDynamic, email: currentUser.email!!, imageUrl: currentUser.image }}
               />
             </CardContent>
           </Card>
@@ -575,7 +575,7 @@ export const About = ({ initialData }: AboutProps) => {
                         control={control}
                         name="mobilePhone"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem ref={null}>
                             <FormLabel htmlFor="mobilePhone">Mobile Phone</FormLabel>
                             <PhoneNumber
                               fieldName="mobilePhone"

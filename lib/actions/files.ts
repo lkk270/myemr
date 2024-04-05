@@ -924,18 +924,20 @@ export async function fetchAllFoldersForPatient(
   return folders;
 }
 
-export async function fetchAllRootFolders() {
+export async function fetchAllRootFolders(patientUserId: string | null = null) {
   // Fetch folders and their files
   const user = await currentUser();
   if (!user) return { error: "Unauthorized" };
-  const currentUserPermissions = extractCurrentUserPermissions(user);
-  if (!currentUserPermissions.isPatient) {
-    return { error: "Unauthorized" };
-  }
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
+  // if (!currentUserPermissions.isPatient && !currentUserPermissions.canAdd) {
+  //   console.log("933");
+  //   return { error: "Unauthorized" };
+  // }
+  const userId = patientUserId ? patientUserId : user.id;
 
   const rootFolders = await prismadb.folder.findMany({
     where: {
-      userId: user.id,
+      userId,
       isRoot: true,
       namePath: {
         not: {

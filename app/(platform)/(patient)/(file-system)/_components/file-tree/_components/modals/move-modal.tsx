@@ -57,6 +57,13 @@ export const MoveModal = () => {
           // Success handling
         })
         .catch((error) => {
+          const errorResponse = error?.response;
+          const status = errorResponse.status;
+          if (status >= 400 && status < 500) {
+            window.location.reload();
+          }
+          // error = error?.response?.data || "Something went wrong";
+          // console.log(error);
           // Error handling
           throw error; // Rethrow to allow the toast to catch it
         });

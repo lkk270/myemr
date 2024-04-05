@@ -155,9 +155,10 @@ export async function renameNode(
       },
       data: { name: newName, namePath: newNamePath },
     });
-    await updateRecordViewActivity(userIds.patient, nodeId, true);
+
+    await updateRecordViewActivity(userIds.patient, nodeId, isFile);
     if (!!userIds.provider) {
-      await updateRecordViewActivity(userIds.provider, nodeId, true);
+      await updateRecordViewActivity(userIds.provider, nodeId, isFile);
     }
     // if (!currentUserPermissions.hasAccount) {
     //   await createPatientNotification({
@@ -207,10 +208,17 @@ export async function renameNode(
       },
       { timeout: 20000 },
     );
-    await updateRecordViewActivity(userIds.patient, nodeId, true);
+
+    await updateRecordViewActivity(userIds.patient, nodeId, isFile);
     if (!!userIds.provider) {
-      await updateRecordViewActivity(userIds.provider, nodeId, true);
+      await updateRecordViewActivity(userIds.provider, nodeId, isFile);
     }
+    // if (userIds.provider) {
+    //   await updateRecordViewActivity(userIds.patient, nodeId, isFile);
+    //   await updateRecordViewActivity(userIds.provider, nodeId, isFile);
+    // } else {
+    //   await updateRecordViewActivityThatExists([userIds.patient], nodeId, isFile);
+    // }
 
     // if (!currentUserPermissions.hasAccount) {
     //   await createPatientNotification({
@@ -250,6 +258,19 @@ export async function updateRecordViewActivity(userId: string, nodeId: string, i
       },
     });
   }
+}
+
+export async function updateRecordViewActivityThatExists(userIds: string[], nodeId: string, isFile: boolean) {
+  // console.log(userId);
+  const whereClause = isFile
+    ? { userId: { in: userIds }, fileId: nodeId }
+    : { userId: { in: userIds }, folderId: nodeId };
+
+  // Update the existing RecordViewActivity
+  await prismadb.recordViewActivity.updateMany({
+    where: whereClause,
+    data: { lastViewedAt: new Date() },
+  });
 }
 
 async function updateRecordViewActivitiesForFiles(userId: string, fileIds: string[]) {
@@ -312,23 +333,16 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
     });
     await batchUpdateDescendants(prisma, node!.id, node!.path, node!.namePath, newPath, newNamePath);
   });
-  await updateRecordViewActivity(userId, nodeId, isFile);
+  await updateRecordViewActivityThatExists([userId], nodeId, isFile);
 }
 
-export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
-  const user = await currentUser();
-  if (!user) return { error: "Unauthorized", status: 400 };
-  const currentUserPermissions = extractCurrentUserPermissions(user);
-  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canEdit", {
-    user,
-    currentUserPermissions,
-  });
-
-  if (!accessibleRootFolderIdsResult) {
-    return { error: "Unauthorized", status: 400 };
-  }
-  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
-
+export async function moveNodes(
+  selectedIds: string[],
+  targetNodeId: string,
+  isTrash: boolean = false,
+  userIds: { patient: string; provider: string | null },
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+) {
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
   if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
@@ -337,16 +351,25 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
 
   for (const nodeId of selectedIds) {
     let isFile = false;
-    let node: File | Folder = (await prismadb.folder.findUnique({ where: { id: nodeId } })) as Folder;
+    let node: File | Folder = (await prismadb.folder.findUnique({
+      where: { id: nodeId, userId: userIds.patient },
+    })) as Folder;
     if (!node) {
-      node = (await prismadb.file.findUnique({ where: { id: nodeId } })) as File;
+      node = (await prismadb.file.findUnique({ where: { id: nodeId, userId: userIds.patient } })) as File;
       if (!node) continue; // Skip if node is not found
       isFile = true;
     }
-    if (accessibleRootFolderIds !== "ALL" && !accessibleRootFolderIds.includes(node.path.split("/")[1])) {
+    let isValidNode = !!node
+      ? isNodeAccessible(accessibleRootFolderIds, {
+          id: node.id,
+          isRoot: false,
+          path: node.path,
+        })
+      : false;
+    if (!isValidNode) {
+      return { error: "Unauthorized", status: 401 };
       //safe even for moving to trash because accessibleRootFolderIds will equal ALL for moving to trash because only
       //the patient can move to trash
-      continue;
     }
     const newPath = `${targetNode.path}${targetNode.id}/`;
     const newNamePath = `${targetNode.namePath}/${node.name}`;
@@ -363,7 +386,10 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
         });
         await batchUpdateDescendants(prisma, node.id, node.path, node.namePath, newPath, newNamePath);
       });
-      await updateRecordViewActivity(userId, nodeId, isFile);
+      await updateRecordViewActivity(userIds.patient, nodeId, isFile);
+      if (!!userIds.provider) {
+        await updateRecordViewActivity(userIds.provider, nodeId, isFile);
+      }
     }
   }
 
@@ -380,8 +406,9 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
         \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, CHAR_LENGTH(\`namePath\`) - LOCATE('/', REVERSE(\`namePath\`)) + 2))
     WHERE \`id\` IN (${Prisma.join(fileIds)})`;
 
-    await updateRecordViewActivitiesForFiles(userId, fileIds);
+    await updateRecordViewActivitiesForFiles(userIds.patient, fileIds);
   }
+  return { success: true };
 }
 
 async function batchUpdateDescendants(

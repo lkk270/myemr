@@ -302,7 +302,11 @@ const FileTree = ({ width }: FileTreeProps) => {
       .then(({ data }) => {})
       .catch((error) => {
         folderStore.setFolders(originalFolders);
-        console.log(error?.response?.data);
+        const errorResponse = error?.response;
+        const status = errorResponse.status;
+        if (status >= 400 && status < 500) {
+          window.location.reload();
+        }
         // error = error?.response?.data || "Something went wrong";
         // console.log(error);
         throw error;

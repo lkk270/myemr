@@ -28,6 +28,7 @@ export const useDownloadFile = () => {
         : await getPresignedUrl(fileId, true, patientMemberIdOrPatientId);
       if (!data || !data.presignedUrl) {
         toast.error("Something went wrong", { duration: 2500 });
+        window.location.reload();
       } else {
         // Client-side logic to trigger the download
         const link = document.createElement("a");
@@ -64,6 +65,7 @@ export const useDownloadZip = () => {
       if (!Array.isArray(filesData)) {
         // Since it's not an array, we now assume it's the error object - handle the error
         toast.error("Something went wrong", { duration: 2500 });
+        window.location.reload();
         return;
       } else if (filesData.length === 0) {
         // It's an array but it's empty - handle this case as needed

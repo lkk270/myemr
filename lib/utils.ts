@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Notification, OrganizationActivity, Unit } from "@prisma/client";
+import { File, Folder, Notification, OrganizationActivity, Unit } from "@prisma/client";
 import * as mime from "mime-types";
 
 import {
@@ -679,3 +679,16 @@ export function removeTrailingComma(str: string) {
   }
   return str;
 }
+
+export const isNodeAccessible = (
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+  node: { id: string; isRoot: boolean; path: string },
+) => {
+  let isValidNode = true;
+  if (typeof accessibleRootFolderIds === "object") {
+    isValidNode = node?.isRoot
+      ? accessibleRootFolderIds.some((id) => node.id === id)
+      : accessibleRootFolderIds.some((id) => node?.path.startsWith(`/${id}/`));
+  }
+  return isValidNode;
+};

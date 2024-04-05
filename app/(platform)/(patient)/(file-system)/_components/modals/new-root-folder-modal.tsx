@@ -107,7 +107,11 @@ export const NewRootFolder = () => {
           onClose();
         })
         .catch((error) => {
-          // error = error?.response?.data;
+          const errorResponse = error?.response;
+          const status = errorResponse.status;
+          if (status >= 400 && status < 500) {
+            window.location.reload();
+          }
           // if (error && error !== "Internal Error") {
           //   toast.error(error);
           // }

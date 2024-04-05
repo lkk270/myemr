@@ -134,8 +134,11 @@ export async function POST(req: Request) {
       const isFile = body.isFile;
       const nodeId = body.nodeId;
       const newName = body.newName;
-      const result = await renameNode(isFile, nodeId, newName);
+      const userIds = { patient: patientUserId, provider: currentUserPermissions.isProvider ? user.id : null };
+      const result = await renameNode(isFile, nodeId, newName, userIds, accessibleRootFolderIds);
       if (result.error) {
+        console.log("IN 140");
+        console.log(result);
         return new NextResponse(result.error, { status: result.status });
       }
     } else if (updateType === "moveNode") {

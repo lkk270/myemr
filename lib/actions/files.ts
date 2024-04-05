@@ -5,7 +5,7 @@ import prismadb from "../prismadb";
 import { allotedStoragesInGb, rootFolderCategories } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { isValidNodeName, extractRootFolderIds, removeTrailingComma } from "../utils";
+import { isValidNodeName, extractRootFolderIds, removeTrailingComma, isNodeAccessible } from "../utils";
 import { ExtendedUser } from "@/next-auth";
 import { currentUserPermissionsType } from "@/app/types";
 import { createPatientNotification } from "./notifications";
@@ -70,20 +70,26 @@ export async function validateUserAndGetAccessibleRootFolders(
   return null;
 }
 
-export async function renameNode(isFile: boolean, nodeId: string, newName: string) {
-  const user = await currentUser();
-  if (!user) return { error: "Unauthorized", status: 400 };
-  const currentUserPermissions = extractCurrentUserPermissions(user);
-  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canEdit", {
-    user,
-    currentUserPermissions,
-  });
+export async function renameNode(
+  isFile: boolean,
+  nodeId: string,
+  newName: string,
+  userIds: { patient: string; provider: string | null },
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+) {
+  // const user = await currentUser();
+  // if (!user) return { error: "Unauthorized", status: 400 };
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
+  // const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canEdit", {
+  //   user,
+  //   currentUserPermissions,
+  // });
 
-  if (!accessibleRootFolderIdsResult) {
-    return { error: "Unauthorized", status: 400 };
-  }
+  // if (!accessibleRootFolderIdsResult) {
+  //   return { error: "Unauthorized", status: 400 };
+  // }
 
-  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+  // const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
   async function updateDescendantsForRename(
     prisma: any,
     parentId: string,
@@ -126,16 +132,18 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
     return { error: "Invalid new name", status: 400 };
   }
   if (isFile === true) {
-    let isValidFile = true;
     const currentFile = await prismadb.file.findUnique({
-      where: { id: nodeId },
+      where: { id: nodeId, userId: userIds.patient },
     });
 
-    if (accessibleRootFolderIds === "ALL_EXTERNAL" && currentFile?.namePath.startsWith("/Trash")) {
-      isValidFile = false;
-    } else if (typeof accessibleRootFolderIds === "object") {
-      isValidFile = accessibleRootFolderIds.some((id) => currentFile?.path.startsWith(`/${id}/`));
-    }
+    let isValidFile = !!currentFile
+      ? isNodeAccessible(accessibleRootFolderIds, {
+          id: currentFile.id,
+          isRoot: false,
+          path: currentFile.path,
+        })
+      : false;
+
     if (!currentFile || !isValidFile) {
       return { error: "File not found", status: 400 };
     }
@@ -147,29 +155,34 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
       },
       data: { name: newName, namePath: newNamePath },
     });
-    await updateRecordViewActivity(user.id, nodeId, true);
-    if (!currentUserPermissions.hasAccount) {
-      await createPatientNotification({
-        notificationType: "ACCESS_CODE_NODE_RENAMED",
-        dynamicData: {
-          isFile: true,
-          role: user?.role,
-          oldName: currentFile.name,
-          newName: newName,
-        },
-      });
+    await updateRecordViewActivity(userIds.patient, nodeId, true);
+    if (!!userIds.provider) {
+      await updateRecordViewActivity(userIds.provider, nodeId, true);
     }
+    // if (!currentUserPermissions.hasAccount) {
+    //   await createPatientNotification({
+    //     notificationType: "ACCESS_CODE_NODE_RENAMED",
+    //     dynamicData: {
+    //       isFile: true,
+    //       role: user?.role,
+    //       oldName: currentFile.name,
+    //       newName: newName,
+    //     },
+    //   });
+    // }
   } else if (isFile === false) {
-    let isValidFolder = true;
     const currentFolder = await prismadb.folder.findUnique({
-      where: { id: nodeId },
+      where: { id: nodeId, userId: userIds.patient, isRoot: false },
     });
 
-    if (accessibleRootFolderIds === "ALL_EXTERNAL" && currentFolder?.namePath.startsWith("/Trash")) {
-      isValidFolder = false;
-    } else if (typeof accessibleRootFolderIds === "object") {
-      isValidFolder = accessibleRootFolderIds.some((id) => currentFolder?.path.startsWith(`/${id}/`));
-    }
+    let isValidFolder = !!currentFolder
+      ? isNodeAccessible(accessibleRootFolderIds, {
+          id: currentFolder.id,
+          isRoot: false,
+          path: currentFolder.path,
+        })
+      : false;
+
     if (!currentFolder || !isValidFolder) {
       return { error: "Folder not found", status: 400 };
     }
@@ -194,19 +207,22 @@ export async function renameNode(isFile: boolean, nodeId: string, newName: strin
       },
       { timeout: 20000 },
     );
-    await updateRecordViewActivity(user.id, nodeId, false);
-
-    if (!currentUserPermissions.hasAccount) {
-      await createPatientNotification({
-        notificationType: "ACCESS_CODE_NODE_RENAMED",
-        dynamicData: {
-          isFile: false,
-          role: user?.role,
-          oldName: currentFolder.name,
-          newName: newName,
-        },
-      });
+    await updateRecordViewActivity(userIds.patient, nodeId, true);
+    if (!!userIds.provider) {
+      await updateRecordViewActivity(userIds.provider, nodeId, true);
     }
+
+    // if (!currentUserPermissions.hasAccount) {
+    //   await createPatientNotification({
+    //     notificationType: "ACCESS_CODE_NODE_RENAMED",
+    //     dynamicData: {
+    //       isFile: false,
+    //       role: user?.role,
+    //       oldName: currentFolder.name,
+    //       newName: newName,
+    //     },
+    //   });
+    // }
   }
   return { success: true };
 }
@@ -818,12 +834,14 @@ export const addSubFolder = async (
       id: folderObj.parentId,
     },
   });
-  let isValidFolder = true;
-  if (typeof accessibleRootFolderIds === "object") {
-    isValidFolder = parentFolder?.isRoot
-      ? accessibleRootFolderIds.some((id) => parentFolder.id === id)
-      : accessibleRootFolderIds.some((id) => parentFolder?.path.startsWith(`/${id}/`));
-  }
+  let isValidFolder = !!parentFolder
+    ? isNodeAccessible(accessibleRootFolderIds, {
+        id: parentFolder.id,
+        isRoot: parentFolder.isRoot,
+        path: parentFolder.path,
+      })
+    : false;
+
   if (!parentFolder || parentFolder.namePath.startsWith("/Trash") || !isValidFolder) {
     throw new Error("Failed to create folder 111");
   }

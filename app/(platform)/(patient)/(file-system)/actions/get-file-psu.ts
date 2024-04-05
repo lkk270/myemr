@@ -195,12 +195,13 @@ export const getPresignedUrls = async (fileIds: string[], parentNamePath: string
   if (isAccessible) {
     isAccessible =
       typeof accessibleRootFolderIds === "object"
-        ? accessibleRootFolderIds.some((folderId) => files[1].path.startsWith(`/${folderId}/`))
+        ? accessibleRootFolderIds.some((folderId) => files[0].path.startsWith(`/${folderId}/`))
         : true;
   }
 
   if (!files || !isAccessible || accessibleRootFolderIds === "Unauthorized") {
-    return { error: "Files not found" };
+    return { error: "File not found" };
+    // return redirect(`/patient/${patientMemberId}/files&refresh=true`);
   }
 
   const s3Client = new S3Client({ region: process.env.AWS_REGION });

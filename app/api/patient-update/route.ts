@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import prismadb from "@/lib/prismadb";
 
-import { patientUpdateVerification } from "@/lib/utils";
+import { extractRootFolderIds, patientUpdateVerification } from "@/lib/utils";
 import {
   moveNodes,
   deleteFiles,
@@ -25,8 +25,8 @@ import { createPatientNotification } from "@/lib/actions/notifications";
 
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { getSumOfFilesSizes } from "@/lib/data/files";
-import { getPatientMember } from "@/auth/actions/patient-member";
 import { getAccessPatientCodeByToken } from "@/auth/data";
+import { PatientMember } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
@@ -46,37 +46,28 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    let accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL" | null = null;
     const user = session?.user;
     let patientUserId = user?.id;
     let currentUserPermissions = extractCurrentUserPermissions(user);
     const patientMemberId = currentUserPermissions.isProvider ? fullUrl.split("/patient/")[1].split("/")[0] : null;
-    const requiredPermissions = updateType.startsWith("add") ? "canAdd" : "canEdit";
-    let patientMember = !!patientMemberId
-      ? await getPatientMember(patientMemberId, requiredPermissions, { user, currentUserPermissions })
-      : null;
-    if (currentUserPermissions.isProvider) {
-      if (!!patientMember) {
-        user.role = patientMember?.role;
-      }
-      currentUserPermissions = extractCurrentUserPermissions(user);
-      if (!patientMember) {
-        return new NextResponse("Unauthorized", { status: 401 });
-      }
-      patientUserId = patientMember.patientUserId;
-    }
-
+    let codeId = null;
+    let accessibleRootFolderIdsString = null;
     if (!currentUserPermissions.hasAccount) {
+      accessibleRootFolderIdsString = user.accessibleRootFolders;
+      accessibleRootFolderIds = extractRootFolderIds(accessibleRootFolderIdsString);
       const code = await getAccessPatientCodeByToken(session.tempToken);
       if (!code) {
         return new NextResponse("Unauthorized", { status: 401 });
       }
+      codeId = code.id;
     }
 
-    if (!patientUserId || !user) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    if (!patientUpdateVerification(body, currentUserPermissions)) {
+    if (!patientUpdateVerification(body, currentUserPermissions) && !currentUserPermissions.isProvider) {
       return new NextResponse("Invalid body", { status: 400 });
     }
 
@@ -90,18 +81,54 @@ export async function POST(req: Request) {
     //     // return new NextResponse("Unauthorized", { status: 400 });
     //   }
     // }
+    if (currentUserPermissions.isPatient) {
+      accessibleRootFolderIdsString = "ALL";
+      accessibleRootFolderIds = "ALL";
+    }
+    let patient: { id: string } | null = null;
+    let patientMember: (PatientMember & { patientProfile: { id: string } }) | null = null;
+    if (currentUserPermissions.isProvider && !!patientMemberId) {
+      patientMember = await prismadb.patientMember.findUnique({
+        where: {
+          id: patientMemberId,
+        },
+        include: {
+          patientProfile: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
 
-    const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        userId: patientUserId,
-      },
-      select: {
-        id: true,
-        addresses: true,
-      },
-    });
+      patient = patientMember?.patientProfile || null;
+      if (!patient || !patientMember) {
+        return new NextResponse("Patient not found", { status: 401 });
+      }
+      patientUserId = patientMember.patientUserId;
+      user.role = patientMember?.role;
+      currentUserPermissions = extractCurrentUserPermissions(user);
+      if (!patientUpdateVerification(body, currentUserPermissions)) {
+        return new NextResponse("Invalid body", { status: 400 });
+      }
+      accessibleRootFolderIdsString = patientMember.accessibleRootFolders;
+      accessibleRootFolderIds = extractRootFolderIds(patientMember.accessibleRootFolders);
+    } else if (!currentUserPermissions.isProvider) {
+      patient = await prismadb.patientProfile.findUnique({
+        where: {
+          userId: patientUserId,
+        },
+        select: {
+          id: true,
+        },
+      });
+    }
+
     if (!patient) {
       return new NextResponse("Patient not found", { status: 401 });
+    }
+    if (!accessibleRootFolderIds || !accessibleRootFolderIdsString) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
     if (updateType === "renameNode") {
       const isFile = body.isFile;
@@ -164,13 +191,26 @@ export async function POST(req: Request) {
         JSON.stringify({ totalSize: totalSize, newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
       );
     } else if (updateType === "addRootNode") {
-      const uploadedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
-      const uploadedByName = currentUserPermissions.isProvider
+      const addedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
+      const addedByName = currentUserPermissions.isProvider
         ? user.name || "N/A"
         : !currentUserPermissions.hasAccount
         ? `Temporary Access User`
         : `Me`;
-      const folderId = await addRootNode(body.folderName, uploadedByUserId, patientUserId, patient.id, uploadedByName);
+      const addedBy = { id: addedByUserId, name: addedByName };
+      const patientObj = { profileId: patient.id, userId: patientUserId };
+      const userType: "provider" | "accessCode" | null = currentUserPermissions.isProvider
+        ? "provider"
+        : !currentUserPermissions.hasAccount
+        ? "accessCode"
+        : null;
+      const idToUse = userType == "accessCode" ? codeId : patientMemberId;
+      const updateAccessibleRootIdsObj =
+        !!userType && !!idToUse
+          ? { userType: userType, id: idToUse, accessibleRootFolders: accessibleRootFolderIdsString }
+          : null;
+      const folderId = await addRootNode(body.folderName, addedBy, patientObj, updateAccessibleRootIdsObj);
+      
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_ROOT_FOLDER",
@@ -193,20 +233,17 @@ export async function POST(req: Request) {
       }
       return NextResponse.json({ folderId: folderId }, { status: 200 });
     } else if (updateType === "addSubFolder") {
-      const uploadedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
-      const uploadedByName = currentUserPermissions.isProvider
+      const addedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
+      const addedByName = currentUserPermissions.isProvider
         ? user.name || "N/A"
         : !currentUserPermissions.hasAccount
         ? `Temporary Access User`
         : `Me`;
-      const folder = await addSubFolder(
-        body.folderName,
-        body.parentId,
-        uploadedByUserId,
-        patientUserId,
-        patient.id,
-        uploadedByName,
-      );
+
+      const addedBy = { id: addedByUserId, name: addedByName };
+      const folderObj = { name: body.folderName, parentId: body.parentId };
+      const patientObj = { profileId: patient.id, userId: patientUserId };
+      const folder = await addSubFolder(folderObj, addedBy, patientObj, accessibleRootFolderIds);
       if (!currentUserPermissions.hasAccount) {
         await createPatientNotification({
           notificationType: "ACCESS_CODE_ADDED_SUB_FOLDER",

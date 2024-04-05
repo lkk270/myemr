@@ -188,11 +188,11 @@ export const SettingsForm = () => {
         <Button
           disabled={
             isPending ||
-            (watchedName === user.name &&
+            (watchedName === user?.name &&
               !!watchedName &&
               !watchedPassword &&
               !watchedNewPassword &&
-              !!watchedIsTwoFactorEnabled === !!user.isTwoFactorEnabled)
+              !!watchedIsTwoFactorEnabled === !!user?.isTwoFactorEnabled)
           }
           type="submit"
         >

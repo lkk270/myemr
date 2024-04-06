@@ -30,6 +30,7 @@ export function OrganizationsTable({ data }: DataTableProps) {
       showDataTableViewOptions={false}
       // filters={filters}
       // hiddenColumns={hiddenColumns}
+      singleClickLink={{ firstPart: "providers", idName: "id", lastPart: "" }}
       data={organizations}
       isLoading={!organizationsSet}
       columns={filteredColumns}

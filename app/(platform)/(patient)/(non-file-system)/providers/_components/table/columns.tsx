@@ -6,7 +6,7 @@ import { DataTableColumnHeader } from "@/components/table/data-table-column-head
 import { PermissionsDropdown } from "./permissions-dropdown";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaUser } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
+import { OrganizationAvatar } from "@/app/(platform)/(provider)/(organization)/_components/organization-avatar";
 import { ChooseAccessibleRootFoldersButtonWrapper } from "./choose-accessible-root-folders-button-wrapper";
 
 export const columns: ColumnDef<any>[] = [
@@ -17,12 +17,15 @@ export const columns: ColumnDef<any>[] = [
       return (
         //min-w-[20vw] lg:min-w-[40vw]
         <div className="flex space-x-2 items-center ">
-          <Avatar className="w-8 h-8">
-            <AvatarImage draggable={false} src={row.original.organizationProfileImageUrl || ""} />
-            <AvatarFallback className="bg-sky-500">
-              <FaUser className="text-white" />
-            </AvatarFallback>
-          </Avatar>
+          <div className="flex flex-col items-center justify-center w-[38px] h-[38px] border-2 border-primary/20 rounded-sm shrink-0">
+            <OrganizationAvatar
+              buildingParentDivPadding="p-[4px]"
+              imageClassName="max-h-[32px] max-w-[32px] w-auto"
+              buildingClassName="h-[24px] w-[24px]"
+              profileImageUrl={row.original.organizationProfileImageUrl}
+              imageSize={30}
+            />
+          </div>
           <span className="max-w-[20vw] truncate font-medium">{row.original.organizationName}</span>
         </div>
       );

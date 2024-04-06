@@ -103,12 +103,14 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
         if (!!data.success && !!data.organizationId) {
           addOrganization({
             ...values,
+            connectCode: "",
             numOfUnreadActivities: 0,
             id: data.organizationId,
             role: "OWNER",
           });
           setInitialDataDynamic({
             ...values,
+            connectCode: "",
             numOfUnreadActivities: 0,
             id: data.organizationId,
             role: "OWNER",
@@ -142,6 +144,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
           patchOrganization(initialData.id, values);
           setInitialDataDynamic({
             ...values,
+            connectCode: initialData.connectCode,
             numOfUnreadActivities: initialData.numOfUnreadActivities,
             role: initialData.role,
             id: initialData.id,
@@ -346,7 +349,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="space-y-0">
-                      <div className="py-2">
+                      <div className="pb-2">
                         <FormLabel>Title</FormLabel>
                       </div>
                       {/* <FormControl> */}
@@ -382,7 +385,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormDescription>Cannot be changed later.</FormDescription>
+                      {/* <FormDescription>Cannot be changed later.</FormDescription> */}
                       {/* <FormMessage /> */}
                     </FormItem>
                   )}
@@ -405,7 +408,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                         items={rootFolderCategories}
                         transparentPopoverBg={true}
                       />
-                      <FormDescription>Cannot be changed later.</FormDescription>
+                      {/* <FormDescription>Cannot be changed later.</FormDescription> */}
                     </FormItem>
                   )}
                 />
@@ -445,13 +448,13 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="space-y-0">
-                      <div className="py-2">
-                        <FormLabel>Subtitle...</FormLabel>
+                      <div className="pb-2">
+                        <FormLabel>Subtitle</FormLabel>
                       </div>
                       {/* <FormControl> */}
-                      <Textarea rows={2} className="bg-background resize-none" placeholder={"Subtitle"} {...field} />
+                      <Textarea rows={2} className="bg-background resize-none" placeholder={"Subtitle..."} {...field} />
                       {/* </FormControl> */}
-                      <FormDescription>One line about our organization.</FormDescription>
+                      {/* <FormDescription>One line about our organization.</FormDescription> */}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -462,7 +465,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   disabled={isPending || !isEditing}
                   render={({ field }) => (
                     <FormItem className="space-y-0">
-                      <div className="py-2">
+                      <div className="pb-2">
                         <FormLabel>Description</FormLabel>
                       </div>
                       {/* <FormControl> */}
@@ -474,7 +477,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                       />
                       {/* </FormControl> */}
                       <FormDescription>
-                        Describe your organization further and provide any relevant details.
+                        {/* Describe your organization further and provide any relevant details. */}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -482,7 +485,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2 w-full">
+              <div className="space-y-2 w-full pt-6">
                 <div>
                   <h3 className="text-lg font-medium">Contact Information</h3>
                   <p className="text-sm text-muted-foreground">
@@ -498,7 +501,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="space-y-0">
-                      <div className="py-2">
+                      <div className="pb-2">
                         <FormLabel>Main Email</FormLabel>
                       </div>
                       {/* <FormControl> */}
@@ -512,8 +515,10 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   control={control}
                   name="mainPhone"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel htmlFor="mainPhone">Main Phone</FormLabel>
+                    <FormItem className="space-y-0">
+                      <div className="pb-2">
+                        <FormLabel htmlFor="mainPhone">Main Phone</FormLabel>
+                      </div>
                       <PhoneNumber
                         {...field}
                         fieldName="mainPhone"
@@ -527,7 +532,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                   )}
                 />
               </div>
-              <div className="space-y-2 w-full">
+              <div className="space-y-2 pt-6 w-full">
                 <div>
                   <h3 className="text-lg font-medium">Addresses</h3>
                   <p className="text-sm text-muted-foreground">

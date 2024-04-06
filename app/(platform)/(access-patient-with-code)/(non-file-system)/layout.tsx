@@ -16,6 +16,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const session = sessionObj.data;
   const [isMounted, setIsMounted] = useState(false);
 
+  if (!session) {
+    window.location.reload();
+  }
+
   useEffect(() => {
     const now = new Date();
     if (session && new Date(session.expires) < now) {
@@ -26,26 +30,21 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkValidCode = () => {
       startTransition(() => {
-        console.log(session);
-        if (!session) {
-          return redirect("/");
-        } else {
-          getAccessPatientCodeByToken(session?.tempToken).then((data) => {
-            console.log(data);
-            if (!data) {
-              return redirect("/");
-            }
-          });
-        }
+        getAccessPatientCodeByToken(session?.tempToken).then((data) => {
+          if (!data) {
+            logout();
+          } else {
+            setIsMounted(true);
+          }
+        });
       });
     };
     checkValidCode();
   }, []);
 
-  if (!session) {
-    return redirect("/");
+  if (!isMounted) {
+    return null;
   }
-
   return (
     <div className="flex overflow-auto h-screen">
       <Navbar tempAccess={true} />

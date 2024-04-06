@@ -1,8 +1,6 @@
 "use client";
 
-// import { useUser } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
-// import { SignUpButton } from "@clerk/clerk-react";
 import Link from "next/link";
 import {
   DropdownMenu,

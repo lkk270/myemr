@@ -19,6 +19,8 @@ export const Heading = () => {
   const sessionData = session.data;
   const user = sessionData?.user || null;
 
+  ////          <Highlight className="text-black dark:text-white z-1">Welcome to MyEMR</Highlight>
+
   return (
     <>
       <div className="max-w-3xl space-y-4">

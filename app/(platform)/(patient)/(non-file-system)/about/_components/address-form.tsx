@@ -68,7 +68,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
               name="address"
               render={({ field }) => (
                 <FormItem className="space-y-0">
-                  <div className="py-2">
+                  <div className="pb-2">
                     <FormLabel htmlFor="address">Address</FormLabel>
                   </div>
                   <Input
@@ -91,7 +91,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
               name="address2"
               render={({ field }) => (
                 <FormItem className="space-y-0">
-                  <div className="py-2">
+                  <div className="pb-2">
                     <FormLabel htmlFor="address2">Apt, suite, etc (optional)</FormLabel>
                   </div>
                   <Input
@@ -113,7 +113,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
               name="city"
               render={({ field }) => (
                 <FormItem className="space-y-0">
-                  <div className="py-2">
+                  <div className="pb-2">
                     <FormLabel htmlFor="city">City</FormLabel>
                   </div>
                   <Input
@@ -135,8 +135,10 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
               control={control}
               name="state"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="state">State</FormLabel>
+                <FormItem className="space-y-0">
+                  <div className="pb-2">
+                    <FormLabel htmlFor="state">State</FormLabel>
+                  </div>
                   <GenericCombobox
                     width={"w-full"}
                     handleChange={(value) => setValue("state", value)}
@@ -161,7 +163,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
               name="zipcode"
               render={({ field }) => (
                 <FormItem className="space-y-0">
-                  <div className="py-2">
+                  <div className="pb-2">
                     <FormLabel htmlFor="zipcode">ZIP / Postal code</FormLabel>
                   </div>
                   <Input

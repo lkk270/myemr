@@ -21,7 +21,10 @@ export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganiza
   const { organizations, getOrganizationById } = useOrganizationStore();
   const [profilePicture, setProfilePicture] = useState(getOrganizationById(initialData.id)?.profileImageUrl);
   const editingAllowed =
-    (!!initialData && (initialData.role === "OWNER" || initialData.role === "ADMIN")) || !initialData;
+    (!!initialData &&
+      currentUserPermissions.isProvider &&
+      (initialData.role === "OWNER" || initialData.role === "ADMIN")) ||
+    (!initialData && currentUserPermissions.isProvider);
 
   useEffect(() => {
     setProfilePicture(getOrganizationById(initialData.id)?.profileImageUrl);

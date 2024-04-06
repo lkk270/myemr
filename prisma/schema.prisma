@@ -363,7 +363,7 @@ model Organization {
   backgroundImageUrl String?          @db.Text
   profileImageUrl    String?          @db.Text
   acceptMessages     Boolean          @default(false)
-  patientJoinToken   String           @unique()
+  connectCode        String           @unique()
   organizationType   OrganizationType @default(PRIVATE_PRACTICE)
 
   addresses        OrganizationAddress[]

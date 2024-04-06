@@ -1,4 +1,3 @@
-// import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 

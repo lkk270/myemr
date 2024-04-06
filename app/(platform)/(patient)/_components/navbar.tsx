@@ -1,5 +1,4 @@
 "use client";
-// import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";

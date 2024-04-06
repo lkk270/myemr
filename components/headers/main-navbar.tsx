@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-// import { UserButton } from "@clerk/nextjs";
 import { Ban, Bell } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Logo } from "@/components/logo";

@@ -1,4 +1,3 @@
-// import { auth, currentUser } from "@clerk/nextjs";
 "use server";
 
 import { auth } from "@/auth";

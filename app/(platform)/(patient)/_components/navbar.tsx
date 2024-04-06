@@ -41,7 +41,8 @@ export const Navbar = ({ tempAccess = false, numOfUnreadNotifications }: NavbarP
               <div
                 className={cn(
                   "text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
-                  pathname === route.href && "bg-primary/10 text-primary",
+                  (pathname === route.href || `/${pathname.split("/")[1]}` === route.href) &&
+                    "bg-primary/10 text-primary",
                 )}
               >
                 <div className="flex flex-col items-center flex-1 gap-x-1 lg:gap-x-2">

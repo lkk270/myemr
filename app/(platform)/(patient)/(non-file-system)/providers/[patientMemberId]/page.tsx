@@ -1,4 +1,3 @@
-import { OrganizationForm } from "@/app/(platform)/(provider)/(organization)/_components/forms/organization-form";
 import { ViewOrganization } from "@/app/(platform)/(provider)/(organization)/_components/view-organization";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import { OrganizationWithRoleType } from "@/app/types";
@@ -53,7 +52,7 @@ const OrganizationSettingsPage = async ({ params }: OrganizationSettingsPageProp
   // console.log(organization);
 
   return (
-    <div className="pt-20 flex flex-col justify-center items-center">
+    <div className="pt-8 flex flex-col justify-center items-center">
       <ViewOrganization initialData={adjustedOrganization} />
     </div>
   );

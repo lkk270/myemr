@@ -28,8 +28,8 @@ export const InviteMemberButton = ({ children, asChild }: InviteMemberButtonProp
       }}
     >
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
-      <DialogContent className="overflow-y-scroll h-1/2 max-w-[450px] w-full">
-        <InviteMemberForm setOpen={setOpen}/>
+      <DialogContent className="flex justify-center w-full max-w-[450px]">
+        <InviteMemberForm setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );

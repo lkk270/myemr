@@ -19,7 +19,7 @@ import { usePathname } from "next/navigation";
 interface InviteMemberFormProps {
   setOpen: (value: boolean) => void;
 }
-export const InviteMemberForm = ({setOpen}: InviteMemberFormProps) => {
+export const InviteMemberForm = ({ setOpen }: InviteMemberFormProps) => {
   const pathname = usePathname();
   const organizationId = pathname.split("/organization/")[1].split("/")[0];
   const [isPending, startTransition] = useTransition();
@@ -45,7 +45,7 @@ export const InviteMemberForm = ({setOpen}: InviteMemberFormProps) => {
           if (!!data.success) {
             toast.success(data.success, { duration: 5000 });
             form.reset();
-            setOpen(false)
+            setOpen(false);
           }
         })
         .catch((e) => {
@@ -57,7 +57,7 @@ export const InviteMemberForm = ({setOpen}: InviteMemberFormProps) => {
   const { control } = form;
 
   return (
-    <div className="h-full max-w-3xl">
+    <div className="h-full w-full">
       <Form {...form}>
         <form className="space-y-4">
           <div className="space-y-2 w-full col-span-2">

@@ -32,7 +32,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
   const form = useForm<z.infer<typeof AddOrganizationSchema>>({
     resolver: zodResolver(AddOrganizationSchema),
     defaultValues: {
-      patientJoinToken: "nnnnnnnn",
+      patientJoinToken: "",
       role: "READ_ONLY",
       accessibleRootFolderIds: "ALL_EXTERNAL",
     },
@@ -83,7 +83,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
       : `${numOfRootFolders.toString()} Root ${foldersText}`;
 
   return (
-    <div className="h-full max-w-3xl">
+    <div className="h-full w-full">
       <Form {...form}>
         <form className="space-y-4">
           <div className="space-y-2 w-full col-span-2">
@@ -99,19 +99,21 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="inviteToken">Organization Token</FormLabel>
-                  <InputOTP
-                    {...field}
-                    pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-                    disabled={isPending}
-                    maxLength={8}
-                    render={({ slots }) => (
-                      <InputOTPGroup>
-                        {slots.slice(0, 8).map((slot, index) => (
-                          <InputOTPSlot key={index} {...slot} />
-                        ))}
-                      </InputOTPGroup>
-                    )}
-                  />
+                  <div className="flex flex-row items-center justify-center">
+                    <InputOTP
+                      {...field}
+                      pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                      disabled={isPending}
+                      maxLength={8}
+                      render={({ slots }) => (
+                        <InputOTPGroup>
+                          {slots.slice(0, 8).map((slot, index) => (
+                            <InputOTPSlot key={index} {...slot} />
+                          ))}
+                        </InputOTPGroup>
+                      )}
+                    />
+                  </div>
                 </FormItem>
               )}
             />
@@ -147,18 +149,21 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
                 </FormItem>
               )}
             />
-            <div className="flex gap-x-1 items-center">
-              <ChooseAccessibleRootFolderButton
-                defaultRootFolderIds={watchedAccessibleRootFolderIds}
-                crfButtonLabel={crfButtonLabel}
-                asChild
-                handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}
-              >
-                <Button variant={"outline"} className="text-xs min-w-[130px]">
-                  {crfButtonLabel}
-                </Button>
-              </ChooseAccessibleRootFolderButton>
-              <AboutAccessibleRootFoldersPopover />
+            <div className="flex flex-col gap-y-4">
+              <FormLabel>Accessible Root Folders</FormLabel>
+              <div className="flex flex-row gap-x-2">
+                <ChooseAccessibleRootFolderButton
+                  defaultRootFolderIds={watchedAccessibleRootFolderIds}
+                  crfButtonLabel={crfButtonLabel}
+                  asChild
+                  handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}
+                >
+                  <Button variant={"outline"} className="text-sm w-full">
+                    {crfButtonLabel}
+                  </Button>
+                </ChooseAccessibleRootFolderButton>
+                <AboutAccessibleRootFoldersPopover />
+              </div>
             </div>
           </div>
           <div className="w-full flex justify-center pt-8">

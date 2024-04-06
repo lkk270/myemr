@@ -23,7 +23,7 @@ import { AboutAccessibleRootFoldersPopover } from "../../patient-home/_component
 import { AddOrganizationSchema } from "../schemas";
 
 interface AddOrganizationFormProps {
-  setOpen: (value: boolean) => void;
+  setOpen?: (value: boolean) => void;
 }
 export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
   const { addOrganization } = useOrganizationsStore();
@@ -57,7 +57,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
             toast.success(data.success, { duration: 5000 });
             form.reset();
             addOrganization(data.member);
-            setOpen(false);
+            if (setOpen) setOpen(false);
           }
         })
         .catch((e) => {
@@ -83,7 +83,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
       : `${numOfRootFolders.toString()} Root ${foldersText}`;
 
   return (
-    <div className="h-full w-full">
+    <div className="">
       <Form {...form}>
         <form className="space-y-4">
           <div className="space-y-2 w-full col-span-2">
@@ -98,7 +98,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
               name="patientJoinToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="inviteToken">Organization Token</FormLabel>
+                  <FormLabel htmlFor="inviteToken">Connect Code</FormLabel>
                   <div className="flex flex-row items-center justify-center">
                     <InputOTP
                       {...field}

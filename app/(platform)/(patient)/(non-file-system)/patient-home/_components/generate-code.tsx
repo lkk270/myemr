@@ -15,7 +15,7 @@ import { AccessCodeValidTime, UserRole } from "@prisma/client";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { GenerateCodePopover } from "./generate-code-popover";
 import { AboutAccessibleRootFoldersPopover } from "./about-accessible-root-folders-popover";
 import { accessCode } from "../actions/generate-access-code";
@@ -38,6 +38,7 @@ const validTimes = [
 export const GenerateCode = () => {
   const currentUser = useCurrentUser();
   const [code, setCode] = useState("");
+  const [crfButtonLabel, setCrfButtonLabel] = useState("All Root Folders");
   const [accessType, setAccessType] = useState(UserRole.READ_ONLY);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -116,13 +117,19 @@ export const GenerateCode = () => {
   const watchedValidFor = watch("validFor");
   const watchedAccessType = watch("accessType");
   const watchedUploadToId = watch("uploadToId");
-  const watchedAccessibleRootFolderIds = watch("accessibleRootFolderIds");
-  const numOfRootFolders = watchedAccessibleRootFolderIds.split(",").length;
-  const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
-  const crfButtonLabel =
-    watchedAccessibleRootFolderIds === "ALL_EXTERNAL"
-      ? "All Root Folders"
-      : `${numOfRootFolders.toString()} Root ${foldersText}`;
+  // const watchedAccessibleRootFolderIds = watch("accessibleRootFolderIds");
+
+  useEffect(() => {
+    const numOfRootFolders = accessibleRootFolderIds.split(",").length;
+    const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
+    const crfButtonLabelTemp =
+      accessibleRootFolderIds === "ALL_EXTERNAL"
+        ? "All Root Folders"
+        : `${numOfRootFolders.toString()} Root ${foldersText}`;
+
+    setCrfButtonLabel(crfButtonLabelTemp);
+  }, [accessibleRootFolderIds]);
+
   return (
     <Form {...form}>
       {/*  onSubmit={form.handleSubmit(onSubmit)} */}
@@ -265,7 +272,7 @@ export const GenerateCode = () => {
             ) : (
               <div className="flex gap-x-1 items-center">
                 <ChooseAccessibleRootFoldersButton
-                  initialDefaultRootFolders={watchedAccessibleRootFolderIds}
+                  initialDefaultRootFolders={accessibleRootFolderIds}
                   initialCsrfButtonLabel={crfButtonLabel}
                   asChild
                   handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}

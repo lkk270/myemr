@@ -65,7 +65,7 @@ export const RemoveOrganizationButton = ({ children, asChild, organization }: De
             Are you sure you want to remove the organization:{" "}
             <p className="break-words whitespace-normal italic font-semibold">
               {organization.organizationName}
-              <span className="not-italic font-normal">? This action cannot be undone.</span>
+              <span className="not-italic font-normal">?</span>
             </p>
           </p>
         </AlertDialogDescription>

@@ -24,8 +24,8 @@ export const AddOrganizationButton = ({ children, asChild }: AddOrganizationButt
       }}
     >
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
-      <DialogContent className="overflow-y-scroll h-1/2 max-w-[450px] w-full">
-        <AddOrganizationForm setOpen={setOpen}/>
+      <DialogContent className="flex justify-center w-full max-w-[450px]">
+        <AddOrganizationForm setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );

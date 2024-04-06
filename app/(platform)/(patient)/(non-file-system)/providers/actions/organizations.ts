@@ -6,8 +6,8 @@ import prismadb from "@/lib/prismadb";
 import { auth } from "@/auth";
 import { createOrganizationActivityLog } from "@/lib/actions/organization-activity-log";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-
 import { AddOrganizationSchema, ChangeOrganizationRoleSchema, RemoveOrganizationSchema } from "../schemas";
+
 export const addOrganizationForPatient = async (values: z.infer<typeof AddOrganizationSchema>) => {
   try {
     const session = await auth();
@@ -23,13 +23,14 @@ export const addOrganizationForPatient = async (values: z.infer<typeof AddOrgani
       return { error: "Invalid fields!" };
     }
 
-    const { patientJoinToken, role, accessibleRootFolderIds } = values;
+    const { connectCode, role, accessibleRootFolderIds } = values;
     if (accessibleRootFolderIds === "ALL") {
       return { error: "Invalid accessibleRootFolderIds" };
     }
+
     const organization = await prismadb.organization.findUnique({
       where: {
-        patientJoinToken,
+        connectCode,
       },
       select: {
         id: true,

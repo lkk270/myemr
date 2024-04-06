@@ -32,7 +32,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
   const form = useForm<z.infer<typeof AddOrganizationSchema>>({
     resolver: zodResolver(AddOrganizationSchema),
     defaultValues: {
-      patientJoinToken: "",
+      connectCode: "",
       role: "READ_ONLY",
       accessibleRootFolderIds: "ALL_EXTERNAL",
     },
@@ -95,7 +95,7 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
           <div className="grid grid-cols-1 gap-4">
             <FormField
               control={control}
-              name="patientJoinToken"
+              name="connectCode"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="inviteToken">Connect Code</FormLabel>

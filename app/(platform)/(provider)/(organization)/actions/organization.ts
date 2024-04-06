@@ -3,8 +3,6 @@
 import { z } from "zod";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
-
-import { v4 as uuidv4 } from "uuid";
 import prismadb from "@/lib/prismadb";
 import {
   OrganizationSchema,
@@ -30,6 +28,35 @@ import { OrganizationMemberRole } from "@prisma/client";
 import { createOrganizationActivityLog } from "@/lib/actions/organization-activity-log";
 import { deleteS3ProfilePicture } from "@/lib/actions/files";
 
+const generateConnectCode = () => {
+  // Define the characters that can be included in the token
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let token = "";
+  for (let i = 0; i < 8; i++) {
+    // Generate a random index to pick a character from `chars`
+    const randomIndex = crypto.randomInt(0, chars.length);
+    token += chars.charAt(randomIndex);
+  }
+  return token;
+};
+
+const generateUniqueConnectCode = async () => {
+  let unique = false;
+  let connectCode;
+  while (!unique) {
+    connectCode = generateConnectCode();
+    const existingOrganization = await prismadb.organization.findUnique({
+      where: {
+        connectCode,
+      },
+    });
+    if (!existingOrganization) {
+      unique = true;
+    }
+  }
+  return connectCode;
+};
+
 export const createOrganization = async (values: z.infer<typeof OrganizationSchema>) => {
   try {
     const session = await auth();
@@ -47,9 +74,14 @@ export const createOrganization = async (values: z.infer<typeof OrganizationSche
     const { addresses, ...nonAddressesObj } = values;
     const addressesWithoutId = addresses.map(({ id, ...restOfAddress }) => restOfAddress);
 
+    const connectCode = await generateUniqueConnectCode();
+    if (!connectCode) {
+      return { error: "Something went wrong!" };
+    }
     const organization = await prismadb.organization.create({
       data: {
         ...nonAddressesObj,
+        connectCode,
         addresses: {
           createMany: { data: addressesWithoutId },
         },

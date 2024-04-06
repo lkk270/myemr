@@ -2,7 +2,7 @@ import * as z from "zod";
 import { PatientMemberRole } from "@prisma/client";
 
 export const AddOrganizationSchema = z.object({
-  patientJoinToken: z.string().length(8, { message: "invalid add token" }),
+  connectCode: z.string().length(8, { message: "invalid add token" }),
   role: z.enum([PatientMemberRole.READ_ONLY, PatientMemberRole.READ_AND_ADD, PatientMemberRole.FULL_ACCESS]),
   accessibleRootFolderIds: z.string(),
 });

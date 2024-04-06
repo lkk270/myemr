@@ -20,6 +20,7 @@ type SpecialOrganizationType = {
   category: string;
   subTitle?: string | null;
   description?: string | null;
+  connectCode: string;
   backgroundImageUrl?: string | null;
   profileImageUrl?: string | null;
   acceptMessages?: boolean;

@@ -10,12 +10,14 @@ import { useOrganizationStore } from "./hooks/use-organizations";
 import { useEffect, useState } from "react";
 import { DeleteOrganizationButton } from "./buttons/delete-organization-button";
 import { Card } from "@/components/ui/card";
-
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { AboutConnectCodePopover } from "./about-connect-code-popover";
 interface ViewOrganizationProps {
   handleEditToggle: (e: any) => void;
   initialData: OrganizationWithRoleType;
 }
 export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganizationProps) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const { organizations, getOrganizationById } = useOrganizationStore();
   const [profilePicture, setProfilePicture] = useState(getOrganizationById(initialData.id)?.profileImageUrl);
   const editingAllowed =
@@ -31,11 +33,20 @@ export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganiza
         <div className="h-full p-4 w-full max-w-3xl mx-auto">
           <div className="space-y-4">
             <div className="flex flex-row justify-between items-center gap-x-2">
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-y-2">
                 <h3 className="text-lg font-medium">General Information</h3>
                 <p className="hidden xs:flex text-sm text-muted-foreground">
                   General information about your organization
                 </p>
+                {currentUserPermissions.isProvider && (
+                  <div className="p-2 flex border border-secondary rounded-lg text-center items-center justify-center h-12 gap-x-2">
+                    <span>
+                      Patient connect code: <strong>{initialData.connectCode}</strong>
+                    </span>
+
+                    <AboutConnectCodePopover />
+                  </div>
+                )}
               </div>
               <div className="flex flex-row gap-x-2">
                 {editingAllowed && (

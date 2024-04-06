@@ -38,7 +38,12 @@ export const accessCode = async (values: z.infer<typeof GenerateCodeSchema>) => 
 
   const { validFor, accessType, uploadToId, accessibleRootFolderIds } = validatedFields.data;
 
-  if (!validFor || !accessType || (accessType === "UPLOAD_FILES_ONLY" && !values.uploadToId)) {
+  if (
+    accessibleRootFolderIds === "ALL" ||
+    !validFor ||
+    !accessType ||
+    (accessType === "UPLOAD_FILES_ONLY" && !values.uploadToId)
+  ) {
     return { error: "Invalid body" };
   }
 

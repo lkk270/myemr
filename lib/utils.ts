@@ -640,9 +640,9 @@ export const generateOrganizationActivityText = (activityLog: OrganizationActivi
         dynamicData["role"],
       )}".`;
     case "ADDED_BY_PATIENT":
-      const accessType = dynamicData["accessType"] as AllowedRoles;
-      const accessTypeTitle = accessTypeTextObjForTemp[accessType].title;
-      return `A patient registered under the email "${dynamicData["email"]}" has connected to this organization and has set the access type to "${accessTypeTitle}".`;
+      const role = dynamicData["role"] as AllowedRoles;
+      const accessTypeTitle = accessTypeTextObjForTemp[role].title;
+      return `A patient registered under the email "${dynamicData["patientEmail"]}" has connected to this organization and has set the access type to "${accessTypeTitle}".`;
     default:
       return type;
   }

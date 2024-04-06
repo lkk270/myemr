@@ -1142,3 +1142,9 @@ export const organizationMemberPermissionTypes = [
   { value: "ADMIN", label: "Admin" },
   { value: "USER", label: "User" },
 ];
+
+export const patientMemberPermissionTypes = [
+  { value: UserRole.READ_ONLY, label: "Read only" },
+  { value: UserRole.READ_AND_ADD, label: "Read & Add" },
+  { value: UserRole.FULL_ACCESS, label: "Full access" },
+];

@@ -23,12 +23,9 @@ export const createOrganizationActivityLog = async (
 
     const validatedFields = OrganizationActivityLogPostSchema.safeParse(values);
     if (!validatedFields.success) {
-      console.log(values);
-      console.log("IN 15");
       return { error: "Invalid fields!" };
     }
     const { organizationId, type, dynamicData } = validatedFields.data;
-    console.log(dynamicData);
 
     await prismadb.organizationActivity.create({
       data: {

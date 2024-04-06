@@ -59,7 +59,7 @@ export const GenerateCode = () => {
     },
   });
 
-  const { setValue, control } = form;
+  const { setValue, control, watch } = form;
 
   const handleValidForChange = (value: AccessCodeValidTime) => {
     setValue("validFor", value);
@@ -113,10 +113,10 @@ export const GenerateCode = () => {
     });
   };
 
-  const watchedValidFor = form.watch("validFor");
-  const watchedAccessType = form.watch("accessType");
-  const watchedUploadToId = form.watch("uploadToId");
-  const watchedAccessibleRootFolderIds = form.watch("accessibleRootFolderIds");
+  const watchedValidFor = watch("validFor");
+  const watchedAccessType = watch("accessType");
+  const watchedUploadToId = watch("uploadToId");
+  const watchedAccessibleRootFolderIds = watch("accessibleRootFolderIds");
   const numOfRootFolders = watchedAccessibleRootFolderIds.split(",").length;
   const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
   const crfButtonLabel =

@@ -16,8 +16,10 @@ import { inviteMember } from "@/app/(platform)/(provider)/(organization)/actions
 import { logout } from "@/auth/actions/logout";
 import { usePathname } from "next/navigation";
 
-interface InviteMemberFormProps {}
-export const InviteMemberForm = ({}: InviteMemberFormProps) => {
+interface InviteMemberFormProps {
+  setOpen: (value: boolean) => void;
+}
+export const InviteMemberForm = ({setOpen}: InviteMemberFormProps) => {
   const pathname = usePathname();
   const organizationId = pathname.split("/organization/")[1].split("/")[0];
   const [isPending, startTransition] = useTransition();
@@ -43,6 +45,7 @@ export const InviteMemberForm = ({}: InviteMemberFormProps) => {
           if (!!data.success) {
             toast.success(data.success, { duration: 5000 });
             form.reset();
+            setOpen(false)
           }
         })
         .catch((e) => {

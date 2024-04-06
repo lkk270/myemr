@@ -119,6 +119,33 @@ export const changeOrganizationPermissions = async (values: z.infer<typeof Chang
   }
 };
 
+export const changeOrganizationAccessibleRootFolders = async (memberId: string, accessibleRootFolders: string) => {
+  try {
+    const session = await auth();
+    const user = session?.user;
+    const userId = user?.id;
+    const currentUserPermissions = extractCurrentUserPermissions(user);
+    if (!session || !userId || !user || !user.email || !currentUserPermissions.isPatient) {
+      return { error: "Unauthorized" };
+    }
+
+    await prismadb.patientMember.update({
+      where: {
+        id: memberId,
+      },
+      data: {
+        accessibleRootFolders,
+      },
+    });
+
+    return {
+      success: "Accessible Root folders successfully changed",
+    };
+  } catch (err) {
+    return { error: "Something went wrong" };
+  }
+};
+
 export const removeOrganization = async (values: z.infer<typeof RemoveOrganizationSchema>) => {
   try {
     const session = await auth();

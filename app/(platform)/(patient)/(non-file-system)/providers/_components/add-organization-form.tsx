@@ -18,7 +18,7 @@ import { logout } from "@/auth/actions/logout";
 import { useState } from "react";
 import { useOrganizationsStore } from "../hooks/use-organizations";
 import { addOrganizationForPatient } from "../actions/organizations";
-import { ChooseAccessibleRootFolderButton } from "../../patient-home/_components/chose-accessible-root-folders-button";
+import { ChooseAccessibleRootFoldersButton } from "../../patient-home/_components/chose-accessible-root-folders-button";
 import { AboutAccessibleRootFoldersPopover } from "../../patient-home/_components/about-accessible-root-folders-popover";
 import { AddOrganizationSchema } from "../schemas";
 
@@ -152,16 +152,16 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
             <div className="flex flex-col gap-y-4">
               <FormLabel>Accessible Root Folders</FormLabel>
               <div className="flex flex-row gap-x-2">
-                <ChooseAccessibleRootFolderButton
-                  defaultRootFolderIds={watchedAccessibleRootFolderIds}
-                  crfButtonLabel={crfButtonLabel}
+                <ChooseAccessibleRootFoldersButton
+                  initialDefaultRootFolders={watchedAccessibleRootFolderIds}
+                  initialCsrfButtonLabel={crfButtonLabel}
                   asChild
                   handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}
                 >
                   <Button variant={"outline"} className="text-sm w-full">
                     {crfButtonLabel}
                   </Button>
-                </ChooseAccessibleRootFolderButton>
+                </ChooseAccessibleRootFoldersButton>
                 <AboutAccessibleRootFoldersPopover />
               </div>
             </div>

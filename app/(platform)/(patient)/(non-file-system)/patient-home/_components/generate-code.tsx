@@ -20,7 +20,7 @@ import { GenerateCodePopover } from "./generate-code-popover";
 import { AboutAccessibleRootFoldersPopover } from "./about-accessible-root-folders-popover";
 import { accessCode } from "../actions/generate-access-code";
 import { ChooseFolderButton } from "./choose-folder-button";
-import { ChooseAccessibleRootFolderButton } from "./chose-accessible-root-folders-button";
+import { ChooseAccessibleRootFoldersButton } from "./chose-accessible-root-folders-button";
 import { toast } from "sonner";
 import { ViewActiveCodesButton } from "./view-active-codes-button";
 import { FolderNameType } from "@/app/types/file-types";
@@ -264,16 +264,16 @@ export const GenerateCode = () => {
               </ChooseFolderButton>
             ) : (
               <div className="flex gap-x-1 items-center">
-                <ChooseAccessibleRootFolderButton
-                  defaultRootFolderIds={watchedAccessibleRootFolderIds}
-                  crfButtonLabel={crfButtonLabel}
+                <ChooseAccessibleRootFoldersButton
+                  initialDefaultRootFolders={watchedAccessibleRootFolderIds}
+                  initialCsrfButtonLabel={crfButtonLabel}
                   asChild
                   handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}
                 >
                   <Button variant={"outline"} className="text-xs min-w-[130px]">
                     {crfButtonLabel}
                   </Button>
-                </ChooseAccessibleRootFolderButton>
+                </ChooseAccessibleRootFoldersButton>
                 <AboutAccessibleRootFoldersPopover />
               </div>
             )}

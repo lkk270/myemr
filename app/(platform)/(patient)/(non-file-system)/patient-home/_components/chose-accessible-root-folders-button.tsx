@@ -70,20 +70,21 @@ export const ChooseAccessibleRootFoldersButton = ({
       if (checkedItems.length === 0) {
         handleSelectChange(items[0]);
         setIdsString(items[0].id);
-        if (!patientMemberId) {
-          handleAccessibleRootFoldersChange(items[0].id);
-        }
+        // if (!patientMemberId) {
+        //   handleAccessibleRootFoldersChange(items[0].id);
+        // }
       } else if (checkedItems.length === items.length) {
         setIdsString("ALL_EXTERNAL");
-        if (!patientMemberId) {
-          handleAccessibleRootFoldersChange("ALL_EXTERNAL");
-        }
+        // if (!patientMemberId) {
+        //   handleAccessibleRootFoldersChange("ALL_EXTERNAL");
+        // }
       } else {
         const idsStringTemp = checkedItems.map((item) => item.id).join(",");
         setIdsString(idsStringTemp);
-        if (!patientMemberId) {
-          handleAccessibleRootFoldersChange(idsString);
-        }
+        // if (!patientMemberId) {
+        //   console.log("IN HEE");
+        //   handleAccessibleRootFoldersChange(idsString);
+        // }
       }
     }
   }, [items, dropdownOpen, patientMemberId]);
@@ -91,10 +92,10 @@ export const ChooseAccessibleRootFoldersButton = ({
   useEffect(() => {
     const numOfRootFolders = idsString.split(",").length;
     const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
-    const crfButtonLabel =
+    const crfButtonLabelTemp =
       idsString === "ALL_EXTERNAL" ? "All Root Folders" : `${numOfRootFolders.toString()} Root ${foldersText}`;
 
-    setCrfButtonLabel(crfButtonLabel);
+    setCrfButtonLabel(crfButtonLabelTemp);
   }, [idsString, dialogOpen]);
 
   const openDialog = () => {
@@ -141,14 +142,19 @@ export const ChooseAccessibleRootFoldersButton = ({
             return;
           } else if (!!data.success) {
             toast.success(data.success);
-            setDialogOpen(false);
             handleAccessibleRootFoldersChange(idsString);
+            setDialogOpen(false);
           }
         })
         .catch((error) => {
           toast.error("something went wrong");
         });
     });
+  };
+
+  const onSelect = () => {
+    handleAccessibleRootFoldersChange(idsString);
+    setDialogOpen(false);
   };
 
   return (
@@ -207,15 +213,15 @@ export const ChooseAccessibleRootFoldersButton = ({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            {idsString !== initialDefaultRootFolders && !!patientMemberId && (
+            {idsString !== initialDefaultRootFolders && (
               <Button
-                onClick={onSave}
+                onClick={!!patientMemberId ? onSave : onSelect}
                 disabled={isPending}
                 variant="secondary"
                 className="w-20 h-10 flex flex-row gap-x-2"
               >
                 <Save className="w-4 h-4 shrink-0" />
-                <span className="text-sm">Save</span>
+                <span className="text-sm">{!!patientMemberId ? "Save" : "Select"}</span>
               </Button>
             )}
           </div>

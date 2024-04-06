@@ -28,11 +28,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       startTransition(() => {
         console.log(session);
         if (!session) {
-          logout();
+          return redirect("/");
         } else {
           getAccessPatientCodeByToken(session?.tempToken).then((data) => {
+            console.log(data);
             if (!data) {
-              logout();
+              return redirect("/");
             }
           });
         }

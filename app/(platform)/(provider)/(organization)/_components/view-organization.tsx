@@ -1,3 +1,5 @@
+"use client";
+
 import { OrganizationWithRoleType } from "@/app/types";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -13,7 +15,7 @@ import { Card } from "@/components/ui/card";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { AboutConnectCodePopover } from "./about-connect-code-popover";
 interface ViewOrganizationProps {
-  handleEditToggle: (e: any) => void;
+  handleEditToggle?: (e: any) => void;
   initialData: OrganizationWithRoleType;
 }
 export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganizationProps) => {
@@ -57,7 +59,9 @@ export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganiza
                     className="w-10 xs:w-24 h-9 items-center"
                     variant={"outline"}
                     onClick={(e) => {
-                      handleEditToggle(e);
+                      if (handleEditToggle) {
+                        handleEditToggle(e);
+                      }
                     }}
                   >
                     <PencilLine className="shrink-0 w-4 h-4 xs:mr-2" />

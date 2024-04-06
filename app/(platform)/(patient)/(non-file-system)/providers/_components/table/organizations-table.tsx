@@ -13,7 +13,7 @@ interface DataTableProps {
 }
 
 export function OrganizationsTable({ data }: DataTableProps) {
-  const isMobile = useMediaQuery("(max-width: 565px)");
+  const isMobile = useMediaQuery("(max-width: 735px)");
   const { organizationsSet, organizations, setOrganizations } = useOrganizationsStore();
 
   useEffect(() => {

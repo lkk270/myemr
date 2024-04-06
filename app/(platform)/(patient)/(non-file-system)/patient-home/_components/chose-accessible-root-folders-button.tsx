@@ -1,10 +1,8 @@
 "use client";
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { GenericCombobox } from "@/components/generic-combobox";
 import { useIsLoading } from "@/hooks/use-is-loading";
-import { cn } from "@/lib/utils";
-import { FolderNameType } from "@/app/types/file-types";
+import { Save } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { fetchAllRootFolders } from "@/lib/actions/files";
 import { toast } from "sonner";
@@ -21,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { changeOrganizationAccessibleRootFolders } from "../../providers/actions/organizations";
 
 type RootFolderType = {
   checked: boolean;
@@ -28,22 +27,28 @@ type RootFolderType = {
   name: string;
 };
 
-interface ChooseAccessibleRootFolderButtonProps {
+interface ChooseAccessibleRootFoldersButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
-  crfButtonLabel: string;
-  defaultRootFolderIds: string;
+  initialDefaultRootFolders: string;
+  patientMemberId?: string | null;
+  initialCsrfButtonLabel: string;
   handleAccessibleRootFoldersChange: (value: string) => void;
 }
 
-export const ChooseAccessibleRootFolderButton = ({
+export const ChooseAccessibleRootFoldersButton = ({
   children,
   asChild,
-  crfButtonLabel,
-  defaultRootFolderIds,
+  initialDefaultRootFolders,
+  initialCsrfButtonLabel,
+  patientMemberId = null,
   handleAccessibleRootFoldersChange,
-}: ChooseAccessibleRootFolderButtonProps) => {
+}: ChooseAccessibleRootFoldersButtonProps) => {
+  const [crfButtonLabel, setCrfButtonLabel] = useState(initialCsrfButtonLabel);
+  const [idsString, setIdsString] = useState(initialDefaultRootFolders);
   const { isLoading } = useIsLoading();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [itemsSet, setItemsSet] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [isPending, startTransition] = useTransition();
@@ -61,19 +66,41 @@ export const ChooseAccessibleRootFolderButton = ({
 
   useEffect(() => {
     const checkedItems = items.filter((item) => item.checked);
-    if (checkedItems.length === 0 && dropdownOpen) {
-      handleSelectChange(items[0]);
-      handleAccessibleRootFoldersChange(items[0].id);
-    } else if (checkedItems.length === items.length) {
-      handleAccessibleRootFoldersChange("ALL_EXTERNAL");
-    } else {
-      const idsString = checkedItems.map((item) => item.id).join(",");
-      handleAccessibleRootFoldersChange(idsString);
+    if (dropdownOpen) {
+      if (checkedItems.length === 0) {
+        handleSelectChange(items[0]);
+        setIdsString(items[0].id);
+        if (!patientMemberId) {
+          handleAccessibleRootFoldersChange(items[0].id);
+        }
+      } else if (checkedItems.length === items.length) {
+        setIdsString("ALL_EXTERNAL");
+        if (!patientMemberId) {
+          handleAccessibleRootFoldersChange("ALL_EXTERNAL");
+        }
+      } else {
+        const idsStringTemp = checkedItems.map((item) => item.id).join(",");
+        setIdsString(idsStringTemp);
+        if (!patientMemberId) {
+          handleAccessibleRootFoldersChange(idsString);
+        }
+      }
     }
-  }, [items]);
+  }, [items, dropdownOpen, patientMemberId]);
+
+  useEffect(() => {
+    const numOfRootFolders = idsString.split(",").length;
+    const foldersText = numOfRootFolders === 1 ? "Folder" : "Folders";
+    const crfButtonLabel =
+      idsString === "ALL_EXTERNAL" ? "All Root Folders" : `${numOfRootFolders.toString()} Root ${foldersText}`;
+
+    setCrfButtonLabel(crfButtonLabel);
+  }, [idsString, dialogOpen]);
 
   const openDialog = () => {
-    const defaultRootFolderIdsArray = defaultRootFolderIds.split(",");
+    setItemsSet(false);
+    setDialogOpen(true);
+    const defaultRootFolderIdsArray = initialDefaultRootFolders.split(",");
     startTransition(() => {
       fetchAllRootFolders()
         .then((data) => {
@@ -85,14 +112,37 @@ export const ChooseAccessibleRootFolderButton = ({
               return a.name.localeCompare(b.name);
             });
             const items = folders.map((obj) => ({
-              checked: defaultRootFolderIds === "ALL_EXTERNAL" ? true : defaultRootFolderIdsArray.includes(obj.id),
+              checked: initialDefaultRootFolders === "ALL_EXTERNAL" ? true : defaultRootFolderIdsArray.includes(obj.id),
               id: obj.id,
               name: obj.name,
             }));
             setItems(items);
+            setItemsSet(true);
             if (items.length > 0) {
               setDropdownOpen(true);
             }
+          }
+        })
+        .catch((error) => {
+          setItems([]);
+          setItemsSet(true);
+          toast.error("something went wrong");
+        });
+    });
+  };
+
+  const onSave = () => {
+    if (!patientMemberId) return;
+    startTransition(() => {
+      changeOrganizationAccessibleRootFolders(patientMemberId, idsString)
+        .then((data) => {
+          if (!data || !!data.error) {
+            toast.error("something went wrong");
+            return;
+          } else if (!!data.success) {
+            toast.success(data.success);
+            setDialogOpen(false);
+            handleAccessibleRootFoldersChange(idsString);
           }
         })
         .catch((error) => {
@@ -100,13 +150,24 @@ export const ChooseAccessibleRootFolderButton = ({
         });
     });
   };
+
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={() => {
+        setDialogOpen(!dialogOpen);
+      }}
+      open={dialogOpen}
+    >
       <DialogTrigger onClick={openDialog} asChild={asChild}>
         {children}
       </DialogTrigger>
-      <DialogContent className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px]">
-        {isPending || !items ? (
+      <DialogContent
+        onPointerDownOutside={() => {
+          setDialogOpen(false);
+        }}
+        className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px] pt-4 xxs:pt-0"
+      >
+        {!itemsSet ? (
           <BeatLoader color="#4b59f0" />
         ) : (
           // <GenericCombobox
@@ -120,31 +181,44 @@ export const ChooseAccessibleRootFolderButton = ({
           //   noItemsMessage="No results"
           //   items={items}
           // />
-          <DropdownMenu open={dropdownOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                disabled={isLoading || items.length === 0}
-                onClick={() => setDropdownOpen(true)}
-                variant="outline"
-              >
-                {crfButtonLabel}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" onPointerDownOutside={handleOutsideFocus}>
-              <DropdownMenuLabel>Root Folders</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {items.map((item, index) => (
-                <DropdownMenuCheckboxItem
-                  key={index}
-                  defaultChecked={true}
-                  checked={item.checked}
-                  onCheckedChange={() => handleSelectChange(item)}
+          <div className="flex flex-row gap-x-2">
+            <DropdownMenu open={dropdownOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  disabled={isLoading || items.length === 0}
+                  onClick={() => setDropdownOpen(true)}
+                  variant="outline"
                 >
-                  {item.name}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  {crfButtonLabel}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" onPointerDownOutside={handleOutsideFocus}>
+                <DropdownMenuLabel>Root Folders</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {items.map((item, index) => (
+                  <DropdownMenuCheckboxItem
+                    key={index}
+                    defaultChecked={true}
+                    checked={item.checked}
+                    onCheckedChange={() => handleSelectChange(item)}
+                  >
+                    {item.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {idsString !== initialDefaultRootFolders && !!patientMemberId && (
+              <Button
+                onClick={onSave}
+                disabled={isPending}
+                variant="secondary"
+                className="w-20 h-10 flex flex-row gap-x-2"
+              >
+                <Save className="w-4 h-4 shrink-0" />
+                <span className="text-sm">Save</span>
+              </Button>
+            )}
+          </div>
         )}
         {!isPending && items.length === 0 && <p className="text-xs text-red-500">You have no root folders</p>}
       </DialogContent>

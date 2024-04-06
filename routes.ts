@@ -55,7 +55,7 @@ export const patientRoutes: string[] = ["/patient-home", "/files", "/about", "/m
  * An array of routes that are patient specific and are dynamic
  * @type {string[]}
  */
-export const patientDynamicRoutes: string[] = ["/files/", "/file/"];
+export const patientDynamicRoutes: string[] = ["/files/", "/file/", "/providers/"];
 
 /**
  * An array of routes that are provider specific

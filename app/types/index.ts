@@ -26,6 +26,7 @@ export type PermissionKey = keyof PermissionsType;
 export type SubscriptionTierType = {
   id: Plan;
   title: string;
+  description?: string;
   priceText: string;
   stripePrice: number;
   featured: boolean;

@@ -5,6 +5,7 @@
  */
 export const publicRoutes: string[] = [
   "/",
+  "/pricing",
   "/auth/patient-new-verification",
   "/auth/provider-new-verification",
   "/api/rr-file-upload",
@@ -106,4 +107,3 @@ export const accessPatientApiRoutes: string[] = ["/api/patient-update", "/api/tp
 export const PATIENT_DEFAULT_LOGIN_REDIRECT: string = "/patient-home";
 export const PROVIDER_DEFAULT_LOGIN_REDIRECT: string = "/provider-home";
 export const ACCESS_PATIENT_WITH_CODE_REDIRECT: string = "/tpa-home";
-

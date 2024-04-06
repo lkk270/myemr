@@ -30,23 +30,29 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   // console.log(session);
   // console.log(user);
   // console.log(session.status);
-
+  const have = "Have  ";
   return (
     <div
       className={cn(
-        "h-16 z-100 fixed top-0 flex items-center w-full p-2 sm:p-6",
+        "h-16 z-50 fixed top-0 flex items-center w-full p-2 sm:p-6",
         scrolled && !isMobile && "backdrop-blur",
         isMobile &&
           "dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F]  bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
       )}
     >
       <Logo />
+
       <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-2">
         {(!user || session.status === "unauthenticated") && (
           <>
+            <Link href="/pricing">
+              <Button variant="gooeyLeftGhost" size="sm">
+                <span className="text-xs xxs:text-sm">Pricing</span>
+              </Button>
+            </Link>
             <AccessWithCodeButton asChild>
               <Button variant="gooeyLeftGhost" size="sm">
-                Have Code?
+                <span className="hidden xs:flex">Have&nbsp;</span>Code?
               </Button>
             </AccessWithCodeButton>
             <LoginButton mode="modal" asChild userType="PATIENT">

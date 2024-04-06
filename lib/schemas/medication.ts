@@ -3,14 +3,23 @@ import { medicationsList, medicationCategories, dosageUnits, dosageFrequency } f
 
 export const NewMedicationSchema = z.object({
   patientMemberId: z.string().optional().nullable(),
-  name: z.string().refine(
-    (value) => {
-      return medicationsList.some((item) => item.value === value);
-    },
-    {
-      message: "Name must match a value in the medicationsList",
-    },
-  ),
+  name: z
+    .string()
+    .min(2, {
+      message: "Minimum of 2 characters required",
+    })
+    .max(70, {
+      message: "Maximum of 70 character required",
+    }),
+
+  // .refine(
+  //   (value) => {
+  //     return medicationsList.some((item) => item.value === value);
+  //   },
+  //   {
+  //     message: "Name must match a value in the medicationsList",
+  //   },
+  // ),
   prescribedById: z
     .string()
     .optional()
@@ -45,14 +54,23 @@ export const NewMedicationSchema = z.object({
     .refine((value) => !isNaN(parseFloat(value)) && parseFloat(value) > 0, {
       message: "Dosage must be a positive number",
     }),
-  dosageUnits: z.string().refine(
-    (value) => {
-      return dosageUnits.some((item) => item.value === value);
-    },
-    {
-      message: "Name must match a value in the dosageUnits",
-    },
-  ),
+  dosageUnits: z
+    .string()
+    .min(1, {
+      message: "Minimum of 1 character required",
+    })
+    .max(15, {
+      message: "Maximum of 15 character required",
+    }),
+
+  // .refine(
+  //   (value) => {
+  //     return dosageUnits.some((item) => item.value === value);
+  //   },
+  //   {
+  //     message: "Name must match a value in the dosageUnits",
+  //   },
+  // ),
   frequency: z.string().refine(
     (value) => {
       return dosageFrequency.some((item) => item.value === value);
@@ -106,14 +124,14 @@ export const EditMedicationSchema = z.object({
     .refine((value) => !isNaN(parseFloat(value)) && parseFloat(value) > 0, {
       message: "Dosage must be a positive number",
     }),
-  dosageUnits: z.string().refine(
-    (value) => {
-      return dosageUnits.some((item) => item.value === value);
-    },
-    {
-      message: "Name must match a label in the medicationsList",
-    },
-  ),
+  dosageUnits: z
+    .string()
+    .min(1, {
+      message: "Minimum of 1 character required",
+    })
+    .max(15, {
+      message: "Maximum of 15 character required",
+    }),
   frequency: z.string().refine(
     (value) => {
       return dosageFrequency.some((item) => item.value === value);

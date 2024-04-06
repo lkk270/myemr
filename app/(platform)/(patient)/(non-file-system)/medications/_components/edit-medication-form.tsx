@@ -174,7 +174,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                           searchPlaceholder="Search..."
                           noItemsMessage="No category found."
                           items={medicationCategories}
-                          allowOther={true}
+                          // allowOther={true}
                         />
                       </FormItem>
                     )}

@@ -46,7 +46,6 @@ export const Sidebar = ({
   const [expanded, setExpanded] = useLocalStorage<Record<string, any>>(storageKey, {});
   const [accordionValue, setAccordionValue] = useState<string[]>([]);
   const [defaultAccordionValue, setDefaultAccordionValue] = useState<string[]>([]);
-  const session = useSession();
 
   const getPathnameSpecificAccordionValue = () => {
     let ret: string[] = [currentOrganizationId];

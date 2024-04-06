@@ -14,15 +14,14 @@ const PatientMedications = async () => {
   //   return redirectToSignIn;
   // }
   const session = await auth();
-
-  if (!session) {
+  const user = session?.user;
+  if (!session || !user) {
     return redirect("/");
   }
-  const user = session?.user;
 
   const patientMedications = await prismadb.patientProfile.findUnique({
     where: {
-      userId: user?.id,
+      userId: user.id,
     },
     select: {
       medications: {

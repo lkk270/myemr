@@ -2,24 +2,20 @@
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
-import { InviteMemberForm } from "./invite-member-form";
+import { AddOrganizationForm } from "./add-organization-form";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
-import { useOrganizationMembersStore } from "../hooks/use-members";
+import { useOrganizationsStore } from "../hooks/use-organizations";
 
-interface InviteMemberButtonProps {
+interface AddOrganizationButtonProps {
   children: React.ReactNode;
   asChild?: boolean;
 }
 
-export const InviteMemberButton = ({ children, asChild }: InviteMemberButtonProps) => {
+export const AddOrganizationButton = ({ children, asChild }: AddOrganizationButtonProps) => {
   const [open, setOpen] = useState(false);
   const currentUser = useCurrentUser();
   if (!currentUser) return null;
-  const { getOrganizationMemberByUserId } = useOrganizationMembersStore();
-  const currentUserMember = getOrganizationMemberByUserId(currentUser.id);
-  if (!currentUserMember || (currentUserMember.role !== "ADMIN" && currentUserMember.role !== "OWNER")) {
-    return null;
-  }
+
   return (
     <Dialog
       open={open}
@@ -29,7 +25,7 @@ export const InviteMemberButton = ({ children, asChild }: InviteMemberButtonProp
     >
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent className="overflow-y-scroll h-1/2 max-w-[450px] w-full">
-        <InviteMemberForm setOpen={setOpen}/>
+        <AddOrganizationForm setOpen={setOpen}/>
       </DialogContent>
     </Dialog>
   );

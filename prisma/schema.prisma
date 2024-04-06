@@ -232,7 +232,7 @@ model Medication {
 // }
 
 model RecordViewActivity {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(cuid())
   lastViewedAt DateTime @default(now())
   userId       String
   fileId       String?
@@ -363,6 +363,7 @@ model Organization {
   backgroundImageUrl String?          @db.Text
   profileImageUrl    String?          @db.Text
   acceptMessages     Boolean          @default(false)
+  patientJoinToken   String           @unique()
   organizationType   OrganizationType @default(PRIVATE_PRACTICE)
 
   addresses        OrganizationAddress[]
@@ -397,15 +398,18 @@ model PatientMember {
   patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   // accessibleRootFolders     Folder[]
 
-  accessibleRootFolders String       @db.LongText
-  organizationName      String       @db.VarChar(125)
-  organizationId        String
-  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  accessibleRootFolders       String  @db.LongText
+  organizationName            String  @db.VarChar(125)
+  organizationProfileImageUrl String? @db.Text
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // @@index([providerProfileId])
+  @@unique([patientProfileId, organizationId])
   @@index([patientProfileId])
   @@index([organizationId])
 }

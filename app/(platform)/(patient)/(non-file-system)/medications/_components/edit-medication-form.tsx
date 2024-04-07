@@ -19,7 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { logout } from "@/auth/actions/logout";
-import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
+import { medicationsList, fieldCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { DosageHistoryPopover } from "./dosage-history-popover";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
@@ -174,7 +174,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                           placeholder="Select..."
                           searchPlaceholder="Search..."
                           noItemsMessage="No category found."
-                          items={medicationCategories}
+                          items={fieldCategories}
                           // allowOther={true}
                         />
                       </FormItem>

@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { medicationsList, medicationCategories, dosageUnits, dosageFrequency } from "../constants";
+import { medicationsList, fieldCategories, dosageUnits, dosageFrequency } from "../constants";
 
 export const NewMedicationSchema = z.object({
   patientMemberId: z.string().optional().nullable(),
@@ -41,10 +41,10 @@ export const NewMedicationSchema = z.object({
     }),
   category: z.string().refine(
     (value) => {
-      return medicationCategories.some((item) => item.value === value);
+      return fieldCategories.some((item) => item.value === value);
     },
     {
-      message: "Name must match a value in the medicationCategories",
+      message: "Name must match a value in the fieldCategories",
     },
   ),
   dosage: z
@@ -111,7 +111,7 @@ export const EditMedicationSchema = z.object({
     }),
   category: z.string().refine(
     (value) => {
-      return medicationCategories.some((item) => item.value === value);
+      return fieldCategories.some((item) => item.value === value);
     },
     {
       message: "Name must match a label in the medicationsList",

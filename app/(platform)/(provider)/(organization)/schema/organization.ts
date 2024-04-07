@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { rootFolderCategories, states } from "@/lib/constants";
+import { fieldCategories, states } from "@/lib/constants";
 import { OrganizationMemberRole, OrganizationType } from "@prisma/client";
 
 export const AddressSchema = z.object({
@@ -61,10 +61,10 @@ export const OrganizationSchema = z.object({
 
   category: z.string().refine(
     (value) => {
-      return rootFolderCategories.some((item) => item.value === value);
+      return fieldCategories.some((item) => item.value === value);
     },
     {
-      message: "Name must match a value in the rootFolderCategories",
+      message: "Name must match a value in the fieldCategories",
     },
   ),
   subTitle: z

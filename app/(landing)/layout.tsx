@@ -3,6 +3,7 @@
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { Navbar } from "./_components/navbar";
 import { useRef } from "react";
+import { Footer } from "./_components/footer";
 
 const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef(null);
@@ -11,8 +12,9 @@ const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="overflow-auto h-screen">
       <Navbar scrolled={scrolled} />
-      <main ref={scrollRef} className="overflow-auto h-screen pt-24 sm:pt-36 xs:pt-32">
+      <main ref={scrollRef} className="overflow-auto h-screen pt-24">
         {children}
+        <Footer />
       </main>
     </div>
   );

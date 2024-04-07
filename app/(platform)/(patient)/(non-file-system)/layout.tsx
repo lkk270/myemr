@@ -1,9 +1,9 @@
 import { Navbar } from "../_components/navbar";
 import { UploadInsuranceModal } from "./about/_components/upload-insurance-modal";
-import { NewMedicationModal } from "./medications/_components/modals/new-medication-modal";
-import { ViewMedicationModal } from "./medications/_components/modals/view-medication-modal";
-import { DeleteMedicationModal } from "./medications/_components/modals/delete-medication-modal";
-import { PatientManageAccountModal } from "@/components/modals/patient-manage-account/patient-manage-account-modal";
+// import { NewMedicationModal } from "./medications/_components/modals/new-medication-modal";
+// import { ViewMedicationModal } from "./medications/_components/modals/view-medication-modal";
+// import { DeleteMedicationModal } from "./medications/_components/modals/delete-medication-modal";
+import { PatientManageAccountModal } from "@/components/modals/manage-account/patient-manage-account/patient-manage-account-modal";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -25,7 +25,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
       <UploadInsuranceModal />
       {/* <NewMedicationModal />
       <ViewMedicationModal /> */}
-      <DeleteMedicationModal />
+      {/* <DeleteMedicationModal /> */}
       <PatientManageAccountModal />
       <main className="pt-16 flex-1 overflow-y-auto">{children}</main>
     </div>

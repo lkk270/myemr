@@ -1,6 +1,6 @@
 import { Table } from "@tanstack/react-table";
 import { cn, formatFileSize } from "@/lib/utils";
-import { Pencil, Download, Trash, FolderPlus, Undo2, FileInput, FolderInput } from "lucide-react";
+import { PencilLine, Download, Trash, FolderPlus, Undo2, FileInput, FolderInput } from "lucide-react";
 import {
   useTrashModal,
   useDeleteModal,
@@ -102,7 +102,7 @@ export function SelectedFilesToolbar<TData>({ table }: SelectedFilesToolbarProps
       role="button"
       className={cn(isLoading && "cursor-not-allowed", "hover:bg-[#363636] dark:hover:bg-[#3c3c3c] rounded-sm p-2")}
     >
-      <Pencil className="w-4 h-4" />
+      <PencilLine className="w-4 h-4" />
     </div>
   );
 

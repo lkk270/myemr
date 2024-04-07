@@ -1,6 +1,4 @@
 "use client";
-
-import { FaUser } from "react-icons/fa";
 import { Settings, LogOut } from "lucide-react";
 
 import {
@@ -9,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { LogoutButton } from "../auth/components/auth/logout-button";
 import { capitalizeFirstLetter, cn } from "@/lib/utils";
@@ -18,13 +15,17 @@ import { Separator } from "@/components/ui/separator";
 import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-account-modal";
 import { AvatarComponent } from "./avatar-component";
 import { planNames } from "@/lib/constants";
+import { useProviderManageAccountModal } from "@/auth/hooks/use-provider-manage-account-modal";
 
 export const UserButton = () => {
-  const { onOpen } = usePatientManageAccountModal();
+  const { onOpen: patientOnOpen } = usePatientManageAccountModal();
+  const { onOpen: providerOnOpen } = useProviderManageAccountModal();
+
   const user = useCurrentUser();
   const plan = user?.plan;
   const currentUserPermissions = extractCurrentUserPermissions(user);
   const isValidPatient = user?.email && currentUserPermissions.isPatient;
+  const isValidProvider = user?.email && currentUserPermissions.isProvider;
 
   return (
     <DropdownMenu>
@@ -34,11 +35,11 @@ export const UserButton = () => {
       <DropdownMenuContent
         className={cn(
           "min-w-[375px] flex flex-col px-4 dark:bg-[#19191a] dark:border-none shadow-md",
-          isValidPatient && "pt-5",
+          (isValidPatient || isValidProvider) && "pt-5",
         )}
         align="end"
       >
-        {isValidPatient && (
+        {(isValidPatient || isValidProvider) && (
           <div className="flex flex-row gap-x-2 mb-4 items-center max-w-[375px]">
             <AvatarComponent avatarClassName="w-10 h-10" />
             <span className=" text-sm font-semibold break-all whitespace-normal">
@@ -53,7 +54,13 @@ export const UserButton = () => {
           </div>
         )}
         {isValidPatient && (
-          <DropdownMenuItem className="py-3" onClick={() => onOpen()}>
+          <DropdownMenuItem className="py-3" onClick={() => patientOnOpen()}>
+            <Settings className="h-4 w-4 mr-6" />
+            Manage account & more
+          </DropdownMenuItem>
+        )}
+        {isValidProvider && (
+          <DropdownMenuItem className="py-3" onClick={() => providerOnOpen()}>
             <Settings className="h-4 w-4 mr-6" />
             Manage account & more
           </DropdownMenuItem>

@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -10,19 +10,19 @@ import Link from "next/link";
 import { LoginSchema } from "@/auth/schemas";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { CardWrapper } from "./card-wrapper";
 import { Button } from "@/components/ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/auth/actions/login";
-import { UserType } from "@prisma/client";
-import { capitalizeFirstLetter } from "@/lib/utils";
-
+import { Spinner } from "@/components/loading/spinner";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useShowTwoFactor } from "@/auth/hooks/use-show-two-factor";
 interface LoginFormProps {
   userType: "PROVIDER" | "PATIENT";
 }
 
 export const LoginForm = ({ userType }: LoginFormProps) => {
+  // console.log(userType);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   let urlError = "";
@@ -37,7 +37,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
       urlError = "Oops something went wrong";
     }
   }
-  const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const { showTwoFactor, setShowTwoFactor } = useShowTwoFactor();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -50,17 +50,17 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
       userType: userType,
     },
   });
+  const { setValue } = form;
+  useEffect(() => {
+    setValue("userType", userType);
+  }, [userType]);
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
     setSuccess("");
-
     startTransition(() => {
-      console.log("In 57");
-
       login(values, callbackUrl)
         .then((data) => {
-          console.log(data);
           if (data?.error) {
             // form.reset();
             setError(data.error);
@@ -76,7 +76,6 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
           }
         })
         .catch(() => {
-          console.log("IN HERE");
           setError("Something went wrong");
         });
     });
@@ -91,12 +90,30 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
               control={form.control}
               name="code"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Two Factor Code</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} placeholder="123456" />
-                  </FormControl>
-                  <FormMessage />
+                <FormItem className="flex flex-col gap-y-4 items-center pt-4">
+                  <FormLabel htmlFor="inviteCode">Two factor code</FormLabel>
+                  <div className="relative flex flex-row items-center justify-center gap-x-3 w-full">
+                    <div className="flex justify-center">
+                      <InputOTP
+                        {...field}
+                        onComplete={form.handleSubmit(onSubmit)}
+                        disabled={isPending}
+                        maxLength={6}
+                        render={({ slots }) => (
+                          <InputOTPGroup>
+                            {slots.slice(0, 6).map((slot, index) => (
+                              <InputOTPSlot key={index} {...slot} />
+                            ))}
+                          </InputOTPGroup>
+                        )}
+                      />
+                    </div>
+                    {isPending && (
+                      <div className="absolute right-0 mr-6 flex-grow-0">
+                        <Spinner size="lg" loaderType={"loader2"} />
+                      </div>
+                    )}
+                  </div>
                 </FormItem>
               )}
             />
@@ -139,6 +156,7 @@ export const LoginForm = ({ userType }: LoginFormProps) => {
         </div>
         <FormError message={error || urlError} />
         <FormSuccess message={success} />
+
         <Button disabled={isPending} type="submit" className="w-full">
           {showTwoFactor ? "Confirm" : "Login"}
         </Button>

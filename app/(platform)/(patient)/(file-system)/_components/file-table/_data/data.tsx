@@ -1,5 +1,5 @@
 import { CrossCircledIcon, UpdateIcon } from "@radix-ui/react-icons";
-import { medicationCategories } from "@/lib/constants";
+import { fieldCategories } from "@/lib/constants";
 
 export const statuses = [
   {
@@ -19,5 +19,5 @@ export const hiddenColumns = { dosageUnits: false, frequency: false };
 
 export const filters = [
   { accessorKey: "status", title: "Status", options: statuses },
-  { accessorKey: "category", title: "Category", options: medicationCategories },
+  { accessorKey: "category", title: "Category", options: fieldCategories },
 ];

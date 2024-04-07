@@ -10,7 +10,18 @@ import { getUserByEmail, getUserById } from "@/auth/data/user";
 import { currentUser } from "@/auth/lib/auth";
 import { generateVerificationToken } from "@/auth/lib/tokens";
 import { sendVerificationEmail } from "@/auth/lib/mail/mail";
-import { UserType } from "@prisma/client";
+import { findChangesBetweenObjects } from "@/lib/utils";
+
+function filterFields(originalObject: any) {
+  const fields = ["role", "isTwoFactorEnabled", "name"];
+  let filteredObject: any = {};
+  fields.forEach((field) => {
+    if (originalObject.hasOwnProperty(field)) {
+      filteredObject[field] = originalObject[field];
+    }
+  });
+  return filteredObject;
+}
 
 export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   const user = await currentUser();
@@ -56,20 +67,15 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     values.newPassword = undefined;
   }
 
-  const updatedUser = await prismadb.user.update({
+  const updatedData = findChangesBetweenObjects(dbUser, values);
+  const updatedUserObject = filterFields(updatedData);
+  await prismadb.user.update({
     where: { id: dbUser.id },
-    data: {
-      isTwoFactorEnabled: values.isTwoFactorEnabled,
-      role: values.role,
-      password: values.password,
-    },
+    data: updatedData,
   });
 
   update({
-    user: {
-      isTwoFactorEnabled: updatedUser.isTwoFactorEnabled,
-      role: updatedUser.role,
-    },
+    user: updatedUserObject,
   });
 
   return { success: "Settings Updated!" };

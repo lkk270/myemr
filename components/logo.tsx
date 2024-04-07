@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMediaQuery } from "usehooks-ts";
+// import { useMediaQuery } from "usehooks-ts";
 
 import { Poppins } from "next/font/google";
 
@@ -22,7 +22,7 @@ interface LogoProps {
 }
 
 export const Logo = ({ textColor, showText = true }: LogoProps) => {
-  const isMobile = useMediaQuery("(max-width: 500px)");
+  // const isMobile = useMediaQuery("(max-width: 500px)");
   const currentUser = useCurrentUser();
   const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const plan = currentUser?.plan;
@@ -30,11 +30,19 @@ export const Logo = ({ textColor, showText = true }: LogoProps) => {
   return (
     <Link href="/" className={cn(showText ? "sm:w-32" : "")} onDragStart={(e) => e.preventDefault()}>
       <div className="flex items-center gap-x-2">
-        <Image priority={true} src="/logo.svg" height={size} width={size} alt="Logo" draggable={false} />
-        {showText && !isMobile && (
+        <Image
+          className="shrink-0"
+          priority={true}
+          src="/logo.svg"
+          height={size}
+          width={size}
+          alt="Logo"
+          draggable={false}
+        />
+        {showText && (
           <p
             className={cn(
-              "font-semibold text-sm sm:flex sm:text-lg gap-x-2",
+              "hidden font-semibold text-sm sm:flex sm:text-lg gap-x-2",
               font.className,
               textColor && `text-primary/70`,
             )}

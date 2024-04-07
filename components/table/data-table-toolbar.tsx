@@ -12,11 +12,17 @@ import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { useMediaQuery } from "usehooks-ts";
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  showDataTableViewOptions?: boolean;
   newOnOpen?: () => void;
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
 }
 
-export function DataTableToolbar<TData>({ table, newOnOpen, filters = [] }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData>({
+  table,
+  newOnOpen,
+  filters = [],
+  showDataTableViewOptions = true,
+}: DataTableToolbarProps<TData>) {
   // const newMedicationModal = useNewMedicationModal();
   const isMobile = useMediaQuery("(max-width: 450px)");
   const [filterText, setFilterText] = useState("");
@@ -69,7 +75,7 @@ export function DataTableToolbar<TData>({ table, newOnOpen, filters = [] }: Data
             New
           </Button>
         )}
-        <DataTableViewOptions table={table} />
+        {showDataTableViewOptions && <DataTableViewOptions table={table} />}
       </div>
     </div>
   );

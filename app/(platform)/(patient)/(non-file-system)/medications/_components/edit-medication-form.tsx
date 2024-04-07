@@ -19,13 +19,13 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { logout } from "@/auth/actions/logout";
-import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
+import { medicationsList, fieldCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { DosageHistoryPopover } from "./dosage-history-popover";
 import { useMedicationStore } from "../_components/hooks/use-medications";
 import { useViewMedicationModal } from "../_components/hooks/use-view-medication-modal";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { EditMedicationSchema } from "@/lib/schemas/medication";
-
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 const inputClassName = "bg-secondary border-primary/10";
 
 interface MedicationProps {
@@ -36,6 +36,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   if (!medicationParam) {
     return null;
   }
+  const { patientMember } = usePatientMemberStore();
   const [isPending, startTransition] = useTransition();
 
   const currentUserPermissions = useCurrentUserPermissions();
@@ -46,6 +47,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
   const form = useForm<z.infer<typeof EditMedicationSchema>>({
     resolver: zodResolver(EditMedicationSchema),
     defaultValues: {
+      patientMemberId: currentUserPermissions.isProvider ? patientMember?.id : null,
       id: medicationParam.id,
       prescribedById: medicationParam.prescribedById,
       prescribedByName: medicationParam.prescribedByName,
@@ -65,7 +67,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
 
   const onSubmit = (values: z.infer<typeof EditMedicationSchema>) => {
     if (!isEditing) {
-      console.log("IN 80");
       setIsEditing(true);
       return;
     }
@@ -81,9 +82,9 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
         .then((data) => {
           if (data.error) {
             toast.error(data.error);
-            if (data.error === "Unauthorized") {
+            if (data.error === "Unauthorized" && !currentUserPermissions.hasAccount) {
               viewMedicationModal.onClose();
-              logout();
+              window.location.reload();
             }
           }
           if (data.success && !!data.medicationName && !!data.createdAt) {
@@ -105,14 +106,16 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
             viewMedicationModal.onClose();
           }
         })
-        .catch(() => toast.error("Something went wrong"));
+        .catch((e) => {
+          toast.error("Something went wrong");
+        });
     });
   };
 
   const { setValue, control } = form;
 
   const handleEditToggle = () => setIsEditing(!isEditing);
-  console.log(form.getValues());
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex justify-center w-full max-w-[850px]">
@@ -135,7 +138,7 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
             )}
           </div>
           {/* Personal Information Card */}
-          <Card className="w-full ">
+          <Card className="w-full border-none">
             <CardContent className="pt-2">
               <div className="grid gap-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
@@ -171,8 +174,8 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
                           placeholder="Select..."
                           searchPlaceholder="Search..."
                           noItemsMessage="No category found."
-                          items={medicationCategories}
-                          allowOther={true}
+                          items={fieldCategories}
+                          // allowOther={true}
                         />
                       </FormItem>
                     )}

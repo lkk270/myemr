@@ -94,15 +94,16 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             email: email.toLowerCase(),
             password: hashedPassword,
             type: "PROVIDER",
-            providerProfile: {
-              create: {
-                firstName,
-                lastName,
-                email,
-                publicKey: encryptKey(publicKey, "providerPublicKey"),
-                privateKey: encryptKey(privateKey, "providerPrivateKey"),
-              },
-            },
+            name: `${firstName} ${lastName}`
+            // providerProfile: {
+            //   create: {
+            //     firstName,
+            //     lastName,
+            //     email,
+            //     publicKey: encryptKey(publicKey, "providerPublicKey"),
+            //     privateKey: encryptKey(privateKey, "providerPrivateKey"),
+            //   },
+            // },
           },
         });
         // Include any additional operations if needed

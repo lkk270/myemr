@@ -36,11 +36,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var PrismaClient = require("@prisma/client").PrismaClient;
 var prismadb = new PrismaClient();
+function deleteAllOrganizationInviteCodes() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, prismadb.organizationInviteCode.deleteMany({})];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function deleteAllFiles() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, prismadb.file.deleteMany({})];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function deleteAllNotifications() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, prismadb.notification.deleteMany({})];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function changeActivityLogsToReadFalse() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, prismadb.organizationActivity.updateMany({
+                        data: {
+                            read: false,
+                        },
+                    })];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -121,4 +161,7 @@ function createFolder(name, path, namePath, parentId, patientProfileId, userId, 
         });
     });
 }
-deleteAllFiles();
+changeActivityLogsToReadFalse();
+// deleteAllNotifications();
+// deleteAllOrganizationInviteCodes();
+// deleteAllFiles();

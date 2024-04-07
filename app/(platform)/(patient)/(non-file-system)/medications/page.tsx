@@ -1,4 +1,3 @@
-// import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -14,15 +13,14 @@ const PatientMedications = async () => {
   //   return redirectToSignIn;
   // }
   const session = await auth();
-
-  if (!session) {
+  const user = session?.user;
+  if (!session || !user) {
     return redirect("/");
   }
-  const user = session?.user;
 
   const patientMedications = await prismadb.patientProfile.findUnique({
     where: {
-      userId: user?.id,
+      userId: user.id,
     },
     select: {
       medications: {
@@ -54,7 +52,6 @@ const PatientMedications = async () => {
     const decryptedSymmetricKey = decryptKey(patientMedications.symmetricKey, "patientSymmetricKey");
     decryptedPatientMedications = decryptMultiplePatientFields(patientMedications.medications, decryptedSymmetricKey);
   } catch (e) {
-    console.log(e);
     return <div>something went wrong</div>;
   }
 

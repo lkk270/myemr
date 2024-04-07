@@ -1,4 +1,3 @@
-// // import { currentUser, redirectToSignIn } from "@clerk/nextjs";
 // // import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 // import { redirect } from "next/navigation";

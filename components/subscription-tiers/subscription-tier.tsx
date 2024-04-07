@@ -40,7 +40,6 @@ export const SubscriptionTier = ({ tier }: { tier: SubscriptionTierType }) => {
         window.location.href = response.data.url;
       }
     } catch (error) {
-      console.log(error);
       toast.error("Something went wrong");
     } finally {
       await update();

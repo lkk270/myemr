@@ -18,7 +18,7 @@ import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permiss
 import { Button } from "@/components/ui/button";
 import { ViewUploadHistoryButton } from "@/components/temp-upload/view-upload-history-button";
 import { EndSessionButton } from "@/app/(public-routes)/upload-records/[token]/_components/end-session-button";
-import { createNotification } from "@/lib/actions/notifications";
+import { createPatientNotification } from "@/lib/actions/notifications";
 
 interface UploadFilesFormProps {
   requestRecordsCode?: {
@@ -68,6 +68,7 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
     }
     setIsLoading(true);
 
+    let parentFolderName = null;
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
     const uploadPromises = tempFileList
@@ -99,7 +100,8 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
 
           updateFileStatus(tempFile, "gotPSU", 0);
           const responseObj = await response.json();
-          const { url, fields, fileIdResponse } = responseObj;
+          const { url, fields, fileIdResponse, parentFolderNameResponse } = responseObj;
+          parentFolderName = parentFolderNameResponse;
           fileId = fileIdResponse;
 
           if (response.ok) {
@@ -125,7 +127,6 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
 
           if (!data.success) throw new Error(data.error || "Status update failed");
           if (!!requestRecordsCode && !calledSetHasUploadToTrue) {
-            console.log("IN 128");
             await setHasUploadedToTrue(requestRecordsCode.id);
             setCalledSetHasUploadToTrue(true);
           }
@@ -159,18 +160,24 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
     // }
 
     if (numFilesSuccessfullyUploaded > 0) {
-      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
-
       if (!!requestRecordsCode) {
-        await createNotification({
-          text: `${requestRecordsCode.providerEmail} has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText} in response to your "Request Your Records" request.`,
-          type: "REQUEST_RECORDS_UPLOAD",
-          requestRecordsCodeToken: requestRecordsCode.token,
+        await createPatientNotification({
+          notificationType: "REQUEST_RECORDS_FILE_UPLOAD",
+          dynamicData: {
+            parentFolderName: parentFolderName,
+            email: requestRecordsCode.providerEmail,
+            numOfFiles: numFilesSuccessfullyUploaded,
+            requestRecordsCodeToken: requestRecordsCode.token,
+          },
         });
       } else {
-        await createNotification({
-          text: `An external user, whom you granted a temporary access code with "UPLOAD_FILES_ONLY" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
-          type: "ACCESS_CODE",
+        await createPatientNotification({
+          notificationType: "ACCESS_CODE_FILE_UPLOADED",
+          dynamicData: {
+            parentFolderName: parentFolderName,
+            role: "UPLOAD_FILES_ONLY",
+            numOfFiles: numFilesSuccessfullyUploaded,
+          },
         });
       }
     }

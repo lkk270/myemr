@@ -6,6 +6,7 @@ export type ExtendedUser = DefaultSession["user"] & {
   userType: UserType;
   plan: Plan;
   isTwoFactorEnabled: boolean;
+  accessibleRootFolders: string;
   isOAuth: boolean;
   createdAt: Date;
 };

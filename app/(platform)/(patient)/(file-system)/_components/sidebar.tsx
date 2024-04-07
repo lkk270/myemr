@@ -20,6 +20,7 @@ import { usePatientManageAccountModal } from "@/auth/hooks/use-patient-manage-ac
 import { allotedStoragesInGb } from "@/lib/constants";
 import { usePathname, useSearchParams } from "next/navigation";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
+import { toast } from "sonner";
 
 interface SidebarProps {
   data: any[];
@@ -27,7 +28,12 @@ interface SidebarProps {
   sumOfAllSuccessFilesSizes: bigint;
   numOfUnreadNotifications?: number;
 }
-export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, numOfUnreadNotifications = 0 }: SidebarProps) => {
+export const Sidebar = ({
+  data,
+  singleLayerNodes,
+  sumOfAllSuccessFilesSizes,
+  numOfUnreadNotifications = 0,
+}: SidebarProps) => {
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -46,6 +52,7 @@ export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, num
   const plan = session?.data?.user?.plan;
   const { onOpen } = usePatientManageAccountModal();
   const allotedStorageInGb = !!session && !!session.data ? allotedStoragesInGb[session.data.user.plan] : 1;
+
   useEffect(() => {
     setIsMounted(true);
     // console.log(data);
@@ -57,7 +64,7 @@ export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, num
 
   useEffect(() => {
     const checkValidCode = async () => {
-      if (!currentUserPermissions.isPatient) {
+      if (!currentUserPermissions.isPatient && !currentUserPermissions.isProvider) {
         const code = await getAccessPatientCodeByToken(session?.data?.tempToken);
         if (!code) {
           logout();
@@ -84,23 +91,28 @@ export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, num
   useEffect(() => {
     const fetchFiles = () => {
       startTransition(() => {
-        const userId = session?.data?.user.id;
-        if (!userId) return;
-        fetchAllFoldersForPatient(null, userId)
+        const user = session?.data?.user;
+        const userId = user?.id;
+
+        if (!user || !userId || !currentUserPermissions.isPatient) return;
+        fetchAllFoldersForPatient(null, userId, null, null)
           .then((data) => {
-            if (!!data) {
-              const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));
-              const sortedFolders = sortRootNodes(sortedFoldersTemp);
-
-              let rawAllNodes = extractNodes(data);
-              const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
-              const allNodesArray = Array.from(allNodesMap.values());
-
-              const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
-
-              folderStore.setFolders(sortedFolders);
-              folderStore.setSingleLayerNodes(singleLayerNodes);
+            if (!data || data === "Unauthorized") {
+              toast.error("Something went wrong");
+              return;
             }
+
+            const sortedFoldersTemp = data.map((folder) => sortFolderChildren(folder));
+            const sortedFolders = sortRootNodes(sortedFoldersTemp);
+
+            let rawAllNodes = extractNodes(data);
+            const allNodesMap = new Map(rawAllNodes.map((node) => [node.id, { ...node, children: undefined }]));
+            const allNodesArray = Array.from(allNodesMap.values());
+
+            const singleLayerNodes = addLastViewedAtAndSort(allNodesArray);
+
+            folderStore.setFolders(sortedFolders);
+            folderStore.setSingleLayerNodes(singleLayerNodes);
           })
           .catch((error) => {
             console.log(error);
@@ -191,10 +203,10 @@ export const Sidebar = ({ data, singleLayerNodes, sumOfAllSuccessFilesSizes, num
           <FileTree width={sidebarWidth} />
           <div
             className={cn(
-              currentUserPermissions.showActions && "flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10",
+              currentUserPermissions.canAdd && "flex flex-col py-3 px-6 gap-y-3 border-t border-primary/10",
             )}
           >
-            {currentUserPermissions.showActions && <NewRootFolderBox />}
+            {currentUserPermissions.canAdd && <NewRootFolderBox />}
             {currentUserPermissions.isPatient && (
               <>
                 <Separator />

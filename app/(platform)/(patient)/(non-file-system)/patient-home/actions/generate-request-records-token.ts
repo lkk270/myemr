@@ -11,6 +11,7 @@ import { currentUser } from "@/auth/lib/auth";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/utils";
 import { allotedStoragesInGb } from "@/lib/constants";
 import { getSumOfFilesSizes } from "@/lib/data/files";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 const calculateStartAndEndDate = (patientCreatedAt: Date): { startDate: Date; endDate: Date } => {
   const currentDate = new Date();
@@ -47,9 +48,9 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
   const user = await currentUser();
   const userId = user?.id;
   const userEmail = user?.email;
-  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
+  const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
 
-  if (!user || !userId || !userEmail || !isPatient || !user.plan) {
+  if (!user || !userId || !userEmail || !currentUserPermissions || !currentUserPermissions.isPatient || !user.plan) {
     return { error: "Unauthorized" };
   }
 

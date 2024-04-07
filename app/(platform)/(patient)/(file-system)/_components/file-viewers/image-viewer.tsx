@@ -10,14 +10,22 @@ import React, { useEffect, useState } from "react";
 import { Image, Space } from "antd";
 // import { getPresignedUrl, handleDownload } from "../../actions/get-file-psu";
 import { useDownloadFile } from "../hooks/use-download-file";
+import { usePathname } from "next/navigation";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 interface ImageViewerProps {
   fileId: string;
   fileSrc: string;
   forInsurance?: boolean;
 }
-export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageViewerProps) => {
+const ImageViewerComponent = ({ fileId, fileSrc, forInsurance = false }: ImageViewerProps) => {
   const downloadFile = useDownloadFile();
+  const { patientMember } = usePatientMemberStore();
 
+  const pathname = usePathname();
+  let patientMemberIdOrUserId = pathname.includes("patient/") ? pathname.split("/patient/")[1].split("/")[0] : null;
+  if (forInsurance && !!patientMemberIdOrUserId) {
+    patientMemberIdOrUserId = patientMember?.patientProfileId || null;
+  }
   const calculateImageWidth = () => {
     if (forInsurance) {
       return Math.min(350, window.innerWidth);
@@ -41,7 +49,7 @@ export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageView
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [fileSrc]);
 
   //   const handleDownload = async () => {
   //     const data = await getPresignedUrl(fileId, true); // Your function to get the presigned URL
@@ -86,7 +94,7 @@ export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageView
           { transform: { scale }, actions: { onFlipY, onFlipX, onRotateLeft, onRotateRight, onZoomOut, onZoomIn } },
         ) => (
           <Space size={12} className="toolbar-wrapper">
-            <DownloadOutlined onClick={() => downloadFile(fileId, forInsurance)} />
+            <DownloadOutlined onClick={() => downloadFile(fileId, forInsurance, patientMemberIdOrUserId)} />
             <SwapOutlined rotate={90} onClick={onFlipY} />
             <SwapOutlined onClick={onFlipX} />
             <RotateLeftOutlined onClick={onRotateLeft} />
@@ -99,3 +107,5 @@ export const ImageViewer = ({ fileId, fileSrc, forInsurance = false }: ImageView
     />
   );
 };
+
+export const ImageViewer = React.memo(ImageViewerComponent);

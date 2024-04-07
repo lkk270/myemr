@@ -1,23 +1,23 @@
 import { Unit, PatientAddress, DosageHistory, UserRole, Plan } from "@prisma/client";
 
 export type PatientDemographicsType = {
-  imageUrl: string;
   email: string;
   firstName: string;
   lastName: string;
-  gender: string | null;
-  dateOfBirth: string | null;
-  maritalStatus: string | null;
-  race: string | null;
-  mobilePhone: string | null;
-  homePhone: string | null;
-  height: string | null;
-  weight: string | null;
-  unit: Unit;
-  insuranceProvider: string | null;
-  policyNumber: string | null;
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  maritalStatus?: string | null;
+  race?: string | null;
+  mobilePhone?: string | null;
+  homePhone?: string | null;
+  height?: string | null;
+  weight?: string | null;
+  unit?: Unit;
+  insuranceProvider?: string | null;
+  policyNumber?: string | null;
   groupNumber?: string | null;
   addresses: PatientAddress[] | any;
+  imageUrl?: string | null;
   insuranceImagesSet: boolean;
 };
 

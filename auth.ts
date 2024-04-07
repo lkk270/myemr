@@ -96,7 +96,11 @@ export const {
         } else if (existingUser.accountType === "CREDENTIALS") {
           throw new Error("Email is already being used through email & password sign in!");
         } else if (existingUser.scheduledToDelete) {
-          await setScheduledToDelete("PATIENT", false, existingUser.id);
+          try {
+            await setScheduledToDelete("PATIENT", false, existingUser.id);
+          } catch {
+            throw new Error("Something went wrong");
+          }
         }
       }
       // else if (user.forCode) {
@@ -144,11 +148,13 @@ export const {
 
       if (session.user) {
         session.user.image = token.image as string;
+        session.user.name = token.name;
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
         session.user.email = token.email;
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
         session.user.plan = token.plan as Plan;
+        session.user.accessibleRootFolders = token.accessibleRootFolders as string;
       }
 
       if (token.customExpiresAt) {
@@ -193,12 +199,14 @@ export const {
 
       token.isOAuth = !!existingAccount;
       token.email = existingUser.email;
+      token.name = existingUser.name;
       token.plan = plan;
       token.userType = existingUser.type;
       token.tempToken = code ? code.token : undefined;
       token.role = code ? code.accessType : existingUser.role;
       token.isTwoFactorEnabled = code ? false : existingUser.isTwoFactorEnabled;
       token.image = existingUser.image;
+      token.accessibleRootFolders = code ? code.accessibleRootFolders : "ALL";
       return token;
     },
   },

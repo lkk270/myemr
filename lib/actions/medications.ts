@@ -3,49 +3,59 @@
 import { z } from "zod";
 import prismadb from "@/lib/prismadb";
 import { EditMedicationSchema, NewMedicationSchema, DeleteMedicationSchema } from "../schemas/medication";
-import { createNotification } from "./notifications";
+import { createPatientNotification } from "./notifications";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { decryptMultiplePatientFields, buildUpdatePayload, decryptKey, findChangesBetweenObjects } from "../utils";
 import { auth } from "@/auth";
 import { getAccessPatientCodeByToken } from "@/auth/data";
+import { getPatientMember } from "@/auth/actions/patient-member";
 
 export const createMedication = async (values: z.infer<typeof NewMedicationSchema>) => {
   try {
+    const validatedFields = NewMedicationSchema.safeParse(values);
+    // const session = await auth();
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+    const { name, patientMemberId: patientMemberIdParam } = validatedFields.data;
     const session = await auth();
     const user = session?.user;
     const userId = user?.id;
     const currentUserPermissions = extractCurrentUserPermissions(user);
-
-    if (!session || !userId || !user || !currentUserPermissions.canEdit) {
+    let patientMember = null;
+    if (!session || !userId || !user || (!currentUserPermissions.isProvider && !currentUserPermissions.canAdd)) {
       return { error: "Unauthorized" };
     }
-    if (!currentUserPermissions.isPatient) {
+
+    if (!!patientMemberIdParam && currentUserPermissions.isProvider) {
+      patientMember = await getPatientMember(patientMemberIdParam, "canAdd", { user, currentUserPermissions });
+    } else if (!currentUserPermissions.isProvider && !currentUserPermissions.isPatient) {
       const code = await getAccessPatientCodeByToken(session.tempToken);
       if (!code) {
         return { error: "Unauthorized" };
       }
     }
 
+    const whereClause = !!patientMember?.patientProfileId
+      ? {
+          id: patientMember?.patientProfileId,
+        }
+      : {
+          userId: userId,
+        };
+
     const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        userId: userId,
-      },
+      where: whereClause,
       select: {
         id: true,
         symmetricKey: true,
       },
     });
+
     if (!patient || !patient.symmetricKey) {
       return { error: "Decryption key not found!" };
     }
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-
-    const validatedFields = NewMedicationSchema.safeParse(values);
-    // const session = await auth();
-    if (!validatedFields.success) {
-      return { error: "Invalid fields!" };
-    }
-    const { name } = validatedFields.data;
 
     const currentMedicationNames = await prismadb.medication.findMany({
       where: {
@@ -60,47 +70,80 @@ export const createMedication = async (values: z.infer<typeof NewMedicationSchem
     if (decryptedCurrentMedicationNames.some((medication: { name: string }) => medication.name === name)) {
       return { error: "Medication already exists" };
     }
-    const encryptedMedication = buildUpdatePayload(validatedFields.data, decryptedSymmetricKey);
+    const { patientMemberId, ...rest } = validatedFields.data;
+
+    const encryptedMedication = buildUpdatePayload(rest, decryptedSymmetricKey);
 
     const newMedication = await prismadb.medication.create({
       data: { ...encryptedMedication, ...{ patientProfileId: patient.id } },
     });
 
-    if (!currentUserPermissions.hasAccount) {
-      await createNotification({
-        text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has added the medication: "${name}"`,
-        type: "ACCESS_CODE",
+    if (!currentUserPermissions.isPatient) {
+      let role = patientMember?.role;
+      if (!currentUserPermissions.hasAccount) {
+        role =
+          user?.role !== "USER" && user?.role !== "ADMIN" && user?.role !== "UPLOAD_FILES_ONLY"
+            ? user?.role
+            : undefined;
+      }
+      await createPatientNotification({
+        notificationType: currentUserPermissions.isProvider
+          ? "PROVIDER_MEDICATION_ADDED"
+          : "ACCESS_CODE_MEDICATION_ADDED",
+        patientUserId: patientMember?.patientUserId,
+        dynamicData: {
+          organizationName: patientMember?.organizationName,
+          medicationName: name,
+          role: role,
+        },
       });
     }
 
     return { success: "medication created!", medicationId: newMedication.id };
-  } catch {
+  } catch (e) {
     return { error: "something went wrong" };
   }
 };
 
 export const editMedication = async (values: z.infer<typeof EditMedicationSchema>) => {
   try {
+    const validatedFields = EditMedicationSchema.safeParse(values);
+    // const session = await auth();
+    if (!validatedFields.success) {
+      return { error: "Invalid fields!" };
+    }
+
+    const { id, patientMemberId: patientMemberIdParam } = validatedFields.data;
+
     let newDosageHistory = null;
+    let patientMember = null;
     const session = await auth();
     const user = session?.user;
     const userId = user?.id;
     const currentUserPermissions = extractCurrentUserPermissions(user);
 
-    if (!session || !userId || !user || !currentUserPermissions.canAdd) {
+    if (!session || !userId || !user || (!currentUserPermissions.isProvider && !currentUserPermissions.canEdit)) {
       return { error: "Unauthorized" };
     }
-    if (!currentUserPermissions.isPatient) {
+    if (!!patientMemberIdParam && currentUserPermissions.isProvider) {
+      patientMember = await getPatientMember(patientMemberIdParam, "canAdd", { user, currentUserPermissions });
+    } else if (!currentUserPermissions.isProvider && !currentUserPermissions.isPatient) {
       const code = await getAccessPatientCodeByToken(session.tempToken);
       if (!code) {
         return { error: "Unauthorized" };
       }
     }
 
+    const whereClause = !!patientMember?.patientProfileId
+      ? {
+          id: patientMember?.patientProfileId,
+        }
+      : {
+          userId: userId,
+        };
+
     const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        userId: userId,
-      },
+      where: whereClause,
       select: {
         id: true,
         symmetricKey: true,
@@ -110,13 +153,6 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       return { error: "Decryption key not found!" };
     }
     const decryptedSymmetricKey = decryptKey(patient.symmetricKey, "patientSymmetricKey");
-
-    const validatedFields = EditMedicationSchema.safeParse(values);
-    // const session = await auth();
-    if (!validatedFields.success) {
-      return { error: "Invalid fields!" };
-    }
-    const { id } = validatedFields.data;
 
     const currentMedication = await prismadb.medication.findUnique({
       where: {
@@ -141,8 +177,9 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
     }
 
     const decryptedCurrentMedication = decryptMultiplePatientFields(currentMedication, decryptedSymmetricKey);
+    const { patientMemberId, ...rest } = validatedFields.data;
 
-    const changesObject = findChangesBetweenObjects(decryptedCurrentMedication, validatedFields.data);
+    const changesObject = findChangesBetweenObjects(decryptedCurrentMedication, rest);
     if (Object.keys(changesObject).length === 0) {
       return { error: "No changes made!" };
     }
@@ -170,10 +207,25 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
         createdAt: newDosageHistoryDb.createdAt,
       };
     }
-    if (!currentUserPermissions.hasAccount) {
-      await createNotification({
-        text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has updated the medication: "${currentMedication.name}"`,
-        type: "ACCESS_CODE",
+
+    if (!currentUserPermissions.isPatient) {
+      let role = patientMember?.role;
+      if (!currentUserPermissions.hasAccount) {
+        role =
+          user?.role !== "USER" && user?.role !== "ADMIN" && user?.role !== "UPLOAD_FILES_ONLY"
+            ? user?.role
+            : undefined;
+      }
+      await createPatientNotification({
+        notificationType: currentUserPermissions.isProvider
+          ? "PROVIDER_MEDICATION_EDITED"
+          : "ACCESS_CODE_MEDICATION_EDITED",
+        patientUserId: patientMember?.patientUserId,
+        dynamicData: {
+          organizationName: patientMember?.organizationName,
+          medicationName: decryptedCurrentMedication.name,
+          role: role,
+        },
       });
     }
 
@@ -183,7 +235,7 @@ export const editMedication = async (values: z.infer<typeof EditMedicationSchema
       newDosageHistory: newDosageHistory,
       createdAt: currentMedication.createdAt,
     };
-  } catch {
+  } catch (e) {
     return { error: "something went wrong" };
   }
 };

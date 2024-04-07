@@ -2,8 +2,16 @@
 
 import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
-import { allotedStoragesInGb } from "../constants";
+import { allotedStoragesInGb, fieldCategories } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { isValidNodeName, extractRootFolderIds, removeTrailingComma, isNodeAccessible } from "../utils";
+import { ExtendedUser } from "@/next-auth";
+import { currentUserPermissionsType } from "@/app/types";
+import { createPatientNotification } from "./notifications";
+import { currentUser } from "@/auth/lib/auth";
+import { getPatientMember } from "@/auth/actions/patient-member";
+import { pl } from "date-fns/locale";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -17,48 +25,224 @@ type FileToUnrestrict = {
   size: bigint;
 };
 
-export async function updateDescendantsForRename(
-  prisma: any,
-  parentId: string,
-  oldParentNamePath: string,
-  newParentNamePath: string,
+export async function validateUserAndGetAccessibleRootFolders(
+  requiredPermissions: "canEdit" | "canAdd" | "canDelete" | "canRead",
+  userParam: {
+    user: ExtendedUser | null;
+    currentUserPermissions: currentUserPermissionsType;
+    patientMemberId?: string | null;
+  } | null = null,
 ) {
-  // Update subfolders
-  const subFolders = await prisma.folder.findMany({
-    where: { parentId: parentId },
-  });
+  let user: ExtendedUser | null = userParam && userParam.user;
+  let currentUserPermissions = userParam && userParam.currentUserPermissions;
+  if (!userParam) {
+    user = await currentUser();
+    currentUserPermissions = extractCurrentUserPermissions(user);
+  }
+  if (!user || !currentUserPermissions) {
+    return null;
+  }
+  if (!currentUserPermissions.isProvider) {
+    if (!currentUserPermissions[requiredPermissions]) {
+      return null;
+    } else {
+      const accessibleRootFolderIds = extractRootFolderIds(user.accessibleRootFolders);
+      return { accessibleRootFolderIds, patientUserId: user.id, patientProfileId: null };
+    }
+  } else if (currentUserPermissions.isProvider) {
+    if (!userParam || !userParam.patientMemberId) {
+      return null;
+    }
+    const patientMember = await getPatientMember(userParam.patientMemberId, "canRead", {
+      user,
+      currentUserPermissions,
+    });
+    if (!patientMember) {
+      return null;
+    }
+    const accessibleRootFolderIds = extractRootFolderIds(patientMember.accessibleRootFolders);
 
-  for (const subFolder of subFolders) {
-    const newSubFolderPath = subFolder.namePath.replace(oldParentNamePath, newParentNamePath);
+    return {
+      accessibleRootFolderIds,
+      patientUserId: patientMember.patientUserId,
+      patientProfileId: patientMember.patientProfileId,
+    };
+  }
+  return null;
+}
 
-    await prisma.folder.update({
-      where: { id: subFolder.id },
-      data: { namePath: newSubFolderPath },
+export async function renameNode(
+  isFile: boolean,
+  nodeId: string,
+  newName: string,
+  userIds: { patient: string; provider: string | null },
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+) {
+  // const user = await currentUser();
+  // if (!user) return { error: "Unauthorized", status: 400 };
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
+  // const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canEdit", {
+  //   user,
+  //   currentUserPermissions,
+  // });
+
+  // if (!accessibleRootFolderIdsResult) {
+  //   return { error: "Unauthorized", status: 400 };
+  // }
+
+  // const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+
+  async function updateDescendantsForRename(
+    prisma: any,
+    parentId: string,
+    oldParentNamePath: string,
+    newParentNamePath: string,
+  ) {
+    // Update subfolders
+    const subFolders = await prisma.folder.findMany({
+      where: { parentId: parentId },
     });
 
-    // Recursively update each subfolder's descendants
-    await updateDescendantsForRename(prisma, subFolder.id, subFolder.namePath, newSubFolderPath);
-  }
+    for (const subFolder of subFolders) {
+      const newSubFolderPath = subFolder.namePath.replace(oldParentNamePath, newParentNamePath);
 
-  // Update files in this folder
-  const files = await prisma.file.findMany({
-    where: { parentId: parentId },
-  });
+      await prisma.folder.update({
+        where: { id: subFolder.id },
+        data: { namePath: newSubFolderPath },
+      });
 
-  for (const file of files) {
-    const newFilePath = file.namePath.replace(oldParentNamePath, newParentNamePath);
+      // Recursively update each subfolder's descendants
+      await updateDescendantsForRename(prisma, subFolder.id, subFolder.namePath, newSubFolderPath);
+    }
 
-    await prisma.file.update({
-      where: { id: file.id },
-      data: { namePath: newFilePath },
+    // Update files in this folder
+    const files = await prisma.file.findMany({
+      where: { parentId: parentId },
     });
+
+    for (const file of files) {
+      const newFilePath = file.namePath.replace(oldParentNamePath, newParentNamePath);
+
+      await prisma.file.update({
+        where: { id: file.id },
+        data: { namePath: newFilePath },
+      });
+    }
   }
+
+  if (!isValidNodeName(newName)) {
+    return { error: "Invalid new name", status: 500 };
+  }
+  let oldName = null;
+  if (isFile === true) {
+    const currentFile = await prismadb.file.findUnique({
+      where: { id: nodeId, userId: userIds.patient },
+    });
+
+    let isValidFile = !!currentFile
+      ? isNodeAccessible(accessibleRootFolderIds, {
+          id: currentFile.id,
+          isRoot: false,
+          path: currentFile.path,
+        })
+      : false;
+    if (!currentFile || !isValidFile) {
+      return { error: "File not found", status: 400 };
+    }
+    oldName = currentFile.name;
+    const oldPath = currentFile.namePath;
+    const newNamePath = oldPath.replace(/[^/]*$/, newName);
+    await prismadb.file.update({
+      where: {
+        id: nodeId,
+      },
+      data: { name: newName, namePath: newNamePath },
+    });
+
+    await updateRecordViewActivity(userIds.patient, nodeId, isFile);
+    if (!!userIds.provider) {
+      await updateRecordViewActivity(userIds.provider, nodeId, isFile);
+    }
+    // if (!currentUserPermissions.hasAccount) {
+    //   await createPatientNotification({
+    //     notificationType: "ACCESS_CODE_NODE_RENAMED",
+    //     dynamicData: {
+    //       isFile: true,
+    //       role: user?.role,
+    //       oldName: currentFile.name,
+    //       newName: newName,
+    //     },
+    //   });
+    // }
+  } else if (isFile === false) {
+    const currentFolder = await prismadb.folder.findUnique({
+      where: { id: nodeId, userId: userIds.patient, isRoot: false },
+    });
+
+    let isValidFolder = !!currentFolder
+      ? isNodeAccessible(accessibleRootFolderIds, {
+          id: currentFolder.id,
+          isRoot: false,
+          path: currentFolder.path,
+        })
+      : false;
+
+    if (!currentFolder || !isValidFolder) {
+      return { error: "Folder not found", status: 400 };
+    }
+    oldName = currentFolder.name;
+    const oldNamePath = currentFolder.namePath;
+    const newNamePath = oldNamePath.substring(0, oldNamePath.lastIndexOf("/") + 1) + newName;
+
+    await prismadb.$transaction(
+      async (prisma) => {
+        // Update the folder
+        await prisma.folder.update({
+          where: { id: nodeId },
+          data: {
+            name: newName,
+            namePath: newNamePath,
+          },
+        });
+
+        // Retrieve and update descendants
+        // Pass the transactional Prisma client to the function
+        await updateDescendantsForRename(prisma, nodeId, oldNamePath, newNamePath);
+      },
+      { timeout: 20000 },
+    );
+
+    await updateRecordViewActivity(userIds.patient, nodeId, isFile);
+    if (!!userIds.provider) {
+      await updateRecordViewActivity(userIds.provider, nodeId, isFile);
+    }
+    // if (userIds.provider) {
+    //   await updateRecordViewActivity(userIds.patient, nodeId, isFile);
+    //   await updateRecordViewActivity(userIds.provider, nodeId, isFile);
+    // } else {
+    //   await updateRecordViewActivityThatExists([userIds.patient], nodeId, isFile);
+    // }
+
+    // if (!currentUserPermissions.hasAccount) {
+    //   await createPatientNotification({
+    //     notificationType: "ACCESS_CODE_NODE_RENAMED",
+    //     dynamicData: {
+    //       isFile: false,
+    //       role: user?.role,
+    //       oldName: currentFolder.name,
+    //       newName: newName,
+    //     },
+    //   });
+    // }
+  }
+  return { success: true, oldName };
 }
 
 export async function updateRecordViewActivity(userId: string, nodeId: string, isFile: boolean) {
+  // console.log(userId);
   const whereClause = isFile ? { userId: userId, fileId: nodeId } : { userId: userId, folderId: nodeId };
 
-  const existingActivity = await prismadb.recordViewActivity.findUnique({
+  const existingActivity = await prismadb.recordViewActivity.findFirst({
     where: whereClause,
   });
 
@@ -77,6 +261,19 @@ export async function updateRecordViewActivity(userId: string, nodeId: string, i
       },
     });
   }
+}
+
+export async function updateRecordViewActivityThatExists(userIds: string[], nodeId: string, isFile: boolean) {
+  // console.log(userId);
+  const whereClause = isFile
+    ? { userId: { in: userIds }, fileId: nodeId }
+    : { userId: { in: userIds }, folderId: nodeId };
+
+  // Update the existing RecordViewActivity
+  await prismadb.recordViewActivity.updateMany({
+    where: whereClause,
+    data: { lastViewedAt: new Date() },
+  });
 }
 
 async function updateRecordViewActivitiesForFiles(userId: string, fileIds: string[]) {
@@ -137,12 +334,18 @@ export async function restoreRootFolder(nodeId: string, userId: string) {
       where: { id: nodeId },
       data: { parentId: null, path: newPath, namePath: newNamePath },
     });
-    await batchUpdateDescendants(prisma, node!.path, node!.namePath, newPath, newNamePath);
+    await batchUpdateDescendants(prisma, node!.id, node!.path, node!.namePath, newPath, newNamePath);
   });
-  await updateRecordViewActivity(userId, nodeId, isFile);
+  await updateRecordViewActivityThatExists([userId], nodeId, isFile);
 }
 
-export async function moveNodes(selectedIds: string[], targetNodeId: string, userId: string, isTrash: boolean = false) {
+export async function moveNodes(
+  selectedIds: string[],
+  targetNodeId: string,
+  isTrash: boolean = false,
+  userIds: { patient: string; provider: string | null },
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+) {
   const targetNode = await prismadb.folder.findUnique({ where: { id: targetNodeId } });
   if (!targetNode) throw Error("Target node not found");
   if (!isTrash && targetNode.namePath.startsWith("/Trash")) throw Error("Unauthorized");
@@ -151,13 +354,26 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
 
   for (const nodeId of selectedIds) {
     let isFile = false;
-    let node: File | Folder = (await prismadb.folder.findUnique({ where: { id: nodeId } })) as Folder;
+    let node: File | Folder = (await prismadb.folder.findUnique({
+      where: { id: nodeId, userId: userIds.patient },
+    })) as Folder;
     if (!node) {
-      node = (await prismadb.file.findUnique({ where: { id: nodeId } })) as File;
+      node = (await prismadb.file.findUnique({ where: { id: nodeId, userId: userIds.patient } })) as File;
       if (!node) continue; // Skip if node is not found
       isFile = true;
     }
-
+    let isValidNode = !!node
+      ? isNodeAccessible(accessibleRootFolderIds, {
+          id: node.id,
+          isRoot: false,
+          path: node.path,
+        })
+      : false;
+    if (!isValidNode) {
+      return { error: "Unauthorized", status: 401 };
+      //safe even for moving to trash because accessibleRootFolderIds will equal ALL for moving to trash because only
+      //the patient can move to trash
+    }
     const newPath = `${targetNode.path}${targetNode.id}/`;
     const newNamePath = `${targetNode.namePath}/${node.name}`;
 
@@ -171,9 +387,12 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
           where: { id: nodeId },
           data: { parentId: targetNodeId, path: newPath, namePath: newNamePath },
         });
-        await batchUpdateDescendants(prisma, node.path, node.namePath, newPath, newNamePath);
+        await batchUpdateDescendants(prisma, node.id, node.path, node.namePath, newPath, newNamePath);
       });
-      await updateRecordViewActivity(userId, nodeId, isFile);
+      await updateRecordViewActivity(userIds.patient, nodeId, isFile);
+      if (!!userIds.provider) {
+        await updateRecordViewActivity(userIds.provider, nodeId, isFile);
+      }
     }
   }
 
@@ -190,12 +409,14 @@ export async function moveNodes(selectedIds: string[], targetNodeId: string, use
         \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, CHAR_LENGTH(\`namePath\`) - LOCATE('/', REVERSE(\`namePath\`)) + 2))
     WHERE \`id\` IN (${Prisma.join(fileIds)})`;
 
-    await updateRecordViewActivitiesForFiles(userId, fileIds);
+    await updateRecordViewActivitiesForFiles(userIds.patient, fileIds);
   }
+  return { success: true };
 }
 
 async function batchUpdateDescendants(
   prisma: any,
+  originalNodeId: string,
   originalPath: string,
   originalNamePath: string,
   newParentPath: string,
@@ -213,7 +434,7 @@ async function batchUpdateDescendants(
   UPDATE \`Folder\`
   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`path\` LIKE ${originalPath + "%"}
+  WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
 `;
 
   // Use tagged template literals for the raw SQL query for updating file descendants
@@ -221,7 +442,7 @@ async function batchUpdateDescendants(
   UPDATE \`File\`
   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`path\` LIKE ${originalPath + "%"}
+  WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
 `;
 }
 
@@ -355,9 +576,7 @@ const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], pati
       size: file.size,
     }));
     await prismadb.deadFile.createMany({ data: updatedArray });
-  } catch (err) {
-    console.log("OH NO");
-  }
+  } catch (err) {}
 };
 
 const getMaxRestrictedFiles = (
@@ -494,29 +713,52 @@ export const restrictFiles = async (patient: { id: string; sumOfAllSuccessFilesS
   return []; // If no files need to be restricted, return an empty array.
 };
 
+// folderObj: { name: string; parentId: string },
+// patient: { profileId: string; userId: string },
+// addedBy: { id: string | null; name: string },
+// accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+
 export const addRootNode = async (
   folderName: string,
-  addedByUserId: string,
-  patientUserId: string,
-  patientProfileId: string,
-  addedByName: string,
+  addedBy: { id: string | null; name: string },
+  patientObj: { profileId: string; userId: string },
+  updateAccessibleRootIdsObj: {
+    userType: "provider" | "accessCode";
+    providerUserId: string;
+    id: string;
+    accessibleRootFolders: string;
+  } | null,
 ) => {
+  if (!fieldCategories.some((item) => item.value === folderName)) {
+    throw new Error("Root folder does not exist in fieldCategories!");
+  }
   const existingRoot = await prismadb.folder.findFirst({
     where: {
       isRoot: true,
       name: folderName,
       namePath: `/${folderName}`,
       path: "/",
-      userId: patientUserId,
-      patientProfileId: patientProfileId,
+      userId: patientObj.userId,
+      patientProfileId: patientObj.profileId,
     },
   });
 
-  if (existingRoot) {
+  if (!!existingRoot) {
     throw new Error("Root folder with same name already exists!");
   }
 
   let folder: Folder | undefined;
+
+  const recordViewActivitiesToCreate = [
+    {
+      userId: patientObj.userId,
+    },
+  ];
+  if (!!updateAccessibleRootIdsObj && updateAccessibleRootIdsObj.userType === "provider") {
+    recordViewActivitiesToCreate.push({
+      userId: updateAccessibleRootIdsObj.providerUserId,
+    });
+  }
 
   await prismadb.$transaction(
     async (prisma) => {
@@ -525,22 +767,44 @@ export const addRootNode = async (
           name: folderName,
           namePath: `/${folderName}`,
           path: "/",
-          addedByUserId: addedByUserId,
-          addedByName: addedByName,
+          addedByUserId: addedBy.id,
+          addedByName: addedBy.name,
           isRoot: true,
-          userId: patientUserId,
-          patientProfileId: patientProfileId,
-          ...(addedByUserId && {
-            recordViewActivity: {
-              create: [
-                {
-                  userId: addedByUserId,
-                },
-              ],
-            },
-          }),
+          userId: patientObj.userId,
+          patientProfileId: patientObj.profileId,
+
+          recordViewActivity: {
+            create: recordViewActivitiesToCreate,
+          },
         },
       });
+
+      const accessibleRootFolders = !!updateAccessibleRootIdsObj
+        ? updateAccessibleRootIdsObj.accessibleRootFolders
+        : null;
+      if (
+        !!updateAccessibleRootIdsObj &&
+        !!accessibleRootFolders &&
+        accessibleRootFolders !== "ALL" &&
+        accessibleRootFolders !== "ALL_EXTERNAL"
+      ) {
+        const newAccessibleRootFolders = `${removeTrailingComma(accessibleRootFolders)},${folder.id},`;
+        if (updateAccessibleRootIdsObj.userType === "accessCode") {
+          await prisma.patientProfileAccessCode.update({
+            where: { id: updateAccessibleRootIdsObj.id },
+            data: {
+              accessibleRootFolders: newAccessibleRootFolders,
+            },
+          });
+        } else if (updateAccessibleRootIdsObj.userType === "provider") {
+          await prisma.patientMember.update({
+            where: { id: updateAccessibleRootIdsObj.id },
+            data: {
+              accessibleRootFolders: newAccessibleRootFolders,
+            },
+          });
+        }
+      }
     },
     { timeout: 20000 },
   );
@@ -549,51 +813,83 @@ export const addRootNode = async (
     return folder.id;
   } else {
     // Handle the case where the folder creation failed or the transaction was rolled back
-    throw new Error("Failed to create folder");
+    throw new Error("Failed to create folder 0");
   }
 };
 
 export const addSubFolder = async (
-  folderName: string,
-  parentId: string,
-  addedByUserId: string,
-  patientUserId: string,
-  patientProfileId: string,
-  addedByName: string,
+  folderObj: { name: string; parentId: string },
+  addedBy: { id: string | null; name: string },
+  patientObj: { profileId: string; userId: string },
+  providerUserId: string | null,
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
 ) => {
+  // const user = await currentUser();
+  // if (!user) return { error: "Unauthorized", status: 400 };
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
+  // const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canAdd", {
+  //   user,
+  //   currentUserPermissions,
+  // });
+
+  // if (!accessibleRootFolderIdsResult) {
+  //   return { error: "Unauthorized", status: 400 };
+  // }
+  // const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+
+  // const addedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
+  // const addedByName = currentUserPermissions.isProvider
+  //   ? user.name || "N/A"
+  //   : !currentUserPermissions.hasAccount
+  //   ? `Temporary Access User`
+  //   : `Me`;
+
   let folder: Folder | undefined;
+
+  const recordViewActivitiesToCreate = [
+    {
+      userId: patientObj.userId,
+    },
+  ];
+  if (!!providerUserId) {
+    recordViewActivitiesToCreate.push({
+      userId: providerUserId,
+    });
+  }
 
   const parentFolder = await prismadb.folder.findUnique({
     where: {
-      id: parentId,
+      id: folderObj.parentId,
     },
   });
+  let isValidFolder = !!parentFolder
+    ? isNodeAccessible(accessibleRootFolderIds, {
+        id: parentFolder.id,
+        isRoot: parentFolder.isRoot,
+        path: parentFolder.path,
+      })
+    : false;
 
-  if (!parentFolder) {
-    throw new Error("Failed to create folder");
+  if (!parentFolder || parentFolder.namePath.startsWith("/Trash") || !isValidFolder) {
+    throw new Error("Failed to create folder 111");
   }
 
   await prismadb.$transaction(
     async (prisma) => {
       folder = await prisma.folder.create({
         data: {
-          name: folderName,
-          parentId: parentId,
-          namePath: `${parentFolder.namePath}/${folderName}`,
+          name: folderObj.name,
+          parentId: folderObj.parentId,
+          namePath: `${parentFolder.namePath}/${folderObj.name}`,
           path: `${parentFolder.path}${parentFolder.id}/`,
-          addedByUserId: addedByUserId,
-          addedByName: addedByName,
-          userId: patientUserId,
-          patientProfileId: patientProfileId,
-          ...(addedByUserId && {
-            recordViewActivity: {
-              create: [
-                {
-                  userId: addedByUserId,
-                },
-              ],
-            },
-          }),
+          addedByUserId: addedBy.id,
+          addedByName: addedBy.name,
+          userId: patientObj.userId,
+          patientProfileId: patientObj.profileId,
+
+          recordViewActivity: {
+            create: recordViewActivitiesToCreate,
+          },
         },
       });
     },
@@ -604,22 +900,86 @@ export const addSubFolder = async (
     return {
       id: folder.id,
       name: folder.name,
+      parentFolderName: parentFolder.name,
       parentId: folder.parentId,
       path: folder.path,
       namePath: folder.namePath,
     };
   } else {
     // Handle the case where the folder creation failed or the transaction was rolled back
-    throw new Error("Failed to create folder");
+    throw new Error("Failed to create folder 22");
   }
 };
 
-export async function fetchAllFoldersForPatient(parentId: string | null = null, userId: string) {
+export async function fetchAllFoldersForPatient(
+  parentId: string | null,
+  patientUserId: string,
+  accessibleRootFolderIdsParam: string[] | "ALL" | "ALL_EXTERNAL" | null = null,
+  userParam: { user: ExtendedUser | null; currentUserPermissions: currentUserPermissionsType } | null = null,
+) {
+  let user: ExtendedUser | null = userParam && userParam.user;
+  let currentUserPermissions = userParam && userParam.currentUserPermissions;
+  if (!userParam) {
+    user = await currentUser();
+    currentUserPermissions = extractCurrentUserPermissions(user);
+  }
+  if (!user || !currentUserPermissions) {
+    return "Unauthorized";
+  }
   // Fetch folders and their files
+  let whereCondition: any = {
+    AND: [{ userId: patientUserId }, { parentId: parentId }],
+  };
+
+  if (!parentId) {
+    let accessibleRootFolderIds = accessibleRootFolderIdsParam ? accessibleRootFolderIdsParam : "";
+    if (!accessibleRootFolderIdsParam) {
+      const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canRead", {
+        user,
+        currentUserPermissions,
+      });
+      if (!accessibleRootFolderIdsResult) {
+        return "Unauthorized";
+      }
+      accessibleRootFolderIds = accessibleRootFolderIdsResult.accessibleRootFolderIds;
+    }
+
+    if (accessibleRootFolderIds !== "ALL" && accessibleRootFolderIds !== "ALL_EXTERNAL") {
+      // Adjust whereCondition to check if the folder id is within the accessibleRootFolderIds
+
+      // whereCondition = {
+      //   OR: [
+      //     {
+      //       AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+      //     },
+      //     {
+      //       addedByUserId: user.id,
+      //     },
+      //   ],
+      // };
+
+      whereCondition = {
+        AND: [{ userId: patientUserId }, { parentId: parentId }, { id: { in: accessibleRootFolderIds } }],
+      };
+    } else if (accessibleRootFolderIds === "ALL_EXTERNAL") {
+      whereCondition = {
+        AND: [
+          { userId: patientUserId },
+          { parentId: parentId },
+          {
+            namePath: {
+              not: {
+                startsWith: "/Trash",
+              },
+            },
+          },
+        ],
+      };
+    }
+  }
+
   const folders = (await prismadb.folder.findMany({
-    where: {
-      AND: [{ userId: userId }, { parentId: parentId }],
-    },
+    where: whereCondition,
     include: {
       files: {
         where: {
@@ -628,7 +988,7 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
         include: {
           recordViewActivity: {
             where: {
-              userId: userId,
+              userId: user.id,
             },
             select: {
               lastViewedAt: true,
@@ -638,7 +998,7 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
       },
       recordViewActivity: {
         where: {
-          userId: userId,
+          userId: user.id,
         },
         select: {
           lastViewedAt: true,
@@ -648,7 +1008,14 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
   })) as any[];
   for (const folder of folders) {
     // Recursively fetch subfolders
-    const subFolders = await fetchAllFoldersForPatient(folder.id, userId);
+    const subFolders = await fetchAllFoldersForPatient(folder.id, patientUserId, null, {
+      user,
+      currentUserPermissions,
+    });
+
+    if (subFolders === "Unauthorized") {
+      return "Unauthorized";
+    }
 
     // Combine files and subfolders into the children array
     folder.children = [...folder.files, ...subFolders];
@@ -658,6 +1025,31 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
   }
 
   return folders;
+}
+
+export async function fetchAllRootFolders(patientUserId: string | null = null) {
+  // Fetch folders and their files
+  const user = await currentUser();
+  if (!user) return { error: "Unauthorized" };
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
+  // if (!currentUserPermissions.isPatient && !currentUserPermissions.canAdd) {
+  //   console.log("933");
+  //   return { error: "Unauthorized" };
+  // }
+  const userId = patientUserId ? patientUserId : user.id;
+
+  const rootFolders = await prismadb.folder.findMany({
+    where: {
+      userId,
+      isRoot: true,
+      namePath: {
+        not: {
+          startsWith: "/Trash",
+        },
+      },
+    },
+  });
+  return { rootFolders };
 }
 
 // const singleLayerFolders = await prismadb.folder.findMany({
@@ -704,11 +1096,11 @@ export async function fetchAllFoldersForPatient(parentId: string | null = null, 
 //   },
 // });
 
-export const deleteS3ProfilePicture = async (userId: string) => {
+export const deleteS3ProfilePicture = async (key: string) => {
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectCommand({
     Bucket: process.env.AWS_PROFILE_PICS_BUCKET_NAME as string,
-    Key: userId,
+    Key: key,
   });
   await client.send(command);
 };

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { auth } from "@/auth";
-import { createNotification } from "./notifications";
+import { createPatientNotification } from "./notifications";
 
 export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
   try {
@@ -109,9 +109,14 @@ export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
       });
       await updateRecordViewActivity(userId, nodeId, true);
       if (!currentUserPermissions.hasAccount) {
-        await createNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the file: "${currentFile.name}" to "${newName}"`,
-          type: "ACCESS_CODE",
+        await createPatientNotification({
+          notificationType: "ACCESS_CODE_NODE_RENAMED",
+          dynamicData: {
+            isFile: true,
+            role: user?.role,
+            oldName: currentFile.name,
+            newName: newName,
+          },
         });
       }
     } else if (isFile === false) {
@@ -146,9 +151,14 @@ export const renameNode = async (values: z.infer<typeof RenameNodeSchema>) => {
       await updateRecordViewActivity(userId, nodeId, false);
 
       if (!currentUserPermissions.hasAccount) {
-        await createNotification({
-          text: `An external user, whom you granted a temporary access code with "${user?.role}" permissions has renamed the folder: "${currentFolder.name}" to "${newName}"`,
-          type: "ACCESS_CODE",
+        await createPatientNotification({
+          notificationType: "ACCESS_CODE_NODE_RENAMED",
+          dynamicData: {
+            isFile: false,
+            role: user?.role,
+            oldName: currentFolder.name,
+            newName: newName,
+          },
         });
       }
     }

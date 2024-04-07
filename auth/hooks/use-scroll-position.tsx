@@ -8,11 +8,8 @@ export const useScrollPosition = (ref: React.RefObject<HTMLElement>) => {
   useEffect(() => {
     const updatePosition = () => {
       if (!ref || !ref.current) {
-        console.log(9);
-
         return 0;
       }
-      console.log(ref.current.scrollTop);
       setScrollPosition(ref.current.scrollTop);
     };
     window.addEventListener("scroll", updatePosition);

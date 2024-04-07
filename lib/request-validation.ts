@@ -9,10 +9,12 @@ const validUpdateTypes = [
   "addRootNode",
   "addSubFolder",
   "uploadFiles",
+  "uploadFilesByProvider",
   "insuranceUpload",
   "tpaUploadFiles",
   "rrUploadFiles",
   "ppUpload",
+  "oppUpload",
 ];
 const patientConditionals: any = {
   renameNode: {
@@ -37,12 +39,12 @@ const patientConditionals: any = {
     mandatoryTruePermissions: ["canDelete"],
   },
   addRootNode: {
-    requiredFields: ["folderName", "addedByUserId", "patientUserId", "addedByName"],
+    requiredFields: ["folderName"],
     optionalFields: ["patientProfileId"],
     mandatoryTruePermissions: ["canAdd"],
   },
   addSubFolder: {
-    requiredFields: ["parentId", "folderName", "addedByUserId", "patientUserId", "addedByName"],
+    requiredFields: ["parentId", "folderName"],
     optionalFields: ["patientProfileId"],
     mandatoryTruePermissions: ["canAdd"],
   },
@@ -50,6 +52,11 @@ const patientConditionals: any = {
     requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath"],
     optionalFields: ["folderPath"],
     mandatoryTruePermissions: ["canAdd", "canUploadFiles"],
+  },
+  uploadFilesByProvider: {
+    requiredFields: ["fileName", "contentType", "size", "parentId", "parentNamePath", "parentPath", "patientMemberId"],
+    optionalFields: ["folderPath"],
+    mandatoryTruePermissions: [],
   },
   insuranceUpload: {
     requiredFields: ["side", "contentType", "size"],
@@ -69,7 +76,12 @@ const patientConditionals: any = {
   ppUpload: {
     requiredFields: ["contentType"],
     optionalFields: [],
-    mandatoryTruePermissions: ["canUploadFiles", "hasAccount"],
+    mandatoryTruePermissions: ["hasAccount"],
+  },
+  oppUpload: {
+    requiredFields: ["contentType"],
+    optionalFields: [],
+    mandatoryTruePermissions: ["hasAccount"],
   },
 };
 
@@ -105,12 +117,16 @@ export const patientUpdateVerification = (body: any, currentUserPermissions: Per
         return false;
       }
     }
+    // const exemptUpdateTypes = ["addRootNode", "addSubFolder", "renameNode", "moveNode"];
     // Check that the user has valid permissions
+    // if (!exemptUpdateTypes.includes(updateType)) {
     for (const permission of permissions) {
       if (!currentUserPermissions[permission]) {
         return false;
       }
     }
+    // }
+
     if (updateType === "insuranceUpload" && !insuranceFileNames.includes(body.side)) {
       return false;
     }
@@ -125,7 +141,6 @@ export const patientUpdateVerification = (body: any, currentUserPermissions: Per
     }
     return true;
   } catch (error: any) {
-    console.log(error);
     return false;
   }
 };

@@ -5,6 +5,7 @@
  */
 export const publicRoutes: string[] = [
   "/",
+  "/pricing",
   "/auth/patient-new-verification",
   "/auth/provider-new-verification",
   "/api/rr-file-upload",
@@ -54,13 +55,19 @@ export const patientRoutes: string[] = ["/patient-home", "/files", "/about", "/m
  * An array of routes that are patient specific and are dynamic
  * @type {string[]}
  */
-export const patientDynamicRoutes: string[] = ["/files/", "/file/"];
+export const patientDynamicRoutes: string[] = ["/files/", "/file/", "/providers/"];
 
 /**
  * An array of routes that are provider specific
  * @type {string[]}
  */
-export const providerRoutes: string[] = ["/provider-home", "/patients", "/provider-settings", "/organization"];
+export const providerRoutes: string[] = ["/provider-home"];
+
+/**
+ * An array of routes that are dynamic provider specific
+ * @type {string[]}
+ */
+export const providerDynamicRoutes: string[] = ["/organization/", "/patient/"];
 
 /**
  * An array of routes that are patient access specific

@@ -41,7 +41,7 @@ export const MoveModal = () => {
     if (isLoading || !currentUserPermissions.canEdit) return;
     if (moveNodes) {
       const moveNodesIds = moveNodes.map((obj) => obj.id);
-
+      const toNode = singleLayerNodes.find((node) => node.id === id);
       setIsLoading(true);
 
       const promise = axios
@@ -49,14 +49,21 @@ export const MoveModal = () => {
           selectedIds: moveNodesIds,
           targetId: id,
           updateType: "moveNode",
-          fromName: moveNodes[0].name,
-          toName: parentFolder?.name,
+          fromName: parentFolder?.name,
+          toName: toNode?.name,
         })
         .then(({ data }) => {
           foldersStore.moveNodes(moveNodesIds, id);
           // Success handling
         })
         .catch((error) => {
+          const errorResponse = error?.response;
+          const status = errorResponse.status;
+          if (status >= 400 && status < 500 && !currentUserPermissions.isPatient) {
+            window.location.reload();
+          }
+          // error = error?.response?.data || "Something went wrong";
+          // console.log(error);
           // Error handling
           throw error; // Rethrow to allow the toast to catch it
         });

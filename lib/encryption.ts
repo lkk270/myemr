@@ -9,7 +9,7 @@ import {
   Decipher,
 } from "crypto";
 import { isNum } from "./utils";
-import { EncryptionKeyType, PatientDemographicsType } from "@/app/types";
+import { EncryptionKeyType } from "@/app/types";
 
 // Symmetric encryption configuration
 const algorithm = "aes-256-cbc";

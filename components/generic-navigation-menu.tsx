@@ -12,22 +12,25 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import { navRoutes, tempPatientAccessNavRoutes } from "@/lib/constants";
+import { patientNavRoutes, tempPatientAccessNavRoutes, patientRoutesForProvider } from "@/lib/constants";
 import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useCurrentRole } from "@/auth/hooks/use-current-role";
+import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
-interface GenericNavigationMenuProps {}
+interface GenericNavigationMenuProps {
+  splitRoute: string;
+}
 
-export const GenericNavigationMenu = ({}: GenericNavigationMenuProps) => {
-  const currentRole = useCurrentRole();
+export const GenericNavigationMenu = ({ splitRoute }: GenericNavigationMenuProps) => {
+  const currentUserPermissions = useCurrentUserPermissions();
   const pathname = usePathname();
 
-  const routes =
-    currentRole === "FULL_ACCESS" || currentRole === "READ_AND_ADD" || currentRole === "READ_ONLY"
-      ? tempPatientAccessNavRoutes
-      : navRoutes;
+  const routes = currentUserPermissions.isPatient
+    ? patientNavRoutes
+    : currentUserPermissions.isProvider
+    ? patientRoutesForProvider(pathname.split(splitRoute)[0].split("/patient/")[1])
+    : tempPatientAccessNavRoutes;
 
   return (
     <NavigationMenu>
@@ -43,8 +46,8 @@ export const GenericNavigationMenu = ({}: GenericNavigationMenuProps) => {
                   <div
                     className={cn(
                       "text-muted-foreground text-xs group flex p-2 lg:px-4 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
-                      pathname === route.href ||
-                        (pathname.includes("/files/") && route.href === "/files" && "bg-primary/10 text-primary"),
+                      (pathname === route.href || (route.href.includes(splitRoute) && pathname.includes(splitRoute))) &&
+                        "bg-primary/10 text-primary",
                     )}
                   >
                     <div className="flex flex-col items-center flex-1 gap-x-1 lg:gap-x-2">

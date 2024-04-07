@@ -141,7 +141,6 @@ export const patientUpdateVerification = (body: any, currentUserPermissions: Per
     }
     return true;
   } catch (error: any) {
-    console.log(error);
     return false;
   }
 };

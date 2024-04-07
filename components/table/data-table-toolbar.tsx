@@ -29,7 +29,6 @@ export function DataTableToolbar<TData>({
 
   useEffect(() => {
     // Set up a global filter
-    console.log(filterText);
     table.setGlobalFilter(filterText);
   }, [filterText, table]);
 

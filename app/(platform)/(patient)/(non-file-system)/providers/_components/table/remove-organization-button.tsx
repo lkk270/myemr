@@ -46,7 +46,6 @@ export const RemoveOrganizationButton = ({ children, asChild, organization }: De
           }
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Something went wrong");
         })
         .finally(() => {

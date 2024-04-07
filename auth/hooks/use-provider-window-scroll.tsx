@@ -30,7 +30,6 @@ export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: s
     const handleScroll = debounce(() => {
       // console.log("IN 30");
       if (!ref.current) {
-        console.log("Ref not available");
         return;
       }
       if (!isOpen) {
@@ -39,7 +38,6 @@ export const useWindowScroll = (ref: React.RefObject<HTMLElement>, sectionIds: s
 
       let currentActiveSection = null;
       const currentScroll = ref.current.scrollTop;
-      console.log("Scrolling, current scroll:", currentScroll);
 
       for (const sectionId of sectionIds) {
         const sectionElement = document.getElementById(sectionId);

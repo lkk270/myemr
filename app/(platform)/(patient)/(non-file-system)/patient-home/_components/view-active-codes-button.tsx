@@ -40,7 +40,6 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
           }
         })
         .catch((error) => {
-          console.log(error);
           toast.error("something went wrong");
         });
     });
@@ -71,7 +70,6 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
       })
       .catch((error) => {
         setIsLoading(false);
-        console.log(error);
         toast.error("something went wrong");
       });
   };

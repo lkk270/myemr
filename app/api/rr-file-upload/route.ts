@@ -145,7 +145,6 @@ export async function POST(request: Request) {
       return Response.json({ error: "No file made" }, { status: 500 });
     }
   } catch (error: any) {
-    console.log(error);
     const errorMessage = !!error && error.message ? error.message : "Something went wrong";
     return Response.json({ error: errorMessage }, { status: 500 });
   }

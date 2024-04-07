@@ -46,7 +46,6 @@ export const DeleteMemberButton = ({ children, asChild, member }: DeleteMemberBu
           }
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Something went wrong");
         })
         .finally(() => {

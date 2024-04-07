@@ -61,7 +61,6 @@ export const AddOrganizationForm = ({ setOpen }: AddOrganizationFormProps) => {
           }
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Something went wrong");
         });
     });

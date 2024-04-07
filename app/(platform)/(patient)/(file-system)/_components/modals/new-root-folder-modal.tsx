@@ -52,7 +52,6 @@ export const NewRootFolder = () => {
   useEffect(() => {
     setIsMounted(true);
     if (!currentUserPermissions.isPatient && isOpen) {
-      console.log("IN 48");
       setIsLoading(true);
       startTransition(() => {
         fetchAllRootFolders(patientMember?.patientUserId)
@@ -67,7 +66,6 @@ export const NewRootFolder = () => {
               const alreadyUsedRootNamesTemp = folders
                 .filter((item) => item.isRoot && item.namePath !== "/Trash")
                 .map((item) => item.name);
-              console.log(alreadyUsedRootNamesTemp);
               setAlreadyUsedRootNames(alreadyUsedRootNamesTemp);
             }
           })

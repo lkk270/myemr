@@ -36,7 +36,6 @@ export const ViewUploadHistoryButton = ({ children, asChild, token }: ViewUpload
           setFiles(data);
         })
         .catch((error) => {
-          console.log(error);
           toast.error("something went wrong");
         });
     });

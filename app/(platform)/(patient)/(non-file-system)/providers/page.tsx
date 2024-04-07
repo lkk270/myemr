@@ -25,8 +25,6 @@ const Providers = async () => {
     //   },
     // },
   });
-
-  console.log(organizations);
   // console.log(session);
   return (
     <div className="pt-8 px-4 flex flex-col gap-y-3">

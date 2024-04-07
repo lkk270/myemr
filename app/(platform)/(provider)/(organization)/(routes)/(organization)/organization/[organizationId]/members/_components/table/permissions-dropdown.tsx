@@ -64,7 +64,6 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
           }
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Something went wrong");
         })
         .finally(() => {

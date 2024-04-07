@@ -473,7 +473,6 @@ export const deleteOrganization = async (organizationId: string) => {
         id: organizationId,
       },
     });
-    console.log(organization);
     if (!!organization.profileImageUrl) {
       try {
         await deleteS3ProfilePicture(`organization/${organizationId}`);

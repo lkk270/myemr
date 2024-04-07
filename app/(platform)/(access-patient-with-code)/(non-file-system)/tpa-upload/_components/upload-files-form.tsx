@@ -127,7 +127,6 @@ export const UploadFilesForm = ({ requestRecordsCode }: UploadFilesFormProps) =>
 
           if (!data.success) throw new Error(data.error || "Status update failed");
           if (!!requestRecordsCode && !calledSetHasUploadToTrue) {
-            console.log("IN 128");
             await setHasUploadedToTrue(requestRecordsCode.id);
             setCalledSetHasUploadToTrue(true);
           }

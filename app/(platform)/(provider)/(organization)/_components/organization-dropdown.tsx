@@ -42,7 +42,6 @@ export const OrganizationDropdown = ({}: OrganizationDropdownProp) => {
     : null;
 
   if (!organizationId) {
-    console.log(organizationId);
     return null;
   }
   const currentOrganization = getOrganizationById(organizationId);

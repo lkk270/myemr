@@ -49,7 +49,6 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
               setDataFetched(true);
               setNumOfUnreadNotifications(numOfUnreadNotifications - numOfUnreadNotificationsToFetch);
             } else {
-              console.log(data);
               toast.error("Something went wrong1");
             }
           })

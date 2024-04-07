@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
 
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
-    console.log(error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

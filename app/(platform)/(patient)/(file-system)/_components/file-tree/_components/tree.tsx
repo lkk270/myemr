@@ -252,7 +252,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   const disableDrag = () => {
     const currentAllSelectedHaveSameParent = allSelectedHaveSameParent;
     if (currentAllSelectedHaveSameParent === false) {
-      console.log(currentAllSelectedHaveSameParent);
+      // console.log(currentAllSelectedHaveSameParent);
     }
     return !draggedNode.parentId || !currentAllSelectedHaveSameParent || !currentUserPermissions.canEdit;
   };
@@ -283,7 +283,8 @@ const FileTree = ({ width }: FileTreeProps) => {
   };
 
   const onMove = ({ dragIds, parentId, index }: any) => {
-    const fromName = treeRef.current.get(dragIds[0]).data.name;
+    const fromId = treeRef.current.get(dragIds[0]).data.parentId;
+    const fromName = treeRef.current.get(fromId).data.name;
     const tempParentNode = treeRef.current.get(parentId).data;
     const targetId = tempParentNode.isFile ? tempParentNode.parentId : parentId;
     setIsLoading(true);
@@ -301,7 +302,11 @@ const FileTree = ({ width }: FileTreeProps) => {
       .then(({ data }) => {})
       .catch((error) => {
         folderStore.setFolders(originalFolders);
-        console.log(error?.response?.data);
+        const errorResponse = error?.response;
+        const status = errorResponse.status;
+        if (status >= 400 && status < 500 && !currentUserPermissions.isPatient) {
+          window.location.reload();
+        }
         // error = error?.response?.data || "Something went wrong";
         // console.log(error);
         throw error;
@@ -382,7 +387,7 @@ const FileTree = ({ width }: FileTreeProps) => {
               height={
                 currentUserPermissions.isPatient
                   ? screenHeight - 180
-                  : currentUserPermissions.showActions
+                  : currentUserPermissions.canAdd
                   ? screenHeight - 180 + 45
                   : screenHeight - 180 + 95
               }

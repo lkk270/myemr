@@ -7,15 +7,13 @@ import { MoveModal } from "./_components/file-tree/_components/modals/move-modal
 import { TrashModal } from "./_components/file-tree/_components/modals/trash-node-modal";
 import { AddFolderModal } from "./_components/file-tree/_components/modals/add-folder-modal";
 import { UploadFilesModal } from "./_components/file-tree/_components/modals/upload-files-modal";
-import { PatientManageAccountModal } from "@/components/modals/patient-manage-account/patient-manage-account-modal";
+import { PatientManageAccountModal } from "@/components/modals/manage-account/patient-manage-account/patient-manage-account-modal";
 
 import { Sidebar } from "./_components/sidebar";
 
 import { SearchCommand } from "@/app/(platform)/(patient)/(file-system)/_components/modals/search-command";
 import { NewRootFolder } from "./_components/modals/new-root-folder-modal";
 
-// import { useUser } from "@clerk/nextjs";
-// import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
@@ -25,6 +23,7 @@ import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { getSumOfFilesSizes } from "@/lib/data/files";
+import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
@@ -34,7 +33,10 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   const user = session?.user;
 
-  const allFolders = await fetchAllFoldersForPatient(null, user.id);
+  const allFolders = await fetchAllFoldersForPatient(null, user.id, null);
+  if (allFolders === "Unauthorized") {
+    return <SomethingNotFound title={"Unauthorized"} href="tpa-home" />;
+  }
   const sortedFoldersTemp = allFolders.map((folder) => sortFolderChildren(folder));
   const sortedFolders = sortRootNodes(sortedFoldersTemp);
   const patient = await prismadb.patientProfile.findUnique({

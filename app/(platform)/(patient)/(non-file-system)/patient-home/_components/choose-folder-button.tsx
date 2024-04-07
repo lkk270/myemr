@@ -25,7 +25,8 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
   const folderStore = useFolderStore();
   const [isPending, startTransition] = useTransition();
   const [parentNode, setParentNode] = useState<NodeDataType | SingleLayerNodesType2 | null>(null);
-  const [items, setItems] = useState(folderStore.getDropdownFolders());
+  const [itemsSet, setItemsSet] = useState(false);
+  const [items, setItems] = useState<{ label: string; value: string; namePath: string }[] | null>(null);
 
   const handleFolderChange = (value: string) => {
     const newParentNode = folderStore.singleLayerNodes.find((node) => node.namePath === value);
@@ -45,9 +46,9 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
   const openDialog = () => {
     if (!currentUser) return;
     startTransition(() => {
-      fetchAllFoldersForPatient(null, currentUser.id)
+      fetchAllFoldersForPatient(null, currentUser.id, null, null)
         .then((data) => {
-          if (!data) {
+          if (!data || data === "Unauthorized") {
             toast.error("something went wrong");
             return;
           } else {
@@ -61,9 +62,12 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
             folderStore.setSingleLayerNodes(singleLayerNodes);
             const folderItems = folderStore.getDropdownFolders();
             setItems(folderItems);
+            setItemsSet(true);
           }
         })
         .catch((error) => {
+          setItems([]);
+          setItemsSet(true);
           toast.error("something went wrong");
         });
     });
@@ -74,7 +78,7 @@ export const ChooseFolderButton = ({ children, asChild, handleChange, unMount = 
         {children}
       </DialogTrigger>
       <DialogContent className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px]">
-        {isPending || !items ? (
+        {!itemsSet || !items ? (
           <BeatLoader color="#4b59f0" />
         ) : (
           <GenericCombobox

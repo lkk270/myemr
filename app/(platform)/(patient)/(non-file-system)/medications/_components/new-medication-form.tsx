@@ -19,13 +19,15 @@ import { cn } from "@/lib/utils";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { createMedication } from "@/lib/actions/medications";
 import _ from "lodash";
-import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
+import { medicationsList, fieldCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { NewMedicationSchema } from "@/lib/schemas/medication";
 import { logout } from "@/auth/actions/logout";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
 const inputClassName = "bg-secondary border-primary/10";
 
 export const NewMedicationForm = () => {
   const [isPending, startTransition] = useTransition();
+  const { patientMember } = usePatientMemberStore();
   const currentUserPermissions = useCurrentUserPermissions();
   const medicationStore = useMedicationStore();
   const newMedicationModal = useNewMedicationModal();
@@ -33,6 +35,7 @@ export const NewMedicationForm = () => {
   const form = useForm<z.infer<typeof NewMedicationSchema>>({
     resolver: zodResolver(NewMedicationSchema),
     defaultValues: {
+      patientMemberId: currentUserPermissions.isProvider ? patientMember?.id : null,
       name: "",
       prescribedById: undefined,
       prescribedByName: "",
@@ -53,9 +56,9 @@ export const NewMedicationForm = () => {
         .then((data) => {
           if (data.error) {
             toast.error(data.error);
-            if (data.error === "Unauthorized") {
+            if (data.error === "Unauthorized" && !currentUserPermissions.hasAccount) {
               newMedicationModal.onClose();
-              logout();
+              window.location.reload();
             }
           }
           if (data.success && !!data.medicationId) {
@@ -87,7 +90,7 @@ export const NewMedicationForm = () => {
             </Button>
           </div>
           {/* Personal Information Card */}
-          <Card className="w-full">
+          <Card className="w-full border-none">
             <CardContent className="pt-2">
               <div className="grid gap-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-center gap-4 px-4">
@@ -124,8 +127,8 @@ export const NewMedicationForm = () => {
                           placeholder="Select..."
                           searchPlaceholder="Search..."
                           noItemsMessage="No category found."
-                          items={medicationCategories}
-                          allowOther={true}
+                          items={fieldCategories}
+                          // allowOther={true}
                         />
                       </FormItem>
                     )}

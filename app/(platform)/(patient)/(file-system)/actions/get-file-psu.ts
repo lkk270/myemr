@@ -6,29 +6,14 @@ import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isViewableFile } from "@/lib/utils";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import * as mime from "mime-types";
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { validateUserAndGetAccessibleRootFolders } from "@/lib/actions/files";
+import { getFileName } from "@/lib/utils";
 
-const getFileName = (fileNameTemp: string, fileType: string) => {
-  const currentMimeType = mime.lookup(fileNameTemp);
-
-  const newExtension = mime.extension(fileType);
-
-  if (!newExtension) {
-    console.error("Unsupported file type", fileNameTemp, fileType);
-    return fileNameTemp; // Or handle this case as needed
-  }
-  if (currentMimeType === fileType) {
-    return fileNameTemp;
-  }
-  return `${fileNameTemp}.${newExtension}`;
-};
-
-export const getPresignedUrl = async (fileId: string, forDownload = false) => {
+export const getPresignedUrl = async (fileId: string, forDownload = false, patientMemberId?: string | null) => {
   const session = await auth();
-
   if (!session) {
     return redirect("/");
   }
@@ -39,21 +24,51 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
     return redirect("/");
   }
 
-  if (!currentUserPermissions.isPatient) {
+  if (!currentUserPermissions.isPatient && !currentUserPermissions.isProvider) {
     const code = await getAccessPatientCodeByToken(session.tempToken);
     if (!code) {
       return redirect("/");
     }
   }
 
-  const file = await prismadb.file.findUnique({
-    where: {
-      id: fileId,
-      status: "SUCCESS",
-      restricted: false,
-    },
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canRead", {
+    user,
+    currentUserPermissions,
+    patientMemberId,
   });
-  if (!file) {
+
+  if (!accessibleRootFolderIdsResult) {
+    // return { error: "AN issuE OCCUREd" };
+    return redirect("/");
+  }
+  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+
+  let whereClause: any = {
+    id: fileId,
+    status: "SUCCESS",
+    restricted: false,
+  };
+
+  if (accessibleRootFolderIds !== "ALL") {
+    whereClause.namePath = {
+      not: {
+        startsWith: "/Trash",
+      },
+    };
+  }
+
+  const file = await prismadb.file.findUnique({
+    where: whereClause,
+  });
+
+  const isAccessible =
+    typeof accessibleRootFolderIds === "object"
+      ? accessibleRootFolderIds.some((folderId) => file?.path.startsWith(`/${folderId}/`))
+      : true;
+
+  //http://localhost:3000/patient/05874842-e031-4124-8845-3197d716a5bb/file/cluigbr550001kk7pfy508uom
+
+  if (!file || !isAccessible || accessibleRootFolderIds === "Unauthorized") {
     return { error: "File not found" };
   }
 
@@ -67,10 +82,14 @@ export const getPresignedUrl = async (fileId: string, forDownload = false) => {
   });
   const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 }); // Expires in 1 hour
 
-  return { success: "Settings Updated!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
+  return { success: "PSU retrieved!", presignedUrl: presignedUrl, type: file.type, fileName: file.name };
 };
 
-export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload = false) => {
+export const getPresignedInsuranceUrl = async (
+  side: InsuranceSide,
+  forDownload = false,
+  patientProfileId?: string | null,
+) => {
   const session = await auth();
 
   if (!session) {
@@ -79,23 +98,23 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
   const user = session.user;
   const currentUserPermissions = extractCurrentUserPermissions(user);
 
-  if (!user || user.role === "UPLOAD_FILES_ONLY") {
+  if (!user) {
     return redirect("/");
   }
 
-  if (!currentUserPermissions.isPatient) {
+  if (!currentUserPermissions.isPatient && !currentUserPermissions.hasAccount) {
     const code = await getAccessPatientCodeByToken(session.tempToken);
-    if (!code) {
+    if (!code || code.accessType === "UPLOAD_FILES_ONLY") {
       return redirect("/");
     }
   }
 
+  const whereClause = !patientProfileId ? { side, userId: user.id } : { side, patientProfileId: patientProfileId };
+
   const file = await prismadb.insuranceFile.findFirst({
-    where: {
-      userId: user.id,
-      side: side,
-    },
+    where: whereClause,
   });
+
   if (!file) {
     return { error: "File not found" };
   }
@@ -119,7 +138,7 @@ export const getPresignedInsuranceUrl = async (side: InsuranceSide, forDownload 
   };
 };
 
-export const getPresignedUrls = async (fileIds: string[], parentNamePath: string) => {
+export const getPresignedUrls = async (fileIds: string[], parentNamePath: string, patientMemberId?: string | null) => {
   const session = await auth();
 
   if (!session) {
@@ -132,25 +151,57 @@ export const getPresignedUrls = async (fileIds: string[], parentNamePath: string
     return redirect("/");
   }
 
-  if (!currentUserPermissions.isPatient) {
+  if (!currentUserPermissions.isPatient && !currentUserPermissions.isProvider) {
     const code = await getAccessPatientCodeByToken(session.tempToken);
     if (!code) {
       return redirect("/");
     }
   }
 
-  const files = await prismadb.file.findMany({
-    where: {
-      id: {
-        in: fileIds,
-      },
-      status: "SUCCESS",
-      restricted: false,
-    },
+  const accessibleRootFolderIdsResult = await validateUserAndGetAccessibleRootFolders("canRead", {
+    user,
+    currentUserPermissions,
+    patientMemberId,
   });
 
-  if (!files || files.length === 0) {
-    return { error: "Files not found" };
+  if (!accessibleRootFolderIdsResult) {
+    // return { error: "AN issuE OCCUREd" };
+    return redirect("/");
+  }
+
+  const { accessibleRootFolderIds } = accessibleRootFolderIdsResult;
+
+  let whereClause: any = {
+    id: {
+      in: fileIds,
+    },
+    status: "SUCCESS",
+    restricted: false,
+  };
+
+  if (accessibleRootFolderIds !== "ALL") {
+    whereClause.namePath = {
+      not: {
+        startsWith: "/Trash",
+      },
+    };
+  }
+
+  const files = await prismadb.file.findMany({
+    where: whereClause,
+  });
+
+  let isAccessible = files.length > 0;
+  if (isAccessible) {
+    isAccessible =
+      typeof accessibleRootFolderIds === "object"
+        ? accessibleRootFolderIds.some((folderId) => files[0].path.startsWith(`/${folderId}/`))
+        : true;
+  }
+
+  if (!files || !isAccessible || accessibleRootFolderIds === "Unauthorized") {
+    return { error: "File not found" };
+    // return redirect(`/patient/${patientMemberId}/files&refresh=true`);
   }
 
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
@@ -172,7 +223,7 @@ export const getPresignedUrls = async (fileIds: string[], parentNamePath: string
           path: `${file.namePath.split(parentNamePath)[1]}`, // Adjust the path as needed for your zip structure
         };
       } catch (error) {
-        console.error("Error generating presigned URL for file:", file.id, error);
+        // console.error("Error generating presigned URL for file:", file.id, error);
         return null; // Handle errors as appropriate for your application
       }
     }),

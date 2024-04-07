@@ -2,11 +2,25 @@ const { PrismaClient } = require("@prisma/client");
 
 const prismadb = new PrismaClient();
 
+async function deleteAllOrganizationInviteCodes() {
+  await prismadb.organizationInviteCode.deleteMany({});
+}
 async function deleteAllFiles() {
   await prismadb.file.deleteMany({});
   // await prismadb.insuranceFile.deleteMany({});
 }
 
+async function deleteAllNotifications() {
+  await prismadb.notification.deleteMany({});
+}
+
+async function changeActivityLogsToReadFalse() {
+  await prismadb.organizationActivity.updateMany({
+    data: {
+      read: false,
+    },
+  });
+}
 async function main() {
   const files = await prismadb.file.findMany({});
   const folders = await prismadb.folder.findMany({});
@@ -78,5 +92,7 @@ async function createFolder(
 
   return folder;
 }
-
-deleteAllFiles();
+changeActivityLogsToReadFalse();
+// deleteAllNotifications();
+// deleteAllOrganizationInviteCodes();
+// deleteAllFiles();

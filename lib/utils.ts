@@ -1,8 +1,19 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Unit } from "@prisma/client";
-import { NewMedicationType } from "@/app/types";
-import { genders, martialStatuses, races, heightsImperial, heightsMetric, states, dosageFrequency } from "./constants";
+import { File, Folder, Notification, OrganizationActivity, Unit } from "@prisma/client";
+import * as mime from "mime-types";
+
+import {
+  genders,
+  martialStatuses,
+  races,
+  heightsImperial,
+  heightsMetric,
+  states,
+  dosageFrequency,
+  accessTypeTextObjForTemp,
+  AllowedRoles,
+} from "./constants";
 export * from "./encryption";
 // export * from "./initial-profile";
 export * from "./request-validation";
@@ -26,6 +37,7 @@ import {
 } from "react-icons/bs";
 import { SingleLayerNodesType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { encryptPatientRecord } from "./encryption";
+import { TypeIcon } from "antd/es/message/PurePanel";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -179,7 +191,6 @@ function checkForExtraneousFields(dataKeys: string[], allowedFields: string[]) {
   return "";
 }
 
-
 export function capitalizeFirstLetter(str: string) {
   if (!str) return str; // Return the original string if it's empty
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -289,13 +300,14 @@ export function isViewableFile(fileType: string) {
   return viewableTypes.includes(fileType);
 }
 
-export function isValidNodeName(fileName: string): boolean {
+export function isValidNodeName(newName: string): boolean {
   // Check if the file name is empty
-  if (!fileName || fileName.trim().length === 0) {
+  const newNameLength = newName.trim().length;
+  if (!newName || newNameLength === 0 || newNameLength > 70) {
     return false;
   }
   const invalidChars = /[\/\\?%*:|"<>&]/g;
-  return !invalidChars.test(fileName);
+  return !invalidChars.test(newName);
 }
 
 // Utility function to sort nodes: folders first (alphabetically), then files (alphabetically).
@@ -423,8 +435,25 @@ export const extractNewNodeIdFromPath = (pathnameVar: string) => {
   return "";
 };
 
-export const getNodeHref = (isPatient: boolean, isFile: boolean, nodeId: string) => {
-  return `${isPatient ? (isFile ? "/file/" : "/files/") : isFile ? "/tpa-file/" : "/tpa-files/"}${nodeId}`;
+export const getNodeHref = (
+  isPatient: boolean,
+  isProvider: boolean,
+  isFile: boolean,
+  nodeId: string,
+  pathname: string | null = null,
+) => {
+  const fileText = isFile ? "file" : "files";
+  let basePath = `/tpa-${fileText}`;
+  if (isPatient) {
+    basePath = `/${fileText}`;
+  } else if (isProvider) {
+    let basePathTemp = !!pathname ? pathname.split("/file")[0] : null;
+    if (!basePathTemp) {
+      return "/";
+    }
+    basePath = `${basePathTemp}/${fileText}`;
+  }
+  return `${basePath}/${nodeId}`;
 };
 
 export function getTimeUntil(date: Date): string {
@@ -490,24 +519,176 @@ export function buildUpdatePayload(data: any, symmetricKey: string) {
   return payload;
 }
 
-export function findChangesBetweenObjects(oldObject: any, newObject: any) {
+export function findChangesBetweenObjects(oldObject: any, newObject: any, includeUndefined = false) {
   //returns a new object that contains only the changed fields between oldObject & newObject
   //if there is a field in oldObject that is NOT in newObject then this field will NOT be included
   //however, if there is a field in newObject that is NOT in oldObject then this field will be included.
   const changesObject: any = {};
 
   Object.keys(newObject).forEach((key) => {
-    if (oldObject[key] !== newObject[key]) {
-      if (typeof newObject[key] === "object" && newObject[key] !== null && oldObject[key] !== null) {
-        const deeperChanges = findChangesBetweenObjects(oldObject[key], newObject[key]);
+    const oldValue = !!oldObject[key] ? oldObject[key] : includeUndefined ? "" : oldObject[key];
+    const newValue = !!newObject[key] ? newObject[key] : includeUndefined ? "" : newObject[key];
+
+    if (
+      oldValue !== newValue &&
+      oldValue !== undefined &&
+      oldValue !== null &&
+      newValue !== null &&
+      newValue !== undefined
+    ) {
+      if (typeof newValue === "object" && newValue !== null && oldValue !== null) {
+        const deeperChanges = findChangesBetweenObjects(oldValue, newValue);
         if (Object.keys(deeperChanges).length > 0) {
           changesObject[key] = deeperChanges;
         }
       } else {
-        changesObject[key] = newObject[key];
+        changesObject[key] = newValue;
       }
     }
   });
 
   return changesObject;
 }
+
+export function formatPhoneNumber(phoneNumberString: string): string {
+  // Extract the parts of the phone number using a regular expression
+  const match = phoneNumberString.match(/^(\d{3})(\d{3})(\d{4})$/);
+
+  // If the input is valid, format and return the phone number
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+  return "N/A";
+}
+
+export const generatePatientNotificationText = (notification: Notification) => {
+  const { notificationType } = notification;
+  const dynamicData = notification.dynamicData as any;
+
+  if (!dynamicData) {
+    return "";
+  }
+  let nodeText = "";
+  let numOfFiles = 0;
+  let externalUserText =
+    !!dynamicData["role"] && !!dynamicData["organizationName"]
+      ? `The organization "${dynamicData["organizationName"]}" (with "${dynamicData["role"]}" permissions)`
+      : !!dynamicData["role"]
+      ? `An external user, whom you granted a temporary access code with "${dynamicData["role"]}" permissions`
+      : "";
+  switch (notificationType) {
+    case "ADDED_TO_ORGANIZATION":
+      return `You have been added to the organization: "${
+        dynamicData["organizationName"]
+      }". Your role is ${capitalizeFirstLetter(dynamicData["role"])}`;
+    case "ACCESS_CODE_NODE_RENAMED":
+    case "PROVIDER_NODE_RENAMED":
+      nodeText = dynamicData["isFile"] ? "file" : "folder";
+      return `${externalUserText}, has renamed the ${nodeText}: "${dynamicData["oldName"]}" to "${dynamicData["newName"]}"`;
+    case "ACCESS_CODE_FILE_UPLOADED":
+    case "PROVIDER_FILE_UPLOADED":
+      numOfFiles = dynamicData["numOfFiles"];
+      nodeText = `${numOfFiles.toString()} file`;
+      if (numOfFiles > 1) nodeText += "s";
+      return `${externalUserText}, has successfully uploaded ${nodeText} to the folder: "${dynamicData["parentFolderName"]}".`;
+    case "ACCESS_CODE_NODE_MOVED":
+    case "PROVIDER_NODE_MOVED":
+      const numOfNodes = dynamicData["numOfNodes"];
+      nodeText = `${numOfNodes.toString()} node`;
+      if (numOfNodes > 1) nodeText += "s";
+      return `${externalUserText}, has moved ${nodeText} from the folder "${dynamicData["fromFolder"]}" to the folder "${dynamicData["toFolder"]}".`;
+    case "ACCESS_CODE_ADDED_ROOT_FOLDER":
+    case "PROVIDER_ADDED_ROOT_FOLDER":
+      return `${externalUserText}, has added the root folder: "${dynamicData["rootFolderName"]}".`;
+    case "ACCESS_CODE_ADDED_SUB_FOLDER":
+    case "PROVIDER_ADDED_SUB_FOLDER":
+      return `${externalUserText}, has added a sub folder: "${dynamicData["subFolderName"]}" to the folder: "${dynamicData["parentFolderName"]}".`;
+    case "ACCESS_CODE_MEDICATION_ADDED":
+    case "PROVIDER_MEDICATION_ADDED":
+      return `${externalUserText}, has added the medication: "${dynamicData["medicationName"]}".`;
+    case "ACCESS_CODE_MEDICATION_EDITED":
+    case "PROVIDER_MEDICATION_EDITED":
+      return `${externalUserText}, has edited the medication: "${dynamicData["medicationName"]}".`;
+    case "REQUEST_RECORDS_FILE_UPLOAD":
+      numOfFiles = dynamicData["numOfFiles"];
+      nodeText = `${numOfFiles.toString()} file`;
+      if (numOfFiles > 1) nodeText += "s";
+      return `${dynamicData["email"]} has successfully uploaded ${nodeText} to the folder: "${dynamicData["parentFolderName"]}" in response to your "Request Your Records" request.`;
+
+    default:
+      return notificationType;
+  }
+};
+
+export const generateOrganizationActivityText = (activityLog: OrganizationActivity) => {
+  const { type } = activityLog;
+  const dynamicData = activityLog.dynamicData as any;
+
+  if (!dynamicData) {
+    return "";
+  }
+
+  switch (type) {
+    case "PROVIDER_ADDED":
+      return `A provider with the email "${
+        dynamicData["email"]
+      }" has been added to this organization with the role of "${capitalizeFirstLetter(dynamicData["role"])}".`;
+    case "INVITE_ACCEPTED":
+      return `A user with the email "${
+        dynamicData["email"]
+      }" has successfully created a MyEmr Provider account and has accepted the invitation, thereby joining this organization with the assigned the role of "${capitalizeFirstLetter(
+        dynamicData["role"],
+      )}".`;
+    case "ADDED_BY_PATIENT":
+      const role = dynamicData["role"] as AllowedRoles;
+      const accessTypeTitle = accessTypeTextObjForTemp[role].title;
+      return `A patient registered under the email "${dynamicData["patientEmail"]}" has connected to this organization and has set the access type to "${accessTypeTitle}".`;
+    default:
+      return type;
+  }
+};
+
+export const getFileName = (fileNameTemp: string, fileType: string) => {
+  const currentMimeType = mime.lookup(fileNameTemp);
+
+  const newExtension = mime.extension(fileType);
+
+  if (!newExtension) {
+    console.error("Unsupported file type", fileNameTemp, fileType);
+    return fileNameTemp; // Or handle this case as needed
+  }
+  if (currentMimeType === fileType) {
+    return fileNameTemp;
+  }
+  return `${fileNameTemp}.${newExtension}`;
+};
+
+export function extractRootFolderIds(accessibleRootFoldersString: string) {
+  return accessibleRootFoldersString === "ALL"
+    ? "ALL"
+    : accessibleRootFoldersString === "ALL_EXTERNAL"
+    ? "ALL_EXTERNAL"
+    : removeTrailingComma(accessibleRootFoldersString)
+        .split(",")
+        .map((id) => id.trim());
+}
+
+export function removeTrailingComma(str: string) {
+  if (str.endsWith(",")) {
+    return str.slice(0, -1); // Removes the last character
+  }
+  return str;
+}
+
+export const isNodeAccessible = (
+  accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
+  node: { id: string; isRoot: boolean; path: string },
+) => {
+  let isValidNode = true;
+  if (typeof accessibleRootFolderIds === "object") {
+    isValidNode = node?.isRoot
+      ? accessibleRootFolderIds.some((id) => node.id === id)
+      : accessibleRootFolderIds.some((id) => node?.path.startsWith(`/${id}/`));
+  }
+  return isValidNode;
+};

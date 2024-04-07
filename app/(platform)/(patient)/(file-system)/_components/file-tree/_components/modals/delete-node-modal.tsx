@@ -130,7 +130,7 @@ export const DeleteModal = () => {
             onClick={() => {
               handleSave();
             }}
-            className="w-20 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+            className="w-20 h-8 text-sm bg-secondary hover:bg-[#fdf0ef] dark:hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
           >
             {deleteModal.forEmptyTrash ? "Empty" : "Delete"}
           </AlertDialogAction>

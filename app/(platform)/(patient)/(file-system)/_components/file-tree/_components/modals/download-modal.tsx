@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useFolderStore } from "../../../hooks/use-folders";
 import { toast } from "sonner";
+import { usePathname } from "next/navigation";
 
 export const DownloadModal = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -28,6 +29,8 @@ export const DownloadModal = () => {
   const [fileIds, setFileIds] = useState<string[]>([]);
   const [parentNamePath, setParentNamePath] = useState<string>("");
   const [parentName, setParentName] = useState<string>("");
+  const pathname = usePathname();
+  const patientMemberId = pathname.includes("patient/") ? pathname.split("/patient/")[1].split("/")[0] : null;
 
   const downloadNodes = downloadModal.nodeDatas;
   const firstDownloadNode = downloadNodes ? downloadNodes[0] : null;
@@ -103,8 +106,8 @@ export const DownloadModal = () => {
             // disabled={fileIds.length === 0}
             onClick={async () => {
               downloadNodes[0].isFile && downloadNodes.length === 1
-                ? downloadFile(firstDownloadNode.id)
-                : downloadZip(fileIds, parentNamePath, parentName);
+                ? downloadFile(firstDownloadNode.id, false, patientMemberId)
+                : downloadZip(fileIds, parentNamePath, parentName, patientMemberId);
               downloadModal.onClose();
             }}
           >

@@ -2,7 +2,7 @@ import { SubscriptionTierType } from "@/app/types";
 import { UserRole } from "@prisma/client";
 import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings, Upload } from "lucide-react";
 
-export const navRoutes = [
+export const patientNavRoutes = [
   {
     icon: Home,
     href: "/patient-home",
@@ -71,6 +71,27 @@ export const tempPatientUploadAccessNavRoutes = [
   },
 ];
 
+export const patientRoutesForProvider = (patientMemberId: string) => {
+  const baseRoute = `/patient/${patientMemberId}`;
+  return [
+    {
+      icon: Contact,
+      href: `${baseRoute}/about`,
+      label: "About",
+    },
+    {
+      icon: FolderClosed,
+      href: `${baseRoute}/files`,
+      label: "Files",
+    },
+    {
+      icon: Pill,
+      href: `${baseRoute}/medications`,
+      label: "Meds",
+    },
+  ];
+};
+
 export interface SelectItemType {
   value: string;
   value2?: string;
@@ -86,9 +107,11 @@ interface AccessType {
   description: string;
 }
 
-export interface AccessTypeObjectType {
-  [key: string]: AccessType;
-}
+export type AllowedRoles = Exclude<UserRole, "USER" | "ADMIN">;
+
+export type AccessTypeObjectType = {
+  [key in AllowedRoles]: AccessType;
+};
 
 export const accessTypeTextObjForPatient: AccessTypeObjectType = {
   READ_ONLY: { title: "Read Only", description: "can only view records and are unable to make changes of any kind" },
@@ -615,46 +638,41 @@ export const states = [
   { value: "WY", label: "WY" },
 ];
 
-export const medicationCategories = [
+export const fieldCategories = [
   { value: "Allergy", label: "Allergy" },
+  { value: "Anesthesiology", label: "Anesthesiology" },
   { value: "Cardiology", label: "Cardiology" },
+  { value: "Dentistry", label: "Dentistry" },
   { value: "Dermatology", label: "Dermatology" },
+  { value: "Emergency Medicine", label: "Emergency Medicine" },
   { value: "Endocrinology", label: "Endocrinology" },
+  { value: "Family Medicine", label: "Family Medicine" },
   { value: "Gastroenterology", label: "Gastroenterology" },
+  { value: "General Surgery", label: "General Surgery" },
+  { value: "Geriatrics", label: "Geriatrics" },
   { value: "Hematology", label: "Hematology" },
   { value: "Immunology", label: "Immunology" },
   { value: "Infectious Diseases", label: "Infectious Diseases" },
+  { value: "Internal Medicine", label: "Internal Medicine" },
   { value: "Nephrology", label: "Nephrology" },
   { value: "Neurology", label: "Neurology" },
+  { value: "Neurosurgery", label: "Neurosurgery" },
+  { value: "Obstetrics and Gynecology", label: "Obstetrics and Gynecology" },
   { value: "Oncology", label: "Oncology" },
   { value: "Ophthalmology", label: "Ophthalmology" },
   { value: "Orthopedics", label: "Orthopedics" },
+  { value: "Otolaryngology", label: "Otolaryngology" },
+  { value: "Pathology", label: "Pathology" },
   { value: "Pediatrics", label: "Pediatrics" },
+  { value: "Physical Medicine & Rehabilitation", label: "Physical Medicine & Rehabilitation" },
+  { value: "Plastic Surgery", label: "Plastic Surgery" },
   { value: "Psychiatry", label: "Psychiatry" },
   { value: "Pulmonology", label: "Pulmonology" },
+  { value: "Radiology", label: "Radiology" },
   { value: "Rheumatology", label: "Rheumatology" },
+  { value: "Sports Medicine", label: "Sports Medicine" },
   { value: "Urology", label: "Urology" },
-];
-
-export const rootFolderCategories = [
-  { value: "Allergy", label: "Allergy" },
-  { value: "Cardiology", label: "Cardiology" },
-  { value: "Dermatology", label: "Dermatology" },
-  { value: "Endocrinology", label: "Endocrinology" },
-  { value: "Gastroenterology", label: "Gastroenterology" },
-  { value: "Hematology", label: "Hematology" },
-  { value: "Immunology", label: "Immunology" },
-  { value: "Infectious Diseases", label: "Infectious Diseases" },
-  { value: "Nephrology", label: "Nephrology" },
-  { value: "Neurology", label: "Neurology" },
-  { value: "Oncology", label: "Oncology" },
-  { value: "Ophthalmology", label: "Ophthalmology" },
-  { value: "Orthopedics", label: "Orthopedics" },
-  { value: "Pediatrics", label: "Pediatrics" },
-  { value: "Psychiatry", label: "Psychiatry" },
-  { value: "Pulmonology", label: "Pulmonology" },
-  { value: "Rheumatology", label: "Rheumatology" },
-  { value: "Urology", label: "Urology" },
+  { value: "Vascular Surgery", label: "Vascular Surgery" },
 ];
 
 export const medicationsList = [
@@ -1113,3 +1131,15 @@ export const accessTypesText = [
 ];
 
 export const profileImageUrlPrefix = "https://myemrpps3.s3.us-east-2.amazonaws.com/";
+
+export const organizationMemberPermissionTypes = [
+  { value: "OWNER", label: "Owner" },
+  { value: "ADMIN", label: "Admin" },
+  { value: "USER", label: "User" },
+];
+
+export const patientMemberPermissionTypes = [
+  { value: UserRole.READ_ONLY, label: "Read only" },
+  { value: UserRole.READ_AND_ADD, label: "Read & Add" },
+  { value: UserRole.FULL_ACCESS, label: "Full access" },
+];

@@ -71,9 +71,6 @@ export const AddFolderModal = () => {
       .post("/api/patient-update", {
         parentId: parentId,
         folderName: folderName,
-        addedByUserId: userId,
-        patientUserId: userId,
-        addedByName: email,
         updateType: "addSubFolder",
       })
       .then(({ data }) => {
@@ -92,9 +89,10 @@ export const AddFolderModal = () => {
         addFolderModal.onClose();
       })
       .catch((error) => {
-        error = error?.response?.data;
-        if (error && error !== "Internal Error") {
-          toast.error(error);
+        const errorResponse = error?.response;
+        const status = errorResponse.status;
+        if (status >= 400 && status < 500 && !currentUserPermissions.isPatient) {
+          window.location.reload();
         }
         throw error;
       })

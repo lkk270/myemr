@@ -14,7 +14,6 @@ export const accessPatientWithCode = async (
   values: z.infer<typeof AccessPatientWithCodeSchema>,
   callbackUrl?: string | null,
 ) => {
-  console.log(" INE HERE");
   const validatedFields = AccessPatientWithCodeSchema.safeParse(values);
 
   if (!validatedFields.success) {

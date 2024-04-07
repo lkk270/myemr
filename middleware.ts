@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
-import { auth2, signOut } from "@/auth";
+import { auth2 } from "@/auth";
 import authConfig from "@/auth.config";
-import { extractCurrentUserPermissions } from "./auth/hooks/use-current-user-permissions";
+// import { extractCurrentUserPermissions } from "./auth/hooks/use-current-user-permissions";
 import {
   PATIENT_DEFAULT_LOGIN_REDIRECT,
   PROVIDER_DEFAULT_LOGIN_REDIRECT,
@@ -12,11 +12,12 @@ import {
   dynamicPublicRoutes,
   patientRoutes,
   patientDynamicRoutes,
+  providerDynamicRoutes,
   providerRoutes,
   accessPatientRoutes,
   accessPatientDynamicRoutes,
   accessPatientUploadRoutes,
-  accessPatientApiRoutes,
+  // accessPatientApiRoutes,
   termRoutes,
 } from "@/routes";
 
@@ -45,18 +46,18 @@ export default auth(async (req) => {
   const isPatientDynamicRoute = patientDynamicRoutesRegex.test(nextUrlPathname);
   const isPatientRoute = patientRoutes.includes(nextUrlPathname) || isPatientDynamicRoute;
 
-  const isProviderRoute = providerRoutes.includes(nextUrlPathname);
+  const isProviderRoute =
+    providerRoutes.includes(nextUrlPathname) || providerDynamicRoutes.some((route) => nextUrlPathname.includes(route));
 
   const accessPatientDynamicRoutesRegex = new RegExp(`^(?:${accessPatientDynamicRoutes.join("|")})[^/]+/?$`);
   const isAccessPatientDynamicRoute = accessPatientDynamicRoutesRegex.test(nextUrlPathname);
   const isAccessPatientRoute = accessPatientRoutes.includes(nextUrlPathname) || isAccessPatientDynamicRoute;
   const isAccessPatientUploadRoutes = accessPatientUploadRoutes.includes(nextUrlPathname);
 
-  const isAccessPatientApiRoutes = accessPatientApiRoutes.includes(nextUrlPathname);
+  // const isAccessPatientApiRoutes = accessPatientApiRoutes.includes(nextUrlPathname);
   const user = session?.user;
 
-  const currentUserPermissions = extractCurrentUserPermissions(user);
-
+  // const currentUserPermissions = extractCurrentUserPermissions(user);
   // if (isLoggedIn) {
   //   console.log(currentUserPermissions.hasAccount);
   //   console.log(session?.expires);
@@ -123,7 +124,6 @@ export default auth(async (req) => {
   }
 
   if (!isLoggedIn && !isPublicRoute && !isTermRoute) {
-    console.log("IN 82222");
     let callbackUrl = nextUrlPathname;
     if (nextUrl.search) {
       callbackUrl += nextUrl.search;
@@ -189,7 +189,7 @@ export default auth(async (req) => {
   //   return Response.redirect(new URL(ACCESS_PATIENT_WITH_CODE_REDIRECT, nextUrl));
   // } else
 
-  if (isPublicRoute && isLoggedIn) {
+  if (isPublicRoute && isLoggedIn && !isDynamicPublicRoute) {
     return Response.redirect(new URL(redirectUrl, nextUrl));
   }
   // if (nextUrlPathname === "/" && isLoggedIn && user?.userType === "PATIENT" && user?.role === "ADMIN") {

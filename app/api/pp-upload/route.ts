@@ -27,42 +27,70 @@ export async function POST(request: Request) {
     if (!patientUpdateVerification({ ...body, updateType: "ppUpload" }, currentUserPermissions)) {
       return NextResponse.json({ message: "Invalid body" }, { status: 400 });
     }
+    let imageUrl: string | null = null;
+    if (user.userType === "PATIENT") {
+      const patient = await prismadb.patientProfile.findUnique({
+        where: {
+          userId: userId,
+        },
+        select: {
+          id: true,
+          imageUrl: true,
+        },
+      });
 
-    const patient = await prismadb.patientProfile.findUnique({
-      where: {
-        userId: userId,
-      },
-      select: {
-        id: true,
-        imageUrl: true,
-      },
-    });
+      if (!patient) {
+        return NextResponse.json({ message: "Patient not found" }, { status: 400 });
+      }
+      imageUrl = `${profileImageUrlPrefix}${userId}?${new Date().getTime()}`;
+      await prismadb.$transaction(
+        async (prisma) => {
+          await prisma.patientProfile.update({
+            where: {
+              userId: userId,
+            },
+            data: {
+              imageUrl: imageUrl,
+            },
+          });
+          await prisma.user.update({
+            where: {
+              id: userId,
+            },
+            data: {
+              image: imageUrl,
+            },
+          });
+        },
+        { timeout: 20000 },
+      );
+    } else if (user.userType === "PROVIDER") {
+      const user = await prismadb.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+          image: true,
+        },
+      });
 
-    if (!patient) {
-      return NextResponse.json({ message: "Patient not found" }, { status: 400 });
+      if (!user) {
+        return NextResponse.json({ message: "User not found" }, { status: 400 });
+      }
+      imageUrl = `${profileImageUrlPrefix}${userId}?${new Date().getTime()}`;
+
+      await prismadb.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          image: imageUrl,
+        },
+      });
+    } else {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const imageUrl = `${profileImageUrlPrefix}${userId}?${new Date().getTime()}`;
-    await prismadb.$transaction(
-      async (prisma) => {
-        await prisma.patientProfile.update({
-          where: {
-            userId: userId,
-          },
-          data: {
-            imageUrl: imageUrl,
-          },
-        });
-        await prisma.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            image: imageUrl,
-          },
-        });
-      },
-      { timeout: 20000 },
-    );
 
     const client = new S3Client({ region: process.env.AWS_REGION });
     const key = `${user.id}`;

@@ -1,8 +1,6 @@
 "use client";
 
-// import { useUser } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
-// import { SignUpButton } from "@clerk/clerk-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -20,6 +18,8 @@ export const Heading = () => {
   const session = useSession();
   const sessionData = session.data;
   const user = sessionData?.user || null;
+
+  ////          <Highlight className="text-black dark:text-white z-1">Welcome to MyEMR</Highlight>
 
   return (
     <>

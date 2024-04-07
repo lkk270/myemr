@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 
 import { statuses } from "./_data/data";
-import { medicationCategories } from "@/lib/constants";
+import { fieldCategories } from "@/lib/constants";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { CustomDataTableRowActions } from "./custom-data-table-row-actions";
 import { medicationsList } from "@/lib/constants";
@@ -28,7 +28,7 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "category",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Category" />,
     cell: ({ row }) => {
-      const category = medicationCategories.find((category) => category.value === row.getValue("category"));
+      const category = fieldCategories.find((category) => category.value === row.getValue("category"));
 
       if (!category) {
         return null;

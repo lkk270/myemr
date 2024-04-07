@@ -9,6 +9,7 @@ import { auth } from "@/auth";
 import HolyLoader from "holy-loader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { DeleteMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/delete-medication-modal";
 import { NewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
 import { ViewMedicationModal } from "./(platform)/(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
 
@@ -24,27 +25,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth();
 
   return (
-    // <ClerkProvider
-    //   appearance={{
-    //     baseTheme: dark,
-    //     layout: {
-    //       termsPageUrl: "https://clerk.com/terms",
-    //     },
-    //   }}
-    // >
     //dark:bg-[#171717] bg-[#f5f5f5]
     //bg-secondary/5
     //dark:bg-[#1f1f1f] bg-[#fafafa]
     <>
-      <Head>
+      {/* <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-      </Head>
+      </Head> */}
       <SessionProvider session={session}>
         <html lang="en" suppressHydrationWarning>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
           <body className={cn(font.className)}>
             <NewMedicationModal />
             <ViewMedicationModal />
+            <DeleteMedicationModal />
             {/* <NextTopLoader color="#4f5eff" /> */}
             <HolyLoader color="#4f5eff" height={4} speed={250} easing="linear" showSpinner />
             <ThemeProvider

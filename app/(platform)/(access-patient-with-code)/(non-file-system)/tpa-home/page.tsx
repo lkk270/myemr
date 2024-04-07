@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
-import { UserRole } from "@prisma/client";
-import { accessTypeTextObjForTemp } from "@/lib/constants";
+import { AllowedRoles, accessTypeTextObjForTemp } from "@/lib/constants";
 import { decryptKey, decryptMultiplePatientFields } from "@/lib/encryption";
 import { CountdownTimer } from "./_components/countdown-timer";
 
@@ -37,8 +36,8 @@ const AccessHome = async () => {
   }
   const { symmetricKey, ...safeObject } = decryptedPatient;
 
-  const accessTypeTitle = accessTypeTextObjForTemp[user.role].title;
-  const accessTypeDescription = accessTypeTextObjForTemp[user.role].description;
+  const accessTypeTitle = accessTypeTextObjForTemp[user.role as AllowedRoles].title;
+  const accessTypeDescription = accessTypeTextObjForTemp[user.role as AllowedRoles].description;
 
   return (
     <div className="flex flex-col mx-auto max-w-3xl px-4 pt-2 xs:pt-12 sm:pt-20">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { ChevronRight, ChevronDown, MoreHorizontal, GripVertical, Trash } from "lucide-react";
 import DragContext from "./drag-context";
-import { cn, getFileIcon, extractNewNodeIdFromPath } from "@/lib/utils";
+import { cn, getFileIcon, extractNewNodeIdFromPath, getNodeHref } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { MenuHeader } from "./menu-header";
 import { useRouter } from "next/navigation";
@@ -270,14 +270,14 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
         duration: 3500,
       });
     } else if (tree.hasMultipleSelections <= 1) {
-      const basePath = currentUserPermissions.isPatient
-        ? node.data.isFile
-          ? "/file/"
-          : "/files/"
-        : node.data.isFile
-        ? "/tpa-file/"
-        : "/tpa-files/";
-      router.push(`${basePath}${node.id}`);
+      const href = getNodeHref(
+        currentUserPermissions.isPatient,
+        currentUserPermissions.isProvider,
+        node.data.isFile,
+        node.id,
+        pathnameVar,
+      );
+      router.push(href);
     }
   };
 

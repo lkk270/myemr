@@ -1,4 +1,4 @@
-import { Pencil, Upload, FileInput, FolderInput, Undo2, Download, Trash, FolderPlus } from "lucide-react";
+import { PencilLine, Upload, FileInput, FolderInput, Undo2, Download, Trash, FolderPlus } from "lucide-react";
 import { MenuItemData, NodeDataType } from "@/app/types/file-types";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import axios from "axios";
@@ -64,7 +64,7 @@ export const useMenuItems = (nodeData: any) => {
   const menuItemsConfig: MenuItemData[] = [
     {
       label: "Rename",
-      icon: Pencil,
+      icon: PencilLine,
       action: () => {
         if (isLoading) {
           return;

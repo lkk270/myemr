@@ -3,9 +3,13 @@ import { states } from "../constants";
 
 export const AddressSchema = z
   .object({
-    address: z.string().optional().nullable(),
-    address2: z.string().optional().nullable(),
-    city: z.string().optional().nullable(),
+    address: z.string().max(100, { message: "Address can't be larger than 100 characters" }).optional().nullable(),
+    address2: z
+      .string()
+      .max(100, { message: "Second address can't be larger than 100 characters" })
+      .optional()
+      .nullable(),
+    city: z.string().max(100, { message: "City can't be larger than 100 characters" }).optional().nullable(),
     state: z
       .string()
       .optional()

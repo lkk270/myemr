@@ -51,7 +51,6 @@ export async function POST(request: Request) {
       userSubscription?.plan !== validatedFields.data.plan
     ) {
       const tierIsUpgrade = planObj.stripe.price > planNames[user.plan].stripe.price;
-      console.log("tierIsUpgrade", tierIsUpgrade);
       const subscriptions = await stripe.subscriptions.list({
         customer: userSubscription.stripeCustomerId,
       });
@@ -144,7 +143,6 @@ export async function POST(request: Request) {
       return new NextResponse(JSON.stringify({ url: stripeSession.url }));
     }
   } catch (error) {
-    console.log("[STRIPE_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

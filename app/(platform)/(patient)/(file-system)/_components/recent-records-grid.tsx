@@ -9,9 +9,12 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import { getFileIcon, formatFileSize, cn, getNodeHref } from "@/lib/utils";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { useMediaQuery } from "usehooks-ts";
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 
 const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
+  const pathname = usePathname();
   const currentUserPermissions = useCurrentUserPermissions();
   const isFile = record.isFile;
   const isTrash = record.namePath === "/Trash";
@@ -23,11 +26,11 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
     return (
       <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
         {!isFile && !isTrash ? (
-          <RecordIcon className="w-16 h-16" color={iconColor} fill={iconColor} />
+          <RecordIcon className="w-8 h-8 sm:w-16 sm:h-16" color={iconColor} fill={iconColor} />
         ) : (
-          <RecordIcon className="w-16 h-16" color={iconColor} />
+          <RecordIcon className="w-8 h-8 sm:w-16 sm:h-16" color={iconColor} />
         )}
-        <div className="p-2 flex flex-col gap-y-1 max-w-[175px] text-xs truncate">
+        <div className="p-2 flex flex-col gap-y-1 max-w-[131px] sm:max-w-[175px] text-xs truncate">
           <p className="truncate font-bold">{record.name}</p>
           <p className="truncate">{record.isRoot ? "Root folder" : "In " + pathSegments.slice(-2, -1)}</p>
           {typeof record.size === "number" && <p className="truncate"> {formatFileSize(BigInt(record.size))}</p>}
@@ -46,7 +49,7 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
       }}
       key={record.name}
       className={cn(
-        "w-full h-[175px] transition border-0 bg-primary/10 rounded-xl",
+        "shadow-md shadow-secondary border border-primary/10 hover:bg-primary/15 dark:hover:bg-secondary w-full max-h-[120px] sm:max-h-[175px] transition bg-primary/10 rounded-xl",
         record.restricted && "opacity-60 cursor-not-allowed",
       )}
     >
@@ -54,7 +57,13 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
         <CardContent record={record} />
       ) : (
         <Link
-          href={getNodeHref(currentUserPermissions.isPatient, isFile, record.id)}
+          href={getNodeHref(
+            currentUserPermissions.isPatient,
+            currentUserPermissions.isProvider,
+            isFile,
+            record.id,
+            pathname,
+          )}
           onDragStart={(e) => e.preventDefault()}
         >
           <CardContent record={record} />
@@ -65,6 +74,7 @@ const RecordCard = ({ record }: { record: SingleLayerNodesType2 }) => {
 };
 
 export const RecentRecordsGrid = ({}) => {
+  const isMobile = useMediaQuery("(max-width: 640px)");
   const currentUserPermissions = useCurrentUserPermissions();
   const { singleLayerNodes } = useFolderStore();
   const folders = singleLayerNodes.filter((node) => !node.isFile).slice(0, 12);
@@ -82,7 +92,11 @@ export const RecentRecordsGrid = ({}) => {
       <div className="text-lg font-bold py-3">Recent Folders</div>
       <div
         className="grid grid-flow-row gap-2 pb-10 auto-cols-max"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
+        style={{
+          gridTemplateColumns: isMobile
+            ? "repeat(auto-fill, minmax(112px, 1fr))"
+            : "repeat(auto-fill, minmax(150px, 1fr))",
+        }}
       >
         {folders.map((item, index) => {
           if (!item.isFile) {
@@ -99,7 +113,11 @@ export const RecentRecordsGrid = ({}) => {
       ) : (
         <div
           className="grid grid-flow-row gap-2 pb-10 auto-cols-max"
-          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
+          style={{
+            gridTemplateColumns: isMobile
+              ? "repeat(auto-fill, minmax(112px, 1fr))"
+              : "repeat(auto-fill, minmax(150px, 1fr))",
+          }}
         >
           {files.map((item, index) => {
             if (item.isFile) {

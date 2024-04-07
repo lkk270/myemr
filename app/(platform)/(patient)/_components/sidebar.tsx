@@ -1,6 +1,6 @@
 "use client";
 
-import { navRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
+import { patientNavRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
@@ -15,7 +15,7 @@ export const Sidebar = () => {
   const pathname = usePathname();
 
   const routes = currentUserPermissions.isPatient
-    ? navRoutes
+    ? patientNavRoutes
     : currentUser?.role === "UPLOAD_FILES_ONLY"
     ? tempPatientUploadAccessNavRoutes
     : tempPatientAccessNavRoutes;

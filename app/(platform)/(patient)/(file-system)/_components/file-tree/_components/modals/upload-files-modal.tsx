@@ -25,10 +25,16 @@ import { updateRegularFileStatus } from "../../../../actions/update-status";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
-import { createNotification } from "@/lib/actions/notifications";
+import { createPatientNotification } from "@/lib/actions/notifications";
+import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
+import { logout } from "@/auth/actions/logout";
 
 export const UploadFilesModal = () => {
   const currentUser = useCurrentUser();
+  const { patientMember } = usePatientMemberStore();
+  if (!!patientMember && !!currentUser) {
+    currentUser.role = patientMember?.role;
+  }
   const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const folderStore = useFolderStore();
   const [files, setFiles] = useState<FileWithStatus[]>([]);
@@ -79,13 +85,10 @@ export const UploadFilesModal = () => {
     let errorOccurred = false;
     let numFilesSuccessfullyUploaded = 0;
 
-    console.log("IN 82");
     if (isLoading || !currentUserPermissions.canAdd) return;
     if (singleFileObj && singleFileObj.status === "canceled") {
       singleFileObj.controller = new AbortController();
     }
-
-    console.log("IN 88");
     setIsLoading(true);
 
     // if (singleFileObj) {
@@ -102,7 +105,7 @@ export const UploadFilesModal = () => {
     //     })),
     //   );
     // }
-
+    let parentFolderName = null;
     const tempFileList = singleFileObj ? [singleFileObj] : [...files];
     // console.log(tempFileList);
     const uploadPromises = tempFileList
@@ -127,12 +130,14 @@ export const UploadFilesModal = () => {
               parentId: parentNode?.id,
               parentNamePath: parentNode?.namePath,
               parentPath: parentNode?.path,
+              patientMemberId: currentUserPermissions.isProvider ? patientMember?.id : undefined,
             }),
             signal: tempFile.controller.signal,
           });
           updateFileStatus(tempFile, "gotPSU", 0);
           const responseObj = await response.json();
-          const { url, fields, fileIdResponse } = responseObj;
+          const { url, fields, fileIdResponse, parentFolderNameResponse } = responseObj;
+          parentFolderName = parentFolderNameResponse;
           fileId = fileIdResponse;
           // if (fields.key) {
           //   fileId = fileIdResponse;
@@ -141,7 +146,10 @@ export const UploadFilesModal = () => {
             goodPsuResponse = true;
           } else {
             const errorMessage = responseObj.message;
-            if (errorMessage && errorMessage.includes("Out of storage")) {
+            if (!!errorMessage && errorMessage === "Unauthorized") {
+              logout();
+            }
+            if (!!errorMessage && errorMessage.includes("Out of storage")) {
               toast.error(responseObj.message || "Upload failed", { duration: 3000 });
             }
             throw new Error(responseObj.message || "Upload failed");
@@ -174,7 +182,7 @@ export const UploadFilesModal = () => {
               createdFile.namePath,
               createdFile.userId,
               createdFile.uploadedByUserId,
-              createdFile.uploadedByName,
+              createdFile.uploadedByName || "",
               createdFile.type || "",
               BigInt(createdFile.size),
             );
@@ -187,7 +195,6 @@ export const UploadFilesModal = () => {
           // console.error("Upload or status update failed for file", index, error);
           const errorMessage = error as any;
           const errorMessageStr = errorMessage.toString();
-          console.log(errorMessageStr);
           if (errorMessageStr.includes("signal is aborted") || errorMessageStr.includes("The user aborted a request")) {
             updateFileStatus(singleFileObj, "canceled", index);
           } else {
@@ -214,10 +221,15 @@ export const UploadFilesModal = () => {
     //   await deleteNotUploadedFilesAndDecrement();
     // }
     if (numFilesSuccessfullyUploaded > 0 && !currentUserPermissions.isPatient) {
-      const fileText = numFilesSuccessfullyUploaded === 1 ? "file" : "files";
-      await createNotification({
-        text: `An external user, whom you granted a temporary access code with "${currentUser?.role}" permissions, has successfully uploaded ${numFilesSuccessfullyUploaded} ${fileText}.`,
-        type: "ACCESS_CODE",
+      await createPatientNotification({
+        notificationType: currentUserPermissions.isProvider ? "PROVIDER_FILE_UPLOADED" : "ACCESS_CODE_FILE_UPLOADED",
+        patientUserId: patientMember?.patientUserId,
+        dynamicData: {
+          parentFolderName: parentFolderName,
+          organizationName: patientMember?.organizationName,
+          role: currentUser?.role,
+          numOfFiles: numFilesSuccessfullyUploaded,
+        },
       });
     }
 
@@ -357,7 +369,7 @@ export const UploadFilesModal = () => {
           {/* {isLoading && (
             <AlertDialogAction
               onClick={cancelUpload}
-              className="w-30 h-8 text-sm bg-secondary hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
+              className="w-30 h-8 text-sm bg-secondary hover:bg-[#fdf0ef] dark:hover:bg-[#3f3132] text-red-500 dark:border-[#463839] border-primary/20 border-[0.5px]"
             >
               Cancel Upload
             </AlertDialogAction>

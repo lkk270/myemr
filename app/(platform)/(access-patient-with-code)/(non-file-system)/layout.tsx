@@ -8,13 +8,17 @@ import { Navbar } from "../../(patient)/_components/navbar";
 import { logout } from "@/auth/actions/logout";
 
 import { startTransition, useEffect, useState } from "react";
-import { NewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
-import { ViewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
+// import { NewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/new-medication-modal";
+// import { ViewMedicationModal } from "../../(patient)/(non-file-system)/medications/_components/modals/view-medication-modal";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const sessionObj = useSession();
   const session = sessionObj.data;
   const [isMounted, setIsMounted] = useState(false);
+
+  if (!session) {
+    window.location.reload();
+  }
 
   useEffect(() => {
     const now = new Date();
@@ -26,12 +30,11 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkValidCode = () => {
       startTransition(() => {
-        if (!session) {
-          logout();
-        }
         getAccessPatientCodeByToken(session?.tempToken).then((data) => {
           if (!data) {
             logout();
+          } else {
+            setIsMounted(true);
           }
         });
       });
@@ -39,10 +42,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     checkValidCode();
   }, []);
 
-  if (!session) {
-    return redirect("/");
+  if (!isMounted) {
+    return null;
   }
-
   return (
     <div className="flex overflow-auto h-screen">
       <Navbar tempAccess={true} />

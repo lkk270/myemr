@@ -7,27 +7,31 @@ import prismadb from "@/lib/prismadb";
 import { NotificationPostSchema } from "../schemas/notification";
 import { z } from "zod";
 
-export const createNotification = async (values: z.infer<typeof NotificationPostSchema>) => {
+export const createPatientNotification = async (values: z.infer<typeof NotificationPostSchema>) => {
   try {
     const validatedFields = NotificationPostSchema.safeParse(values);
     // const session = await auth();
     if (!validatedFields.success) {
       return { error: "Invalid fields!" };
     }
-    const { text, type, requestRecordsCodeToken } = validatedFields.data;
+    const { patientUserId, notificationType, dynamicData } = validatedFields.data;
+
     let forUserId;
-    if (type === "ACCESS_CODE") {
+    if (notificationType.includes("ACCESS_CODE") || notificationType.includes("PROVIDER")) {
       const user = await currentUser();
       // const userPermissions = extractCurrentUserPermissions(user);
       const userId = user?.id;
-      forUserId = userId;
       if (!user || !userId) {
         return { error: "Unauthorized" };
       }
-    } else if (type === "REQUEST_RECORDS_UPLOAD") {
+      forUserId = userId;
+      if (notificationType.includes("PROVIDER") && !!patientUserId) {
+        forUserId = patientUserId;
+      }
+    } else if (notificationType === "REQUEST_RECORDS_FILE_UPLOAD") {
       const requestRecordsCode = await prismadb.requestRecordsCode.findUnique({
         where: {
-          token: requestRecordsCodeToken,
+          token: dynamicData["requestRecordsCodeToken"],
           isValid: true,
           expires: { gt: new Date() },
         },
@@ -45,7 +49,8 @@ export const createNotification = async (values: z.infer<typeof NotificationPost
     await prismadb.notification.create({
       data: {
         userId: forUserId!!,
-        text,
+        notificationType,
+        dynamicData,
       },
     });
     return { success: "notification created!" };

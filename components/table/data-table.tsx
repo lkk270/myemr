@@ -18,7 +18,7 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { cn, getNodeHref } from "@/lib/utils";
@@ -34,7 +34,10 @@ interface DataTableProps<TData, TValue> {
   filters?: { accessorKey: string; title: string; options: { value: string; label: string }[] }[];
   isLoading?: boolean;
   className?: string;
-  isLink?: boolean;
+  singleClickLink?: { firstPart: string; idName: string; lastPart: string } | null;
+  doubleClickLink?: { firstPart: string; idName: string; lastPart: string } | null;
+  doubleClickForFsNode?: boolean;
+  showDataTableViewOptions?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,9 +49,13 @@ export function DataTable<TData, TValue>({
   filters,
   isLoading = false,
   className = "",
-  isLink = false,
+  singleClickLink = null,
+  doubleClickLink = null,
+  doubleClickForFsNode = false,
+  showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
+  const pathname = doubleClickForFsNode ? usePathname() : null;
   const currentUserPermissions = useCurrentUserPermissions();
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(hiddenColumns);
@@ -83,8 +90,13 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="space-y-4">
-        <DataTableToolbar filters={filters} newOnOpen={newOnOpen} table={table} />
-        {isLink && (
+        <DataTableToolbar
+          showDataTableViewOptions={showDataTableViewOptions}
+          filters={filters}
+          newOnOpen={newOnOpen}
+          table={table}
+        />
+        {(doubleClickForFsNode || !!doubleClickLink) && (
           <span style={{ fontSize: "10px" }} className="text-muted-foreground">
             Double click on a row to open it
           </span>
@@ -128,27 +140,45 @@ export function DataTable<TData, TValue>({
                       )}
                       onClick={() => {
                         if (onOpen) {
-                          onOpen(row.original, true);
+                          onOpen(rowOriginal, true);
+                        } else if (!!singleClickLink) {
+                          router.push(
+                            `/${singleClickLink.firstPart}/${rowOriginal[singleClickLink.idName]}/${
+                              singleClickLink.lastPart
+                            }`,
+                          );
                         }
                       }}
                       onDoubleClick={() => {
-                        if (isLink && rowOriginal.restricted) {
+                        if (doubleClickForFsNode && rowOriginal.restricted) {
                           toast.warning(
                             "You are out of storage, so this file is hidden. Please upgrade your plan to access it.",
                             {
                               duration: 3500,
                             },
                           );
-                        } else if (isLink && !rowOriginal.restricted) {
+                        } else if (doubleClickForFsNode && !rowOriginal.restricted) {
                           router.push(
-                            getNodeHref(currentUserPermissions.isPatient, rowOriginal.isFile, rowOriginal.id),
+                            getNodeHref(
+                              currentUserPermissions.isPatient,
+                              currentUserPermissions.isProvider,
+                              rowOriginal.isFile,
+                              rowOriginal.id,
+                              pathname,
+                            ),
+                          );
+                        } else if (doubleClickLink) {
+                          router.push(
+                            `/${doubleClickLink.firstPart}/${rowOriginal[doubleClickLink.idName]}/${
+                              doubleClickLink.lastPart
+                            }`,
                           );
                         }
                       }}
                       key={row.id}
                       data-state={row.getIsSelected() ? "selected" : undefined}
                     >
-                      {row.getVisibleCells().map((cell) => (
+                      {row.getVisibleCells().map((cell: any) => (
                         <TableCell className="max-w-[325px]" key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>

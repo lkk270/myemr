@@ -55,11 +55,11 @@ const FolderPage = async ({ params }: FolderPagePageProps) => {
   //   return <div>something went wrong</div>;
   // }
 
-  try {
-    updateRecordViewActivity(userId, folderId, false);
-  } catch (error) {
-    return <div>Something went wrong</div>;
-  }
+  // try {
+  //   updateRecordViewActivity(userId, folderId, false);
+  // } catch (error) {
+  //   return <div>Something went wrong</div>;
+  // }
 
   return (
     <div className="pt-16 px-6">

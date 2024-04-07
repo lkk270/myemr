@@ -6,18 +6,20 @@ import { currentUser } from "@/auth/lib/auth";
 import prismadb from "@/lib/prismadb";
 import { accessCodeValidTimeObj } from "@/lib/constants";
 import { UserRole, AccessCodeValidTime } from "@prisma/client";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const generateAccessCode = async (
   patientProfileId: string,
   validFor: AccessCodeValidTime,
   accessType: UserRole,
   uploadToId: string,
+  accessibleRootFolderIds: string,
 ) => {
   const user = await currentUser();
   const userId = user?.id;
-  const isPatient = user?.role === "ADMIN" && user?.userType === "PATIENT";
+  const currentUserPermissions = !!user ? extractCurrentUserPermissions(user) : null;
 
-  if (!user || !userId || !isPatient) {
+  if (!user || !userId || !currentUserPermissions || !currentUserPermissions.isPatient) {
     return null;
   }
 
@@ -30,6 +32,7 @@ export const generateAccessCode = async (
       userId: userId,
       validFor: validFor,
       accessType: accessType,
+      accessibleRootFolders: accessibleRootFolderIds,
       parentFolderId: !!uploadToId ? uploadToId : null,
       token,
       expires,

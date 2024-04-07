@@ -1,12 +1,7 @@
-import { useIsLoading } from "@/hooks/use-is-loading";
 import { useOrganizationsStore } from "../../hooks/use-organizations";
-import { patientMemberPermissionTypes } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import React, { useState, useTransition, useEffect } from "react";
-import { z } from "zod";
-import { toast } from "sonner";
+import React, { useState, useEffect } from "react";
 import { ChooseAccessibleRootFoldersButton } from "../../../patient-home/_components/chose-accessible-root-folders-button";
-import { AboutAccessibleRootFoldersPopover } from "../../../patient-home/_components/about-accessible-root-folders-popover";
 
 interface ChooseAccessibleRootFoldersButtonWrapperComponentProps {
   patientMemberId: string;
@@ -47,13 +42,17 @@ const ChooseAccessibleRootFoldersButtonWrapperComponent = ({
         asChild
         handleAccessibleRootFoldersChange={handleAccessibleRootFoldersChange}
       >
-        <Button variant={"outline"} className="text-xs lg:text-sm w-[130px] lg:w-[140px]">
+        <Button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          variant={"outline"}
+          className="text-xs lg:text-sm w-[130px] lg:w-[140px]"
+        >
           {crfButtonLabel}
         </Button>
       </ChooseAccessibleRootFoldersButton>
-      <div className="hidden lg:flex">
-        <AboutAccessibleRootFoldersPopover />
-      </div>
     </div>
   );
 };

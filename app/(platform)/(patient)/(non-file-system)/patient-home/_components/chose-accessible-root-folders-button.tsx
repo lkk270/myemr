@@ -61,6 +61,8 @@ export const ChooseAccessibleRootFoldersButton = ({
   };
 
   const handleOutsideFocus = (event: any) => {
+    event.preventDefault();
+    event.stopPropagation();
     setDropdownOpen(false);
   };
 
@@ -159,7 +161,7 @@ export const ChooseAccessibleRootFoldersButton = ({
 
   return (
     <Dialog
-      onOpenChange={() => {
+      onOpenChange={(e) => {
         setDialogOpen(!dialogOpen);
       }}
       open={dialogOpen}
@@ -168,7 +170,13 @@ export const ChooseAccessibleRootFoldersButton = ({
         {children}
       </DialogTrigger>
       <DialogContent
-        onPointerDownOutside={() => {
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           setDialogOpen(false);
         }}
         className="flex flex-col items-center p-0 justify-center rounded-lg h-[100px] pt-4 xxs:pt-0"
@@ -206,6 +214,9 @@ export const ChooseAccessibleRootFoldersButton = ({
                     key={index}
                     defaultChecked={true}
                     checked={item.checked}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                     onCheckedChange={() => handleSelectChange(item)}
                   >
                     {item.name}

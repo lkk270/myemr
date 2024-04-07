@@ -4,8 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { PermissionsDropdown } from "./permissions-dropdown";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FaUser } from "react-icons/fa";
+import { AboutAccessibleRootFoldersPopover } from "../../../patient-home/_components/about-accessible-root-folders-popover";
 import { OrganizationAvatar } from "@/app/(platform)/(provider)/(organization)/_components/organization-avatar";
 import { ChooseAccessibleRootFoldersButtonWrapper } from "./choose-accessible-root-folders-button-wrapper";
 
@@ -61,7 +60,16 @@ export const columns: ColumnDef<any>[] = [
 
   {
     id: "accessibleRootFolders",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Accessible Root Folders" />,
+    header: ({ column }) => {
+      return (
+        <div className="flex flex-row gap-x-2">
+          <DataTableColumnHeader column={column} title="Accessible Root Folders" />
+          <div className="hidden lg:flex">
+            <AboutAccessibleRootFoldersPopover showHeader={false} />
+          </div>
+        </div>
+      );
+    },
     cell: ({ row }) => {
       // console.log(row);
       return <ChooseAccessibleRootFoldersButtonWrapper patientMemberId={row.original.id} />;

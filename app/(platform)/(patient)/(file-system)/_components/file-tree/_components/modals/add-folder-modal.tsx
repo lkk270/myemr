@@ -91,7 +91,7 @@ export const AddFolderModal = () => {
       .catch((error) => {
         const errorResponse = error?.response;
         const status = errorResponse.status;
-        if (status >= 400 && status < 500) {
+        if (status >= 400 && status < 500 && !currentUserPermissions.isPatient) {
           window.location.reload();
         }
         throw error;

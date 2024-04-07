@@ -16,7 +16,7 @@ import _ from "lodash";
 import { toast } from "sonner";
 import { deleteMedication } from "@/lib/actions/medications";
 import { useMedicationStore } from "../hooks/use-medications";
-import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+// import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const DeleteMedicationModal = () => {
   const [isMounted, setIsMounted] = useState(false);

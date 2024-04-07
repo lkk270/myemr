@@ -43,7 +43,7 @@ export function CustomDataTableRowActions<TData>({ row }: DataTableRowActionsPro
             onClick={(e) => {
               // e.preventDefault();
               e.stopPropagation();
-              if (deleteMedicationModal.onOpen) {
+              if (!!deleteMedicationModal.onOpen) {
                 deleteMedicationModal.onOpen(row.original as MedicationType);
               }
             }}

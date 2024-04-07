@@ -67,7 +67,6 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
 
   const onSubmit = (values: z.infer<typeof EditMedicationSchema>) => {
     if (!isEditing) {
-      console.log("IN 80");
       setIsEditing(true);
       return;
     }
@@ -79,9 +78,12 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
     }
 
     startTransition(() => {
+      console.log("IN 81");
       editMedication(values)
         .then((data) => {
+          console.log(data);
           if (data.error) {
+            console.log(data);
             toast.error(data.error);
             if (data.error === "Unauthorized" && !currentUserPermissions.hasAccount) {
               viewMedicationModal.onClose();
@@ -107,7 +109,10 @@ export const MedicationForm = ({ medicationParam }: MedicationProps) => {
             viewMedicationModal.onClose();
           }
         })
-        .catch(() => toast.error("Something went wrong"));
+        .catch((e) => {
+          console.log(e);
+          toast.error("Something went wrong");
+        });
     });
   };
 

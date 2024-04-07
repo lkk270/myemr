@@ -12,7 +12,7 @@ import {
   TwoFactorConfirmationEmail,
 } from "./emails";
 
-const domain = process.env.NEXT_PUBLIC_APP_URL;
+const domain = process.env.NEXT_PUBLIC_URL;
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const response = await resendClient.emails.send({
@@ -39,7 +39,7 @@ export const sendSuccessfullyDeletedAccountEmail = async (email: string, account
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string, userType: UserType) => {
-  const resetLink = `http://localhost:3000/auth/${userType.toLowerCase()}-new-password?token=${token}`;
+  const resetLink = `${domain}/auth/${userType.toLowerCase()}-new-password?token=${token}`;
 
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
@@ -54,7 +54,7 @@ export const sendPasswordResetEmail = async (email: string, token: string, userT
 
 export const sendVerificationEmail = async (email: string, token: string, userType: UserType) => {
   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
-  const confirmLink = `http://localhost:3000/auth/${userType.toLowerCase()}-new-verification?token=${token}`;
+  const confirmLink = `${domain}/auth/${userType.toLowerCase()}-new-verification?token=${token}`;
   const response = await resendClient.emails.send({
     from: "onboarding@resend.dev",
     to: "leekk270@gmail.com",
@@ -79,7 +79,7 @@ export const sendRequestRecordsEmail = async (
   },
 ) => {
   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
-  const requestRecordsLink = `http://localhost:3000/upload-records/${token}`;
+  const requestRecordsLink = `${domain}/upload-records/${token}`;
   let buffer = null;
   try {
     buffer = await getBuffer({ data: { ...dataForLetter, requestRecordsLink } });

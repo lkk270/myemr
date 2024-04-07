@@ -30,7 +30,6 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   // console.log(session);
   // console.log(user);
   // console.log(session.status);
-  const have = "Have  ";
   return (
     <div
       className={cn(
@@ -40,14 +39,16 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
           "dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F]  bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
       )}
     >
-      <Logo />
+      <div className="xxs:flex hidden">
+        <Logo />
+      </div>
 
-      <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-2">
+      <div className="xxs:ml-auto xxs:justify-end justify-center w-full flex items-center gap-x-1 xs:gap-x-2">
         {(!user || session.status === "unauthenticated") && (
           <>
             <Link href="/pricing">
               <Button variant="gooeyLeftGhost" size="sm">
-                <span className="text-xs xxs:text-sm">Pricing</span>
+                <span className="text-sm">Pricing</span>
               </Button>
             </Link>
             <AccessWithCodeButton asChild>

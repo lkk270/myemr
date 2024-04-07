@@ -29,9 +29,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     //bg-secondary/5
     //dark:bg-[#1f1f1f] bg-[#fafafa]
     <>
-      <Head>
+      {/* <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-      </Head>
+      </Head> */}
       <SessionProvider session={session}>
         <html lang="en" suppressHydrationWarning>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />

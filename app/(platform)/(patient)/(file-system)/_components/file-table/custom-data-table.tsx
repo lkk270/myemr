@@ -41,7 +41,7 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
       // newOnOpen={newOnOpen}
       // onOpen={onOpen}
       // hiddenColumns={hiddenColumns}
-      isDoubleClickLink={true}
+      doubleClickForFsNode={true}
       className={cn(
         data.length <= 6
           ? `min-h-[${53 * data.length}px]`

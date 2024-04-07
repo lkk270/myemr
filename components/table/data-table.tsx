@@ -35,7 +35,8 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   className?: string;
   singleClickLink?: { firstPart: string; idName: string; lastPart: string } | null;
-  isDoubleClickLink?: boolean;
+  doubleClickLink?: { firstPart: string; idName: string; lastPart: string } | null;
+  doubleClickForFsNode?: boolean;
   showDataTableViewOptions?: boolean;
 }
 
@@ -49,11 +50,12 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   className = "",
   singleClickLink = null,
-  isDoubleClickLink = false,
+  doubleClickLink = null,
+  doubleClickForFsNode = false,
   showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
-  const pathname = isDoubleClickLink ? usePathname() : null;
+  const pathname = doubleClickForFsNode ? usePathname() : null;
   const currentUserPermissions = useCurrentUserPermissions();
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(hiddenColumns);
@@ -94,7 +96,7 @@ export function DataTable<TData, TValue>({
           newOnOpen={newOnOpen}
           table={table}
         />
-        {isDoubleClickLink && (
+        {(doubleClickForFsNode || !!doubleClickLink) && (
           <span style={{ fontSize: "10px" }} className="text-muted-foreground">
             Double click on a row to open it
           </span>
@@ -148,14 +150,14 @@ export function DataTable<TData, TValue>({
                         }
                       }}
                       onDoubleClick={() => {
-                        if (isDoubleClickLink && rowOriginal.restricted) {
+                        if (doubleClickForFsNode && rowOriginal.restricted) {
                           toast.warning(
                             "You are out of storage, so this file is hidden. Please upgrade your plan to access it.",
                             {
                               duration: 3500,
                             },
                           );
-                        } else if (isDoubleClickLink && !rowOriginal.restricted) {
+                        } else if (doubleClickForFsNode && !rowOriginal.restricted) {
                           router.push(
                             getNodeHref(
                               currentUserPermissions.isPatient,
@@ -164,6 +166,12 @@ export function DataTable<TData, TValue>({
                               rowOriginal.id,
                               pathname,
                             ),
+                          );
+                        } else if (doubleClickLink) {
+                          router.push(
+                            `/${doubleClickLink.firstPart}/${rowOriginal[doubleClickLink.idName]}/${
+                              doubleClickLink.lastPart
+                            }`,
                           );
                         }
                       }}

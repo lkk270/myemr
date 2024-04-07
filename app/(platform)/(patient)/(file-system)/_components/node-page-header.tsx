@@ -58,7 +58,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const foldersLength = folders.length;
 
   return (
-    <div className="py-3 gap-y-2 flex flex-col">
+    <div className="pt-2 pb-1 gap-y-2 flex flex-col">
       {!isFile && !node.namePath.startsWith("/Trash") && currentUserPermissions.canAdd && (
         <div className="gap-y-2 flex-row flex gap-x-2">
           <Button

@@ -4,79 +4,45 @@ import { TermsParagraph } from "@/components/terms-paragraph";
 
 const paragraphs: TermsParagraphType[] = [
   {
-    title: "Terms of Use for Medical Records Request and Upload",
-    description: `Welcome to MyEmr. By requesting a doctor or healthcare provider to upload medical records through our
-    platform, you ("Requestor") are entering into a legally binding agreement with MyEmr
-    ("Company," "we," "us," or "our") based on the terms and conditions
-    outlined below. Please read these terms carefully before submitting your request.`,
+    title: "Collection of Your Information",
+    description: `We may collect information about you in a variety of ways. The information we may collect on the Site includes:`,
+    bullets: [
+      `Personal Data: Personally identifiable information, such as your name, shipping address, email address, and telephone number, and demographic information, such as your age, gender, hometown, and interests, that you voluntarily give to us when you choose to participate in various activities related to the Site, such as online chat and message boards. Except for your profile picture and email address, all patient data is encrypted to ensure your privacy and security.`,
+      `Derivative Data: Information our servers automatically collect when you access the Site, such as your IP address, your browser type, your operating system, your access times, and the pages you have viewed directly before and after accessing the Site.`,
+      `Financial Data: Financial information, such as data related to your payment method (e.g., valid credit card number, card brand, expiration date) that we may collect when you purchase, order, return, exchange, or request information about our services from the Site. [Note: Adjust or remove this section if you do not collect financial data]`,
+      `Data from Contests, Giveaways, and Surveys: Personal and other information you may provide when entering contests or giveaways and/or responding to surveys.`,
+    ],
     headerClassName: "text-xl font-bold mb-2",
   },
   {
-    title: "2. Description of Service",
-    description: `By clicking the "Submit" button and using the medical records request and upload feature
-    ("Service"), you agree to be bound by these Terms of Use ("Terms"), our Privacy Policy,
-    and all applicable laws and regulations governing the use of our Service. If you do not agree with any part
-    of these Terms, you must not use this Service.`,
-  },
-  {
-    title: "3. Authorization and Consent",
+    title: "Use of Your Information",
+    description: `Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the Site to:`,
     bullets: [
-      `By using this Service, you represent that you are at least the age of majority in your state or province
-    of residence and you have given us your consent to allow any of your minor dependents to use this Service
-    where applicable.`,
-      `You warrant that you have the legal authority or have obtained all necessary consents to request the
-    disclosure and transmission of personal medical records from the Provider to MyEmr.`,
+      `Create and manage your account.`,
+      `Encrypt your health records to ensure their privacy and security.`,
+      `Increase the efficiency and operation of the Site.`,
+      `Monitor and analyze usage and trends to improve your experience with the Site.`,
+      `Perform other business activities as needed.`,
     ],
   },
   {
-    title: "4. Privacy and Security",
-    description: `We are committed to maintaining the privacy and security of your personal information and medical records in
-    accordance with applicable laws and regulations. Please refer to our Privacy Policy for detailed information
-    on how we collect, use, and protect your data.`,
+    title: "Disclosure of Your Information",
+    description: `We will NEVER sell, rent, or lease your personal information to third parties. Your information may be disclosed as follows:`,
+    bullets: [
+      `Third-Party Service Providers: We may share your email with third parties that perform services for us or on our behalf, including data analysis, email delivery, hosting services, customer service, and marketing assistance.`,
+    ],
   },
   {
-    title: "5. Provider's Obligations",
-    description: `The Provider is responsible for verifying the authenticity of the request and the identity of the Requestor
-    before uploading any medical records. The Provider must ensure that the upload of medical records complies
-    with all applicable laws, including but not limited to privacy and health information regulations.`,
+    title: "Cookies and Web Beacons",
+    description: `We do not use cookies for tracking purposes. The only cookies in use are for understanding and improving the performance of our Site and are strictly necessary for providing functionality on the Site.`,
   },
   {
-    title: "6. Limitations of Use",
-    description: `The medical records uploaded by the Provider are for personal use by the Requestor and should not be used
-    for any unlawful purpose. The Requestor agrees not to use the Service to infringe on the privacy rights or
-    intellectual property rights of others, or in any way that is illegal, immoral, or harmful to others.`,
+    title: "Security of Your Information",
+    description: `In addition to almost all patient data being encrypted, we use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.`,
   },
   {
-    title: "7. Disclaimer of Warranties",
-    description: `The Service is provided on an "AS IS" and "AS AVAILABLE" basis. We disclaim all
-    warranties of any kind, whether express or implied, including but not limited to the implied warranties of
-    merchantability, fitness for a particular purpose, and non-infringement.`,
-  },
-  {
-    title: "8. Limitation of Liability",
-    description: `In no event shall MyEmr, its officers, directors, employees, or agents be liable for any direct, indirect,
-    incidental, special, consequential, or punitive damages resulting from the use of or inability to use the
-    Service.`,
-  },
-  {
-    title: "9. Indemnification",
-    description: `You agree to indemnify and hold harmless MyEmr, its officers, directors, employees, and agents from any
-    claims, damages, liabilities, and expenses arising from your use of the Service or your violation of these
-    Terms.`,
-  },
-  {
-    title: "10. Modification of Terms",
-    description: `We reserve the right to modify these Terms at any time. You agree to review the Terms regularly. Your
-    continued use of the Service after any such modifications signifies your acceptance of the new Terms.`,
-  },
-  {
-    title: "11. Governing Law",
-    description: `These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which
-    MyEmr is established, without regard to its conflict of law provisions.`,
-  },
-  {
-    title: "12. Contact Information",
-    description: `If you have any questions about these Terms, please contact us at support@myemr.io.`,
+    title: "Contact Us",
+    description: `If you have questions or comments about this Privacy Policy, please contact us at: hello@myemr.io`,
   },
 ];
 
@@ -87,6 +53,21 @@ const PrivacyPage = () => {
         <div className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#1F1F1F]"></div>
         <div className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#25284a]"></div>
         <div className="justify-start flex flex-col items-left text-left overflow-y-scroll max-w-[850px] w-full gap-y-5">
+          <div className="flex flex-col gap-y-3">
+            <h1 className="text-xl sm:text-3xl font-bold pb-4">Privacy Policy for MyEMR</h1>
+            <h2 className="text-md sm:text-lg font-semibold">Last updated: March 24, 2024</h2>
+            <p>
+              Welcome to MyEMR, accessible at https://myemr.io ("Site"). MyEMR ("Company," "we," "us," or "our") is
+              committed to protecting the privacy and security of your personal information. Our Privacy Policy explains
+              how we collect, use, disclose, and safeguard your information when you visit our Site, including any other
+              media form, media channel, mobile website, or mobile application related or connected thereto
+              (collectively, the “Site”).
+            </p>
+            <p>
+              By accessing or using the Site, you signify your agreement to this Privacy Policy. If you do not agree
+              with the terms of this Privacy Policy, please do not access the Site.
+            </p>
+          </div>
           {paragraphs.map((paragraph, index) => {
             return (
               <TermsParagraph

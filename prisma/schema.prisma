@@ -177,9 +177,9 @@ model DosageHistory {
 
 model Medication {
   id               String          @id @default(cuid())
-  name             String          @db.VarChar(500)
+  name             String          @db.LongText
   prescribedById   String?         @db.LongText
-  prescribedByName String          @db.VarChar(70)
+  prescribedByName String          @db.LongText
   category         String          @db.LongText
   dosage           String          @db.LongText
   dosageUnits      String          @db.LongText
@@ -194,7 +194,9 @@ model Medication {
   patientProfileId String
   // @@index([patientProfileId])
 
-  @@unique([patientProfileId, name])
+  // @@unique([patientProfileId, name])
+
+  @@index([patientProfileId])
 }
 
 // model PatientProfile {

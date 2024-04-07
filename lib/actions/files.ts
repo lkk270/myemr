@@ -147,7 +147,9 @@ export async function renameNode(
           path: currentFile.path,
         })
       : false;
-
+    console.log(accessibleRootFolderIds);
+    console.log(currentFile);
+    console.log(isValidFile);
     if (!currentFile || !isValidFile) {
       return { error: "File not found", status: 400 };
     }

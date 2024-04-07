@@ -131,7 +131,6 @@ export async function renameNode(
   }
 
   if (!isValidNodeName(newName)) {
-    console.log("IN HERE");
     return { error: "Invalid new name", status: 500 };
   }
   let oldName = null;
@@ -147,9 +146,6 @@ export async function renameNode(
           path: currentFile.path,
         })
       : false;
-    console.log(accessibleRootFolderIds);
-    console.log(currentFile);
-    console.log(isValidFile);
     if (!currentFile || !isValidFile) {
       return { error: "File not found", status: 400 };
     }
@@ -581,7 +577,6 @@ const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], pati
     }));
     await prismadb.deadFile.createMany({ data: updatedArray });
   } catch (err) {
-    console.log("OH NO");
   }
 };
 

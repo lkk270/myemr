@@ -49,7 +49,6 @@ export const InviteMemberForm = ({ setOpen }: InviteMemberFormProps) => {
           }
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Something went wrong");
         });
     });

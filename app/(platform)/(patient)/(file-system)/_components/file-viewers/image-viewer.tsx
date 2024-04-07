@@ -34,7 +34,6 @@ const ImageViewerComponent = ({ fileId, fileSrc, forInsurance = false }: ImageVi
     }
   };
 
-  console.log(patientMemberIdOrUserId);
   const [imageWidth, setImageWidth] = useState(calculateImageWidth);
 
   useEffect(() => {

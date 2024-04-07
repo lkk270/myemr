@@ -156,10 +156,8 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
       let allUpdatedNodes: any[] = extractNodes(updatedFolders);
 
       // Create a map for quick lookup
-      // console.log(allUpdatedNodes);
       const updatedNodeMap = new Map(allUpdatedNodes.map((node) => [node.id, { ...node, children: undefined }]));
 
-      // console.log(updatedNodeMap);
       // Update the singleLayerNodes array
       const updatedSingleLayerNodes = state.singleLayerNodes.map((node) => {
         if (updatedNodeMap.has(node.id)) {

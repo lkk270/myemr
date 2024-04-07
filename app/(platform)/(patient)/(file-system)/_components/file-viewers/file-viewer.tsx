@@ -38,7 +38,6 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
         setAttemptedRefresh(true); // Mark that an attempt was made
         try {
           const patientMemberId = patientMember?.id;
-          console.log(patientMemberId);
           const response = await getPresignedUrl(fileId, false, patientMemberId);
           const newSrc = response?.presignedUrl;
           if (!newSrc) {
@@ -46,7 +45,6 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
           } else if (isLinkExpired(newSrc)) {
             setErrorMessage("The link has expired. Please try accessing the document again.");
           } else {
-            console.log("46");
             setFileSrc(newSrc);
           }
         } catch (error) {

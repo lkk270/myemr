@@ -298,7 +298,6 @@ export const editAbout = async (values: z.infer<typeof AboutSchema>) => {
       success: "Personal Information updated!",
     };
   } catch (e) {
-    console.log(e);
     return { error: "something went wrong" };
   }
 };

@@ -40,7 +40,6 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
   const onSubmit = (values: z.infer<typeof AddressSchema>) => {
     if (!!initialData) {
       let changesOfAddress: any = !initialData && !!values.address ? values.address : {};
-      console.log(changesOfAddress);
       if (!!changesOfAddress && !!values.address && Object.keys(changesOfAddress).length === 0) {
         changesOfAddress = findChangesBetweenObjects(initialData, values);
       }

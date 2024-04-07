@@ -16,7 +16,6 @@ import { AccountType, UserType } from "@prisma/client";
 import { setScheduledToDelete } from "./set-scheduled-to-delete";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
-  console.log(" INE HERE");
   const validatedFields = LoginSchema.safeParse(values);
 
   if (!validatedFields.success) {

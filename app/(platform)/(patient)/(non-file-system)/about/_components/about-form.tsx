@@ -105,7 +105,6 @@ export const About = ({ initialData }: AboutProps) => {
           isLinkExpired(imagesUrls["front"]))
       ) {
         try {
-          console.log("108");
           setIsFetchingInsuranceImages(true);
           setIsLoading(true);
           let patientProfileId = null;
@@ -163,7 +162,6 @@ export const About = ({ initialData }: AboutProps) => {
       editAbout(values)
         .then((data) => {
           if (data.error) {
-            console.log(data.error);
             toast.error(data.error);
             if (data.error === "Unauthorized") {
               logout();
@@ -182,7 +180,6 @@ export const About = ({ initialData }: AboutProps) => {
           }
         })
         .catch((error) => {
-          console.log(error);
           toast.error("Something went wrong");
         })
         .finally(() => {

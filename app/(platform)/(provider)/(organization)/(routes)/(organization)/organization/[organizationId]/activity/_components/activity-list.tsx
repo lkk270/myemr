@@ -32,7 +32,6 @@ export const ActivityList = ({
   const [numOfUnreadActivityLogs, setNumOfUnreadActivityLogs] = useState(initialNumOfUnreadActivityLogs);
 
   useEffect(() => {
-    console.log(Math.min(10, numOfUnreadActivityLogs));
     patchOrganization(organizationId, {
       numOfUnreadActivities: initialNumOfUnreadActivityLogs - Math.min(10, initialNumOfUnreadActivityLogs),
     });

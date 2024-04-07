@@ -122,7 +122,6 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
         }
       })
       .catch((e) => {
-        console.log(e);
         toast.error("Something went wrong");
       });
   };
@@ -157,7 +156,6 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
         }
       })
       .catch((e) => {
-        console.log(e);
         toast.error("Something went wrong");
       });
   };

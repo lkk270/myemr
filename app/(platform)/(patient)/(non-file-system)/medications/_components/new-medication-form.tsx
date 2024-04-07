@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { createMedication } from "@/lib/actions/medications";
 import _ from "lodash";
-import { medicationsList, medicationCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
+import { medicationsList, fieldCategories, dosageFrequency, dosageUnits } from "@/lib/constants";
 import { NewMedicationSchema } from "@/lib/schemas/medication";
 import { logout } from "@/auth/actions/logout";
 import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization)/(routes)/(patient)/hooks/use-patient-member-store";
@@ -127,7 +127,7 @@ export const NewMedicationForm = () => {
                           placeholder="Select..."
                           searchPlaceholder="Search..."
                           noItemsMessage="No category found."
-                          items={medicationCategories}
+                          items={fieldCategories}
                           // allowOther={true}
                         />
                       </FormItem>

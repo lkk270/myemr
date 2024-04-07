@@ -2,7 +2,7 @@
 
 import { Folder, File, FileStatus, Prisma, Plan } from "@prisma/client";
 import prismadb from "../prismadb";
-import { allotedStoragesInGb, rootFolderCategories } from "../constants";
+import { allotedStoragesInGb, fieldCategories } from "../constants";
 import { S3Client, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { isValidNodeName, extractRootFolderIds, removeTrailingComma, isNodeAccessible } from "../utils";
@@ -576,8 +576,7 @@ const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], pati
       size: file.size,
     }));
     await prismadb.deadFile.createMany({ data: updatedArray });
-  } catch (err) {
-  }
+  } catch (err) {}
 };
 
 const getMaxRestrictedFiles = (
@@ -730,8 +729,8 @@ export const addRootNode = async (
     accessibleRootFolders: string;
   } | null,
 ) => {
-  if (!rootFolderCategories.some((item) => item.value === folderName)) {
-    throw new Error("Root folder does not exist in rootFolderCategories!");
+  if (!fieldCategories.some((item) => item.value === folderName)) {
+    throw new Error("Root folder does not exist in fieldCategories!");
   }
   const existingRoot = await prismadb.folder.findFirst({
     where: {

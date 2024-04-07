@@ -1,6 +1,6 @@
 import { NotificationType, OrganizationMemberRole, UserRole } from "@prisma/client";
 import * as z from "zod";
-import { medicationsList, rootFolderCategories } from "../constants";
+import { medicationsList, fieldCategories } from "../constants";
 
 const AddedToOrganizationSchema = z.object({
   organizationName: z.string(),
@@ -22,10 +22,10 @@ const AccessCodeAddedRootFolderSchema = z.object({
   role: z.enum([UserRole.READ_AND_ADD, UserRole.FULL_ACCESS]),
   rootFolderName: z.string().refine(
     (value) => {
-      return rootFolderCategories.some((item) => item.value === value);
+      return fieldCategories.some((item) => item.value === value);
     },
     {
-      message: "Name must match a value in the rootFolderCategories",
+      message: "Name must match a value in the fieldCategories",
     },
   ),
 });

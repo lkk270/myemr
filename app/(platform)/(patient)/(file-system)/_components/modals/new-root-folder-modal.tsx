@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useNewRootFolder } from "../hooks/use-new-root-folder";
-import { rootFolderCategories } from "@/lib/constants";
+import { fieldCategories } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
@@ -196,7 +196,7 @@ export const NewRootFolder = () => {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Root Categories">
-          {rootFolderCategories?.map((obj, index) => (
+          {fieldCategories?.map((obj, index) => (
             <CommandItemComponent
               key={index}
               obj={obj}

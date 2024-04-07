@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { AddressSchema, OrganizationSchema } from "../../schema/organization";
-import { rootFolderCategories } from "@/lib/constants";
+import { fieldCategories } from "@/lib/constants";
 import { cn, findChangesBetweenObjects } from "@/lib/utils";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { PhoneNumber } from "@/components/phone-number";
@@ -38,7 +38,7 @@ const organizationTypes = [
   { value: "PRIVATE_PRACTICE", label: "Private Practice" },
 ];
 
-// const TAGS: Option[] = rootFolderCategories.concat([
+// const TAGS: Option[] = fieldCategories.concat([
 //   { label: "Patient first", value: "patient first" },
 // ]);
 
@@ -403,7 +403,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                         placeholder="Select a category..."
                         searchPlaceholder="Search..."
                         noItemsMessage="No Category found."
-                        items={rootFolderCategories}
+                        items={fieldCategories}
                         transparentPopoverBg={true}
                       />
                       {/* <FormDescription>Cannot be changed later.</FormDescription> */}

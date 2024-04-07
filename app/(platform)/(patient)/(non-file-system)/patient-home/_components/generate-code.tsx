@@ -39,7 +39,7 @@ export const GenerateCode = () => {
   const currentUser = useCurrentUser();
   const [code, setCode] = useState("");
   const [crfButtonLabel, setCrfButtonLabel] = useState("All Root Folders");
-  const [accessType, setAccessType] = useState(UserRole.READ_ONLY);
+  // const [accessType, setAccessType] = useState(UserRole.READ_ONLY);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const isMobile = useMediaQuery("(max-width:640px)");

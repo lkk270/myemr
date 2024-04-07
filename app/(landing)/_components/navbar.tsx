@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-import { useScrollTop } from "@/hooks/use-scroll-top";
+// import { useScrollTop } from "@/hooks/use-scroll-top";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/loading/spinner";

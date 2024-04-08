@@ -14,7 +14,12 @@ interface ViewAboutProps {
 }
 export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => {
   const currentUserPermissions = useCurrentUserPermissions();
-  const address = initialData.addresses.length > 0 ? initialData.addresses[0] : undefined;
+
+  if (!initialData) {
+    return null;
+  }
+  const address = !initialData ? undefined : initialData.addresses.length > 0 ? initialData.addresses[0] : undefined;
+
   return (
     <div className="h-full p-4 w-full max-w-3xl mx-auto">
       <div className="space-y-4">

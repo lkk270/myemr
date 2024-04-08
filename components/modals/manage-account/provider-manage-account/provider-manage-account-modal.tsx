@@ -20,14 +20,15 @@ import { AvatarComponent } from "@/components/avatar-component";
 import { FeedbackForm } from "../_components/feedback-form";
 
 export const ProviderManageAccountModal = () => {
-  const user = useCurrentUser();
+  const { isOpen, onOpen, onClose, defaultScrollTo } = useProviderManageAccountModal();
+
   const [isProfilePictureLoading, setIsProfilePictureLoading] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isMounted, setIsMounted] = useState(false);
-  const { isOpen, onOpen, onClose, defaultScrollTo } = useProviderManageAccountModal();
   // const activeSection = "";
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeSection = useWindowScroll(scrollContainerRef, ["account", "feedback-form"]);
+  const user = useCurrentUser();
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -50,7 +51,7 @@ export const ProviderManageAccountModal = () => {
     }
   }, [isOpen, isMounted]);
 
-  if (!isMounted || !scrollContainerRef) {
+  if (!isMounted || !scrollContainerRef || !isOpen) {
     return null;
   }
 

@@ -75,6 +75,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
     if (isTrashNode) {
       node.close();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderStore.folders]);
 
   // if (isMounted) {
@@ -101,6 +102,7 @@ const Node: React.FC<NodeProps> = ({ node, style, dragHandle, tree }) => {
       tree.deselectAll();
       // tree.select(newNodeIdFromPath);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathnameVar]);
 
   // useEffect(() => {

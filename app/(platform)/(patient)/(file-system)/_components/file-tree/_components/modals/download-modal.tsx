@@ -76,7 +76,8 @@ export const DownloadModal = () => {
       toast.warning(`Can't export ${folderStr} contain any files`, { duration: 3000 });
       downloadModal.onClose();
     }
-  }, [isMounted, downloadNodes, singleLayerNodes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMounted, firstDownloadNode, downloadNodes, singleLayerNodes]);
 
   if (!isMounted || !downloadModal.isOpen || !downloadNodes || !firstDownloadNode) {
     return null;

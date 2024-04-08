@@ -405,7 +405,8 @@ export function formatFileSize(bytes: bigint) {
 }
 
 // Assuming amzDate is a string like "20240205T235432Z"
-export const isLinkExpired = (url: string) => {
+export const isLinkExpired = (url: string | null) => {
+  if (!url) return false;
   const urlParams = new URL(url);
   const amzDateStr = urlParams.searchParams.get("X-Amz-Date");
   const amzExpires = urlParams.searchParams.get("X-Amz-Expires");

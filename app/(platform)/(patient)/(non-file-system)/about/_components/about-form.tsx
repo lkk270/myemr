@@ -73,9 +73,6 @@ export const About = ({ initialData }: AboutProps) => {
   const { isLoading, setIsLoading } = useIsLoading();
   const [activeTab, setActiveTab] = useState("about");
 
-  if (!currentUser) {
-    return <div>null</div>;
-  }
   const form = useForm<z.infer<typeof AboutSchema>>({
     resolver: zodResolver(AboutSchema),
     defaultValues: {
@@ -93,18 +90,19 @@ export const About = ({ initialData }: AboutProps) => {
     },
   });
 
+  if (!currentUser) {
+    return <div>null</div>;
+  }
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    // Ensure hook logic is conditional, not the hook itself
-    const fetchUrls = async () => {
-      // Your fetching logic remains here
-      if (!isMounted || activeTab !== "insurance") {
-        return;
-      }
+    // A function to check if the links have expired
+    const linksHaveExpired = () => isLinkExpired(imagesUrls["front"]) || isLinkExpired(imagesUrls["back"]);
 
+    const fetchUrls = async () => {
       try {
         setIsFetchingInsuranceImages(true);
         setIsLoading(true);
@@ -124,18 +122,11 @@ export const About = ({ initialData }: AboutProps) => {
       }
     };
 
-    if (
-      initialData.insuranceImagesSet &&
-      activeTab === "insurance" &&
-      (!imagesUrls["front"] ||
-        !imagesUrls["back"] ||
-        isLinkExpired(imagesUrls["front"]) ||
-        isLinkExpired(imagesUrls["front"]))
-    ) {
+    // Execute only if the active tab is 'insurance', and it's either not fetched yet or links have expired.
+    if (activeTab === "insurance" && (!imagesUrls.front || !imagesUrls.back || linksHaveExpired())) {
       fetchUrls();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, isMounted]);
+  }, [activeTab, imagesUrls, patientMember?.patientProfileId]); // Depend on necessary states and props
 
   const onSubmit = (values: z.infer<typeof AboutSchema>) => {
     let nonAddressChanges: any = {};

@@ -90,19 +90,18 @@ export const About = ({ initialData }: AboutProps) => {
     },
   });
 
-  if (!currentUser) {
-    return <div>null</div>;
-  }
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    // A function to check if the links have expired
-    const linksHaveExpired = () => isLinkExpired(imagesUrls["front"]) || isLinkExpired(imagesUrls["back"]);
-
+    // Ensure hook logic is conditional, not the hook itself
     const fetchUrls = async () => {
+      // Your fetching logic remains here
+      if (!isMounted || activeTab !== "insurance") {
+        return;
+      }
+
       try {
         setIsFetchingInsuranceImages(true);
         setIsLoading(true);
@@ -122,11 +121,22 @@ export const About = ({ initialData }: AboutProps) => {
       }
     };
 
-    // Execute only if the active tab is 'insurance', and it's either not fetched yet or links have expired.
-    if (activeTab === "insurance" && (!imagesUrls.front || !imagesUrls.back || linksHaveExpired())) {
+    if (
+      initialData.insuranceImagesSet &&
+      activeTab === "insurance" &&
+      (!imagesUrls["front"] ||
+        !imagesUrls["back"] ||
+        isLinkExpired(imagesUrls["front"]) ||
+        isLinkExpired(imagesUrls["front"]))
+    ) {
       fetchUrls();
     }
-  }, [activeTab, imagesUrls, patientMember?.patientProfileId]); // Depend on necessary states and props
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isMounted]);
+  
+  if (!currentUser) {
+    return <div>null</div>;
+  }
 
   const onSubmit = (values: z.infer<typeof AboutSchema>) => {
     let nonAddressChanges: any = {};

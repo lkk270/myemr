@@ -216,16 +216,18 @@ const FileTree = ({ width }: FileTreeProps) => {
 
     // Cleanup
     return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     setIsMounted(true);
     setPathnameVar(pathname);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     setPrevPathnameVar(pathnameVar);
     setPathnameVar(pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Now, this is just a reference to the tree component

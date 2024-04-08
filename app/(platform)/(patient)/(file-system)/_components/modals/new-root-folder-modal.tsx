@@ -82,6 +82,7 @@ export const NewRootFolder = () => {
         .map((item) => item.name);
       setAlreadyUsedRootNames(alreadyUsedRootNamesTemp);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const onSelect = (label: string) => {

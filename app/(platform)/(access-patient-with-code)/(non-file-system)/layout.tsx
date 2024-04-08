@@ -40,7 +40,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       });
     };
     checkValidCode();
-  }, []);
+  }, [session?.tempToken]);
 
   if (!isMounted) {
     return null;

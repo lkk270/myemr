@@ -9,9 +9,9 @@ import { ActionDropdown } from "./file-tree/_components/action-dropdown";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAddFolderModal } from "./file-tree/_components/hooks";
 import { useUploadFilesModal } from "./file-tree/_components/hooks/use-upload-files-modal";
-import { NodeDataType } from "@/app/types/file-types";
+import { NodeDataType, SingleLayerNodesType2 } from "@/app/types/file-types";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useIsLoading } from "@/hooks/use-is-loading";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
@@ -21,6 +21,7 @@ interface NodePageHeaderProps {
 }
 
 export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
+  const nodeRef = useRef<SingleLayerNodesType2 | undefined | null>(null);
   const currentUserPermissions = useCurrentUserPermissions();
   const router = useRouter();
   const pathname = usePathname();
@@ -29,7 +30,6 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const folderStore = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading } = useIsLoading();
-  let node = folderStore.getNode(nodeId);
 
   const filesHomeHref = currentUserPermissions.isPatient
     ? "/files"
@@ -38,19 +38,21 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
     : "/tpa-files";
 
   useEffect(() => {
-    node = folderStore.getNode(nodeId);
+    const fetchedNode = folderStore.getNode(nodeId); // Fetch the node inside useEffect
+    nodeRef.current = fetchedNode; // Update the ref's current value
     setIsMounted(true);
-    if (!node) {
+    if (!fetchedNode) {
       router.push(filesHomeHref);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isMounted || !node) {
+  if (!isMounted || !nodeRef || !nodeRef.current) {
     return null;
   }
 
-  const namePath = node?.namePath;
-  const path = node?.path;
+  const namePath = nodeRef.current.namePath;
+  const path = nodeRef.current.path;
   const paths = path?.split("/").slice(1);
   // Split the namePath into individual folders and remove empty entries (like the leading '/')
   const folders = namePath ? namePath.split("/").filter((folder) => folder) : [];
@@ -59,12 +61,12 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
 
   return (
     <div className="pt-2 pb-1 gap-y-2 flex flex-col">
-      {!isFile && !node.namePath.startsWith("/Trash") && currentUserPermissions.canAdd && (
+      {!isFile && !nodeRef.current.namePath.startsWith("/Trash") && currentUserPermissions.canAdd && (
         <div className="gap-y-2 flex-row flex gap-x-2">
           <Button
             title="Upload"
             disabled={isLoading}
-            onClick={() => uploadFilesModal.onOpen(node as NodeDataType, false)}
+            onClick={() => uploadFilesModal.onOpen(nodeRef.current as NodeDataType, false)}
             variant="secondary"
             className={cn(
               isLoading && "cursor-not-allowed",
@@ -79,7 +81,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
           <Button
             title="Add a subfolder"
             disabled={isLoading}
-            onClick={() => addFolderModal.onOpen(node as NodeDataType, false)}
+            onClick={() => addFolderModal.onOpen(nodeRef.current as NodeDataType, false)}
             variant="secondary"
             className={cn(
               isLoading && "cursor-not-allowed",
@@ -127,7 +129,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
           {currentUserPermissions.showActions && (
             <ActionDropdown
               showMenuHeader={false}
-              nodeData={node}
+              nodeData={nodeRef.current}
               DropdownTriggerComponent={DropdownMenuTrigger}
               dropdownTriggerProps={{
                 asChild: true,

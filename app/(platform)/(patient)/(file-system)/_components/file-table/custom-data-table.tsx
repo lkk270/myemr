@@ -19,6 +19,7 @@ export function CustomDataTable({ nodeId }: DataTableProps) {
     if (isMounted) {
       updateLastViewedAt(nodeId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodeId, isMounted]);
 
   useEffect(() => {

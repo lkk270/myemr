@@ -57,15 +57,15 @@ const PrivacyPage = () => {
             <h1 className="text-xl sm:text-3xl font-bold pb-4">Privacy Policy for MyEMR</h1>
             <h2 className="text-md sm:text-lg font-semibold">Last updated: March 24, 2024</h2>
             <p>
-              Welcome to MyEMR, accessible at https://myemr.io ("Site"). MyEMR ("Company," "we," "us," or "our") is
+              {`Welcome to MyEMR, accessible at https://myemr.io (Site"). MyEMR ("Company," "we," "us," or "our") is
               committed to protecting the privacy and security of your personal information. Our Privacy Policy explains
               how we collect, use, disclose, and safeguard your information when you visit our Site, including any other
               media form, media channel, mobile website, or mobile application related or connected thereto
-              (collectively, the “Site”).
+              (collectively, the “Site”).`}
             </p>
             <p>
-              By accessing or using the Site, you signify your agreement to this Privacy Policy. If you do not agree
-              with the terms of this Privacy Policy, please do not access the Site.
+              {`By accessing or using the Site, you signify your agreement to this Privacy Policy. If you do not agree
+              with the terms of this Privacy Policy, please do not access the Site.`}
             </p>
           </div>
           {paragraphs.map((paragraph, index) => {

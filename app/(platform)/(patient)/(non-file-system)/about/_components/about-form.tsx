@@ -94,45 +94,48 @@ export const About = ({ initialData }: AboutProps) => {
   });
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Ensure hook logic is conditional, not the hook itself
     const fetchUrls = async () => {
-      if (!isMounted) return;
-      if (
-        initialData.insuranceImagesSet &&
-        activeTab === "insurance" &&
-        (!imagesUrls["front"] ||
-          !imagesUrls["back"] ||
-          isLinkExpired(imagesUrls["front"]) ||
-          isLinkExpired(imagesUrls["front"]))
-      ) {
-        try {
-          setIsFetchingInsuranceImages(true);
-          setIsLoading(true);
-          let patientProfileId = null;
-          if (!!patientMember) patientProfileId = patientMember.patientProfileId;
+      // Your fetching logic remains here
+      if (!isMounted || activeTab !== "insurance") {
+        return;
+      }
 
-          const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT, false, patientProfileId);
-          const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK, false, patientProfileId);
+      try {
+        setIsFetchingInsuranceImages(true);
+        setIsLoading(true);
+        let patientProfileId = patientMember?.patientProfileId || null;
 
-          const frontUrl = frontUrlData.presignedUrl;
-          const backUrl = backUrlData.presignedUrl;
-          setInsuranceImageUrls({ front: frontUrl, back: backUrl });
+        const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT, false, patientProfileId);
+        const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK, false, patientProfileId);
 
-          setIsMounted(true);
-          setIsLoading(false);
-          setIsFetchingInsuranceImages(false);
-        } catch (error) {
-          setIsLoading(false);
-          setIsMounted(true);
-          setIsFetchingInsuranceImages(false);
-          console.error("Failed to fetch presigned URLs", error);
-        }
+        const frontUrl = frontUrlData.presignedUrl;
+        const backUrl = backUrlData.presignedUrl;
+        setInsuranceImageUrls({ front: frontUrl, back: backUrl });
+      } catch (error) {
+        console.error("Failed to fetch presigned URLs", error);
+      } finally {
+        setIsFetchingInsuranceImages(false);
+        setIsLoading(false);
       }
     };
 
-    // Only attempt to fetch URLs if the "insurance" tab is active
-    setIsMounted(true);
-    fetchUrls();
-  }, [activeTab]);
+    if (
+      initialData.insuranceImagesSet &&
+      activeTab === "insurance" &&
+      (!imagesUrls["front"] ||
+        !imagesUrls["back"] ||
+        isLinkExpired(imagesUrls["front"]) ||
+        isLinkExpired(imagesUrls["front"]))
+    ) {
+      fetchUrls();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isMounted]);
 
   const onSubmit = (values: z.infer<typeof AboutSchema>) => {
     let nonAddressChanges: any = {};
@@ -278,10 +281,7 @@ export const About = ({ initialData }: AboutProps) => {
         <TabsContent className="w-full" value="about">
           <Card className="min-h-full flex-grow transition border border-primary/10 rounded-xl">
             <CardContent>
-              <ViewAbout
-                handleEditToggle={handleEditToggle}
-                initialData={{ ...initialDataDynamic, email: currentUser.email!!, imageUrl: currentUser.image }}
-              />
+              <ViewAbout handleEditToggle={handleEditToggle} initialData={initialDataDynamic} />
             </CardContent>
           </Card>
         </TabsContent>

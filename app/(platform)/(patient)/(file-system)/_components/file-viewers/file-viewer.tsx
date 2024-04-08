@@ -56,12 +56,14 @@ export const Viewer = ({ fileName, fileId, initialFileSrc, fileType }: FileViewe
 
     checkAndRefreshLink();
     setLinkSet(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileId, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
       updateLastViewedAt(fileId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileId, isMounted]);
 
   useEffect(() => {

@@ -84,9 +84,6 @@ export const PatientManageAccountModal = () => {
   // }, [isOpen]);
   // console.log(isMounted);
   // console.log(isOpen);
-  if (!isMounted || !scrollContainerRef) {
-    return null;
-  }
 
   // console.log(!!scrollContainerRef);
   // console.log(activeSection);
@@ -108,6 +105,10 @@ export const PatientManageAccountModal = () => {
       setIsLoading(false);
     }
   };
+
+  if (!isMounted || !scrollContainerRef || !isOpen) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

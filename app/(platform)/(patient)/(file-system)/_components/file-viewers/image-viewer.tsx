@@ -49,6 +49,7 @@ const ImageViewerComponent = ({ fileId, fileSrc, forInsurance = false }: ImageVi
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileSrc]);
 
   //   const handleDownload = async () => {
@@ -82,6 +83,7 @@ const ImageViewerComponent = ({ fileId, fileSrc, forInsurance = false }: ImageVi
 
   return (
     <Image
+      alt={fileId}
       className="overflow-hidden"
       width={imageWidth}
       //   height={500}

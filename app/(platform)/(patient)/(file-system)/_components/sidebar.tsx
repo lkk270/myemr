@@ -60,6 +60,7 @@ export const Sidebar = ({
     folderStore.setFolders(data);
     folderStore.setSingleLayerNodes(singleLayerNodes);
     folderStore.setSumOfAllSuccessFilesSizes(sumOfAllSuccessFilesSizes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -72,7 +73,8 @@ export const Sidebar = ({
       }
     };
     checkValidCode();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.data?.tempToken]);
 
   useEffect(() => {
     if (isMobile) {
@@ -81,6 +83,7 @@ export const Sidebar = ({
       resetWidth();
     }
     // trunk-ignore(eslint/react-hooks/exhaustive-deps)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
   useEffect(() => {
     if (isMobile) {
@@ -122,6 +125,7 @@ export const Sidebar = ({
     if (searchParams.get("manage-account-billing-plan") === "refresh") {
       fetchFiles();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

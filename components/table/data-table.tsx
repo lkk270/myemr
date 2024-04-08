@@ -55,7 +55,7 @@ export function DataTable<TData, TValue>({
   showDataTableViewOptions = true,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
-  const pathname = doubleClickForFsNode ? usePathname() : null;
+  const pathname = usePathname();
   const currentUserPermissions = useCurrentUserPermissions();
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(hiddenColumns);

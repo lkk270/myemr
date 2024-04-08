@@ -40,7 +40,7 @@ export const RenameModal = () => {
         inputRef.current?.select();
       }, 200);
     }
-  }, [renameModal.isOpen]);
+  }, [renameModal.isOpen, renameModal.nodeData?.name]);
 
   if (!isMounted || !renameModal || !renameModal.nodeData) {
     return null;

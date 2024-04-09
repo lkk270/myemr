@@ -6,9 +6,9 @@ import { auth } from "@/auth";
 export const getCodeByToken = async (token: string) => {
   const session = await auth();
 
-  if (session) {
-    return null;
-  }
+  // if (session) {
+  //   return null;
+  // }
   const code = await prismadb.requestRecordsCode.findUnique({
     where: {
       token,

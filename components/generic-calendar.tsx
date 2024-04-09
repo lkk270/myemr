@@ -38,6 +38,7 @@ export const GenericCalendar = ({ disabled, className, valueParam, handleChange 
   return (
     <div className="z-[1000] border-primary/10 border-[1px] rounded-md">
       <Datepicker
+        popoverDirection="down"
         minDate={new Date("1900-01-01")}
         maxDate={new Date()}
         useRange={false}

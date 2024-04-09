@@ -31,6 +31,7 @@ export const ViewOrganization = ({ initialData, handleEditToggle }: ViewOrganiza
 
   useEffect(() => {
     setProfilePicture(getOrganizationById(initialData.id)?.profileImageUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizations]);
 
   return (

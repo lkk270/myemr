@@ -24,6 +24,7 @@ export function CustomDataTable({ data }: DataTableProps) {
   useEffect(() => {
     setMedications(data);
     // trunk-ignore(eslint/react-hooks/exhaustive-deps)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (

@@ -69,7 +69,7 @@ export const DeleteAccountButton = ({ children, asChild }: DeleteAccountButtonPr
             canceled.
           </p>
         </AlertDialogDescription>
-        <Label>Confirm by typing: "Delete Account"</Label>
+        <Label>{`Confirm by typing: "Delete Account"`}</Label>
         <Input placeholder="Delete Account" onChange={(e) => setConfirmation(e.target.value)} />
         <AlertDialogFooter>
           <AlertDialogCancel

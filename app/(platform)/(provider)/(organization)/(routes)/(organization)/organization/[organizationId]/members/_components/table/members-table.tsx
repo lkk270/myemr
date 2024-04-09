@@ -21,6 +21,7 @@ export function MembersTable({ data }: DataTableProps) {
   useEffect(() => {
     setOrganizationMembers(data);
     // trunk-ignore(eslint/react-hooks/exhaustive-deps)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   let filteredColumns = [...baseColumns];

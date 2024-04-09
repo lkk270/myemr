@@ -49,6 +49,7 @@ export const ProviderManageAccountModal = () => {
         scrollToSection(defaultScrollTo);
       }, 500);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isMounted]);
 
   if (!isMounted || !scrollContainerRef || !isOpen) {

@@ -29,13 +29,10 @@ import { usePatientMemberStore } from "@/app/(platform)/(provider)/(organization
 const inputClassName = "bg-secondary border-primary/10";
 
 interface MedicationProps {
-  medicationParam: MedicationType | null;
+  medicationParam: MedicationType;
 }
 
 export const MedicationForm = ({ medicationParam }: MedicationProps) => {
-  if (!medicationParam) {
-    return null;
-  }
   const { patientMember } = usePatientMemberStore();
   const [isPending, startTransition] = useTransition();
 

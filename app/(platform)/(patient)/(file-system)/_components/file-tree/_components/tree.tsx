@@ -222,6 +222,7 @@ const FileTree = ({ width }: FileTreeProps) => {
   useEffect(() => {
     setIsMounted(true);
     setPathnameVar(pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {

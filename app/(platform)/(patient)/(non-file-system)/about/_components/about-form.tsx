@@ -270,7 +270,7 @@ export const About = ({ initialData }: AboutProps) => {
       <Tabs
         orientation="vertical"
         defaultValue="about"
-        className="w-full flex flex-col md:flex-row mt-4 pb-28 xs:pb-0 xs:mt-0"
+        className="w-full flex flex-col md:flex-row mt-2 pb-28 xs:pb-0 xs:mt-0"
       >
         <TabsList className="flex-row flex md:flex-col md:w-40 md:py-10 md:px-2 md:mt-2">
           {tabsData.map((tab) => (
@@ -312,7 +312,7 @@ export const About = ({ initialData }: AboutProps) => {
     <Tabs
       orientation="vertical"
       defaultValue="about"
-      className="w-full flex flex-col md:flex-row mt-4 pb-28 xs:pb-0 xs:mt-0"
+      className="w-full flex flex-col md:flex-row mt-2 pb-28 xs:pb-0 xs:mt-0"
     >
       {/* Sidebar with tabs */}
       <TabsList className="flex-row flex md:flex-col md:w-40 md:py-10 md:px-2 md:mt-2">

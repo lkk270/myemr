@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -109,11 +109,11 @@ enum AccessCodeType {
 
 model PatientAddress {
   id       String  @id @default(cuid())
-  address  String  @db.LongText
-  address2 String? @db.LongText
-  city     String  @db.LongText
-  state    String  @db.LongText
-  zipcode  String  @db.LongText
+  address  String  @db.Text
+  address2 String? @db.Text
+  city     String  @db.Text
+  state    String  @db.Text
+  zipcode  String  @db.Text
 
   patientProfileId String
   PatientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
@@ -165,9 +165,9 @@ model OrganizationAddress {
 model DosageHistory {
   id           String     @id @default(cuid())
   medicationId String
-  dosage       String     @db.LongText
-  dosageUnits  String     @db.LongText
-  frequency    String     @db.LongText
+  dosage       String     @db.Text
+  dosageUnits  String     @db.Text
+  frequency    String     @db.Text
   Medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -177,15 +177,15 @@ model DosageHistory {
 
 model Medication {
   id               String          @id @default(cuid())
-  name             String          @db.LongText
-  prescribedById   String?         @db.LongText
-  prescribedByName String          @db.LongText
-  category         String          @db.LongText
-  dosage           String          @db.LongText
-  dosageUnits      String          @db.LongText
-  frequency        String          @db.LongText
-  description      String?         @db.LongText
-  status           String          @db.LongText
+  name             String          @db.Text
+  prescribedById   String?         @db.Text
+  prescribedByName String          @db.Text
+  category         String          @db.Text
+  dosage           String          @db.Text
+  dosageUnits      String          @db.Text
+  frequency        String          @db.Text
+  description      String?         @db.Text
+  status           String          @db.Text
   dosageHistory    DosageHistory[]
 
   createdAt        DateTime       @default(now())
@@ -252,15 +252,17 @@ model RecordViewActivity {
 model Folder {
   id            String   @id @default(cuid())
   name          String   @db.VarChar(70)
-  path          String   @db.LongText
-  namePath      String   @db.LongText
+  path          String   @db.Text
+  namePath      String   @db.Text
   isFile        Boolean  @default(false)
   isRoot        Boolean  @default(false)
   addedByUserId String?
   addedByName   String   @default("") @db.VarChar(70)
   // Relations
   parentId      String?
-  parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  //  parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   subFolders    Folder[] @relation("ParentFolder")
 
   files              File[]
@@ -285,7 +287,7 @@ model InsuranceFile {
   id               String         @id @default(cuid())
   side             InsuranceSide
   uploadedByUserId String?
-  uploadedByName   String?        @db.LongText
+  uploadedByName   String?        @db.Text
   type             String
   size             BigInt
   status           FileStatus     @default(NOT_UPLOADED)
@@ -302,19 +304,20 @@ model InsuranceFile {
 }
 
 model File {
-  id                 String               @id @default(cuid())
-  name               String               @db.LongText
-  isFile             Boolean              @default(true)
-  path               String               @db.LongText
-  namePath           String               @db.LongText
-  parentId           String
-  uploadedByUserId   String?
-  uploadedByName     String?              @db.LongText
-  type               String?
-  size               BigInt
-  status             FileStatus           @default(NOT_UPLOADED)
-  restricted         Boolean              @default(false)
-  folder             Folder               @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id               String     @id @default(cuid())
+  name             String     @db.Text
+  isFile           Boolean    @default(true)
+  path             String     @db.Text
+  namePath         String     @db.Text
+  parentId         String
+  uploadedByUserId String?
+  uploadedByName   String?    @db.Text
+  type             String?
+  size             BigInt
+  status           FileStatus @default(NOT_UPLOADED)
+  restricted       Boolean    @default(false)
+  folder           Folder     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  // folder             Folder               @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   recordViewActivity RecordViewActivity[]
 
   userId           String //of which patient files are for
@@ -400,7 +403,7 @@ model PatientMember {
   patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
   // accessibleRootFolders     Folder[]
 
-  accessibleRootFolders       String  @db.LongText
+  accessibleRootFolders       String  @db.Text
   organizationName            String  @db.VarChar(125)
   organizationProfileImageUrl String? @db.Text
 
@@ -450,8 +453,8 @@ model User {
   name               String?              @db.VarChar(70)
   email              String?              @db.VarChar(320)
   emailVerified      DateTime?
-  image              String?              @db.LongText
-  password           String?              @db.LongText
+  image              String?              @db.Text
+  password           String?              @db.Text
   role               UserRole             @default(USER)
   type               UserType             @default(PATIENT)
   patientProfile     PatientProfile?
@@ -478,24 +481,24 @@ model User {
 model PatientProfile {
   id                 String           @id @default(cuid())
   userId             String           @unique
-  firstName          String           @db.LongText
-  lastName           String           @db.LongText
-  email              String           @db.LongText
-  imageUrl           String?          @db.LongText
-  gender             String?          @db.LongText
-  dateOfBirth        String?          @db.LongText
-  maritalStatus      String?          @db.LongText
-  race               String?          @db.LongText
-  height             String?          @db.LongText
-  weight             String?          @db.LongText
-  allergies          String?          @db.LongText
+  firstName          String           @db.Text
+  lastName           String           @db.Text
+  email              String           @db.Text
+  imageUrl           String?          @db.Text
+  gender             String?          @db.Text
+  dateOfBirth        String?          @db.Text
+  maritalStatus      String?          @db.Text
+  race               String?          @db.Text
+  height             String?          @db.Text
+  weight             String?          @db.Text
+  allergies          String?          @db.Text
   unit               Unit             @default(IMPERIAL)
-  mobilePhone        String?          @db.LongText
-  homePhone          String?          @db.LongText
+  mobilePhone        String?          @db.Text
+  homePhone          String?          @db.Text
   insuranceImagesSet Boolean          @default(false)
-  insuranceProvider  String?          @db.LongText
-  policyNumber       String?          @db.LongText
-  groupNumber        String?          @db.LongText
+  insuranceProvider  String?          @db.Text
+  policyNumber       String?          @db.Text
+  groupNumber        String?          @db.Text
   publicKey          String           @db.Text
   privateKey         String           @db.Text
   symmetricKey       String           @db.Text

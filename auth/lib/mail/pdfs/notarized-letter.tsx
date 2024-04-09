@@ -115,7 +115,7 @@ const NotarizedLetter = ({ data }: NotarizedLetterProps) => (
         Please use the following link to upload the records at your earliest convenience. Note that this link expires on{" "}
         {formatDate(data.expires)}:
       </Text>
-      <Text style={styles.text}>{data.requestRecordsLink}</Text>
+      <Text style={styles.text}>https://{data.requestRecordsLink}</Text>
       <Text style={styles.text}>
         If you have any questions, require further information, or believe this request is a mistake, please do not
         hesitate to contact me [the patient] at {data.email} or MyEmr at support@myemr.io.

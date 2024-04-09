@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GenericCombobox } from "@/components/generic-combobox";
 import { states } from "@/lib/constants";
-import { PatientAddress, ProviderAddress } from "@prisma/client";
+import { PatientAddress } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
 const inputClassName = "bg-secondary border-primary/10";

@@ -18,8 +18,7 @@ export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => 
   if (!initialData) {
     return null;
   }
-  console.log(initialData);
-  console.log(initialData.imageUrl);
+ 
   const address = !initialData ? undefined : initialData.addresses.length > 0 ? initialData.addresses[0] : undefined;
   return (
     <div className="h-full p-4 w-full max-w-3xl mx-auto">

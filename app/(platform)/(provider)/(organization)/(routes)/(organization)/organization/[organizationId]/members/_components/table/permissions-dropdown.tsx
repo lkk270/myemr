@@ -28,12 +28,13 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
   const organizationMember = getOrganizationMemberById(memberId);
   const { isLoading, setIsLoading } = useIsLoading();
 
+  const currentUserMember = getOrganizationMemberByUserId(currentUser?.id || "");
+  const [permissionType, setPermissionType] = useState(organizationMember?.role);
+  // console.log(currentUserMember);
+
   if (!organizationMember || !currentUser) {
     return null;
   }
-  const currentUserMember = getOrganizationMemberByUserId(currentUser.id);
-  const [permissionType, setPermissionType] = useState(organizationMember.role);
-  // console.log(currentUserMember);
   if (currentUser.id === organizationMember.user.id) {
     return (
       <Badge

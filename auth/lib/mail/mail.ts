@@ -16,8 +16,8 @@ const domain = process.env.NEXT_PUBLIC_URL;
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "no-reply@myemr.io",
+    to: email,
     subject: "2FA Code",
     react: TwoFactorConfirmationEmail({ verificationToken: token }),
   });
@@ -28,8 +28,8 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
 
 export const sendSuccessfullyDeletedAccountEmail = async (email: string, accountType: "Patient" | "Provider") => {
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "no-reply@myemr.io",
+    to: email,
     subject: `MyEmr ${accountType} Successfully Deleted`,
     react: SuccessfullyDeletedAccountEmail({ email, accountType }),
   });
@@ -42,8 +42,8 @@ export const sendPasswordResetEmail = async (email: string, token: string, userT
   const resetLink = `${domain}/auth/${userType.toLowerCase()}-new-password?token=${token}`;
 
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "no-reply@myemr.io",
+    to: email,
     subject: "Reset your password",
     react: MagicLinkEmail({ magicLink: resetLink, type: "passwordReset" }),
   });
@@ -56,8 +56,8 @@ export const sendVerificationEmail = async (email: string, token: string, userTy
   // const confirmLink = `${domain}/auth/new-verification?token=${token}`;
   const confirmLink = `${domain}/auth/${userType.toLowerCase()}-new-verification?token=${token}`;
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "no-reply@myemr.io",
+    to: email,
     subject: "Confirm your email",
     react: MagicLinkEmail({ magicLink: confirmLink, type: "emailConfirmation" }),
   });
@@ -90,8 +90,8 @@ export const sendRequestRecordsEmail = async (
     throw new Error("Something went wrong on email send");
   }
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "records-request@myemr.io",
+    to: providerEmail,
     cc: dataForLetter.email,
     subject: "Request for records",
     attachments: [
@@ -117,7 +117,7 @@ export const sendRequestRecordsEmail = async (
 
 export const sendFeedback = async (text: string) => {
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
+    from: "no-reply@myemr.io",
     to: "leekk270@gmail.com",
     subject: "Feedback",
     html: `<div><p>Here's some feedback</p><p>${text}</p></div>`,
@@ -134,8 +134,8 @@ export const sendInvitedToOrganizationEmailNoAccount = async (
   organizationName: string,
 ) => {
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "no-reply@myemr.io",
+    to: email,
     subject: "You've Been Invited to Join a MyEmr Organization",
     react: InvitedToOrganizationEmailNoAccount({ inviteToken: token, organizationName }),
   });
@@ -150,8 +150,8 @@ export const sendInvitedToOrganizationEmailHasAccount = async (
   organizationName: string,
 ) => {
   const response = await resendClient.emails.send({
-    from: "onboarding@resend.dev",
-    to: "leekk270@gmail.com",
+    from: "no-reply@myemr.io",
+    to: email,
     subject: "You've Been Added to a MyEmr Organization",
     react: InvitedToOrganizationEmailHasAccount({ organizationId, organizationName }),
   });

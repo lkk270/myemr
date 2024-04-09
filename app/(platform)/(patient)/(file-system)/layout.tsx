@@ -19,7 +19,7 @@ import { redirect } from "next/navigation";
 import { SingleLayerNodesType2 } from "@/app/types/file-types";
 import prismadb from "@/lib/prismadb";
 import { sortFolderChildren, sortRootNodes, extractNodes, addLastViewedAtAndSort } from "@/lib/utils";
-import { allotedStoragesInGb } from "@/lib/constants";
+// import { allotedStoragesInGb } from "@/lib/constants";
 import { fetchAllFoldersForPatient } from "@/lib/actions/files";
 import { getNumberOfUnreadNotifications } from "@/lib/data/notifications";
 import { getSumOfFilesSizes } from "@/lib/data/files";

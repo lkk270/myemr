@@ -46,16 +46,6 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
       <div className="xxs:ml-auto xxs:justify-end justify-center w-full flex items-center gap-x-1 xs:gap-x-2">
         {(!user || session.status === "unauthenticated") && (
           <>
-            <Link href="/pricing">
-              <Button variant="gooeyLeftGhost" size="sm">
-                <span className="text-sm">Pricing</span>
-              </Button>
-            </Link>
-            <AccessWithCodeButton asChild>
-              <Button variant="gooeyLeftGhost" size="sm">
-                <span className="hidden xs:flex">Have&nbsp;</span>Code?
-              </Button>
-            </AccessWithCodeButton>
             <LoginButton mode="modal" asChild userType="PATIENT">
               <Button variant="gooeyLeftGhost" size="sm">
                 Patient
@@ -66,6 +56,16 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                 Provider
               </Button>
             </LoginButton>
+            <AccessWithCodeButton asChild>
+              <Button variant="gooeyLeftGhost" size="sm">
+                <span className="hidden xs:flex">Have&nbsp;</span>Code?
+              </Button>
+            </AccessWithCodeButton>
+            <Link href="/pricing">
+              <Button variant="gooeyLeftGhost" size="sm">
+                <span className="text-sm">Pricing</span>
+              </Button>
+            </Link>
           </>
         )}
         {!!currentUserPermissions && (!!user || session.status === "authenticated") && (

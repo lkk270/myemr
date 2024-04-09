@@ -54,7 +54,7 @@ export function MembersTable({ data }: DataTableProps) {
       className={cn(
         data.length <= 6
           ? `min-h-[${53 * data.length}px]`
-          : "min-h-[300px]" && "xs:max-h-[calc(100vh-205px)] max-h-[calc(100vh-285px)] overflow-y-scroll",
+          : "min-h-[300px]" && "xs:max-h-[calc(100vh-210px)] max-h-[calc(100vh-285px)] overflow-y-scroll",
       )}
       // className={"xs:max-h-[calc(100vh-350px)] max-h-[calc(100vh-460px)] overflow-y-scroll"}
     />

@@ -56,7 +56,10 @@ export const SettingsForm = () => {
             setSuccess(data.success);
           }
         })
-        .catch(() => setError("Something went wrong!"));
+        .catch((e) => {
+          console.log(e);
+          setError("Something went wrong!");
+        });
     });
   };
   const watchedName = form.watch("name");
@@ -113,7 +116,8 @@ export const SettingsForm = () => {
                     <FormControl>
                       <Input
                         {...field}
-                        value={field.value || ""}
+                        defaultValue={undefined}
+                        // value={field.value || ""}
                         placeholder="******"
                         type="password"
                         disabled={isPending}

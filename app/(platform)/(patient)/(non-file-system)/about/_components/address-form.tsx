@@ -51,6 +51,8 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
 
   const { setValue, control, watch } = form;
 
+  const watchedAddress = watch("address");
+
   return (
     <div className="h-full p-4 max-w-3xl">
       <Form {...form}>
@@ -180,7 +182,7 @@ export const AddressForm = ({ initialData, addOrUpdateFunction, setOpen, numOfCu
             />
           </div>
           <div className="w-full flex justify-center pt-12">
-            <Button onClick={form.handleSubmit(onSubmit)} size="lg">
+            <Button disabled={!watchedAddress} onClick={form.handleSubmit(onSubmit)} size="lg">
               {initialData ? "Edit address" : "Add address"}
             </Button>
           </div>

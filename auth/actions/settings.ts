@@ -67,7 +67,16 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     values.newPassword = undefined;
   }
 
-  const updatedData = findChangesBetweenObjects(dbUser, values);
+  const dataToUse: any = {
+    isTwoFactorEnabled: values.isTwoFactorEnabled,
+    password: values.password,
+  };
+
+  if (dbUser.type === "PROVIDER") {
+    dataToUse.name = values.name;
+  }
+
+  const updatedData = findChangesBetweenObjects(dbUser, dataToUse);
   const updatedUserObject = filterFields(updatedData);
   await prismadb.user.update({
     where: { id: dbUser.id },

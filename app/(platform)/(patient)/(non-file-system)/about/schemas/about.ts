@@ -145,7 +145,7 @@ export const AboutSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .refine((value) => heightsImperial.some((item) => item.value === value), {
+    .refine((value) => value === null || heightsImperial.some((item) => item.value === value), {
       message: "Heights must match a value in the heights list or be null",
     }),
   weight: z

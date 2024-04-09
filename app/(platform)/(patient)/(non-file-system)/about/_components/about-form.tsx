@@ -133,7 +133,7 @@ export const About = ({ initialData }: AboutProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isMounted]);
-  
+
   if (!currentUser) {
     return <div>null</div>;
   }
@@ -148,14 +148,18 @@ export const About = ({ initialData }: AboutProps) => {
     const nonAddressChangesLength = Object.keys(nonAddressChanges).length;
 
     const addressChanges =
-      !!address && initialDataAddresses.length > 0 ? findChangesBetweenObjects(initialDataAddresses[0], address) : {};
+      !!address && initialDataAddresses.length > 0 && !!initialDataAddresses[0]
+        ? findChangesBetweenObjects(initialDataAddresses[0], address)
+        : {};
     const addressChangesLength = Object.keys(addressChanges).length;
     const addressChanged =
-      (!address && initialDataAddresses.length > 0) ||
-      (!!address && initialDataAddresses.length === 0) ||
+      (!address && initialDataAddresses.length > 0 && !!initialDataAddresses[0]) ||
+      (!!address &&
+        (initialDataAddresses.length === 0 || (initialDataAddresses.length > 0 && !initialDataAddresses[0]))) ||
       addressChangesLength > 0
         ? true
         : false;
+
     if (nonAddressChangesLength === 0 && !addressChanged) {
       toast("No changes made");
       setIsEditing(false);
@@ -177,7 +181,7 @@ export const About = ({ initialData }: AboutProps) => {
               ...values,
               email: initialData.email,
               unit: initialData.unit,
-              addresses: initialData.addresses,
+              addresses: [watchedAddress],
               insuranceImagesSet: initialData.insuranceImagesSet,
             });
             toast.success("Personal information successfully updated!");
@@ -299,6 +303,8 @@ export const About = ({ initialData }: AboutProps) => {
   const watchedWeight = watch("weight");
   const watchedAddress = watch("address");
 
+  console.log(watchedAddress);
+
   return (
     <Tabs orientation="vertical" defaultValue="about" className="w-full flex flex-col md:flex-row">
       {/* Sidebar with tabs */}
@@ -352,8 +358,7 @@ export const About = ({ initialData }: AboutProps) => {
                             <Button
                               type="submit"
                               disabled={isPending}
-                              className="w-10 xs:w-24 h-9 items-center bg-[#12623b] hover:bg-[#176d44]"
-                              variant={"outline"}
+                              className="w-10 xs:w-24 h-9 items-center bg-[#4f5eff] hover:bg-[#3f4dee]"
                             >
                               <Save className="shrink-0 w-4 h-4 xs:mr-2" />
                               <span className="hidden xs:flex">{isPending ? "Saving..." : "Save"}</span>

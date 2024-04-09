@@ -27,14 +27,16 @@ const Providers = async () => {
   });
   // console.log(session);
   return (
-    <div className="pt-8 px-4 flex flex-col gap-y-3">
-      <AddOrganizationButton asChild>
-        <Button className="w-[150px] h-10 flex flex-row gap-x-2 border border-primary/5 text-sm" variant="secondary">
-          <PackagePlus className="w-5 h-5" />
-          <span>Add</span>
-        </Button>
-      </AddOrganizationButton>
-      <OrganizationsTable data={organizations} />
+    <div className="flex-1 sm:px-10 h-full justify-center">
+      <div className="h-full flex-1 flex-col space-y-8 p-3 sm:p-8 flex">
+        <AddOrganizationButton asChild>
+          <Button className="w-[150px] h-10 flex flex-row gap-x-2 border border-primary/5 text-sm" variant="secondary">
+            <PackagePlus className="w-5 h-5" />
+            <span>Add</span>
+          </Button>
+        </AddOrganizationButton>
+        <OrganizationsTable data={organizations} />
+      </div>
     </div>
   );
 };

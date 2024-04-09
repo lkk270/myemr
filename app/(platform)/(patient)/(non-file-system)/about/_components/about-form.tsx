@@ -179,6 +179,7 @@ export const About = ({ initialData }: AboutProps) => {
             setIsEditing(false);
             setInitialDataDynamic({
               ...values,
+              imageUrl: initialData.imageUrl,
               email: initialData.email,
               unit: initialData.unit,
               addresses: [watchedAddress],
@@ -302,8 +303,6 @@ export const About = ({ initialData }: AboutProps) => {
   const watchedHeight = watch("height");
   const watchedWeight = watch("weight");
   const watchedAddress = watch("address");
-
-  console.log(watchedAddress);
 
   return (
     <Tabs orientation="vertical" defaultValue="about" className="w-full flex flex-col md:flex-row">

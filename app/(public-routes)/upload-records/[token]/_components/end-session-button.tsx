@@ -47,9 +47,9 @@ export const EndSessionButton = ({ codeId, children, asChild }: EndSessionButton
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogTitle className="text-md">Invalidate this code?</AlertDialogTitle>
         <AlertDialogDescription className="text-sm">
-          By clicking 'Complete', you confirm that you have uploaded all patient records in your possession. Once this
+          {` By clicking 'Complete', you confirm that you have uploaded all patient records in your possession. Once this
           button is pressed, you will not be able to upload additional records unless you receive a new request from the
-          patient
+          patient`}
         </AlertDialogDescription>
         <AlertDialogFooter>
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>

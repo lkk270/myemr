@@ -62,13 +62,14 @@ export const DeleteOrganizationButton = ({ organizationId, children, asChild }: 
         <AlertDialogTitle className="text-md">Delete organization?</AlertDialogTitle>
         <AlertDialogDescription className="flex flex-col gap-y-2">
           <p>
-            Are you sure you want to delete this organization? By confirming, the organization will be be permanently
+            {` Are you sure you want to delete this organization? By confirming, the organization will be be permanently
             and irreversibly deleted immediately. If you'd like to delete your account instead, you can do so in your
             account settings. However, you will first need to make a different member the owner of this organization (if
-            is not the case already).
+            is not the case already)`}
+            .
           </p>
         </AlertDialogDescription>
-        <Label>Confirm by typing: "Delete Organization"</Label>
+        <Label>{`Confirm by typing: "Delete Organization"`}</Label>
         <Input placeholder="Delete Organization" onChange={(e) => setConfirmation(e.target.value)} />
         <AlertDialogFooter>
           <AlertDialogCancel

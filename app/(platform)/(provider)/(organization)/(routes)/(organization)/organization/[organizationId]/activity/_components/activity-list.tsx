@@ -35,7 +35,9 @@ export const ActivityList = ({
     patchOrganization(organizationId, {
       numOfUnreadActivities: initialNumOfUnreadActivityLogs - Math.min(10, initialNumOfUnreadActivityLogs),
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const onLoadMore = () => {
     setIsLoadingMore(true);
     startTransition(() => {

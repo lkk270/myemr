@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ban, Building2, PackagePlus, PencilLine, Trash } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -228,6 +228,7 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
     if (watchedMainEmail === "") {
       setValue("mainEmail", undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedMainEmail]);
 
   // console.log(initialData);
@@ -410,34 +411,6 @@ export const OrganizationForm = ({ initialData }: OrganizationFormProps) => {
                     </FormItem>
                   )}
                 />
-                {/* <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem className="max-w-[300px]">
-                  <FormLabel>Tags</FormLabel>
-                  <FormControl>
-                    <MultipleSelector
-                      maxSelected={8}
-                      creatable={true}
-                      onMaxSelected={() => {
-                        toast.error("Maximum of 8 tags allowed");
-                      }}
-                      value={field.value}
-                      onChange={field.onChange}
-                      defaultOptions={TAGS}
-                      placeholder="Choose tags"
-                      emptyIndicator={
-                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                          no results found.
-                        </p>
-                      }
-                    />
-                    <FormMessage />
-                  </FormControl>
-                </FormItem>
-              )}
-            /> */}
               </div>
               <div className="flex flex-col gap-4">
                 <FormField

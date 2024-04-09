@@ -19,15 +19,17 @@ interface ViewUploadHistoryButtonProps {
 export const ViewUploadHistoryButton = ({ children, asChild, token }: ViewUploadHistoryButtonProps) => {
   let tempToken = token;
   let type = "requestRecordsCode";
+
+  const [files, setFiles] = useState<{ id: string; name: string; size: bigint; status: FileStatus }[] | null>([]);
+  const [isPending, startTransition] = useTransition();
+  const session = useSession();
+
   if (!token) {
     type = "patientProfileAccessCode";
-    const session = useSession();
     const sessionData = session.data;
     tempToken = sessionData?.tempToken;
   }
 
-  const [files, setFiles] = useState<{ id: string; name: string; size: bigint; status: FileStatus }[] | null>([]);
-  const [isPending, startTransition] = useTransition();
   const openDialog = () => {
     if (!tempToken) return;
     startTransition(() => {

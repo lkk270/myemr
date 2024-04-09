@@ -12,6 +12,7 @@ import { decryptKey, decryptMultiplePatientFields } from "@/lib/utils";
 import { allotedStoragesInGb } from "@/lib/constants";
 import { getSumOfFilesSizes } from "@/lib/data/files";
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
 const calculateStartAndEndDate = (patientCreatedAt: Date): { startDate: Date; endDate: Date } => {
   const currentDate = new Date();
@@ -178,6 +179,11 @@ export const generateRequestRecordsToken = async (values: z.infer<typeof Request
     await sendRequestRecordsEmail(providerEmail, requestRecordsToken.token, dataForLetter);
     return { success: "Email sent!" };
   } catch (error) {
+    await prismadb.requestRecordsCode.delete({
+      where: {
+        id: requestRecordsToken.id,
+      },
+    });
     // console.log(error);
     return { error: "Something went wrong" };
   }

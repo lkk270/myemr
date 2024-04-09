@@ -52,7 +52,7 @@ export function PatientsTable({ data }: DataTableProps) {
       className={cn(
         data.length <= 6
           ? `min-h-[${53 * data.length}px]`
-          : "min-h-[300px]" && "xs:max-h-[calc(100vh-210px)] max-h-[calc(100vh-290px)] overflow-y-scroll",
+          : "min-h-[300px]" && "xs:max-h-[calc(100vh-200px)] max-h-[calc(100vh-290px)] overflow-y-scroll",
       )}
     />
   );

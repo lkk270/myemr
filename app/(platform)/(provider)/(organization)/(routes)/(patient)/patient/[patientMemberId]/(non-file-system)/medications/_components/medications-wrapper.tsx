@@ -13,8 +13,10 @@ interface MedicationsWrapperProps {
 
 export const MedicationsWrapper = ({ initialData, patientMember }: MedicationsWrapperProps) => {
   const { setPatientMember } = usePatientMemberStore();
+
   useEffect(() => {
     setPatientMember(patientMember);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <CustomDataTable data={initialData} />;

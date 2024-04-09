@@ -33,8 +33,8 @@ export const InvalidateCodeButton = ({
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
         <AlertDialogTitle className="text-md">Invalidate this code?</AlertDialogTitle>
         <AlertDialogDescription className="text-sm">
-          By clicking 'Invalidate', this code will be invalidated, and all active access sessions will be revoked. This
-          action cannot be undone.
+          {`By clicking "Invalidate", this code will be invalidated, and all active access sessions will be revoked. This
+          action cannot be undone.`}
         </AlertDialogDescription>
         <AlertDialogFooter>
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>

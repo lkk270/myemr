@@ -70,12 +70,14 @@ export const Sidebar = ({
   useEffect(() => {
     setIsMounted(true);
     setOrganizations(initialOrganizations);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialOrganizations]);
 
   useEffect(() => {
     const defaultAccordionValueTemp = getDefaultAccordionValue();
     setDefaultAccordionValue(defaultAccordionValueTemp);
     setAccordionValue(defaultAccordionValueTemp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -85,6 +87,7 @@ export const Sidebar = ({
       resetWidth();
     }
     // trunk-ignore(eslint/react-hooks/exhaustive-deps)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
   useEffect(() => {
@@ -99,6 +102,7 @@ export const Sidebar = ({
       const combinedArray = [...new Set([...pathnameSpecificAccordionValue, ...accordionValue])];
       setAccordionValue(combinedArray);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

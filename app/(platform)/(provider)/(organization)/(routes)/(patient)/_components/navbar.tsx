@@ -40,6 +40,7 @@ export const Navbar = ({ initialPatientMember, numOfUnreadNotifications, initial
     setPatientMember(initialPatientMember);
     setOrganizations(initialOrganizations);
     setIsMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!isMounted || !patientMember) {

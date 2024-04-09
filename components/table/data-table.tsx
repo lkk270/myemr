@@ -85,6 +85,7 @@ export function DataTable<TData, TValue>({
 
   useEffect(() => {
     table.resetRowSelection(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (

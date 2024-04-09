@@ -31,6 +31,7 @@ export const SidebarWrapper = ({
   useEffect(() => {
     setOrganizations(initialOrganizations);
     setPatientMember(initialPatientMember);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

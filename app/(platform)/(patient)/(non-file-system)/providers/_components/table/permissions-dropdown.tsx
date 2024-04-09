@@ -22,15 +22,12 @@ interface PermissionsDropdownProps {
 const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) => {
   const currentUser = useCurrentUser();
   const [isPending, startTransition] = useTransition();
-  const { organizations, patchOrganization, getOrganizationById } = useOrganizationsStore();
+  const { getOrganizationById } = useOrganizationsStore();
   // const { getOrganizationById } = useOrganizationStore();
   const organizationMember = getOrganizationById(memberId);
   const { isLoading, setIsLoading } = useIsLoading();
 
-  if (!organizationMember || !currentUser) {
-    return null;
-  }
-  const [permissionType, setPermissionType] = useState(organizationMember.role);
+  const [permissionType, setPermissionType] = useState(organizationMember?.role);
   // console.log(currentUserMember);
 
   const onRoleChange = (values: z.infer<typeof ChangeOrganizationRoleSchema>) => {
@@ -41,7 +38,7 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
       changeOrganizationPermissions(values)
         .then((data) => {
           if (!!data.error) {
-            setPermissionType(organizationMember.role);
+            setPermissionType(organizationMember?.role);
             toast.error(data.error);
             if (data.error === "Unauthorized") {
               logout();
@@ -59,6 +56,10 @@ const PermissionsDropdownComponent = ({ memberId }: PermissionsDropdownProps) =>
         });
     });
   };
+
+  if (!organizationMember || !currentUser) {
+    return null;
+  }
 
   return (
     <div className="flex flex-row gap-x-2 items-center">

@@ -18,7 +18,7 @@ export const ViewMedicationModal = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) {
+  if (!isMounted || !viewMedicationModal.medication) {
     return null;
   }
   return (

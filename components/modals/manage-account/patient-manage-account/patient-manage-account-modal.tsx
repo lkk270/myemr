@@ -58,6 +58,7 @@ export const PatientManageAccountModal = () => {
       onOpen("billing-plan");
     }
     // This effect should run whenever the search parameters change, hence the dependency on `searchParams`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, onOpen]);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export const PatientManageAccountModal = () => {
         scrollToSection(defaultScrollTo);
       }, 500);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isMounted]);
 
   // useEffect(() => {

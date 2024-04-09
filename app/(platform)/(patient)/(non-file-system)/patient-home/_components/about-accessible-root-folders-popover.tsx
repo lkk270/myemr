@@ -25,7 +25,9 @@ export const AboutAccessibleRootFoldersPopover = ({
       <PopoverContent className="flex flex-col w-80 justify-center items-center">
         <strong className="leading-none mb-2">Accessible Root Folders</strong>
         <div className="grid gap-4 px-4 pt-4 text-left text-sm">
-          {showHeader && <p>This is only relevant for "Read Only", "Read & Add", and "Full Access" access types.</p>}{" "}
+          {showHeader && (
+            <p>{`This is only relevant for "Read Only", "Read & Add", and "Full Access" access types.`}</p>
+          )}
           <p>{description}</p>
         </div>
       </PopoverContent>

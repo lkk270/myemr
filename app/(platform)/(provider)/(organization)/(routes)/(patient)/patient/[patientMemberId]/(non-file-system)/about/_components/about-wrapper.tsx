@@ -13,8 +13,10 @@ interface AboutProps {
 
 export const AboutWrapper = ({ initialData, patientMember }: AboutProps) => {
   const { setPatientMember } = usePatientMemberStore();
+  
   useEffect(() => {
     setPatientMember(patientMember);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <About initialData={initialData} />;

@@ -53,7 +53,7 @@ export const DeleteOrganizationProfilePictureButton = ({
     <AlertDialog>
       <AlertDialogTrigger asChild={asChild}>{children}</AlertDialogTrigger>
       <AlertDialogContent className="flex flex-col xs:max-w-[400px]">
-        <AlertDialogTitle className="text-md">Delete organization's profile picture?</AlertDialogTitle>
+        <AlertDialogTitle className="text-md">{`Delete organization's profile picture?`}</AlertDialogTitle>
         <AlertDialogFooter>
           <AlertDialogCancel className="w-20 h-8 text-sm">Cancel</AlertDialogCancel>
           <AlertDialogAction

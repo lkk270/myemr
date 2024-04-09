@@ -14,10 +14,13 @@ interface InviteMemberButtonProps {
 export const InviteMemberButton = ({ children, asChild }: InviteMemberButtonProps) => {
   const [open, setOpen] = useState(false);
   const currentUser = useCurrentUser();
-  if (!currentUser) return null;
   const { getOrganizationMemberByUserId } = useOrganizationMembersStore();
-  const currentUserMember = getOrganizationMemberByUserId(currentUser.id);
-  if (!currentUserMember || (currentUserMember.role !== "ADMIN" && currentUserMember.role !== "OWNER")) {
+  const currentUserMember = getOrganizationMemberByUserId(currentUser?.id || "");
+  if (
+    !currentUser ||
+    !currentUserMember ||
+    (currentUserMember.role !== "ADMIN" && currentUserMember.role !== "OWNER")
+  ) {
     return null;
   }
   return (

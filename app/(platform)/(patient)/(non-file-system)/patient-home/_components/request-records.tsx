@@ -103,9 +103,9 @@ export const RequestRecord = () => {
             <div className="space-y-3">
               <h2 className="text-xl font-bold tracking-tighter sm:text-2xl">Request Your Records</h2>
               <p className="mx-auto max-w-[600px] text-gray-500 md:text-lg/relaxed lg:text-base/relaxed dark:text-gray-400">
-                Fill out the form below to request your records. We'll send a notarized document to your provider,
+                {` Fill out the form below to request your records. We'll send a notarized document to your provider,
                 giving them 30 days to upload your records through a secure link. You won't be able to send another
-                request to this provider until they complete the upload or the link expires.
+                request to this provider until they complete the upload or the link expires.`}
               </p>
             </div>
             <div className="space-y-4 pt-10">
@@ -115,7 +115,7 @@ export const RequestRecord = () => {
                   name="providerEmail"
                   render={({ field }) => (
                     <FormItem className="flex flex-col space-y-2">
-                      <FormLabel htmlFor="provider-email">Provider's email</FormLabel>
+                      <FormLabel htmlFor="provider-email">{`Provider's email`}</FormLabel>
                       <Input
                         disabled={isPending}
                         onChange={(e) => {
@@ -181,7 +181,7 @@ export const RequestRecord = () => {
                 Submit
               </Button>
               <div className="text-xs text-muted-foreground">
-                By clicking "Submit," you agree to be bounded by these{" "}
+                {`By clicking "Submit", you agree to be bounded by these`}{" "}
                 <RequestRecordsAboutButton>
                   <a className="underline">terms</a>
                 </RequestRecordsAboutButton>

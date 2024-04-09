@@ -267,7 +267,11 @@ export const About = ({ initialData }: AboutProps) => {
 
   if (!isEditing && !!initialData && !!initialDataDynamic) {
     return (
-      <Tabs orientation="vertical" defaultValue="about" className="w-full flex flex-col md:flex-row my-14 xs:my-0">
+      <Tabs
+        orientation="vertical"
+        defaultValue="about"
+        className="w-full flex flex-col md:flex-row mt-8 pb-28 xs:pb-0 xs:mt-0"
+      >
         <TabsList className="flex-row flex md:flex-col md:w-40 md:py-10 md:px-2 md:mt-2">
           {tabsData.map((tab) => (
             <TabsTrigger
@@ -305,7 +309,11 @@ export const About = ({ initialData }: AboutProps) => {
   const watchedAddress = watch("address");
 
   return (
-    <Tabs orientation="vertical" defaultValue="about" className="w-full flex flex-col md:flex-row my-14 xs:my-0">
+    <Tabs
+      orientation="vertical"
+      defaultValue="about"
+      className="w-full flex flex-col md:flex-row mt-8 pb-28 xs:pb-0 xs:mt-0"
+    >
       {/* Sidebar with tabs */}
       <TabsList className="flex-row flex md:flex-col md:w-40 md:py-10 md:px-2 md:mt-2">
         {tabsData.map((tab) => (

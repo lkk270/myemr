@@ -85,8 +85,8 @@ export const RecentRecordsGrid = ({}) => {
       className={cn(
         "pr-3 pt-4 overflow-y-scroll",
         currentUserPermissions.canAdd
-          ? "max-h-[calc(100vh-404px)] xs:max-h-[calc(100vh-210px)]"
-          : "max-h-[calc(100vh-274px)] xs:max-h-[calc(100vh-140px)]",
+          ? "max-h-[calc(100vh-330px)] xs:max-h-[calc(100vh-210px)]"
+          : "max-h-[calc(100vh-200px)] xs:max-h-[calc(100vh-140px)]",
       )}
     >
       <div className="text-lg font-bold py-3">Recent Folders</div>

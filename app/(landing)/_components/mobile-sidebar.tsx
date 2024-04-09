@@ -10,7 +10,7 @@ import Link from "next/link";
 export const MobileSidebar = () => {
   return (
     <Sheet>
-      <SheetTrigger>
+      <SheetTrigger className="sm:hidden flex">
         <Menu />
       </SheetTrigger>
       <SheetContent

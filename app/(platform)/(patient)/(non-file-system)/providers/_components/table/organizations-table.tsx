@@ -27,26 +27,26 @@ export function OrganizationsTable({ data }: DataTableProps) {
   if (isMobile) {
     filteredColumns = filteredColumns.filter((column: any) => column.accessorKey !== "createdAt");
   }
-  const targetLength = 10;
+  // const targetLength = 10;
 
   // Using a while loop to fill the array
-  while (data.length < targetLength) {
-    // Make a copy of the object. This is a shallow copy.
-    let newObj = { ...data[0] };
+  // while (data.length < targetLength) {
+  //   // Make a copy of the object. This is a shallow copy.
+  //   let newObj = { ...data[0] };
 
-    // For a deep copy, if your object has nested objects, use:
-    // let newObj = JSON.parse(JSON.stringify(myArray[0]));
+  //   // For a deep copy, if your object has nested objects, use:
+  //   // let newObj = JSON.parse(JSON.stringify(myArray[0]));
 
-    // Push the copy into the array
-    data.push(newObj);
-  }
+  //   // Push the copy into the array
+  //   data.push(newObj);
+  // }
   return (
     <DataTable
       showDataTableViewOptions={false}
       // filters={filters}
       // hiddenColumns={hiddenColumns}
       doubleClickLink={{ firstPart: "providers", idName: "id", lastPart: "" }}
-      data={data}
+      data={organizations}
       isLoading={!organizationsSet}
       columns={filteredColumns}
       className={cn(

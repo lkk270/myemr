@@ -4,6 +4,7 @@ import Link from "next/link";
 // import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+import { MobileSidebar } from "./mobile-sidebar";
 // import { useScrollTop } from "@/hooks/use-scroll-top";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
@@ -39,11 +40,9 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
           "dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F]  bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
       )}
     >
-      <div className="xxs:flex hidden">
-        <Logo />
-      </div>
+      <Logo showText={true} />
 
-      <div className="xxs:ml-auto xxs:justify-end justify-center w-full flex items-center gap-x-1 xs:gap-x-2">
+      <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-2">
         {(!user || session.status === "unauthenticated") && (
           <>
             <LoginButton mode="modal" asChild userType="PATIENT">
@@ -51,21 +50,24 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
                 Patient
               </Button>
             </LoginButton>
-            <LoginButton mode="modal" asChild userType="PROVIDER">
-              <Button variant="gooeyLeftGhost" size="sm">
-                Provider
-              </Button>
-            </LoginButton>
-            <AccessWithCodeButton asChild>
-              <Button variant="gooeyLeftGhost" size="sm">
-                <span className="hidden xs:flex">Have&nbsp;</span>Code?
-              </Button>
-            </AccessWithCodeButton>
-            <Link href="/pricing">
-              <Button variant="gooeyLeftGhost" size="sm">
-                <span className="text-sm">Pricing</span>
-              </Button>
-            </Link>
+            <div className="hidden sm:flex">
+              <LoginButton mode="modal" asChild userType="PROVIDER">
+                <Button variant="gooeyLeftGhost" size="sm">
+                  Provider
+                </Button>
+              </LoginButton>
+              <AccessWithCodeButton asChild>
+                <Button variant="gooeyLeftGhost" size="sm">
+                  Have patient code?
+                </Button>
+              </AccessWithCodeButton>
+
+              <Link href="/pricing">
+                <Button variant="gooeyLeftGhost" size="sm">
+                  <span className="text-sm">Pricing</span>
+                </Button>
+              </Link>
+            </div>
           </>
         )}
         {!!currentUserPermissions && (!!user || session.status === "authenticated") && (
@@ -116,8 +118,9 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
             <UserButton afterSignOutUrl="/" />
           </>
         )} */}
-        <div className="hidden sm:flex">
+        <div className="flex flex-row gap-x-4 items-center">
           <ModeToggle />
+          <MobileSidebar />
         </div>
       </div>
     </div>

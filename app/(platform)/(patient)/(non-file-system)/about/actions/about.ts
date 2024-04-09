@@ -238,11 +238,14 @@ export const editAbout = async (values: z.infer<typeof AboutSchema>) => {
     const nonAddressChangesLength = Object.keys(nonAddressChanges).length;
 
     const addressChanges =
-      !!address && initialDataAddresses.length > 0 ? findChangesBetweenObjects(initialDataAddresses[0], address) : {};
+      !!address && initialDataAddresses.length > 0 && !!initialDataAddresses[0]
+        ? findChangesBetweenObjects(initialDataAddresses[0], address)
+        : {};
     const addressChangesLength = Object.keys(addressChanges).length;
     const addressChanged =
-      (!address && initialDataAddresses.length > 0) ||
-      (!!address && initialDataAddresses.length === 0) ||
+      (!address && initialDataAddresses.length > 0 && !!initialDataAddresses[0]) ||
+      (!!address &&
+        (initialDataAddresses.length === 0 || (initialDataAddresses.length > 0 && !initialDataAddresses[0]))) ||
       addressChangesLength > 0
         ? true
         : false;

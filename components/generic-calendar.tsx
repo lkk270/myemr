@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import Datepicker, { DateValueType, DateType } from "react-tailwindcss-datepicker";
+import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 
 interface GenericCalendarProps {
   disabled: boolean;
@@ -30,13 +30,13 @@ export const GenericCalendar = ({ disabled, className, valueParam, handleChange 
   };
 
   const inputClassName = cn(
-    "rounded-md h-[40px] p-2 w-full text-sm",
+    "rounded-md h-[40px] p-2 w-full text-sm z-[1000]",
     disabled
       ? "bg-[#ececec] dark:bg-[#282828] dark:text-[#7c7c7c] text-[#818181] cursor-not-allowed"
       : "bg-secondary dark:text-[#d9d9d9]",
   );
   return (
-    <div className="border-primary/10 border-[1px] rounded-md">
+    <div className="z-[1000] border-primary/10 border-[1px] rounded-md">
       <Datepicker
         minDate={new Date("1900-01-01")}
         maxDate={new Date()}

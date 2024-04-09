@@ -18,8 +18,9 @@ export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => 
   if (!initialData) {
     return null;
   }
+  console.log(initialData);
+  console.log(initialData.imageUrl);
   const address = !initialData ? undefined : initialData.addresses.length > 0 ? initialData.addresses[0] : undefined;
-
   return (
     <div className="h-full p-4 w-full max-w-3xl mx-auto">
       <div className="space-y-4">
@@ -134,7 +135,7 @@ export const ViewAbout = ({ initialData, handleEditToggle }: ViewAboutProps) => 
             <div className="flex flex-col gap-y-1.5" key={address.id}>
               <div className="flex flex-row justify-between gap-2 items-center">
                 <Accordion type="multiple" className="space-y-2 w-full">
-                  <AccordionItem className="border-none" value={address.id}>
+                  <AccordionItem className="border-none" value={"0"}>
                     <AccordionTrigger
                       className={cn(
                         "flex items-center gap-x-2 p-1.5 rounded-md hover:bg-neutral-500/10 transition text-start no-underline hover:no-underline",

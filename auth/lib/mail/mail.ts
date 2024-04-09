@@ -12,7 +12,7 @@ import {
   TwoFactorConfirmationEmail,
 } from "./emails";
 
-const domain = process.env.NEXT_PUBLIC_URL;
+const domain = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const response = await resendClient.emails.send({
@@ -83,10 +83,13 @@ export const sendRequestRecordsEmail = async (
   let buffer = null;
   try {
     buffer = await getBuffer({ data: { ...dataForLetter, requestRecordsLink } });
-  } catch {
+  } catch (e) {
+    console.log("In 87");
+    console.log(e);
     throw new Error("Something went wrong on email send");
   }
   if (!buffer) {
+    console.log("NO BUFFER");
     throw new Error("Something went wrong on email send");
   }
   const response = await resendClient.emails.send({
@@ -111,6 +114,8 @@ export const sendRequestRecordsEmail = async (
     //     token,
     //   },
     // });
+    console.log("IN 117");
+    console.log(response);
     throw new Error("Something went wrong on email send");
   }
 };

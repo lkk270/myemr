@@ -13,8 +13,7 @@ export const AboutAccessibleRootFoldersPopover = ({
 }: AboutAccessibleRootFoldersPopoverProps) => {
   const description =
     which === "generateCode"
-      ? `You can choose which root folders you'd like the access code to be limited to. For example, you may want an
-    access code you are generating for a dentist to limit its visible root folders to just the "Dentist" root
+      ? `You can choose which root folders you'd like access to be limited to. For example, you may want a dentist to be limited to only the "Dentist" root
     folder. *Note* It is defaulted to all root folders, so please adjust to your preference.`
       : "";
   return (

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AccessWithCodeButton } from "@/auth/components/auth/access-patient-with-code-button";
 import { LoginButton } from "@/auth/components/auth/login-button";
 import Link from "next/link";
+import { JoinDropdown } from "./join-dropdown";
 export const MobileSidebar = () => {
   return (
     <Sheet>
@@ -37,6 +38,9 @@ export const MobileSidebar = () => {
               Have a patient access Code?
             </Button>
           </AccessWithCodeButton>
+        </SheetClose>
+        <SheetClose asChild>
+          <JoinDropdown triggerVariant="gooeyLeftGhostSecondary"/>
         </SheetClose>
         <SheetClose asChild>
           <Link href="/pricing">

@@ -2,17 +2,10 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/loading/spinner";
 import { useSession } from "next-auth/react";
-import { RegisterButton } from "@/auth/components/auth/register-button";
-
+import { JoinDropdown } from "./join-dropdown";
 export const Heading = () => {
   // const { isSignedIn, user, isLoaded } = useUser();
   const session = useSession();
@@ -21,6 +14,8 @@ export const Heading = () => {
 
   ////          <Highlight className="text-black dark:text-white z-1">Welcome to MyEMR</Highlight>
 
+  const constantText = `But it doesn't. Instead, patients don't have direct democratized access to their medical records and are left
+  paralyzed when it comes to their care.`;
   return (
     <>
       <div className="max-w-3xl space-y-4">
@@ -48,28 +43,20 @@ export const Heading = () => {
           </Button>
         )}
       </div>
-      {!user && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="gooeyLeft">
-              Join MyEMR
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="flex flex-col">
-            <RegisterButton mode="modal" asChild userType="PATIENT">
-              <Button variant="ghost" size="sm">
-                Patient
-              </Button>
-            </RegisterButton>
-            <RegisterButton mode="modal" asChild userType="PROVIDER">
-              <Button variant="ghost" size="sm">
-                Provider
-              </Button>
-            </RegisterButton>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <JoinDropdown />
+      <div className="text-center max-w-3xl space-y-4 flex flex-col gap-y-2">
+        <h1 className="text-center text-lg sm:text-2xl font-bold">
+          {`The healthcare industry should put patients first...`}
+        </h1>
+        <p className="text-sm hidden sm:flex sm:text-md font-medium">
+          {constantText}
+          {` If you've ever switched doctors, found a new one, or been referred, you know firsthand the
+          chaos of a new doctor navigating disorganized and incomplete records. It's all too familiar—the frustration of
+          being asked to undergo tests you've already done. MyEMR changes that, keeping all your records in one easily
+          shareable place, streamlining your healthcare experience.`}
+        </p>
+        <p className="text-sm sm:text-md flex sm:hidden font-medium">{constantText}</p>
+      </div>
     </>
   );
 };

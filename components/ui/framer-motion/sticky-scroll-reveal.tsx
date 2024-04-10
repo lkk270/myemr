@@ -81,7 +81,7 @@ export const StickyScroll = ({
                 >
                   {item.title}
                 </motion.h2>
-                <motion.p
+                <motion.div
                   initial={{
                     opacity: 0,
                   }}
@@ -103,7 +103,7 @@ export const StickyScroll = ({
                       })}
                     </ul>
                   )}
-                </motion.p>
+                </motion.div>
               </div>
             ))}
             <div className={cn(activeCard === 0 ? "h-[1800px]" : "h-[160px]")} />

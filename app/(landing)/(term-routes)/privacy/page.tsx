@@ -1,5 +1,5 @@
 import { TermsParagraphType } from "@/app/types";
-import { Footer } from "../_components/footer";
+import { Footer } from "../../_components/footer";
 import { TermsParagraph } from "@/components/terms-paragraph";
 
 const paragraphs: TermsParagraphType[] = [

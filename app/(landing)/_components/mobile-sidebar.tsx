@@ -19,28 +19,28 @@ export const MobileSidebar = () => {
       >
         <SheetClose asChild>
           <LoginButton mode="modal" asChild userType="PATIENT">
-            <Button variant="gooeyLeftGhost" size="sm">
+            <Button variant="gooeyLeftGhostSecondary" size="sm">
               Patient
             </Button>
           </LoginButton>
         </SheetClose>
         <SheetClose asChild>
           <LoginButton mode="modal" asChild userType="PROVIDER">
-            <Button variant="gooeyLeftGhost" size="sm">
+            <Button variant="gooeyLeftGhostSecondary" size="sm">
               Provider
             </Button>
           </LoginButton>
         </SheetClose>
         <SheetClose asChild>
           <AccessWithCodeButton asChild>
-            <Button variant="gooeyLeftGhost" size="sm">
+            <Button variant="gooeyLeftGhostSecondary" size="sm">
               Have a patient access Code?
             </Button>
           </AccessWithCodeButton>
         </SheetClose>
         <SheetClose asChild>
           <Link href="/pricing">
-            <Button variant="gooeyLeftGhost" size="sm">
+            <Button variant="gooeyLeftGhostSecondary" size="sm">
               <span className="text-sm">Pricing</span>
             </Button>
           </Link>

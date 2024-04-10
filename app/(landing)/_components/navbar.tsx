@@ -21,7 +21,7 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ scrolled }: NavbarProps) => {
-  const isMobile = useMediaQuery("(max-width: 450px)");
+  // const isMobile = useMediaQuery("(max-width: 450px)");
   const session = useSession();
   const sessionData = session.data;
   const user = sessionData?.user || null;
@@ -31,43 +31,38 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
   // console.log(session);
   // console.log(user);
   // console.log(session.status);
+
+  //          "xs:backdrop-blur dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F] bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
   return (
-    <div
-      className={cn(
-        "h-16 z-50 fixed top-0 flex items-center w-full p-2 sm:p-6",
-        scrolled &&
-          "xs:backdrop-blur dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F] bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
-      )}
-    >
+    <div className={cn("h-16 z-50 fixed top-0 flex items-center w-full p-2 sm:p-6", scrolled && "backdrop-blur")}>
       <Logo showText={true} />
 
       <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-2">
         {(!user || session.status === "unauthenticated") && (
-          <>
+          <div className="flex flex-row gap-x-2">
             <LoginButton mode="modal" asChild userType="PATIENT">
-              <Button variant="gooeyLeftGhost" size="sm">
+              <Button variant="gooeyLeftGhostSecondary" size="sm">
                 Patient
               </Button>
             </LoginButton>
-            <div className="hidden sm:flex">
+            <div className="hidden sm:flex sm:flex-row sm:gap-x-2">
               <LoginButton mode="modal" asChild userType="PROVIDER">
-                <Button variant="gooeyLeftGhost" size="sm">
+                <Button variant="gooeyLeftGhostSecondary" size="sm">
                   Provider
                 </Button>
               </LoginButton>
               <AccessWithCodeButton asChild>
-                <Button variant="gooeyLeftGhost" size="sm">
+                <Button variant="gooeyLeftGhostSecondary" size="sm">
                   Have patient code?
                 </Button>
               </AccessWithCodeButton>
-
               <Link href="/pricing">
-                <Button variant="gooeyLeftGhost" size="sm">
+                <Button variant="gooeyLeftGhostSecondary" size="sm">
                   <span className="text-sm">Pricing</span>
                 </Button>
               </Link>
             </div>
-          </>
+          </div>
         )}
         {!!currentUserPermissions && (!!user || session.status === "authenticated") && (
           <Link

@@ -34,18 +34,18 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
 
   //          "xs:backdrop-blur dark:bg-[#1F1F1F] dark:from-[#232437] dark:via-[#232435] dark:to-[#1F1F1F] bg-gradient-to-r from-[#dbd7fb] via-[#fbe2e3] to-[#f8f5f5] shadow-sm bg-muted",
   return (
-    <div className={cn("h-16 z-50 fixed top-0 flex items-center w-full p-2 sm:p-6", "backdrop-blur")}>
+    <div className={cn("h-16 z-50 fixed top-0 flex items-center w-full p-2 sm:p-6 backdrop-blur")}>
       <Logo showText={true} />
 
-      <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-2">
+      <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-5">
         {(!user || session.status === "unauthenticated") && (
-          <div className="flex flex-row gap-x-2">
+          <div className="flex flex-row gap-x-4">
             <LoginButton mode="modal" asChild userType="PATIENT">
               <Button variant="gooeyLeftGhostSecondary" size="sm">
                 Patient
               </Button>
             </LoginButton>
-            <div className="hidden sm:flex sm:flex-row sm:gap-x-2">
+            <div className="hidden sm:flex sm:flex-row sm:gap-x-4">
               <LoginButton mode="modal" asChild userType="PROVIDER">
                 <Button variant="gooeyLeftGhostSecondary" size="sm">
                   Provider
@@ -112,7 +112,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
             <UserButton afterSignOutUrl="/" />
           </>
         )} */}
-        <div className="flex flex-row gap-x-4 items-center">
+        <div className="flex flex-row gap-x-5 items-center">
           <ModeToggle />
           <MobileSidebar />
         </div>

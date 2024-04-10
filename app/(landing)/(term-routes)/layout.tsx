@@ -1,9 +1,9 @@
 "use client";
 
 import { useScrollTop } from "@/hooks/use-scroll-top";
-import { Navbar } from "./_components/navbar";
+import { Navbar } from "../_components/navbar";
 import { useRef } from "react";
-import { Footer } from "./_components/footer";
+import { Footer } from "../_components/footer";
 
 const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef(null);

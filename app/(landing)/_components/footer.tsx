@@ -30,7 +30,6 @@ export const Footer = () => {
       </div>
       {/* New line for Location & Contact */}
       <div className="text-muted-foreground flex flex-col sm:flex-row justify-between items-center mt-4 pb-4">
-        
         <div className="text-xs sm:text-sm">Location: New York, NY</div>
         <span className="text-xs">myemr © 2024</span>
 
@@ -43,3 +42,13 @@ export const Footer = () => {
     </div>
   );
 };
+
+// <div className="text-muted-foreground flex flex-col sm:flex-row justify-center items-center mt-4 pb-4">
+// <div className="text-xs sm:text-sm absolute left-2 sm:left-6">Location: New York, NY</div>
+// <span className="text-xs">myemr © 2024</span>
+// <Link href="mailto:hello@myemr.io" className="absolute right-2 sm:right-6 mt-2 sm:mt-0">
+//   <Button variant="ghost" size="sm">
+//     <span className="text-xs xxs:text-sm">Contact Us</span>
+//   </Button>
+// </Link>
+// </div>

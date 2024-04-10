@@ -1,4 +1,10 @@
-// import Image from "next/image";
+"use client";
+import React from "react";
+import { StickyScroll } from "@/components/ui/framer-motion/sticky-scroll-reveal";
+import Image from "next/image";
+import { Navbar } from "./navbar";
+import { Footer } from "./footer";
+import { Heading } from "./heading";
 
 // export const Heroes = () => {
 //   return (
@@ -90,23 +96,53 @@
 //   );
 // };
 
-"use client";
-import React from "react";
-import { StickyScroll } from "@/components/ui/framer-motion/sticky-scroll-reveal";
-import Image from "next/image";
-
 const content = [
+  // {
+  //   title: "The healthcare industry should put patients first...",
+  //   description:
+  //     "But it doesn't. Instead, patients don't have direct democratized access to their medical records and are left paralyzed when it comes to their care. If you've ever switched doctors, found a new one, or been referred, you know firsthand the chaos of a new doctor navigating disorganized and incomplete records. It's all too familiar—the frustration of being asked to undergo tests you've already done. MyEMR changes that, keeping all your records in one easily shareable place, streamlining your healthcare experience.",
+  //   content: (
+  //     <>
+  //       <Image
+  //         draggable={false}
+  //         src="/waiting_room.jpeg"
+  //         layout="responsive"
+  //         className="block rounded-lg shadow-md shadow-secondary"
+  //         width={400}
+  //         height={400}
+  //         alt="Files"
+  //       />
+  //     </>
+  //   ),
+  // },
   {
     title: "Grant access and/or request your records",
     description:
-      "Empower your healthcare journey with unparalleled control over your medical records. Our platform allows you to temporarily grant healthcare providers access to your records. You have the power to specify the duration and type of access, and even select the exact folders they can view. Need your records from a provider? Simply request them through our service, and we'll send a legally notarized document compelling the provider to upload any records they hold on you. Moreover, for providers with a MyEMR account, effortlessly integrate them into your circle by customizing their access, ensuring they have seamless entry to your profile when needed.",
+      "Enhance your healthcare management by precisely controlling access to your medical records and seamlessly requesting them from providers. Our platform enables you to:",
+    bullets: [
+      {
+        title: "Grant Temporary Access:",
+        content:
+          "Specify the duration, type, and folders of access for healthcare providers to view and/or edit your medical records.",
+      },
+      {
+        title: "Request Records:",
+        content:
+          "Securely request your records from any provider with a legally notarized document, ensuring prompt compliance.",
+      },
+      {
+        title: "Customize Provider Access:",
+        content:
+          "For providers with a MyEMR account, effortlessly tailor their access for direct and easy integration with your profile.",
+      },
+    ],
     content: (
       <>
         <Image
           draggable={false}
           src="/dark-home.png"
           layout="responsive"
-          className="hidden dark:block"
+          className="rounded-lg shadow-md shadow-secondary hidden dark:block"
           width={400}
           height={400}
           alt="Files"
@@ -115,7 +151,7 @@ const content = [
           draggable={false}
           src="/light-home.png"
           layout="responsive"
-          className="dark:hidden"
+          className="rounded-lg shadow-md shadow-secondary dark:hidden"
           width={400}
           height={400}
           alt="Files"
@@ -124,16 +160,16 @@ const content = [
     ),
   },
   {
-    title: "Real time changes",
+    title: "Securely store files",
     description:
-      "See changes as they happen. With our platform, you can track every modification in real time. No more confusion about the latest version of your project. Say goodbye to the chaos of version control and embrace the simplicity of real-time updates.",
+      "Securely store files with MyEMR’s comprehensive file system, designed to keep your medical records organized, private, and accessible.",
     content: (
       <>
         <Image
           draggable={false}
           src="/dark-files.png"
           layout="responsive"
-          className="hidden dark:block"
+          className="rounded-lg shadow-md shadow-secondary hidden dark:block"
           width={400}
           height={400}
           alt="Files"
@@ -142,7 +178,7 @@ const content = [
           draggable={false}
           src="/light-files.png"
           layout="responsive"
-          className="dark:hidden"
+          className="rounded-lg shadow-md shadow-secondary dark:hidden"
           width={400}
           height={400}
           alt="Files"
@@ -151,9 +187,10 @@ const content = [
     ),
   },
   {
-    title: "Version control",
+    title: "Medications",
+
     description:
-      "Experience real-time updates and never stress about version control again. Our platform ensures that you're always working on the most recent version of your project, eliminating the need for constant manual updates. Stay in the loop, keep your team aligned, and maintain the flow of your work without any interruptions.",
+      "Keep a clear record of your medications and dosages through MyEMR, ensuring your medical history is up-to-date and in one place.",
     content: (
       //div className="flex-1 max-w-full md:max-w-[65%] relative"
       <>
@@ -190,5 +227,117 @@ const content = [
   // },
 ];
 export function StickyScrollRevealDemo() {
-  return <StickyScroll content={content} />;
+  return (
+    <>
+      <div className="md:flex hidden">
+        <StickyScroll content={content} />
+      </div>
+      <div className="overflow-auto h-screen">
+        <Navbar scrolled={true} />
+        <main className="overflow-auto h-screen pt-16">
+          <div className="min-h-full flex flex-col xs:pt-8 sm:pt-12">
+            <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 px-0 xxs:px-2 pb-10">
+              <div className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#1F1F1F]"></div>
+              <div className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#25284a]"></div>
+              <Heading />
+              {/* <Heroes /> */}
+
+              <div className="overflow-auto flex md:hidden flex-col gap-y-7">
+                <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
+                  <div className="font-bold flex-1 max-w-full mt-5">{content[0].title}</div>
+                  <div className="flex-1 max-w-full relative">
+                    <Image
+                      draggable={false}
+                      src="/dark-home.png"
+                      layout="responsive"
+                      className="rounded-lg shadow-md shadow-secondary hidden dark:block"
+                      width={400}
+                      height={400}
+                      alt="Files"
+                    />
+                    <Image
+                      draggable={false}
+                      src="/light-home.png"
+                      layout="responsive"
+                      className="dark:hidden rounded-lg shadow-md shadow-secondary"
+                      width={400}
+                      height={400}
+                      alt="Files"
+                    />
+                  </div>
+                </div>
+                <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
+                  <div className="font-bold flex-1 max-w-full mt-5">{content[1].title}</div>
+                  <div className="flex-1 max-w-full relative">
+                    <Image
+                      draggable={false}
+                      src="/dark-files.png"
+                      layout="responsive"
+                      className="rounded-lg shadow-md shadow-secondary hidden dark:block"
+                      width={400}
+                      height={400}
+                      alt="Files"
+                    />
+                    <Image
+                      draggable={false}
+                      src="/light-files.png"
+                      layout="responsive"
+                      className="dark:hidden rounded-lg shadow-md shadow-secondary"
+                      width={400}
+                      height={400}
+                      alt="Files"
+                    />
+                  </div>
+                </div>
+                <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
+                  <div className="font-bold flex-1 max-w-full mt-5">{content[2].title}</div>
+                  <div className="flex-1 max-w-full relative">
+                    <Image
+                      draggable={false}
+                      src="/dark-meds.png"
+                      layout="responsive"
+                      className="rounded-lg shadow-md shadow-secondary hidden dark:block"
+                      width={400}
+                      height={400}
+                      alt="Files"
+                    />
+                    <Image
+                      draggable={false}
+                      src="/light-meds.png"
+                      layout="responsive"
+                      className="dark:hidden rounded-lg shadow-md shadow-secondary"
+                      width={400}
+                      height={400}
+                      alt="Files"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <Footer />
+        </main>
+      </div>
+    </>
+  );
 }
+
+// import { Footer } from "./_components/footer";
+// import { Heading } from "./_components/heading";
+// import { Heroes } from "./_components/heroes";
+
+// const MarketingPage = () => {
+//   return (
+//     <div className="min-h-full flex flex-col xs:pt-8 sm:pt-12">
+//       <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 px-6 pb-10">
+//         <div className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#1F1F1F]"></div>
+//         <div className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#25284a]"></div>
+//         <Heading />
+//         <Heroes />
+//       </div>
+//       {/* <Footer /> */}
+//     </div>
+//   );
+// };
+
+// export default MarketingPage;

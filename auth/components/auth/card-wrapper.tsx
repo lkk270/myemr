@@ -47,7 +47,7 @@ export const CardWrapper = ({
         <CardFooter className="flex flex-col gap-y-3">
           <BackButton label={backButtonLabel} href={backButtonHref} />
           {!!headerLabel && headerLabel.includes("Create") && (
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground pb-28 sm:pb-0">
               By creating an account you agree to be bounded by these{" "}
               <a target="_blank" href="/terms" className="underline">
                 terms

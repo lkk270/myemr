@@ -17,7 +17,7 @@ export const Heading = () => {
   const constantText = `But it doesn't. Instead, patients don't have direct democratized access to their medical records and are left
   paralyzed when it comes to their care.`;
   return (
-    <>
+    <div className="flex flex-col gap-y-6 items-center">
       <div className="max-w-3xl space-y-4">
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
           All your medical records in one place. Welcome to{" "}
@@ -44,19 +44,16 @@ export const Heading = () => {
         )}
       </div>
       <JoinDropdown />
-      <div className="text-center max-w-3xl space-y-4 flex flex-col gap-y-2">
-        <h1 className="text-center text-lg sm:text-2xl font-bold">
+      <div className="text-center max-w-5xl space-y-4 flex flex-col gap-y-2">
+        {/* <h1 className="text-center text-lg sm:text-2xl font-bold">
           {`The healthcare industry should put patients first...`}
-        </h1>
+        </h1> */}
         <p className="text-sm hidden sm:flex sm:text-md font-medium">
-          {constantText}
-          {` If you've ever switched doctors, found a new one, or been referred, you know firsthand the
-          chaos of a new doctor navigating disorganized and incomplete records. It's all too familiar—the frustration of
-          being asked to undergo tests you've already done. MyEMR changes that, keeping all your records in one easily
-          shareable place, streamlining your healthcare experience.`}
+          {/* {constantText} */}
+          {`If you've ever been referred or have had to switch doctors you're familiar with the chaos of disorganized records and wasteful repeated tests. MyEMR addresses this by consolidating all your most important records in one shareable location, simplifying your healthcare experience.`}
         </p>
-        <p className="text-sm sm:text-md flex sm:hidden font-medium">{constantText}</p>
+        {/* <p className="text-sm sm:text-md flex sm:hidden font-medium">{constantText}</p> */}
       </div>
-    </>
+    </div>
   );
 };

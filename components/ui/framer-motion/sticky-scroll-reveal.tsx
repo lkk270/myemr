@@ -62,7 +62,7 @@ export const StickyScroll = ({
       <div className="pb-24">
         <Navbar scrolled={false} />
       </div>
-      <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 px-6">
+      <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-3 sm:gap-y-6 flex-1 px-6">
         <Heading />
       </div>
       <div className="mt-20 px-3 flex justify-center relative space-x-4 lg:space-x-8 bg-transparent">

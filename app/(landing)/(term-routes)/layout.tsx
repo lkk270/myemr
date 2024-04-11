@@ -10,7 +10,7 @@ const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   const scrolled = useScrollTop(scrollRef);
 
   return (
-    <div className="overflow-auto h-[95vh] xs:h-screen">
+    <div className="overflow-auto h-[95vh] xs:h-screen sm:pb-0 pb-28">
       <Navbar scrolled={scrolled} />
       <main ref={scrollRef} className="pt-16">
         {children}

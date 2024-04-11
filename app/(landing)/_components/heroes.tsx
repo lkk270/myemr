@@ -232,7 +232,7 @@ export function StickyScrollRevealDemo() {
       <div className="md:flex hidden">
         <StickyScroll content={content} />
       </div>
-      <div className="flex md:hidden overflow-auto h-screen sm:pb-0 pb-28">
+      <div className="flex md:hidden overflow-auto h-screen">
         <Navbar scrolled={true} />
         <main className="overflow-auto h-screen pt-16">
           <div className="min-h-full flex flex-col pt-4 xs:pt-8 sm:pt-12">
@@ -314,7 +314,9 @@ export function StickyScrollRevealDemo() {
               </div>
             </div>
           </div>
-          <Footer />
+          <div className="sm:pb-0 pb-28">
+            <Footer />
+          </div>
         </main>
       </div>
     </>

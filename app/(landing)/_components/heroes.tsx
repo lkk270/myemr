@@ -232,7 +232,7 @@ export function StickyScrollRevealDemo() {
       <div className="md:flex hidden">
         <StickyScroll content={content} />
       </div>
-      <div className="overflow-auto h-screen">
+      <div className="flex md:hidden overflow-auto h-screen xs:pb-16 pb-0">
         <Navbar scrolled={true} />
         <main className="overflow-auto h-screen pt-16">
           <div className="min-h-full flex flex-col pt-4 xs:pt-8 sm:pt-12">

@@ -402,12 +402,20 @@ export async function moveNodes(
     const newNamePath = `${targetNode.namePath}/`; // Adjust based on your naming convention
     // console.log("newPath", newPath);
     // console.log("newNamePath", newNamePath);
-    await prismadb.$executeRaw`UPDATE \`File\`
-    SET \`parentId\` = ${targetNodeId}, 
-        \`path\` = ${newPath}, 
-        // Update the CONCAT function to correctly handle the new namePath
-        \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, CHAR_LENGTH(\`namePath\`) - LOCATE('/', REVERSE(\`namePath\`)) + 2))
-    WHERE \`id\` IN (${Prisma.join(fileIds)})`;
+    //////////////////////////////////////////////////////////////
+    //FOR MYSQL
+    // await prismadb.$executeRaw`UPDATE \`File\`
+    // SET \`parentId\` = ${targetNodeId},
+    //     \`path\` = ${newPath},
+    //     // Update the CONCAT function to correctly handle the new namePath
+    //     \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, CHAR_LENGTH(\`namePath\`) - LOCATE('/', REVERSE(\`namePath\`)) + 2))
+    // WHERE \`id\` IN (${Prisma.join(fileIds)})`;
+    //////////////////////////////////////////////////////////////
+    await prismadb.$executeRaw`UPDATE "File"
+      SET "parentId" = ${targetNodeId}, 
+          "path" = ${newPath}, 
+          "namePath" = ${newNamePath} || SUBSTRING("namePath", LENGTH("namePath") - POSITION('/' IN REVERSE("namePath")) + 2)
+      WHERE "id" IN (${Prisma.join(fileIds)})`;
 
     await updateRecordViewActivitiesForFiles(userIds.patient, fileIds);
   }
@@ -430,20 +438,38 @@ async function batchUpdateDescendants(
   // console.log("newParentNamePath", newParentNamePath);
 
   // Use tagged template literals for the raw SQL query for updating folder descendants
+  //////////////////////////////////////////////////////////////
+  //FOR MYSQL
+  //   await prisma.$executeRaw`
+  //   UPDATE \`Folder\`
+  //   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
+  //       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
+  //   WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
+  // `;
+  //////////////////////////////////////////////////////////////
   await prisma.$executeRaw`
-  UPDATE \`Folder\`
-  SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
-      \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
-`;
+    UPDATE "Folder"
+    SET "namePath" = REPLACE("namePath", ${originalNamePath}, ${newParentNamePath}),
+        "path" = REPLACE("path", ${originalPath}, ${newParentPath})
+    WHERE "path" LIKE ${`${originalPath}${originalNodeId}/` + "%"}
+    `;
 
   // Use tagged template literals for the raw SQL query for updating file descendants
+  //////////////////////////////////////////////////////////////
+  //FOR MYSQL
+  //   await prisma.$executeRaw`
+  //   UPDATE \`File\`
+  //   SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
+  //       \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
+  //   WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
+  // `;
+  //////////////////////////////////////////////////////////////
   await prisma.$executeRaw`
-  UPDATE \`File\`
-  SET \`namePath\` = REPLACE(\`namePath\`, ${originalNamePath}, ${newParentNamePath}),
-      \`path\` = REPLACE(\`path\`, ${originalPath}, ${newParentPath})
-  WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
-`;
+    UPDATE "File"
+    SET "namePath" = REPLACE("namePath", ${originalNamePath}, ${newParentNamePath}),
+        "path" = REPLACE("path", ${originalPath}, ${newParentPath})
+    WHERE "path" LIKE ${`${originalPath}${originalNodeId}/` + "%"}
+    `;
 }
 
 export async function deleteFiles(selectedFileIds: string[]) {

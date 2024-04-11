@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import Link from "next/link";
+import Image from "next/image";
 
 export const Footer = () => {
   return (
@@ -31,8 +32,10 @@ export const Footer = () => {
       {/* New line for Location & Contact */}
       <div className="text-muted-foreground flex flex-col sm:flex-row justify-between items-center mt-4 pb-4">
         <div className="text-xs sm:text-sm">Location: New York, NY</div>
-        <span className="text-xs">myemr © 2024</span>
-
+        <div className="flex flex-col items-center">
+          <span className="text-xs">myemr © 2024</span>
+          <Image src="/hippa-compliant.png" width={100} height={100} alt="hippa-compliant" />
+        </div>
         <Link href="mailto:hello@myemr.io" className="mt-2 sm:mt-0">
           <Button variant="ghost" size="sm">
             <span className="text-xs xxs:text-sm">Contact Us</span>

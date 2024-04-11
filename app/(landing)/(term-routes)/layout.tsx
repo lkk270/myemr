@@ -12,7 +12,7 @@ const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="overflow-auto h-[95vh] xs:h-screen">
       <Navbar scrolled={scrolled} />
-      <main ref={scrollRef} className="overflow-auto h-screen pt-16 sm:pb-0 pb-28">
+      <main ref={scrollRef} className="pt-16">
         {children}
         <Footer />
       </main>

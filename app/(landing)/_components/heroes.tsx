@@ -236,15 +236,14 @@ export function StickyScrollRevealDemo() {
         <Navbar scrolled={true} />
         <main className="overflow-auto h-screen pt-16">
           <div className="min-h-full flex flex-col pt-4 xs:pt-8 sm:pt-12">
-            <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 px-0 xxs:px-2 pb-10">
-              <div className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#1F1F1F]">testingabc</div>
-              <div className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#25284a]"></div>
+            <div className="flex flex-col items-center justify-center md:justify-start text-center flex-1 px-0 xxs:px-2 pb-3 sm:pb-6">
+              <div className="bg-[#fbe2e3] absolute top-[6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#1F1F1F]"></div>
+              <div className="bg-[#dbd7fb] absolute top-[1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#25284a]"></div>
               <Heading />
               {/* <Heroes /> */}
-
               <div className="overflow-auto flex md:hidden flex-col gap-y-7">
                 <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
-                  <div className="font-bold flex-1 max-w-full mt-5">{content[0].title}</div>
+                  <div className="font-bold flex-1 max-w-full">{content[0].title}</div>
                   <div className="flex-1 max-w-full relative">
                     <Image
                       draggable={false}
@@ -267,7 +266,7 @@ export function StickyScrollRevealDemo() {
                   </div>
                 </div>
                 <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
-                  <div className="font-bold flex-1 max-w-full mt-5">{content[1].title}</div>
+                  <div className="font-bold flex-1 max-w-full mt-3">{content[1].title}</div>
                   <div className="flex-1 max-w-full relative">
                     <Image
                       draggable={false}
@@ -290,7 +289,7 @@ export function StickyScrollRevealDemo() {
                   </div>
                 </div>
                 <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
-                  <div className="font-bold flex-1 max-w-full mt-5">{content[2].title}</div>
+                  <div className="font-bold flex-1 max-w-full mt-3">{content[2].title}</div>
                   <div className="flex-1 max-w-full relative">
                     <Image
                       draggable={false}

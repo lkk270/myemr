@@ -159,6 +159,7 @@ export async function POST(req: Request) {
       const targetId = body.targetId;
       const result = await moveNodes(selectedIds, targetId, false, userIds, accessibleRootFolderIds);
       if (result.error) {
+        console.log(result.error);
         return new NextResponse(result.error, { status: result.status });
       }
 
@@ -281,6 +282,7 @@ export async function POST(req: Request) {
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
+    console.log(error);
     const errorString = error.toString().toLowerCase();
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });

@@ -37,7 +37,7 @@ export const Navbar = ({ scrolled }: NavbarProps) => {
     <div className={cn("h-16 z-50 fixed top-0 flex items-center w-full p-2 sm:p-6 backdrop-blur")}>
       <Logo showText={true} />
 
-      <div className="ml-auto justify-end w-full flex items-center gap-x-1 xs:gap-x-5">
+      <div className="ml-auto justify-end w-full flex items-center gap-x-5">
         {(!user || session.status === "unauthenticated") && (
           <div className="flex flex-row gap-x-4">
             <LoginButton mode="modal" asChild userType="PATIENT">

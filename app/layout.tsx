@@ -1,6 +1,6 @@
 import "./globals.css";
-import type { Metadata } from "next";
-import Head from "next/head";
+import type { Metadata, Viewport } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
@@ -18,8 +18,29 @@ const font = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "MyEMR",
   description: "A patient focused EMR",
-  appleWebApp: false,
+  appleWebApp: true,
+  robots: {
+    index: false,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: false,
+      noimageindex: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
+
+// export const viewport: Viewport = {
+//   width: "device-width",
+//   initialScale: 1.2,
+//   maximumScale: 1,
+//   userScalable: false,
+//   minimumScale: 0.9,
+// };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -34,7 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </Head> */}
       <SessionProvider session={session}>
         <html lang="en" suppressHydrationWarning>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+          {/* <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" /> */}
           <body className={cn(font.className)}>
             <NewMedicationModal />
             <ViewMedicationModal />
@@ -51,6 +72,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Toaster closeButton position="bottom-right" richColors theme="system" />
 
               {children}
+              <SpeedInsights />
             </ThemeProvider>
           </body>
         </html>

@@ -20,7 +20,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex overflow-auto h-screen">
+    <div className="flex overflow-auto h-[95vh] xs:h-screen">
       <Navbar numOfUnreadNotifications={numOfUnreadNotifications} />
       <UploadInsuranceModal />
       {/* <NewMedicationModal />

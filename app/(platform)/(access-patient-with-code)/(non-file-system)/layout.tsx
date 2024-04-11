@@ -46,7 +46,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
   return (
-    <div className="flex overflow-auto h-screen">
+    <div className="flex overflow-auto h-[95vh] xs:h-screen">
       <Navbar tempAccess={true} />
       {/* <NewMedicationModal />
       <ViewMedicationModal /> */}

@@ -34,7 +34,7 @@ export const Footer = () => {
         <div className="text-xs sm:text-sm">Location: New York, NY</div>
         <div className="flex flex-col items-center">
           <span className="text-xs">myemr © 2024</span>
-          <Image src="/hippa-compliant.png" width={100} height={100} alt="hippa-compliant" />
+          <Image draggable={false} src="/hippa-compliant.png" width={100} height={100} alt="hippa-compliant" />
         </div>
         <Link href="mailto:hello@myemr.io" className="mt-2 sm:mt-0">
           <Button variant="ghost" size="sm">

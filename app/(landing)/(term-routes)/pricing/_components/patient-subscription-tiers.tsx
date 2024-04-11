@@ -47,7 +47,7 @@ const tiers: SubscriptionTierType[] = [
 ];
 export const PatientSubscriptionTiers = () => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center pt-12">
       <h1 className="font-bold pb-5 sm:pb-10 text-xl md:text-3xl">Patient Pricing</h1>
       <div className="max-w-[1000px] w-full px-8 pb-8 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-2 md:grid-cols-3">
         {tiers.map((tier, index) => {

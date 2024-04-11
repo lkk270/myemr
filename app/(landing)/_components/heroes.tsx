@@ -290,7 +290,7 @@ export function StickyScrollRevealDemo() {
                 </div>
                 <div className="gap-y-4 flex flex-col w-full px-5 items-center justify-between">
                   <div className="font-bold flex-1 max-w-full mt-3">{content[2].title}</div>
-                  <div className="flex-1 max-w-full relative">
+                  <div className="flex-1 max-w-full relative shadow-lg shadow-secondary">
                     <Image
                       draggable={false}
                       src="/dark-meds.png"

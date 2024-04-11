@@ -14,8 +14,8 @@ export const Heading = () => {
 
   ////          <Highlight className="text-black dark:text-white z-1">Welcome to MyEMR</Highlight>
 
-  const constantText = `But it doesn't. Instead, patients don't have direct democratized access to their medical records and are left
-  paralyzed when it comes to their care.`;
+  // const constantText = `But it doesn't. Instead, patients don't have direct democratized access to their medical records and are left
+  // paralyzed when it comes to their care.`;
   return (
     <div className="flex flex-col gap-y-6 items-center">
       <div className="max-w-3xl space-y-4">

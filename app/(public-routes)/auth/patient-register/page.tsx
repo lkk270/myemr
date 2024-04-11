@@ -9,3 +9,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+// pb-28 sm:pb-0

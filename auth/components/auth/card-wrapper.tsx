@@ -6,6 +6,7 @@ import { Social } from "./social";
 import { BackButton } from "./back-button";
 import { useShowTwoFactor } from "@/auth/hooks/use-show-two-factor";
 import { UserType } from "@prisma/client";
+import { cn } from "@/lib/utils";
 interface CardWrapperProps {
   children: React.ReactNode;
   headerLabel?: string;
@@ -13,6 +14,7 @@ interface CardWrapperProps {
   backButtonLabel: string;
   backButtonHref: string;
   showSocial?: boolean;
+  mode?: string;
 }
 
 export const CardWrapper = ({
@@ -22,12 +24,13 @@ export const CardWrapper = ({
   backButtonLabel,
   backButtonHref,
   showSocial,
+  mode,
 }: CardWrapperProps) => {
   const { showTwoFactor } = useShowTwoFactor();
   return (
-    <Card className="shadow-md">
+    <Card className={cn("shadow-md", mode === "drawer" && "border-none")}>
       {!!headerLabel && (
-        <CardHeader>
+        <CardHeader className={cn(mode === "drawer" && "py-2")}>
           <Header label={headerLabel} />
           {!!headerSubtitle && <div className="text-sm text-muted-foreground text-center">{headerSubtitle}</div>}
         </CardHeader>
@@ -45,9 +48,9 @@ export const CardWrapper = ({
       )}
       {!showTwoFactor && (
         <CardFooter className="flex flex-col gap-y-3">
-          <BackButton label={backButtonLabel} href={backButtonHref} />
+          {mode !== "drawer" && <BackButton label={backButtonLabel} href={backButtonHref} />}
           {!!headerLabel && headerLabel.includes("Create") && (
-            <div className="text-xs text-muted-foreground pb-28 sm:pb-0">
+            <div className="text-xs text-muted-foreground">
               By creating an account you agree to be bounded by these{" "}
               <a target="_blank" href="/terms" className="underline">
                 terms

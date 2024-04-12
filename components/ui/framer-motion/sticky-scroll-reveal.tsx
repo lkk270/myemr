@@ -106,7 +106,7 @@ export const StickyScroll = ({
                 </motion.div>
               </div>
             ))}
-            <div className={cn(activeCard === 0 ? "h-[1800px]" : "h-[160px]")} />
+            <div className={cn(activeCard === 0 ? "h-[1800px]" : "h-[220px]")} />
           </div>
         </div>
         <motion.div
@@ -114,7 +114,7 @@ export const StickyScroll = ({
           //   background: linearGradients[activeCard % linearGradients.length],
           // }}
           className={cn(
-            // activeCard === 2 && "mb-96",
+            // activeCard === 2 && "mt-96",
             "shadow-lg shadow-primary/20 text-primary bg-transparent hidden md:block h-fit min-w-[65%] w-full sticky top-[20%] overflow-hidden justify-center flex-1",
             contentClassName,
           )}
@@ -122,37 +122,45 @@ export const StickyScroll = ({
           {content[activeCard].content ?? null}
         </motion.div>
       </div>
-      <div className="px-4 items-center mb-16 flex flex-row gap-x-5">
-        {/* <div className="h-fit min-w-[45%] w-full">
-          <Image
-            draggable={false}
-            src="visit.svg"
-            layout="responsive"
-            className="rounded-lg"
-            width={400}
-            height={400}
-            alt="Files"
-          />
-        </div> */}
-        {/* <div className="flex flex-col gap-y-2">
-          <h1 className="text-xl sm:text-xl font-bold">The healthcare industry should put patients first...</h1>
-          <p className="text-md">
-            But it doesn't. Instead, patients don't have direct democratized access to their medical records and are
-            left paralyzed when it comes to their care.
-          </p>
-          <p className="text-md">
-            If you've ever switched doctors, found a new one, or been referred, you know firsthand the chaos of a new
-            doctor navigating disorganized and incomplete records. It's all too familiar—the frustration of being asked
-            to undergo tests you've already done. MyEMR changes that, keeping all your records in one easily shareable
-            place, streamlining your healthcare experience.
-          </p>
-        </div> */}
-        <div className="flex flex-col items-center">
-          <JoinDropdown />
-        </div>
-      </div>
-
       <Footer />
     </motion.div>
   );
 };
+
+{
+  /* <div className="px-4 items-center flex flex-row gap-x-5"> */
+}
+{
+  /* <div className="h-fit min-w-[45%] w-full">
+  <Image
+    draggable={false}
+    src="visit.svg"
+    layout="responsive"
+    className="rounded-lg"
+    width={400}
+    height={400}
+    alt="Files"
+  />
+</div> */
+}
+{
+  /* <div className="flex flex-col gap-y-2">
+  <h1 className="text-xl sm:text-xl font-bold">The healthcare industry should put patients first...</h1>
+  <p className="text-md">
+    But it doesn't. Instead, patients don't have direct democratized access to their medical records and are
+    left paralyzed when it comes to their care.
+  </p>
+  <p className="text-md">
+    If you've ever switched doctors, found a new one, or been referred, you know firsthand the chaos of a new
+    doctor navigating disorganized and incomplete records. It's all too familiar—the frustration of being asked
+    to undergo tests you've already done. MyEMR changes that, keeping all your records in one easily shareable
+    place, streamlining your healthcare experience.
+  </p>
+</div> */
+}
+{
+  /* <div className="flex flex-col items-center">
+  <JoinDropdown />
+</div>
+</div> */
+}

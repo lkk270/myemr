@@ -15,12 +15,13 @@ import { FormSuccess } from "../form-success";
 import { register } from "@/auth/actions/register";
 import { UserType } from "@prisma/client";
 import { capitalizeFirstLetter } from "@/lib/utils";
-
+import { cn } from "@/lib/utils";
 interface RegisterFormProps {
   userType: "PROVIDER" | "PATIENT";
+  mode?: string;
 }
 
-export const RegisterForm = ({ userType }: RegisterFormProps) => {
+export const RegisterForm = ({ userType, mode }: RegisterFormProps) => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -53,14 +54,15 @@ export const RegisterForm = ({ userType }: RegisterFormProps) => {
 
   return (
     <CardWrapper
+      mode={mode}
       headerLabel={`Create a ${capitalizeFirstLetter(userType)} Account`}
       backButtonLabel="Already have an account?"
       backButtonHref={`/auth/${userType.toLocaleLowerCase()}-login`}
       showSocial={userType === UserType.PATIENT}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className={cn(mode === "drawer" ? "space-y-3" : "space-y-6")}>
+          <div className={cn(mode === "drawer" ? "space-y-2" : "space-y-4")}>
             <FormField
               control={form.control}
               name="firstName"

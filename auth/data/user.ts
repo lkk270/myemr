@@ -5,7 +5,7 @@ export const getUserByEmail = async (email: string, type: UserType) => {
   try {
     const user = await prismadb.user.findFirst({ where: { email: email.toLowerCase(), type } });
     return user;
-  } catch {
+  } catch (e) {
     return null;
   }
 };

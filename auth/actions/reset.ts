@@ -11,11 +11,10 @@ export const reset = async (values: z.infer<typeof ResetSchema>) => {
   const validatedFields = ResetSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { error: "Invalid emaiL!" };
+    return { error: "Invalid email!" };
   }
 
   const { email, userType } = validatedFields.data;
-
   const existingUser = await getUserByEmail(email, userType);
 
   if (!existingUser) {

@@ -40,6 +40,7 @@ export const metadata: Metadata = {
 //   maximumScale: 1,
 //   userScalable: false,
 //   minimumScale: 0.9,
+
 // };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

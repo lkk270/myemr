@@ -16,7 +16,7 @@ export const AvatarComponent = ({
   isLoading;
   const currentUserPermissions = extractCurrentUserPermissions(user);
   // console.log(user);
-
+  // console.log(user);
   return (
     <Avatar style={{ animation: isLoading ? "pulse 1.5s infinite" : "" }} className={avatarClassName}>
       <AvatarImage src={currentUserPermissions.hasAccount ? user?.image || "" : ""} />

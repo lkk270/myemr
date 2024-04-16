@@ -11,6 +11,41 @@ export const deletePatients = async (authHeader: string) => {
     return { error: "unauthorized" };
   }
 
+  async function deleteFolderAndSubfolders(folderId: string) {
+    const subFolders = await prismadb.folder.findMany({
+      where: { parentId: folderId },
+    });
+
+    // Recursively delete subfolders first
+    for (const subFolder of subFolders) {
+      await deleteFolderAndSubfolders(subFolder.id);
+    }
+
+    // Delete the current folder
+    await prismadb.folder.delete({
+      where: { id: folderId },
+    });
+  }
+
+  async function deleteAllUserFolders(userId: string) {
+    const rootFolders = await prismadb.folder.findMany({
+      where: {
+        userId: userId,
+        parentId: null, // Assuming root folders have no parent ID
+      },
+    });
+
+    // Use a transaction to ensure all deletions complete successfully
+    await prismadb.$transaction(
+      async () => {
+        for (const folder of rootFolders) {
+          await deleteFolderAndSubfolders(folder.id);
+        }
+      },
+      { timeout: 20000 },
+    );
+  }
+
   async function deleteFolderContents(folderPrefix: string) {
     const client = new S3Client({ region: process.env.AWS_REGION });
 
@@ -87,6 +122,16 @@ export const deletePatients = async (authHeader: string) => {
         await deleteFolderContents(`${patientProfileId}/`);
       }
 
+      reason = "failed on:  prismadb.file.delete";
+      await prismadb.file.deleteMany({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      reason = "failed on:  prismadb.folder.delete";
+      await deleteAllUserFolders(user.id);
+
       reason = "failed on:  prismadb.user.delete";
       await prismadb.user.delete({
         where: {
@@ -110,7 +155,6 @@ export const deletePatients = async (authHeader: string) => {
       reason = "failed on: sendSuccessfullyDeletedAccountEmail";
       await sendSuccessfullyDeletedAccountEmail(user.email, "Patient");
     } catch (error) {
-      //   console.log("error");
       await prismadb.failedAccountDelete.create({
         data: {
           userId: user.id,

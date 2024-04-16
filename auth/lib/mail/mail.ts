@@ -12,7 +12,7 @@ import {
   TwoFactorConfirmationEmail,
 } from "./emails";
 
-const domain = process.env.NEXT_PUBLIC_BASE_URL;
+const domain = process.env.NEXT_PUBLIC_URL;
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const response = await resendClient.emails.send({

@@ -10,7 +10,7 @@ export const SettingsSchema = z
       .string()
       .optional()
       .refine((value) => typeof value === "undefined" || (value.length > 1 && value.length <= 70), {
-        message: "Name must be longer than 1 character and not exceed 70 characters if specified",
+        message: "Name must be longer than 1 character and not exceed 70 characters.",
       }),
 
     isTwoFactorEnabled: z.optional(z.boolean()),

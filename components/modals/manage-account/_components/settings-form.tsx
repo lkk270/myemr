@@ -15,9 +15,11 @@ import { Input } from "@/components/ui/input";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { FormError } from "@/auth/components/form-error";
 import { FormSuccess } from "@/auth/components/form-success";
+import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 
 export const SettingsForm = () => {
   const user = useCurrentUser();
+  const currentUserPermissions = extractCurrentUserPermissions(user);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const { update } = useSession();
@@ -62,11 +64,15 @@ export const SettingsForm = () => {
         });
     });
   };
-  const watchedName = form.watch("name");
+  const watchedName = form.watch("name") || null;
   const watchedPassword = form.watch("password");
   const watchedNewPassword = form.watch("newPassword");
   const watchedIsTwoFactorEnabled = form.watch("isTwoFactorEnabled");
-
+  console.log(user?.name);
+  console.log(watchedName);
+  console.log(watchedPassword);
+  console.log(watchedNewPassword);
+  console.log(watchedIsTwoFactorEnabled);
   return (
     <Form {...form}>
       <form className="space-y-6 w-full" onSubmit={form.handleSubmit(onSubmit)}>
@@ -192,11 +198,8 @@ export const SettingsForm = () => {
         <Button
           disabled={
             isPending ||
-            (watchedName === user?.name &&
-              !!watchedName &&
-              !watchedPassword &&
-              !watchedNewPassword &&
-              !!watchedIsTwoFactorEnabled === !!user?.isTwoFactorEnabled)
+            (currentUserPermissions.isProvider && watchedName === user?.name) ||
+            (!watchedPassword && !watchedNewPassword && !!watchedIsTwoFactorEnabled === !!user?.isTwoFactorEnabled)
           }
           type="submit"
         >

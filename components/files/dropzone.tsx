@@ -18,6 +18,7 @@ interface DropzoneProps {
   onChangeSingleFile?: (file: FileWithStatus | null) => void;
   className?: string;
   insuranceSide?: "front" | "back";
+  isForProfilePic?: boolean;
 }
 
 // Create the Dropzone component receiving props
@@ -27,6 +28,7 @@ export function Dropzone({
   onChangeSingleFile,
   className,
   insuranceSide,
+  isForProfilePic = false,
   ...props
 }: DropzoneProps) {
   const { isLoading } = useIsLoading();
@@ -77,18 +79,20 @@ export function Dropzone({
 
   // Function to handle processing of uploaded files
   const handleFiles = (files: FileList) => {
-    const maxSize =
-      !!onChangeSingle || !!onChangeSingleFile
-        ? maxSystemFileSize
-        : !!currentUser && currentUserPermissions.isPatient
-        ? maxFileUploadSizes[currentUser?.plan]
-        : maxFileUploadSize;
-    const maxSizeError = maxSize === maxSystemFileSize ? "10 Mb" : "5 GB";
+    const maxSize = isForProfilePic
+      ? 3145728
+      : !!onChangeSingle || !!onChangeSingleFile
+      ? maxSystemFileSize
+      : !!currentUser && currentUserPermissions.isPatient
+      ? maxFileUploadSizes[currentUser?.plan]
+      : maxFileUploadSize;
+    const maxSizeError = isForProfilePic ? "3 Mb" : maxSize === maxSystemFileSize ? "10 Mb" : "5 GB";
+    const addOnError = maxSizeError === "10 Mb" ? " Upgrade your plan to increase the maximum upload size." : "";
     let newFiles: FileWithStatus[] = []; // Define as array of FileWithStatus
     for (let i = 0; i < files.length; i++) {
       if (files[i].size > maxSize) {
         // Optionally, alert the user that the file is too large
-        toast.error(`${files[i].name} is too large. Maximum file size is ${maxSizeError}.`);
+        toast.error(`${files[i].name} is too large. Maximum file size is ${maxSizeError}.${addOnError}`);
         continue; // Skip this file and continue with the next one
       }
       const file = files[i];

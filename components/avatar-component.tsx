@@ -19,7 +19,7 @@ export const AvatarComponent = ({
   // console.log(user);
   return (
     <Avatar style={{ animation: isLoading ? "pulse 1.5s infinite" : "" }} className={avatarClassName}>
-      <AvatarImage src={currentUserPermissions.hasAccount ? user?.image || "" : ""} />
+      <AvatarImage draggable={false} src={currentUserPermissions.hasAccount ? user?.image || "" : ""} />
       <AvatarFallback className="bg-sky-500">
         <FaUser className="text-white" />
       </AvatarFallback>

@@ -198,8 +198,15 @@ export const SettingsForm = () => {
         <Button
           disabled={
             isPending ||
-            (currentUserPermissions.isProvider && watchedName === user?.name) ||
-            (!watchedPassword && !watchedNewPassword && !!watchedIsTwoFactorEnabled === !!user?.isTwoFactorEnabled)
+            (currentUserPermissions.isProvider &&
+              watchedName === user?.name &&
+              !watchedPassword &&
+              !watchedNewPassword &&
+              !!watchedIsTwoFactorEnabled === !!user?.isTwoFactorEnabled) ||
+            (currentUserPermissions.isPatient &&
+              !watchedPassword &&
+              !watchedNewPassword &&
+              !!watchedIsTwoFactorEnabled === !!user?.isTwoFactorEnabled)
           }
           type="submit"
         >

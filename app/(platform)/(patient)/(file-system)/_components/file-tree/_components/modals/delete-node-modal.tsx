@@ -45,7 +45,7 @@ export const DeleteModal = () => {
   }
 
   const handleSave = async () => {
-    let deletedSize = 0;
+    let deletedSize = 0n;
     if (isLoading || !currentUserPermissions.canDelete) return;
     const deleteNodesIds = deleteNodes.map((obj) => obj.id);
 
@@ -60,7 +60,8 @@ export const DeleteModal = () => {
         foldersStore.deleteNode(deleteNodesIds, deleteModal.forEmptyTrash);
         const newlyUnrestrictedFileIds = data.newlyUnrestrictedFileIds;
         foldersStore.updateRestrictedStatus(newlyUnrestrictedFileIds, false);
-        deletedSize += data.totalSize;
+        const bigIntTotalSize = BigInt(data.totalSize) || 0n;
+        deletedSize += bigIntTotalSize;
       })
       .catch((error) => {
         // console.log(error?.response?.data);

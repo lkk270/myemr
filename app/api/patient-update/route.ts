@@ -210,7 +210,7 @@ export async function POST(req: Request) {
         plan: user.plan,
       });
       return new NextResponse(
-        JSON.stringify({ totalSize: totalSize, newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
+        JSON.stringify({ totalSize: totalSize.toString(), newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
       );
     } else if (updateType === "addRootNode") {
       const addedByUserId = !currentUserPermissions.hasAccount ? null : user.id;
@@ -282,7 +282,7 @@ export async function POST(req: Request) {
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
-    console.log(error);
+    // console.log(error);
     const errorString = error.toString().toLowerCase();
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });

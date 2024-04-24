@@ -57,16 +57,19 @@ export const DeleteModal = () => {
         updateType: "deleteNode",
       })
       .then(({ data }) => {
+        console.log(data);
         foldersStore.deleteNode(deleteNodesIds, deleteModal.forEmptyTrash);
         const newlyUnrestrictedFileIds = data.newlyUnrestrictedFileIds;
+        console.log("newlyUnrestrictedFileIds", newlyUnrestrictedFileIds);
         foldersStore.updateRestrictedStatus(newlyUnrestrictedFileIds, false);
         const bigIntTotalSize = BigInt(data.totalSize) || 0n;
+        console.log("bigIntTotalSize", bigIntTotalSize);
         deletedSize += bigIntTotalSize;
       })
       .catch((error) => {
         // console.log(error?.response?.data);
         // error = error?.response?.data || "Something went wrong";
-        // console.log(error);
+        console.log(error);
         throw error;
       });
 
@@ -76,7 +79,7 @@ export const DeleteModal = () => {
         : deleteNodesIds.length === 1
         ? "Deleting node..."
         : "Deleting nodes...",
-      success: "Node deleted successfully!",
+      success: deleteModal.forEmptyTrash ? "Trash emptied successfully" : "Node deleted successfully!",
       error: "Something went wrong",
       duration: 1250,
     });

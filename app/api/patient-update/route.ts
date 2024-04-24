@@ -287,6 +287,7 @@ export async function POST(req: Request) {
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });
     }
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse(JSON.stringify({ error, status: 500 }));
+    // return new NextResponse("Internal Error", { status: 500, error, error });
   }
 }

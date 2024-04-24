@@ -9,8 +9,9 @@ import prismadb from "@/lib/prismadb";
 import { extractRootFolderIds, patientUpdateVerification } from "@/lib/utils";
 import {
   moveNodes,
-  deleteFiles,
-  deleteFolders,
+  // deleteFiles,
+  // deleteFolders,
+  deleteFilesAndFolders,
   addRootNode,
   addSubFolder,
   restoreRootFolder,
@@ -202,20 +203,22 @@ export async function POST(req: Request) {
       const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
       selectedFolderIdsTemp = selectedFolderIds;
       x = 3;
-      await deleteFiles(selectedFileIds);
+      // await deleteFiles(selectedFileIds);
+      // x = 4;
+      // await deleteFolders(selectedFolderIds, forEmptyTrash);
+      // x = 5;
+      deleteFilesAndFolders(selectedFileIds, selectedFolderIds, forEmptyTrash);
       x = 4;
-      await deleteFolders(selectedFolderIds, forEmptyTrash);
-      x = 5;
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
-      x = 6;
+      x = 5;
       const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
-      x = 7;
+      x = 6;
       const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
-      x = 8;
+      x = 7;
       if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
         return new NextResponse("Something went wrong", { status: 500 });
       }
-      x = 9;
+      x = 8;
       const newlyUnrestrictedFileIds = await unrestrictFiles({
         id: patient.id,
         sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,

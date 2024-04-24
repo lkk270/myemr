@@ -472,42 +472,89 @@ async function batchUpdateDescendants(
     `;
 }
 
-export async function deleteFiles(selectedFileIds: string[]) {
-  await prismadb.file.deleteMany({
-    where: {
-      id: { in: selectedFileIds },
-    },
-  });
-}
+// export async function deleteFiles(selectedFileIds: string[]) {
+//   await prismadb.file.deleteMany({
+//     where: {
+//       id: { in: selectedFileIds },
+//     },
+//   });
+// }
 
-export async function deleteFolders(selectedFolderIds: string[], forEmptyTrash: boolean) {
-  for (const folderId of selectedFolderIds) {
-    await deleteSubFolders(prisma, folderId);
-    if (!forEmptyTrash) {
-      // Delete the folder's associated RecordViewActivity
+// export async function deleteFolders(selectedFolderIds: string[], forEmptyTrash: boolean) {
+//   for (const folderId of selectedFolderIds) {
+//     await deleteSubFolders(prisma, folderId);
+//     if (!forEmptyTrash) {
+//       // Delete the folder's associated RecordViewActivity
 
-      // await prismadb.recordViewActivity.deleteMany({ where: { folderId: { in: selectedFolderIds } } });
+//       // await prismadb.recordViewActivity.deleteMany({ where: { folderId: { in: selectedFolderIds } } });
 
-      // Finally, delete the folder itself
-      await prismadb.folder.delete({ where: { id: folderId } });
+//       // Finally, delete the folder itself
+//       await prismadb.folder.delete({ where: { id: folderId } });
+//     }
+//   }
+// }
+
+// // Depth-first recursive deletion of subfolders
+// async function deleteSubFolders(prisma: any, parentId: string) {
+//   const subFolders = await prisma.folder.findMany({
+//     where: { parentId: parentId },
+//   });
+
+//   for (const subFolder of subFolders) {
+//     // Recursively delete deeper subfolders first
+//     await deleteSubFolders(prisma, subFolder.id);
+
+//     // Then delete the subfolder itself
+//     await prisma.folder.delete({ where: { id: subFolder.id } });
+//   }
+// }
+
+export async function deleteFilesAndFolders(
+  selectedFileIds: string[],
+  selectedFolderIds: string[],
+  forEmptyTrash: boolean,
+) {
+  // Start the transaction
+  const transaction = await prismadb.$transaction(async (prismaTransaction) => {
+    // Delete files
+    await prismaTransaction.file.deleteMany({
+      where: {
+        id: { in: selectedFileIds },
+      },
+    });
+
+    // Delete folders
+    for (const folderId of selectedFolderIds) {
+      await deleteSubFolders(prismaTransaction, folderId);
+      if (!forEmptyTrash) {
+        // Since forEmptyTrash is false, we also delete the folder itself
+        await prismaTransaction.folder.delete({
+          where: { id: folderId },
+        });
+      }
     }
-  }
+  });
+
+  return transaction;
 }
 
 // Depth-first recursive deletion of subfolders
-async function deleteSubFolders(prisma: any, parentId: string) {
-  const subFolders = await prisma.folder.findMany({
+async function deleteSubFolders(prismaTransaction: any, parentId: string) {
+  const subFolders = await prismaTransaction.folder.findMany({
     where: { parentId: parentId },
   });
 
   for (const subFolder of subFolders) {
     // Recursively delete deeper subfolders first
-    await deleteSubFolders(prisma, subFolder.id);
+    await deleteSubFolders(prismaTransaction, subFolder.id);
 
     // Then delete the subfolder itself
-    await prisma.folder.delete({ where: { id: subFolder.id } });
+    await prismaTransaction.folder.delete({ where: { id: subFolder.id } });
   }
 }
+
+// Usage example
+// await deleteFilesAndFolders(selectedFileIds:, selectedFolderIds, forEmptyTrash);
 
 export async function getAllFilesToDeleteForDeleteAccount(patientProfileId: string) {
   const allFilesToDelete = await prismadb.file.findMany({

@@ -27,6 +27,7 @@ import { getSumOfFilesSizes } from "@/lib/data/files";
 import { getAccessPatientCodeByToken } from "@/auth/data";
 import { PatientMember } from "@prisma/client";
 
+let x = 0;
 export async function POST(req: Request) {
   try {
     const headersList = headers();
@@ -192,23 +193,32 @@ export async function POST(req: Request) {
       // console.log(selectedIds);
       const forEmptyTrash = body.forEmptyTrash;
       const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
+      x = 1;
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
+      x = 2;
       const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
-
+      x = 3;
       await deleteFiles(selectedFileIds);
+      x = 4;
       await deleteFolders(selectedFolderIds, forEmptyTrash);
+      x = 4;
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
+      x = 5;
       const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+      x = 6;
       const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+      x = 7;
       if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
         return new NextResponse("Something went wrong", { status: 500 });
       }
+      x = 8;
       const newlyUnrestrictedFileIds = await unrestrictFiles({
         id: patient.id,
         sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,
         sumOfUnrestrictedSuccessFilesSizes: sumOfUnrestrictedSuccessFilesSizes,
         plan: user.plan,
       });
+      x = 9;
       return new NextResponse(
         JSON.stringify({ totalSize: totalSize.toString(), newlyUnrestrictedFileIds: newlyUnrestrictedFileIds }),
       );
@@ -282,11 +292,11 @@ export async function POST(req: Request) {
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
-    console.log(error);
+    // console.log(error);
     const errorString = error.toString().toLowerCase();
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });
     }
-    return new NextResponse(error.toString(), { status: 500 });
+    return new NextResponse(`${error.toString()} value_of_x = ${x}`, { status: 500 });
   }
 }

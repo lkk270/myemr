@@ -203,17 +203,17 @@ export async function POST(req: Request) {
       await deleteFiles(selectedFileIds);
       x = 4;
       await deleteFolders(selectedFolderIds, forEmptyTrash);
-      x = 4;
-      await deleteS3Objects(convertedObjects, rawObjects, patient.id);
       x = 5;
-      const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
+      await deleteS3Objects(convertedObjects, rawObjects, patient.id);
       x = 6;
-      const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+      const sumOfAllSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId");
       x = 7;
+      const sumOfUnrestrictedSuccessFilesSizes = await getSumOfFilesSizes(patient.id, "patientProfileId", true);
+      x = 8;
       if (typeof sumOfAllSuccessFilesSizes !== "bigint" || typeof sumOfUnrestrictedSuccessFilesSizes !== "bigint") {
         return new NextResponse("Something went wrong", { status: 500 });
       }
-      x = 8;
+      x = 9;
       const newlyUnrestrictedFileIds = await unrestrictFiles({
         id: patient.id,
         sumOfAllSuccessFilesSizes: sumOfAllSuccessFilesSizes,

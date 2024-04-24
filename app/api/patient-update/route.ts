@@ -207,7 +207,7 @@ export async function POST(req: Request) {
       // x = 4;
       // await deleteFolders(selectedFolderIds, forEmptyTrash);
       // x = 5;
-      deleteFilesAndFolders(selectedFileIds, selectedFolderIds, forEmptyTrash);
+      await deleteFilesAndFolders(selectedFileIds, selectedFolderIds, forEmptyTrash);
       x = 4;
       await deleteS3Objects(convertedObjects, rawObjects, patient.id);
       x = 5;

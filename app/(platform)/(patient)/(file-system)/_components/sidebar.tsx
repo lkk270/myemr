@@ -191,7 +191,7 @@ export const Sidebar = ({
           )}
         >
           <div className="pl-4 pt-2 w-20">
-            <Logo showText={false} />
+            <Logo showLgTextSize={false} />
             <div
               onClick={collapse}
               role="button"

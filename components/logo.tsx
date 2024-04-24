@@ -19,9 +19,10 @@ const font = Poppins({
 interface LogoProps {
   textColor?: string;
   showText?: boolean;
+  showLgTextSize?: boolean;
 }
 
-export const Logo = ({ textColor, showText = true }: LogoProps) => {
+export const Logo = ({ textColor, showText = true, showLgTextSize = true }: LogoProps) => {
   // const isMobile = useMediaQuery("(max-width: 500px)");
   const currentUser = useCurrentUser();
   const currentUserPermissions = extractCurrentUserPermissions(currentUser);
@@ -42,7 +43,8 @@ export const Logo = ({ textColor, showText = true }: LogoProps) => {
         {showText && (
           <p
             className={cn(
-              "hidden font-semibold text-sm sm:flex sm:text-lg gap-x-2",
+              "hidden font-semibold text-sm sm:flex gap-x-2",
+              showLgTextSize && "sm:text-lg",
               font.className,
               textColor && `text-primary/70`,
             )}

@@ -27,7 +27,7 @@ export const Logo = ({ textColor, showText = true, showLgTextSize = true }: Logo
   const currentUser = useCurrentUser();
   const currentUserPermissions = extractCurrentUserPermissions(currentUser);
   const plan = currentUser?.plan;
-  const size = showText ? "40" : "30";
+  const size = showText && showLgTextSize ? "40" : "30";
   return (
     <Link href="/" className={cn(showText ? "sm:w-32" : "")} onDragStart={(e) => e.preventDefault()}>
       <div className="flex items-center gap-x-2">

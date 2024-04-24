@@ -28,6 +28,7 @@ import { getAccessPatientCodeByToken } from "@/auth/data";
 import { PatientMember } from "@prisma/client";
 
 let x = 0;
+let convertedObjectsTemp: { Key: string }[] = [];
 export async function POST(req: Request) {
   try {
     const headersList = headers();
@@ -193,6 +194,7 @@ export async function POST(req: Request) {
       // console.log(selectedIds);
       const forEmptyTrash = body.forEmptyTrash;
       const { rawObjects, convertedObjects, totalSize } = await getAllObjectsToDelete(selectedIds, patient.id);
+      convertedObjectsTemp = convertedObjects;
       x = 1;
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
       x = 2;
@@ -297,6 +299,9 @@ export async function POST(req: Request) {
     if (errorString.includes("prisma") && errorString.includes("unique constraint failed")) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });
     }
-    return new NextResponse(`${error.toString()} value_of_x = ${x}`, { status: 500 });
+    return new NextResponse(
+      `${error.toString()} | value_of_x = ${x} | convertedObjectsTemp: ${convertedObjectsTemp.toString()}`,
+      { status: 500 },
+    );
   }
 }

@@ -29,6 +29,7 @@ import { PatientMember } from "@prisma/client";
 
 let x = 0;
 let convertedObjectsTemp: { Key: string }[] = [];
+let selectedFolderIdsTemp: string[] = [];
 export async function POST(req: Request) {
   try {
     const headersList = headers();
@@ -199,6 +200,7 @@ export async function POST(req: Request) {
       const selectedFileIds: string[] = rawObjects.map((object) => object.id);
       x = 2;
       const selectedFolderIds: string[] = selectedIds.filter((id: string) => !selectedFileIds.includes(id));
+      selectedFolderIdsTemp = selectedFolderIds;
       x = 3;
       await deleteFiles(selectedFileIds);
       x = 4;
@@ -300,7 +302,7 @@ export async function POST(req: Request) {
       return new NextResponse("Folder already exists in this path!", { status: 500 });
     }
     return new NextResponse(
-      `${error.toString()} | value_of_x = ${x} | convertedObjectsTemp: ${convertedObjectsTemp.toString()}`,
+      `${error.toString()} | value_of_x = ${x} | convertedObjectsTemp: ${convertedObjectsTemp.toString()} | selectedFolderIdsTemp: ${selectedFolderIdsTemp.toString()}`,
       { status: 500 },
     );
   }

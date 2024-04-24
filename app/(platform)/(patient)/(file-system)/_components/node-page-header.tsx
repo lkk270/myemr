@@ -27,7 +27,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const pathname = usePathname();
   const addFolderModal = useAddFolderModal();
   const uploadFilesModal = useUploadFilesModal();
-  const folderStore = useFolderStore();
+  const { singleLayerNodes, getNode } = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading } = useIsLoading();
 
@@ -38,14 +38,14 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
     : "/tpa-files";
 
   useEffect(() => {
-    const fetchedNode = folderStore.getNode(nodeId); // Fetch the node inside useEffect
+    const fetchedNode = getNode(nodeId); // Fetch the node inside useEffect
     nodeRef.current = fetchedNode; // Update the ref's current value
     setIsMounted(true);
     if (!fetchedNode) {
       router.push(filesHomeHref);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [singleLayerNodes]);
 
   if (!isMounted || !nodeRef || !nodeRef.current) {
     return null;
@@ -99,7 +99,7 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
         {foldersLength > 0 ? (
           folders.map((folder, index) => {
             const pathSegment = paths ? paths[index] : "";
-            const node = folderStore.getNode(pathSegment);
+            const node = getNode(pathSegment);
             const id = node ? node.id : null;
             const nodeHref = !!id
               ? getNodeHref(currentUserPermissions.isPatient, currentUserPermissions.isProvider, false, id, pathname)

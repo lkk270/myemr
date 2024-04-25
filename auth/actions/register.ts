@@ -86,7 +86,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   //   });
   // }
   if (userType === UserType.PROVIDER) {
-    const { publicKey, privateKey } = generateAsymmetricKeyPairs();
+    // const { publicKey, privateKey } = generateAsymmetricKeyPairs();
     await prismadb.$transaction(
       async (prisma) => {
         await prisma.user.create({
@@ -94,7 +94,8 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             email: email.toLowerCase(),
             password: hashedPassword,
             type: "PROVIDER",
-            name: `${firstName} ${lastName}`
+            accountType: AccountType.CREDENTIALS,
+            name: `${firstName} ${lastName}`,
             // providerProfile: {
             //   create: {
             //     firstName,

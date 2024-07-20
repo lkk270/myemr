@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
+import { GoogleAnalytics } from "@next/third-parties/google";
 import HolyLoader from "holy-loader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -59,15 +60,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <meta name="viewport" content="width=device-width, user-scalable=no" />
           <meta name="robots" content="all" />
           <meta name="googlebot" content="all" />
-          <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ9BH7HH4H"></script>
-          <script>
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-YQ9BH7HH4H');
-            `}
-          </script>
           {/* <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" /> */}
           <body className={cn(font.className)}>
             <NewMedicationModal />
@@ -88,6 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <SpeedInsights />
             </ThemeProvider>
           </body>
+          <GoogleAnalytics gaId="G-YQ9BH7HH4H" />
         </html>
       </SessionProvider>
     </>

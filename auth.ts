@@ -150,7 +150,7 @@ export const {
         session.user.image = token.image as string;
         session.user.name = token.name;
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
-        session.user.email = token.email;
+        session.user.email = token.email!;
         session.user.userType = token.userType;
         session.user.isOAuth = token.isOAuth as boolean;
         session.user.plan = token.plan as Plan;
@@ -159,7 +159,7 @@ export const {
 
       if (token.customExpiresAt) {
         // console.log(token.customExpiresAt);
-        session.expires = token.customExpiresAt as string;
+        session.expires = token.customExpiresAt as Date & string;
       }
       if (token.tempToken) {
         session.tempToken = token.tempToken as string;

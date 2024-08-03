@@ -16,9 +16,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const session = sessionObj.data;
   const [isMounted, setIsMounted] = useState(false);
 
-  if (!session) {
-    window.location.reload();
-  }
+  // if (!session) {
+  //   window.location.reload();
+  // }
 
   useEffect(() => {
     const now = new Date();

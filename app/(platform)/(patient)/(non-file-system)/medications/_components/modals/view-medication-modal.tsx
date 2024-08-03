@@ -8,6 +8,8 @@ import { useViewMedicationModal } from "../hooks/use-view-medication-modal";
 import { MedicationForm } from "../edit-medication-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { truncateSync } from "fs";
+// import { getSession, signOut, useSession } from 'next-auth/react';
+
 // import { DialogOverlay } from "@radix-ui/react-dialog";
 
 export const ViewMedicationModal = () => {

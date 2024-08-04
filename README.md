@@ -20,7 +20,7 @@ Follow these steps to get the app running on your local machine:
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/lkk270/cashdash2.git
+git clone https://github.com/lkk270/myemr.git
 ```
 
 2. **Install the dependencies:**

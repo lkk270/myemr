@@ -117,7 +117,7 @@ export const About = ({ initialData }: AboutProps) => {
         const backUrl = backUrlData.presignedUrl;
         console.log(frontUrl);
         console.log(backUrl);
-        setInsuranceImageUrls({ front: frontUrl, back: backUrl });
+        setInsuranceImageUrls({ back: backUrl, front: frontUrl });
         console.log(imagesUrls);
       } catch (error) {
         console.error("Failed to fetch presigned URLs", error);

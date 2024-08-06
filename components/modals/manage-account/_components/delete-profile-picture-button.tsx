@@ -13,6 +13,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { deleteProfilePicture } from "@/lib/actions/delete-profile-picture";
+import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 interface DeleteProfilePictureButtonProps {
   setIsProfilePictureLoading: (value: boolean) => void;
@@ -26,6 +27,8 @@ export const DeleteProfilePictureButton = ({
   asChild,
 }: DeleteProfilePictureButtonProps) => {
   const { update } = useSession();
+  const user = useCurrentUser();
+  // console.log(user);
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
@@ -37,10 +40,12 @@ export const DeleteProfilePictureButton = ({
             toast.error("something went wrong on delete");
           }
           if (data?.success) {
-            update();
+            update(); // This should now trigger the useEffect in useCurrentUser
           }
         })
-        .catch(() => toast.error("Something went wrong"))
+        .catch(() => {
+          toast.error("Something went wrong");
+        })
         .finally(() => {
           setIsProfilePictureLoading(false);
         });

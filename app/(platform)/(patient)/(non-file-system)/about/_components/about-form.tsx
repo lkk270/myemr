@@ -97,28 +97,21 @@ export const About = ({ initialData }: AboutProps) => {
   useEffect(() => {
     // Ensure hook logic is conditional, not the hook itself
     const fetchUrls = async () => {
-      console.log("fetching urls");
       // Your fetching logic remains here
       if (!isMounted || activeTab !== "insurance") {
-        console.log("fetching urls");
         return;
       }
 
       try {
-        console.log("fetching ins try");
         setIsFetchingInsuranceImages(true);
         setIsLoading(true);
         let patientProfileId = patientMember?.patientProfileId || null;
-
         const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK, false, patientProfileId);
         const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT, false, patientProfileId);
 
         const frontUrl = frontUrlData.presignedUrl;
         const backUrl = backUrlData.presignedUrl;
-        console.log(frontUrl);
-        console.log(backUrl);
         setInsuranceImageUrls({ front: frontUrl, back: backUrl });
-        console.log(imagesUrls);
       } catch (error) {
         console.error("Failed to fetch presigned URLs", error);
       } finally {
@@ -143,7 +136,6 @@ export const About = ({ initialData }: AboutProps) => {
   if (!currentUser) {
     return;
   }
-  console.log("146", imagesUrls);
 
   const onSubmit = (values: z.infer<typeof AboutSchema>) => {
     let nonAddressChanges: any = {};

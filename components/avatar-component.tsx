@@ -1,5 +1,3 @@
-"use client";
-
 import { FaUser } from "react-icons/fa";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
@@ -13,9 +11,7 @@ export const AvatarComponent = ({
   isLoading?: boolean;
 }) => {
   const user = useCurrentUser();
-  isLoading;
   const currentUserPermissions = extractCurrentUserPermissions(user);
-  // console.log(user);
   // console.log(user);
   return (
     <Avatar style={{ animation: isLoading ? "pulse 1.5s infinite" : "" }} className={avatarClassName}>

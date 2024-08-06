@@ -68,11 +68,11 @@ export const SettingsForm = () => {
   const watchedPassword = form.watch("password");
   const watchedNewPassword = form.watch("newPassword");
   const watchedIsTwoFactorEnabled = form.watch("isTwoFactorEnabled");
-  console.log(user?.name);
-  console.log(watchedName);
-  console.log(watchedPassword);
-  console.log(watchedNewPassword);
-  console.log(watchedIsTwoFactorEnabled);
+  // console.log(user?.name);
+  // console.log(watchedName);
+  // console.log(watchedPassword);
+  // console.log(watchedNewPassword);
+  // console.log(watchedIsTwoFactorEnabled);
   return (
     <Form {...form}>
       <form className="space-y-6 w-full" onSubmit={form.handleSubmit(onSubmit)}>

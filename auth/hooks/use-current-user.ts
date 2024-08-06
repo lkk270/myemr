@@ -1,25 +1,27 @@
-import { getSession } from "next-auth/react";
-import { Session } from "next-auth/types";
-import { useState, useEffect } from "react";
+import { Session } from "next-auth";
+import { getSession, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export const useCurrentUser = () => {
   const [session, setSession] = useState<null | Session>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // console.log(session);
-    if (!!session) return;
+  const { data: currentSession, status } = useSession(); // Using useSession to track session changes
 
-    const fetchSession = async () => {
-      const session = await getSession();
-      setSession(session);
+  useEffect(() => {
+    if (currentSession) {
+      setSession(currentSession);
       setLoading(false);
-      // console.log(session);
-    };
-    fetchSession();
-  }, []);
+    } else if (status !== "loading") {
+      const fetchSession = async () => {
+        const session = await getSession();
+        setSession(session);
+        setLoading(false);
+        // console.log(session);
+      };
+      fetchSession();
+    }
+  }, [currentSession, status]); // Dependency on the session data and status
+
   return session?.user;
-  // const session = useSession();
-  // console.log(session);
-  // return session.data?.user;
 };

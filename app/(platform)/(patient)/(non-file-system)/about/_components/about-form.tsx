@@ -110,14 +110,14 @@ export const About = ({ initialData }: AboutProps) => {
         setIsLoading(true);
         let patientProfileId = patientMember?.patientProfileId || null;
 
-        const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT, false, patientProfileId);
         const backUrlData = await getPresignedInsuranceUrl(InsuranceSide.BACK, false, patientProfileId);
+        const frontUrlData = await getPresignedInsuranceUrl(InsuranceSide.FRONT, false, patientProfileId);
 
         const frontUrl = frontUrlData.presignedUrl;
         const backUrl = backUrlData.presignedUrl;
         console.log(frontUrl);
         console.log(backUrl);
-        setInsuranceImageUrls({ back: backUrl, front: frontUrl });
+        setInsuranceImageUrls({ front: frontUrl, back: backUrl });
         console.log(imagesUrls);
       } catch (error) {
         console.error("Failed to fetch presigned URLs", error);

@@ -57,13 +57,13 @@ export const DeleteModal = () => {
         updateType: "deleteNode",
       })
       .then(({ data }) => {
-        console.log(data);
+        // console.log(data);
         foldersStore.deleteNode(deleteNodesIds, deleteModal.forEmptyTrash);
         const newlyUnrestrictedFileIds = data.newlyUnrestrictedFileIds;
-        console.log("newlyUnrestrictedFileIds", newlyUnrestrictedFileIds);
+        // console.log("newlyUnrestrictedFileIds", newlyUnrestrictedFileIds);
         foldersStore.updateRestrictedStatus(newlyUnrestrictedFileIds, false);
         const bigIntTotalSize = BigInt(data.totalSize) || 0n;
-        console.log("bigIntTotalSize", bigIntTotalSize);
+        // console.log("bigIntTotalSize", bigIntTotalSize);
         deletedSize += bigIntTotalSize;
       })
       .catch((error) => {

@@ -14,7 +14,7 @@ export const useCurrentUser = () => {
       const session = await getSession();
       setSession(session);
       setLoading(false);
-      console.log(session);
+      // console.log(session);
     };
     fetchSession();
   }, []);

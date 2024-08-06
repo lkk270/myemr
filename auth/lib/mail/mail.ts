@@ -84,12 +84,12 @@ export const sendRequestRecordsEmail = async (
   try {
     buffer = await getBuffer({ data: { ...dataForLetter, requestRecordsLink } });
   } catch (e) {
-    console.log("In 87");
+    // console.log("In 87");
     console.log(e);
     throw new Error("Something went wrong on email send");
   }
   if (!buffer) {
-    console.log("NO BUFFER");
+    // console.log("NO BUFFER");
     throw new Error("Something went wrong on email send");
   }
   const response = await resendClient.emails.send({
@@ -114,8 +114,8 @@ export const sendRequestRecordsEmail = async (
     //     token,
     //   },
     // });
-    console.log("IN 117");
-    console.log(response);
+    // console.log("IN 117");
+    // console.log(response);
     throw new Error("Something went wrong on email send");
   }
 };

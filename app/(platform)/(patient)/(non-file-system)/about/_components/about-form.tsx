@@ -143,7 +143,7 @@ export const About = ({ initialData }: AboutProps) => {
   if (!currentUser) {
     return;
   }
-  console.log('146', imagesUrls);
+  console.log("146", imagesUrls);
 
   const onSubmit = (values: z.infer<typeof AboutSchema>) => {
     let nonAddressChanges: any = {};
@@ -224,12 +224,12 @@ export const About = ({ initialData }: AboutProps) => {
   const InsuranceContent = () => {
     // Decide the content based on the state
     let contentElements;
-    if (!isFetchingInsuranceImages && imagesUrls.front && imagesUrls.back) {
+    if (!isFetchingInsuranceImages && (imagesUrls.front || imagesUrls.back)) {
       // Render ImageViewer components for front and back images
       contentElements = (
         <>
-          <ImageViewer forInsurance fileId={InsuranceSide.FRONT} fileSrc={imagesUrls.front} />
-          <ImageViewer forInsurance fileId={InsuranceSide.BACK} fileSrc={imagesUrls.back} />
+          <ImageViewer forInsurance fileId={InsuranceSide.FRONT} fileSrc={imagesUrls.front!} />
+          <ImageViewer forInsurance fileId={InsuranceSide.BACK} fileSrc={imagesUrls.back!} />
         </>
       );
     } else {

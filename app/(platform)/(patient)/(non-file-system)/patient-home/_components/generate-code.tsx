@@ -28,7 +28,7 @@ import { accessTypesText } from "@/lib/constants";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 
 const validTimes = [
-  { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
+  // { value: AccessCodeValidTime.MINUTE_30, label: "30 minutes" },
   { value: AccessCodeValidTime.HOUR_1, label: "1 hour" },
   { value: AccessCodeValidTime.HOUR_12, label: "12 hours" },
   { value: AccessCodeValidTime.DAY_1, label: "1 day" },
@@ -53,7 +53,7 @@ export const GenerateCode = () => {
   const form = useForm<z.infer<typeof GenerateCodeSchema>>({
     resolver: zodResolver(GenerateCodeSchema),
     defaultValues: {
-      validFor: AccessCodeValidTime.MINUTE_30,
+      validFor: AccessCodeValidTime.HOUR_1,
       accessType: UserRole.READ_ONLY,
       uploadToId: "",
       accessibleRootFolderIds: "ALL_EXTERNAL",
@@ -162,21 +162,18 @@ export const GenerateCode = () => {
           render={({ field }) => (
             <FormItem>
               <ToggleGroup {...field} type="single" onValueChange={handleValidForChange}>
-                {validTimes.map(
-                  (obj, index) =>
-                    ((isMobile2 && obj.value !== "MINUTE_30") || !isMobile2) && (
-                      <ToggleGroupItem
-                        key={obj.value}
-                        className={cn(
-                          "text-xs lg:text-md hover:bg-primary/10",
-                          obj.value === watchedValidFor && "data-[state=on]:bg-primary/10",
-                        )}
-                        value={obj.value}
-                      >
-                        {obj.label}
-                      </ToggleGroupItem>
-                    ),
-                )}
+                {validTimes.map((obj, index) => (
+                  <ToggleGroupItem
+                    key={obj.value}
+                    className={cn(
+                      "text-xs lg:text-md hover:bg-primary/10",
+                      obj.value === watchedValidFor && "data-[state=on]:bg-primary/10",
+                    )}
+                    value={obj.value}
+                  >
+                    {obj.label}
+                  </ToggleGroupItem>
+                ))}
               </ToggleGroup>
             </FormItem>
           )}

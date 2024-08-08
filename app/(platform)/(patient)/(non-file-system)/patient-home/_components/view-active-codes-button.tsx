@@ -4,9 +4,9 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { BeatLoader } from "react-spinners";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 import { Ban } from "lucide-react";
-import { PatientProfileAccessCode, RequestRecordsCode, UserRole } from "@prisma/client";
+// import { PatientProfileAccessCode, RequestRecordsCode, UserRole } from "@prisma/client";
 import { getActiveCodes } from "../data/get-active-codes";
 import { invalidateActiveCode } from "../actions/invalidate-code";
 import { genericPatientAccessCodeType, accessCodeType } from "@/app/types";
@@ -162,7 +162,9 @@ export const ViewActiveCodesButton = ({ children, asChild, codeType }: ViewActiv
                           </div>
                         </InvalidateCodeButton>
                       )}
-                      {isLoading && loadingCodeId === code.id && <Spinner size="sm" loaderType={"loader2"} />}
+                      {!isMobile && isLoading && loadingCodeId === code.id && (
+                        <Spinner size="sm" loaderType={"loader2"} />
+                      )}
                       {code.token}
                     </TableCell>
 

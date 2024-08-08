@@ -79,7 +79,7 @@ export const SettingsForm = () => {
         <div className="space-y-4">
           {user?.isOAuth === false && (
             <>
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
@@ -91,7 +91,7 @@ export const SettingsForm = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               {user.userType === "PROVIDER" && (
                 <FormField
                   control={form.control}

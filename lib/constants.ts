@@ -1104,11 +1104,11 @@ export const planNames = {
   PATIENT_FREE: { title: "Basic", stripe: { id: "", price: 0, name: "MyEmr Patient Basic" } },
   PATIENT_PREMIUM_1: {
     title: "Pro",
-    stripe: { id: "price_1Opg0XE2jPbkyOVrg8JcnSHZ", price: 500, name: "MyEmr Patient Pro" },
+    stripe: { id: "price_1PmToYE2jPbkyOVr3LC0tNk4", price: 500, name: "MyEmr Patient Pro" },
   },
   PATIENT_PREMIUM_2: {
     title: "Pro+",
-    stripe: { id: "price_1Opg0mE2jPbkyOVrYuIXGhiY", price: 1200, name: "MyEmr Patient Pro+" },
+    stripe: { id: "price_1PmTpHE2jPbkyOVrTLgWpUMd", price: 1200, name: "MyEmr Patient Pro+" },
   },
   PROVIDER_FREE: { title: "Basic", stripe: { id: "", price: 0, name: "MyEmr Provider Basic" } },
   PROVIDER_PREMIUM_1: { title: "Pro", stripe: { id: "", price: 500, name: "MyEmr Provider Pro" } },

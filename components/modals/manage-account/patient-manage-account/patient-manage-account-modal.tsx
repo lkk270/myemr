@@ -165,7 +165,7 @@ export const PatientManageAccountModal = () => {
           <div className="flex flex-col gap-x-4 pl-2">
             <div
               id="account"
-              style={{ height: user?.isOAuth ? "420px" : "930px" }}
+              style={{ height: user?.isOAuth ? "420px" : "780px" }}
               className="flex flex-col pt-5 gap-y-4"
             >
               <div className="flex flex-col space-y-1.5">

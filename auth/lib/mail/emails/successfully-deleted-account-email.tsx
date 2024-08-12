@@ -24,7 +24,7 @@ export const SuccessfullyDeletedAccountEmail = ({ email, accountType }: Successf
                 }}
               >
                 <img
-                  src="https://res.cloudinary.com/ddr7l73bu/image/upload/v1708784793/logo_wuhwbw.png"
+                  src="https://res.cloudinary.com/dutsfmx0g/image/upload/v1723437881/logoPng_taegde.png"
                   alt="MyEmr Logo"
                   style={{ width: "42px", height: "42px", verticalAlign: "middle" }}
                 />
@@ -36,11 +36,11 @@ export const SuccessfullyDeletedAccountEmail = ({ email, accountType }: Successf
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">Dear {email},</Text>
             <Text className="text-black text-[14px] leading-[24px]">
-              Your MyEmr {accountType} account has been successfully deleted{" "}
+              Your MyEmr {accountType} account has been successfully deleted
               {accountType === "Patient"
-                ? `, along with all associated records, which
-              have been permanently removed.`
-                : "."}
+                ? ` , along with all associated records, which
+              have been permanently removed. `
+                : ". "}
               Should you decide to return to MyEmr, you are welcome to create a new {accountType} account using the same
               email address. We regret your departure and would be pleased to serve you again in the future
             </Text>

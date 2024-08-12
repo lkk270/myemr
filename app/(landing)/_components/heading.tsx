@@ -48,10 +48,10 @@ export const Heading = () => {
         {/* <h1 className="text-center text-lg sm:text-2xl font-bold">
           {`The healthcare industry should put patients first...`}
         </h1> */}
-        <p className="text-sm hidden sm:flex sm:text-md font-medium">
-          {/* {constantText} */}
-          {`If you've ever been referred or have had to switch doctors you're familiar with the chaos of disorganized & missing records and wasteful repeated tests. MyEMR addresses this by consolidating all your most important records in one shareable location, simplifying your healthcare experience.`}
-        </p>
+        {/* <p className="text-sm hidden sm:flex sm:text-md font-medium"> */}
+        {/* {constantText} */}
+        {/* {`If you've ever been referred or have had to switch doctors you're familiar with the chaos of disorganized & missing records and wasteful repeated tests. MyEMR addresses this by consolidating all your most important records in one shareable location, simplifying your healthcare experience.`}
+        </p> */}
         {/* <p className="text-sm sm:text-md flex sm:hidden font-medium">{constantText}</p> */}
       </div>
     </div>

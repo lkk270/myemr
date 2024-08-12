@@ -19,7 +19,7 @@ export const MagicLinkEmail = ({ magicLink, type }: MagicLinkEmailProps) => (
           }}
         >
           <img
-            src="https://res.cloudinary.com/ddr7l73bu/image/upload/v1708784793/logo_wuhwbw.png"
+            src="https://res.cloudinary.com/dutsfmx0g/image/upload/v1723437881/logoPng_taegde.png"
             alt="MyEmr Logo"
             style={{ width: "42px", height: "42px", verticalAlign: "middle" }}
           />
@@ -40,7 +40,7 @@ export const MagicLinkEmail = ({ magicLink, type }: MagicLinkEmailProps) => (
         </Text>
         <Hr style={hr} />
         {/* <Img
-            src="https://res.cloudinary.com/ddr7l73bu/image/upload/v1708784793/logo_wuhwbw.png"
+            src="https://res.cloudinary.com/dutsfmx0g/image/upload/v1723437881/logoPng_taegde.png"
             width={32}
             height={32}
             style={{

@@ -37,7 +37,7 @@ export const ActivityItem = ({ activityLog }: ActivityItemProps) => {
         )}
       >
         <Avatar className="h-8 w-8">
-          <AvatarImage src={activityLog.imageUrl || ""} />
+          <AvatarImage style={{ objectFit: "cover" }} src={activityLog.imageUrl || ""} />
           <AvatarFallback className={cn(activityType === "ADDED_BY_PATIENT" ? "bg-[#c183fa]" : "bg-blue-600")}>
             <FaUser className="text-white" />
           </AvatarFallback>

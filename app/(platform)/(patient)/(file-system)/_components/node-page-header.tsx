@@ -18,9 +18,10 @@ import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permiss
 interface NodePageHeaderProps {
   nodeId: string;
   isFile?: boolean;
+  filesHomeHref: string;
 }
 
-export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) => {
+export const NodePageHeader = ({ nodeId, isFile = false, filesHomeHref }: NodePageHeaderProps) => {
   const nodeRef = useRef<SingleLayerNodesType2 | undefined | null>(null);
   const currentUserPermissions = useCurrentUserPermissions();
   const router = useRouter();
@@ -30,12 +31,11 @@ export const NodePageHeader = ({ nodeId, isFile = false }: NodePageHeaderProps) 
   const { singleLayerNodes, getNode } = useFolderStore();
   const [isMounted, setIsMounted] = useState(false);
   const { isLoading } = useIsLoading();
-
-  const filesHomeHref = currentUserPermissions.isPatient
-    ? "/files"
-    : currentUserPermissions.isProvider
-    ? `${pathname.split("/file")[0]}/files`
-    : "/tpa-files";
+  // const filesHomeHref = currentUserPermissions.isPatient
+  //   ? "/files"
+  //   : currentUserPermissions.isProvider
+  //   ? `${pathname.split("/file")[0]}/files`
+  //   : "/tpa-files";
 
   useEffect(() => {
     const fetchedNode = getNode(nodeId); // Fetch the node inside useEffect

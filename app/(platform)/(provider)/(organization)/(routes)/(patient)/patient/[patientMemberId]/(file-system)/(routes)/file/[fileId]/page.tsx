@@ -6,7 +6,6 @@ import { NodePageHeader } from "@/app/(platform)/(patient)/(file-system)/_compon
 import { Viewer } from "@/app/(platform)/(patient)/(file-system)/_components/file-viewers/file-viewer";
 import { updateRecordViewActivity } from "@/lib/actions/files";
 import { isViewableFile, getFileName } from "@/lib/utils";
-import { File } from "@prisma/client";
 import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/_components/something-not-found";
 import prismadb from "@/lib/prismadb";
 
@@ -86,7 +85,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   }
   return (
     <div className="pt-16 px-6">
-      <NodePageHeader nodeId={fileId} isFile={true} />
+      <NodePageHeader filesHomeHref={redirectUrl} nodeId={fileId} isFile={true} />
       <Viewer fileName={file.name} fileId={fileId} fileType={file.type || ""} initialFileSrc={presignedUrl} />
     </div>
   );

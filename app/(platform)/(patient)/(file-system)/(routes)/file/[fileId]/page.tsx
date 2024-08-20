@@ -38,21 +38,18 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   // });
   // const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // Expires in 1 hour
   const response = await getPresignedUrl(fileId);
-  if (response.error === "File not found") {
+  if (response.error === "File not found" || !response.presignedUrl || typeof response.type !== "string") {
     return redirect("/files");
   }
   try {
-    updateRecordViewActivity(user.id, fileId, true);
+    await updateRecordViewActivity(user.id, fileId, true);
   } catch (error) {
-    return <div>Something went wrong</div>;
+    return null;
   }
 
-  if (!response.presignedUrl || typeof response.type !== "string") {
-    return <div>Something went wrong</div>;
-  }
   return (
     <div className="pt-16 px-6">
-      <NodePageHeader nodeId={fileId} isFile={true} />
+      <NodePageHeader filesHomeHref={"/files"} nodeId={fileId} isFile={true} />
       <Viewer
         fileName={response.fileName}
         fileId={fileId}

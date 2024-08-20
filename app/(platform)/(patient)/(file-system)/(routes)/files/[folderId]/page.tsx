@@ -66,7 +66,7 @@ const FolderPage = async ({ params }: FolderPagePageProps) => {
 
   return (
     <div className="pt-16 px-6">
-      <NodePageHeader nodeId={folderId} />
+      <NodePageHeader filesHomeHref={"/files"} nodeId={folderId} />
       <CustomDataTable nodeId={folderId} />
 
       {/* <div className="max-h-[calc(100vh-250px)] overflow-y-scroll"></div> */}

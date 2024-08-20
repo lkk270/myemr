@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 interface FolderPagePageProps {
   params: {
     folderId: string;
+    patientMemberId: string;
   };
 }
 
@@ -63,7 +64,7 @@ const FolderPage = async ({ params }: FolderPagePageProps) => {
 
   return (
     <div className="pt-16 px-6">
-      <NodePageHeader nodeId={folderId} />
+      <NodePageHeader filesHomeHref={`/patient/${params.patientMemberId}/files`} nodeId={folderId} />
       <CustomDataTable nodeId={folderId} />
 
       {/* <div className="max-h-[calc(100vh-250px)] overflow-y-scroll"></div> */}

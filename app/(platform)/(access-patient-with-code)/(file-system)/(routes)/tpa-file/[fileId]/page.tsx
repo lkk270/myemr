@@ -52,7 +52,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   }
   return (
     <div className="pt-16 px-6">
-      <NodePageHeader nodeId={fileId} isFile={true} />
+      <NodePageHeader filesHomeHref={"/tpa-files/"} nodeId={fileId} isFile={true} />
       <Viewer
         fileName={response.fileName}
         fileId={fileId}

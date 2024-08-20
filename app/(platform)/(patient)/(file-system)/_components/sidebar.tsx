@@ -65,7 +65,7 @@ export const Sidebar = ({
 
   useEffect(() => {
     const checkValidCode = async () => {
-      if (!currentUserPermissions.isPatient && !currentUserPermissions.isProvider) {
+      if (!currentUserPermissions.isPatient && !currentUserPermissions.isProvider && !!session?.data?.tempToken) {
         const code = await getAccessPatientCodeByToken(session?.data?.tempToken);
         if (!code) {
           logout();

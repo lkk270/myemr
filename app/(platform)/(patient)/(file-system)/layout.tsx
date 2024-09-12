@@ -88,7 +88,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <main className="h-screen flex overflow-y-auto">
+    <main className="h-full flex overflow-y-auto">
       <Sidebar
         sumOfAllSuccessFilesSizes={sumOfAllSuccessFilesSizes}
         data={sortedFolders}

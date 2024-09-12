@@ -314,7 +314,8 @@ export function StickyScrollRevealDemo() {
               </div>
             </div>
           </div>
-          <div className="sm:pb-0 pb-28">
+          {/* sm:pb-0 pb-28 */}
+          <div className="">
             <Footer />
           </div>
         </main>

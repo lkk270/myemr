@@ -3,7 +3,8 @@
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { Navbar } from "../_components/navbar";
 import { useRef } from "react";
-import { Footer } from "../_components/footer";
+import dynamic from "next/dynamic";
+const Footer = dynamic(() => import("@/app/(landing)/_components/footer"), { ssr: false });
 
 const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef(null);

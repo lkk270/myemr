@@ -4,7 +4,6 @@ import Link from "next/link";
 // import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-import { MobileSidebar } from "./mobile-sidebar";
 // import { useScrollTop } from "@/hooks/use-scroll-top";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,9 @@ import { LogIn } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { AccessWithCodeButton } from "@/auth/components/auth/access-patient-with-code-button";
 import { LoginButton } from "@/auth/components/auth/login-button";
-import { useMediaQuery } from "usehooks-ts";
+import dynamic from "next/dynamic";
+const MobileSidebar = dynamic(() => import("./mobile-sidebar"), { ssr: false });
+
 import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 interface NavbarProps {
   scrolled: boolean;

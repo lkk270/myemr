@@ -3,8 +3,9 @@ import React from "react";
 import { StickyScroll } from "@/components/ui/framer-motion/sticky-scroll-reveal";
 import Image from "next/image";
 import { Navbar } from "./navbar";
-import { Footer } from "./footer";
+const Footer = dynamic(() => import("@/app/(landing)/_components/footer"), { ssr: false });
 import { Heading } from "./heading";
+import dynamic from "next/dynamic";
 
 // export const Heroes = () => {
 //   return (

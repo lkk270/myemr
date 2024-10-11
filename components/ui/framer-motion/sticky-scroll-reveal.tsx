@@ -1,13 +1,14 @@
 "use client";
 import React, { useRef } from "react";
+import dynamic from "next/dynamic";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Heading } from "@/app/(landing)/_components/heading";
 import { Navbar } from "@/app/(landing)/_components/navbar";
-import { Footer } from "@/app/(landing)/_components/footer";
 
-import { JoinDropdown } from "@/app/(landing)/_components/join-dropdown";
+// import { JoinDropdown } from "@/app/(landing)/_components/join-dropdown";
+const Footer = dynamic(() => import("@/app/(landing)/_components/footer"), { ssr: false });
 
 export const StickyScroll = ({
   content,

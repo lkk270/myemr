@@ -3,7 +3,7 @@ import { Logo } from "@/components/logo";
 import Link from "next/link";
 import Image from "next/image";
 
-export const Footer = () => {
+const Footer = () => {
   return (
     // pb-28 xs:pb-0
     <div className="flex flex-col w-full p-2 pt-20 xs:pt-0 sm:p-6 z-50 ">
@@ -56,3 +56,5 @@ export const Footer = () => {
 //   </Button>
 // </Link>
 // </div>
+
+export default Footer;

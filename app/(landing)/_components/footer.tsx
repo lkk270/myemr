@@ -5,7 +5,8 @@ import Image from "next/image";
 
 export const Footer = () => {
   return (
-    <div className="flex flex-col w-full p-2 pt-20 xs:pt-0 sm:p-6 z-50 pb-28 xs:pb-0">
+    // pb-28 xs:pb-0
+    <div className="flex flex-col w-full p-2 pt-20 xs:pt-0 sm:p-6 z-50 ">
       <div className="flex items-center w-full">
         <div className="xxs:flex hidden">
           <Logo />

@@ -2,7 +2,6 @@
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
-import { MobileSidebar } from "./mobile-sidebar";
 import { patientNavRoutes, tempPatientAccessNavRoutes, tempPatientUploadAccessNavRoutes } from "@/lib/constants";
 import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { usePathname } from "next/navigation";
@@ -10,6 +9,9 @@ import { UserButton } from "@/components/user-button";
 import Link from "next/link";
 import { useCurrentUserPermissions } from "@/auth/hooks/use-current-user-permissions";
 import { Notifications } from "@/components/notifications";
+import dynamic from "next/dynamic";
+const MobileSidebar = dynamic(() => import("./mobile-sidebar"), { ssr: false });
+
 // import { Notifications } from "@/components/notifications";
 
 interface NavbarProps {

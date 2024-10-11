@@ -8,7 +8,8 @@ import { AccessWithCodeButton } from "@/auth/components/auth/access-patient-with
 import { LoginButton } from "@/auth/components/auth/login-button";
 import Link from "next/link";
 import { JoinDropdown } from "./join-dropdown";
-export const MobileSidebar = () => {
+
+const MobileSidebar = () => {
   return (
     <Sheet>
       <SheetTrigger className="sm:hidden flex">
@@ -40,7 +41,7 @@ export const MobileSidebar = () => {
           </AccessWithCodeButton>
         </SheetClose>
         <SheetClose asChild>
-          <JoinDropdown triggerVariant="gooeyLeftGhostSecondary"/>
+          <JoinDropdown triggerVariant="gooeyLeftGhostSecondary" />
         </SheetClose>
         <SheetClose asChild>
           <Link href="/pricing">
@@ -54,3 +55,5 @@ export const MobileSidebar = () => {
     </Sheet>
   );
 };
+
+export default MobileSidebar;

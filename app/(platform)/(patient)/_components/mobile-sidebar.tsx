@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "./sidebar";
 import { Menu } from "lucide-react";
 
-export const MobileSidebar = () => {
+const MobileSidebar = () => {
   const triggerClassName = "mr-2 sm:hidden";
   return (
     <Sheet>
@@ -17,3 +17,5 @@ export const MobileSidebar = () => {
     </Sheet>
   );
 };
+
+export default MobileSidebar

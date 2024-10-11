@@ -2,9 +2,7 @@
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
-import { MobileSidebar } from "./mobile-sidebar";
 import { patientRoutesForProvider } from "@/lib/constants";
-import { useCurrentUser } from "@/auth/hooks/use-current-user";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@/components/user-button";
 import Link from "next/link";
@@ -18,6 +16,8 @@ import { OrganizationDropdown } from "../../../_components/organization-dropdown
 import { OrganizationWithRoleType } from "@/app/types";
 import { useMediaQuery } from "usehooks-ts";
 import { PatientMember } from "@prisma/client";
+import dynamic from "next/dynamic";
+const MobileSidebar = dynamic(() => import("./mobile-sidebar"), { ssr: false });
 
 interface NavbarProps {
   initialPatientMember: PatientMember;

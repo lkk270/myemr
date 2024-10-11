@@ -18,7 +18,7 @@ import { Heading } from "./heading";
 //         <div className="flex-1 max-w-full md:max-w-[65%] relative">
 //           <Image
 //             draggable={false}
-//             src="/dark-home.png"
+//             src="/dark-home.webp"
 //             layout="responsive"
 //             className="rounded-lg shadow-md shadow-secondary hidden dark:block"
 //             width={400}
@@ -27,7 +27,7 @@ import { Heading } from "./heading";
 //           />
 //           <Image
 //             draggable={false}
-//             src="/light-home.png"
+//             src="/light-home.webp"
 //             layout="responsive"
 //             className="dark:hidden rounded-lg shadow-md shadow-secondary"
 //             width={400}
@@ -44,7 +44,7 @@ import { Heading } from "./heading";
 //         <div className="flex-1 max-w-full md:max-w-[65%] relative">
 //           <Image
 //             draggable={false}
-//             src="/dark-files.png"
+//             src="/dark-files.webp"
 //             layout="responsive"
 //             className="rounded-lg shadow-md shadow-secondary hidden dark:block"
 //             width={400}
@@ -53,7 +53,7 @@ import { Heading } from "./heading";
 //           />
 //           <Image
 //             draggable={false}
-//             src="/light-files.png"
+//             src="/light-files.webp"
 //             layout="responsive"
 //             className="dark:hidden rounded-lg shadow-md shadow-secondary"
 //             width={400}
@@ -74,7 +74,7 @@ import { Heading } from "./heading";
 //         <div className="flex-1 max-w-full md:max-w-[65%] relative">
 //           <Image
 //             draggable={false}
-//             src="/dark-meds.png"
+//             src="/dark-meds.webp"
 //             layout="responsive"
 //             className="rounded-lg shadow-md shadow-secondary hidden dark:block"
 //             width={400}
@@ -83,7 +83,7 @@ import { Heading } from "./heading";
 //           />
 //           <Image
 //             draggable={false}
-//             src="/light-meds.png"
+//             src="/light-meds.webp"
 //             layout="responsive"
 //             className="dark:hidden rounded-lg shadow-md shadow-secondary"
 //             width={400}
@@ -140,17 +140,19 @@ const content = [
       <>
         <Image
           draggable={false}
-          src="/dark-home.png"
+          src="/dark-home.webp"
           layout="responsive"
           className="rounded-lg shadow-md shadow-secondary hidden dark:block"
           width={400}
           height={400}
+          loading="lazy"
           alt="Files"
         />
         <Image
           draggable={false}
-          src="/light-home.png"
+          src="/light-home.webp"
           layout="responsive"
+          loading="lazy"
           className="rounded-lg shadow-md shadow-secondary dark:hidden"
           width={400}
           height={400}
@@ -167,20 +169,22 @@ const content = [
       <>
         <Image
           draggable={false}
-          src="/dark-files.png"
+          src="/dark-files.webp"
           layout="responsive"
           className="rounded-lg shadow-md shadow-secondary hidden dark:block"
           width={400}
           height={400}
+          loading="lazy"
           alt="Files"
         />
         <Image
           draggable={false}
-          src="/light-files.png"
+          src="/light-files.webp"
           layout="responsive"
           className="rounded-lg shadow-md shadow-secondary dark:hidden"
           width={400}
           height={400}
+          loading="lazy"
           alt="Files"
         />
       </>
@@ -196,20 +200,22 @@ const content = [
       <>
         <Image
           draggable={false}
-          src="/dark-meds.png"
+          src="/dark-meds.webp"
           layout="responsive"
           className="rounded-lg shadow-md shadow-secondary hidden dark:block"
           width={400}
           height={400}
+          loading="lazy"
           alt="Files"
         />
         <Image
           draggable={false}
-          src="/light-meds.png"
+          src="/light-meds.webp"
           layout="responsive"
           className="dark:hidden rounded-lg shadow-md shadow-secondary"
           width={400}
           height={400}
+          loading="lazy"
           alt="Files"
         />
       </>
@@ -247,21 +253,23 @@ export function StickyScrollRevealDemo() {
                   <div className="flex-1 max-w-full relative">
                     <Image
                       draggable={false}
-                      src="/dark-home.png"
+                      src="/dark-home.webp"
                       layout="responsive"
                       className="rounded-lg shadow-md shadow-secondary hidden dark:block"
                       width={400}
                       height={400}
+                      loading="lazy"
                       alt="Files"
                     />
                     <Image
                       draggable={false}
-                      src="/light-home.png"
+                      src="/light-home.webp"
                       layout="responsive"
                       className="dark:hidden rounded-lg shadow-md shadow-secondary"
                       width={400}
                       height={400}
                       alt="Files"
+                      loading="lazy"
                     />
                   </div>
                 </div>
@@ -270,21 +278,23 @@ export function StickyScrollRevealDemo() {
                   <div className="flex-1 max-w-full relative">
                     <Image
                       draggable={false}
-                      src="/dark-files.png"
+                      src="/dark-files.webp"
                       layout="responsive"
                       className="rounded-lg shadow-md shadow-secondary hidden dark:block"
                       width={400}
                       height={400}
                       alt="Files"
+                      loading="lazy"
                     />
                     <Image
                       draggable={false}
-                      src="/light-files.png"
+                      src="/light-files.webp"
                       layout="responsive"
                       className="dark:hidden rounded-lg shadow-md shadow-secondary"
                       width={400}
                       height={400}
                       alt="Files"
+                      loading="lazy"
                     />
                   </div>
                 </div>
@@ -293,21 +303,23 @@ export function StickyScrollRevealDemo() {
                   <div className="flex-1 max-w-full relative">
                     <Image
                       draggable={false}
-                      src="/dark-meds.png"
+                      src="/dark-meds.webp"
                       layout="responsive"
                       className="rounded-lg shadow-md shadow-secondary mb-2 hidden dark:block"
                       width={400}
                       height={400}
                       alt="Files"
+                      loading="lazy"
                     />
                     <Image
                       draggable={false}
-                      src="/light-meds.png"
+                      src="/light-meds.webp"
                       layout="responsive"
                       className="dark:hidden rounded-lg shadow-md shadow-secondary mb-2"
                       width={400}
                       height={400}
                       alt="Files"
+                      loading="lazy"
                     />
                   </div>
                 </div>

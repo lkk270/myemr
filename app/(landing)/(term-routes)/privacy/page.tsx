@@ -1,6 +1,7 @@
 import { TermsParagraphType } from "@/app/types";
-import { Footer } from "../../_components/footer";
 import { TermsParagraph } from "@/components/terms-paragraph";
+import dynamic from "next/dynamic";
+const Footer = dynamic(() => import('../../_components/footer'), { ssr: false });
 
 const paragraphs: TermsParagraphType[] = [
   {

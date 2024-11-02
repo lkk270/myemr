@@ -15,3 +15,6 @@ coverage/
 # Test reports
 test-report/
 reports/ 
+
+.github/
+vercel.json

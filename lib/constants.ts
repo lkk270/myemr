@@ -1,4 +1,4 @@
-import { SubscriptionTierType } from "@/app/types";
+// import { SubscriptionTierType } from "@/app/types";
 import { UserRole } from "@prisma/client";
 import { Pill, Contact, Stethoscope, ScrollText, FolderClosed, Home, Settings, Upload } from "lucide-react";
 

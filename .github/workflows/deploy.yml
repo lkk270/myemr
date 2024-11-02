@@ -28,7 +28,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Run Tests
-        run: jest --verbose --forceExit
+        run: npx jest --verbose --forceExit
 
   deploy:
     needs: test # Only runs if "test" job succeeds

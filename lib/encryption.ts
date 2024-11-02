@@ -207,7 +207,7 @@ export function encryptKey(dataToEncrypt: string, keyType: EncryptionKeyType): s
     encrypted = Buffer.concat([encrypted, cipher.final()]);
     return iv.toString("hex") + ":" + encrypted.toString("hex");
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     throw error;
   }
 }

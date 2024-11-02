@@ -38,21 +38,22 @@ const PatientMedications = async () => {
   if (!patientMedications) {
     return <div>something went wrong</div>;
   }
-  patientMedications.medications.forEach((medication) => {
-    medication.dosageHistory.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA;
-    });
-  });
+
+  const sortedMedications = patientMedications.medications.map(medication => ({
+    ...medication,
+    dosageHistory: [...medication.dosageHistory].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  }));
 
   let decryptedPatientMedications;
 
   try {
     const decryptedSymmetricKey = decryptKey(patientMedications.symmetricKey, "patientSymmetricKey");
-    decryptedPatientMedications = decryptMultiplePatientFields(patientMedications.medications, decryptedSymmetricKey);
+    decryptedPatientMedications = decryptMultiplePatientFields(sortedMedications, decryptedSymmetricKey);
   } catch (e) {
-    return <div>something went wrong</div>;
+    console.error("Decryption error:", e);
+    return <div className="p-4 text-red-500">Error decrypting medications data</div>;
   }
 
   return (

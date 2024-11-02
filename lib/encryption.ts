@@ -191,7 +191,7 @@ function getKeySecret(keyType: EncryptionKeyType): string {
   const envVar = envMapping[keyType];
   const secret = process.env[envVar];
 
-  if (!secret) {
+  if (!secret || secret === "undefined") {
     throw new Error(`Secret not found for key type: ${keyType}`);
   }
 
@@ -208,7 +208,7 @@ export function encryptKey(dataToEncrypt: string, keyType: EncryptionKeyType): s
     return iv.toString("hex") + ":" + encrypted.toString("hex");
   } catch (error) {
     console.error(error);
-    return "Encryption failed";
+    throw error;
   }
 }
 

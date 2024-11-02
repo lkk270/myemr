@@ -1,0 +1,17 @@
+# Jest related
+__tests__/
+__mocks__/
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+jest.config.js
+jest.setup.js
+coverage/
+
+# Test snapshots
+**/*.snap
+
+# Test reports
+test-report/
+reports/ 

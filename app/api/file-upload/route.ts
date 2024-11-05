@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       patientMemberId,
     });
 
-    if (!accessibleRootFolderIdsResult) {
+    if (!accessibleRootFolderIdsResult || !accessibleRootFolderIdsResult.patientUserId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     const { accessibleRootFolderIds, patientUserId } = accessibleRootFolderIdsResult;

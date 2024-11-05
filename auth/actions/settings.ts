@@ -26,7 +26,7 @@ function filterFields(originalObject: any) {
 export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   const user = await currentUser();
 
-  if (!user) {
+  if (!user || !user.id) {
     return { error: "Unauthorized" };
   }
   const dbUser = await getUserById(user.id);

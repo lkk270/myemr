@@ -75,7 +75,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
   }
 
   try {
-    updateRecordViewActivity(user.id, fileId, true);
+    updateRecordViewActivity(userId, fileId, true);
   } catch (error) {
     return <SomethingNotFound title={"Something went wrong"} href={redirectUrl} />;
   }

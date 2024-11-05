@@ -134,7 +134,7 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userIds = { patient: patientUserId, provider: currentUserPermissions.isProvider ? user.id : null };
+    const userIds = { patient: patientUserId!, provider: currentUserPermissions.isProvider ? user.id! : null };
 
     if (updateType === "renameNode") {
       const isFile = body.isFile;
@@ -189,7 +189,7 @@ export async function POST(req: Request) {
       }
     } else if (updateType === "restoreRootFolder") {
       const selectedId = body.selectedId;
-      await restoreRootFolder(selectedId, patientUserId);
+      await restoreRootFolder(selectedId, patientUserId!);
     } else if (updateType === "deleteNode") {
       const selectedIds = body.selectedIds;
       // console.log("selectedIds");
@@ -236,8 +236,8 @@ export async function POST(req: Request) {
         : !currentUserPermissions.hasAccount
         ? `Temporary Access User`
         : `Me`;
-      const addedBy = { id: addedByUserId, name: addedByName };
-      const patientObj = { profileId: patient.id, userId: patientUserId };
+      const addedBy = { id: addedByUserId!, name: addedByName };
+      const patientObj = { profileId: patient.id, userId: patientUserId! };
       const userType: "provider" | "accessCode" | null = currentUserPermissions.isProvider
         ? "provider"
         : !currentUserPermissions.hasAccount
@@ -247,7 +247,12 @@ export async function POST(req: Request) {
       const providerUserId = currentUserPermissions.isProvider ? user.id : "";
       const updateAccessibleRootIdsObj =
         !!userType && !!idToUse
-          ? { userType: userType, providerUserId, id: idToUse, accessibleRootFolders: accessibleRootFolderIdsString }
+          ? {
+              userType: userType,
+              providerUserId: providerUserId!,
+              id: idToUse,
+              accessibleRootFolders: accessibleRootFolderIdsString,
+            }
           : null;
       const folderId = await addRootNode(body.folderName, addedBy, patientObj, updateAccessibleRootIdsObj);
 
@@ -274,10 +279,10 @@ export async function POST(req: Request) {
         ? `Temporary Access User`
         : `Me`;
 
-      const addedBy = { id: addedByUserId, name: addedByName };
+      const addedBy = { id: addedByUserId!, name: addedByName };
       const folderObj = { name: body.folderName, parentId: body.parentId };
-      const patientObj = { profileId: patient.id, userId: patientUserId };
-      const providerUserId = currentUserPermissions.isProvider ? user.id : null;
+      const patientObj = { profileId: patient.id, userId: patientUserId! };
+      const providerUserId = currentUserPermissions.isProvider ? user.id! : null;
       const folder = await addSubFolder(folderObj, addedBy, patientObj, providerUserId, accessibleRootFolderIds);
 
       if (!currentUserPermissions.isPatient) {

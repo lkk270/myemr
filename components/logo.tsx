@@ -38,7 +38,6 @@ export const Logo = ({ textColor, showText = true, showLgTextSize = true }: Logo
           height={size}
           width={size}
           alt="Logo"
-          loading="lazy"
           draggable={false}
         />
         {showText && (

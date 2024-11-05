@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin", "darwin-arm64"]
 }
 
 datasource db {
@@ -250,20 +251,20 @@ model RecordViewActivity {
 }
 
 model Folder {
-  id            String   @id @default(cuid())
-  name          String   @db.VarChar(70)
-  path          String   @db.Text
-  namePath      String   @db.Text
-  isFile        Boolean  @default(false)
-  isRoot        Boolean  @default(false)
+  id            String  @id @default(cuid())
+  name          String  @db.VarChar(70)
+  path          String  @db.Text
+  namePath      String  @db.Text
+  isFile        Boolean @default(false)
+  isRoot        Boolean @default(false)
   addedByUserId String?
-  addedByName   String   @default("") @db.VarChar(70)
+  addedByName   String  @default("") @db.VarChar(70)
   // Relations
   parentId      String?
   //  parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  parent        Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  subFolders    Folder[] @relation("ParentFolder")
+  parent     Folder?  @relation("ParentFolder", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  subFolders Folder[] @relation("ParentFolder")
 
   files              File[]
   recordViewActivity RecordViewActivity[]
@@ -304,19 +305,19 @@ model InsuranceFile {
 }
 
 model File {
-  id               String     @id @default(cuid())
-  name             String     @db.Text
-  isFile           Boolean    @default(true)
-  path             String     @db.Text
-  namePath         String     @db.Text
-  parentId         String
-  uploadedByUserId String?
-  uploadedByName   String?    @db.Text
-  type             String?
-  size             BigInt
-  status           FileStatus @default(NOT_UPLOADED)
-  restricted       Boolean    @default(false)
-  folder           Folder     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  id                 String               @id @default(cuid())
+  name               String               @db.Text
+  isFile             Boolean              @default(true)
+  path               String               @db.Text
+  namePath           String               @db.Text
+  parentId           String
+  uploadedByUserId   String?
+  uploadedByName     String?              @db.Text
+  type               String?
+  size               BigInt
+  status             FileStatus           @default(NOT_UPLOADED)
+  restricted         Boolean              @default(false)
+  folder             Folder               @relation(fields: [parentId], references: [id], onDelete: Cascade)
   // folder             Folder               @relation(fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   recordViewActivity RecordViewActivity[]
 

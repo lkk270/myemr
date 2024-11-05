@@ -18,15 +18,16 @@ import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
 
-  if (!session) {
+  const userId = session?.user?.id;
+  if (!userId) {
     return redirect("/");
   }
-  const user = session?.user;
+  const user = session.user;
 
   let allFolders: any[] | "Unauthorized" = [];
 
   try {
-    allFolders = await fetchAllFoldersForPatient(null, user.id, null);
+    allFolders = await fetchAllFoldersForPatient(null, userId, null);
     if (allFolders === "Unauthorized") {
       // console.log("IN 31");
       return <SomethingNotFound title={"Unauthorized"} href="tpa-home" />;

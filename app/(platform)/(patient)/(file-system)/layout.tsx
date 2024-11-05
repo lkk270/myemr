@@ -28,12 +28,14 @@ import { SomethingNotFound } from "@/app/(public-routes)/upload-records/[token]/
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
 
-  if (!session) {
+  const userId = session?.user?.id;
+  if (!userId) {
     return redirect("/");
   }
-  const user = session?.user;
+  const user = session.user;
 
-  const allFolders = await fetchAllFoldersForPatient(null, user.id, null);
+  const allFolders = await fetchAllFoldersForPatient(null, userId, null);
+
   if (allFolders === "Unauthorized") {
     return <SomethingNotFound title={"Unauthorized"} href="tpa-home" />;
   }
@@ -66,7 +68,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
         isRoot: true,
         addedByUserId: user.id,
         addedByName: `${user.name}`,
-        userId: user.id,
+        userId: userId,
         patientProfileId: patient.id,
       },
     });

@@ -26,7 +26,7 @@ export const {
   auth,
   signIn,
   signOut,
-  // update
+  update,
 } = NextAuth({
   pages: {
     signIn: "/auth/base-login", //something goes wrong it redirects to this page

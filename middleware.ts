@@ -74,7 +74,7 @@ export default auth(async (req) => {
   // console.log(isLoggedIn);
 
   if (isApiAuthRoute) {
-    return null;
+    return;
   }
 
   // if (!isPublicRoute) {
@@ -120,7 +120,7 @@ export default auth(async (req) => {
     if (isLoggedIn) {
       return Response.redirect(new URL(redirectUrl, nextUrl));
     }
-    return null;
+    return;
   }
 
   if (!isLoggedIn && !isPublicRoute && !isTermRoute) {
@@ -198,7 +198,7 @@ export default auth(async (req) => {
   //   return Response.redirect(new URL(PROVIDER_DEFAULT_LOGIN_REDIRECT, nextUrl));
   // }
 
-  return null;
+  return;
 });
 
 // Optionally, don't invoke Middleware on some paths

@@ -1,8 +1,8 @@
-name: Deploy to Production on Vercel
+name: Deploy to Staging on Vercel
 
 on:
   push:
-    branches: [main]
+    branches: [staging]
 
 jobs:
   deploy:

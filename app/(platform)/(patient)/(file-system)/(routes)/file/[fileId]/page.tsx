@@ -42,7 +42,7 @@ const FilePagePage = async ({ params }: FilePagePageProps) => {
     return redirect("/files");
   }
   try {
-    await updateRecordViewActivity(user.id, fileId, true);
+    await updateRecordViewActivity(userId, fileId, true);
   } catch (error) {
     return null;
   }

@@ -8,10 +8,10 @@ import { extractCurrentUserPermissions } from "@/auth/hooks/use-current-user-per
 import { isValidNodeName, extractRootFolderIds, removeTrailingComma, isNodeAccessible } from "../utils";
 import { ExtendedUser } from "@/next-auth";
 import { currentUserPermissionsType } from "@/app/types";
-import { createPatientNotification } from "./notifications";
+// import { createPatientNotification } from "./notifications";
 import { currentUser } from "@/auth/lib/auth";
 import { getPatientMember } from "@/auth/actions/patient-member";
-import { pl } from "date-fns/locale";
+// import { pl } from "date-fns/locale";
 
 type PrismaDeleteFileObject = {
   id: string;
@@ -33,6 +33,7 @@ export async function validateUserAndGetAccessibleRootFolders(
     patientMemberId?: string | null;
   } | null = null,
 ) {
+  // Validate user permissions and return accessible root folder IDs
   let user: ExtendedUser | null = userParam && userParam.user;
   let currentUserPermissions = userParam && userParam.currentUserPermissions;
   if (!userParam) {
@@ -78,6 +79,7 @@ export async function renameNode(
   userIds: { patient: string; provider: string | null },
   accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
 ) {
+  // Rename a file or folder and update its descendants
   // const user = await currentUser();
   // if (!user) return { error: "Unauthorized", status: 400 };
   // const currentUserPermissions = extractCurrentUserPermissions(user);
@@ -98,6 +100,7 @@ export async function renameNode(
     oldParentNamePath: string,
     newParentNamePath: string,
   ) {
+    // Update the name paths of all descendants for a renamed folder
     // Update subfolders
     const subFolders = await prisma.folder.findMany({
       where: { parentId: parentId },
@@ -239,6 +242,7 @@ export async function renameNode(
 }
 
 export async function updateRecordViewActivity(userId: string, nodeId: string, isFile: boolean) {
+  // Update or create a record view activity for a user
   // console.log(userId);
   const whereClause = isFile ? { userId: userId, fileId: nodeId } : { userId: userId, folderId: nodeId };
 
@@ -411,6 +415,7 @@ export async function moveNodes(
     //     \`namePath\` = CONCAT(${newNamePath}, SUBSTRING(\`namePath\`, CHAR_LENGTH(\`namePath\`) - LOCATE('/', REVERSE(\`namePath\`)) + 2))
     // WHERE \`id\` IN (${Prisma.join(fileIds)})`;
     //////////////////////////////////////////////////////////////
+    //Raw SQL query to update a file's attributes.
     await prismadb.$executeRaw`UPDATE "File"
       SET "parentId" = ${targetNodeId}, 
           "path" = ${newPath}, 
@@ -447,6 +452,7 @@ async function batchUpdateDescendants(
   //   WHERE \`path\` LIKE ${`${originalPath}${originalNodeId}/` + "%"}
   // `;
   //////////////////////////////////////////////////////////////
+  //Two raw SQL queries to update a folder's attributes and its children.
   await prisma.$executeRaw`
     UPDATE "Folder"
     SET "namePath" = REPLACE("namePath", ${originalNamePath}, ${newParentNamePath}),
@@ -514,6 +520,7 @@ export async function deleteFilesAndFolders(
   selectedFolderIds: string[],
   forEmptyTrash: boolean,
 ) {
+  // Delete selected files and folders, handling transactions
   // Start the transaction
   const transaction = await prismadb.$transaction(async (prismaTransaction) => {
     // Delete files
@@ -557,6 +564,7 @@ async function deleteSubFolders(prismaTransaction: any, parentId: string) {
 // await deleteFilesAndFolders(selectedFileIds:, selectedFolderIds, forEmptyTrash);
 
 export async function getAllFilesToDeleteForDeleteAccount(patientProfileId: string) {
+  // Retrieve all files to delete for a specific patient account
   const allFilesToDelete = await prismadb.file.findMany({
     where: {
       patientProfileId: patientProfileId,
@@ -576,6 +584,7 @@ export async function getAllFilesToDeleteForDeleteAccount(patientProfileId: stri
 }
 
 export async function getAllObjectsToDelete(selectedIds: string[], patientProfileId: string) {
+  // Get all objects to delete based on selected IDs and patient profile
   let allFilesToDelete: PrismaDeleteFileObject[] = [];
   const allFilesToDeleteForFileIds = await prismadb.file.findMany({
     where: {
@@ -622,6 +631,7 @@ export async function deleteS3Objects(
   prismaFileObjects: PrismaDeleteFileObject[],
   patientProfileId: string,
 ) {
+  // Delete specified objects from S3 and handle failures
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectsCommand({
     Bucket: process.env.AWS_BUCKET_NAME as string,
@@ -641,6 +651,7 @@ export async function deleteS3Objects(
 }
 
 const createDeadFiles = async (prismaFileObjects: PrismaDeleteFileObject[], patientProfileId: string) => {
+  // Create records for files that failed to delete from S3
   try {
     const updatedArray = prismaFileObjects.map((file) => ({
       awsKey: `${patientProfileId}/${file.id}`,
@@ -697,6 +708,7 @@ export const unrestrictFiles = async (patient: {
   sumOfUnrestrictedSuccessFilesSizes: bigint;
   plan: Plan;
 }) => {
+  // Unrestrict files for a patient based on storage limits
   let filesToUnrestrict: FileToUnrestrict[] = [];
   const restrictedFiles = await prismadb.file.findMany({
     where: {
@@ -733,9 +745,9 @@ export const unrestrictFiles = async (patient: {
 };
 
 const restrictFilesTransaction = async (filesToRestrict: FileToUnrestrict[], patientProfileId: string) => {
-  const totalSizeOfFilesToRestrict = filesToRestrict.reduce((accumulator, currentValue) => {
-    return accumulator + currentValue.size;
-  }, 0n);
+  // const totalSizeOfFilesToRestrict = filesToRestrict.reduce((accumulator, currentValue) => {
+  //   return accumulator + currentValue.size;
+  // }, 0n);
 
   const filesToRestrictIds = filesToRestrict.map((file) => file.id);
 
@@ -752,6 +764,7 @@ const restrictFilesTransaction = async (filesToRestrict: FileToUnrestrict[], pat
 };
 
 export const restrictFiles = async (patient: { id: string; sumOfAllSuccessFilesSizes: bigint; plan: Plan }) => {
+  // Restrict files for a patient if they exceed storage limits
   let filesToRestrict = [];
   const unrestrictedFiles = await prismadb.file.findMany({
     where: {
@@ -802,6 +815,7 @@ export const addRootNode = async (
     accessibleRootFolders: string;
   } | null,
 ) => {
+  // Add a new root folder for a patient
   if (!fieldCategories.some((item) => item.value === folderName)) {
     throw new Error("Root folder does not exist in fieldCategories!");
   }
@@ -897,6 +911,7 @@ export const addSubFolder = async (
   providerUserId: string | null,
   accessibleRootFolderIds: string[] | "ALL_EXTERNAL" | "ALL",
 ) => {
+  // Add a new subfolder under a specified parent folder
   // const user = await currentUser();
   // if (!user) return { error: "Unauthorized", status: 400 };
   // const currentUserPermissions = extractCurrentUserPermissions(user);
@@ -990,6 +1005,7 @@ export async function fetchAllFoldersForPatient(
   accessibleRootFolderIdsParam: string[] | "ALL" | "ALL_EXTERNAL" | null = null,
   userParam: { user: ExtendedUser | null; currentUserPermissions: currentUserPermissionsType } | null = null,
 ) {
+  // Fetch all folders for a patient, including their files
   let user: ExtendedUser | null = userParam && userParam.user;
   let currentUserPermissions = userParam && userParam.currentUserPermissions;
   if (!userParam) {
@@ -1101,6 +1117,7 @@ export async function fetchAllFoldersForPatient(
 }
 
 export async function fetchAllRootFolders(patientUserId: string | null = null) {
+  // Fetch all root folders for a patient, excluding trash
   // Fetch folders and their files
   const user = await currentUser();
   if (!user) return { error: "Unauthorized" };
@@ -1170,6 +1187,7 @@ export async function fetchAllRootFolders(patientUserId: string | null = null) {
 // });
 
 export const deleteS3ProfilePicture = async (key: string) => {
+  // Delete a user's profile picture from S3
   const client = new S3Client({ region: process.env.AWS_REGION });
   const command = new DeleteObjectCommand({
     Bucket: process.env.AWS_PROFILE_PICS_BUCKET_NAME as string,

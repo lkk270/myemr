@@ -261,7 +261,7 @@ export const PatientManageAccountModal = () => {
             </div>
           </div>
           <div className="text-center items-center text-sm font-semibold pb-2 text-muted-foreground">
-            myemr © 2024 | made with ❤️
+            myemr © 2025 | made with ❤️
           </div>
         </div>
       </DialogContent>

@@ -49,7 +49,7 @@ export const MagicLinkEmail = ({ magicLink, type }: MagicLinkEmailProps) => (
               margin: "20px 0",
             }}
           /> */}
-        <Text style={footer}>myemr © 2024</Text>
+        <Text style={footer}>myemr © 2025</Text>
         <Text style={footer}>All rights reserved</Text>
       </Container>
     </Body>

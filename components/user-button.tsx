@@ -74,7 +74,7 @@ export const UserButton = () => {
         <Separator className="mt-1" />
         <div className="py-2 flex flex-row justify-between text-xs font-semibold text-[#99a1f7]">
           <div role={"button"}>
-            <span>myemr © 2024</span>
+            <span>myemr © 2025</span>
           </div>
           <div className="flex flex-row gap-x-2">
             <div role={"button"}>

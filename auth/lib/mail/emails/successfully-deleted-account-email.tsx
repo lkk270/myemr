@@ -57,7 +57,7 @@ export const SuccessfullyDeletedAccountEmail = ({ email, accountType }: Successf
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Section className="text-[#bdbdbd] text-[12px]">
               <Link href="https://myemr.io" target="_blank" rel="noopener noreferrer" className="underline">
-                myemr © 2024
+                myemr © 2025
               </Link>
               <span>{" | All rights reserved"}</span>
             </Section>

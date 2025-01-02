@@ -58,7 +58,7 @@ export const InvitedToOrganizationEmailNoAccount = ({
               Terms
             </Link>
             <Text style={footerText}>
-              ©2024 MyEmr <br />
+              ©2025 MyEmr <br />
               <br />
               All rights reserved.
             </Text>
